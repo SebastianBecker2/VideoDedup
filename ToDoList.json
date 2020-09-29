@@ -1,0 +1,10 @@
+[
+  {
+    "Done": false,
+    "Text": "Don't load all thumbnails beforehand. Load them on demand. So that 2 completely different thumbnails will avoid loading the others."
+  },
+  {
+    "Done": false,
+    "Text": "Cache MediaInfo (And Thumbnails?)"
+  }
+]
