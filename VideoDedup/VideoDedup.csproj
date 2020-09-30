@@ -79,6 +79,7 @@
     <Compile Include="FilePreview\FilePreview.Designer.cs">
       <DependentUpon>FilePreview.cs</DependentUpon>
     </Compile>
+    <Compile Include="FilePreview\ThumbnailLoadedEventArgs.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

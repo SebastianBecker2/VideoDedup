@@ -110,7 +110,7 @@ namespace VideoDedup
             return files;
         }
 
-        private void CacheVideoFiles(IEnumerable<VideoFile> videoFiles, string cache_path)
+        private void SaveVideoFilesCache(IEnumerable<VideoFile> videoFiles, string cache_path)
         {
             var timer = Stopwatch.StartNew();
             File.WriteAllText(cache_path, JsonConvert.SerializeObject(videoFiles, Formatting.Indented));
@@ -139,23 +139,32 @@ namespace VideoDedup
                 cached_files = new HashSet<VideoFile>();
             }
 
+            // Get all video files in source path.
             var found_files = GetAllAccessibleFilesIn(sourcePath, ExcludedDirectories)
                 .Where(f => VideoFileEndings.Contains(Path.GetExtension(f).ToLower()))
                 .Select(f => new VideoFile(f));
 
+            // Basically overwrite the found files with cached files
+            // and make sure we don't take cached files that don't exist
+            // anymore.
             cached_files.UnionWith(found_files);
+            cached_files.RemoveWhere(f => !found_files.Contains(f));
 
+            // Output damaged files for which we can't read the MediaInfo.
             foreach (var invalid_file in cached_files
                 .Where(f => f.Duration == new TimeSpan()))
             {
                 Debug.Print($"Invalid file: {invalid_file.FilePath}");
             }
 
+            // Removed files that are damaged and don't have valid MediaInfo
+            // and sort the remaining files.
             var video_files = cached_files
                 .Where(f => f.Duration != new TimeSpan())
                 .OrderBy(f => f.Duration);
 
-            CacheVideoFiles(video_files, CacheFilePath);
+            // Save the data we have gathered.
+            SaveVideoFilesCache(video_files, CacheFilePath);
             timer.Stop();
 
             Debug.Print($"Found {video_files.Count()} video files in {timer.ElapsedMilliseconds} ms");
@@ -179,13 +188,13 @@ namespace VideoDedup
 
                 var file = videoFileList[index];
 
-                var statusInfo = $"Comparing {index + 1}/{videoFileList.Count()}" +
+                Func<string> createStatusInfo = ()=> $"Comparing {index + 1}/{videoFileList.Count()}" +
                     $"{Environment.NewLine}Duplicates found: {duplicates.Count()}" +
                     $"{Environment.NewLine}{file.FilePath}" +
                     $"{Environment.NewLine}Duration: {file.Duration}";
                 this.Invoke(new Action(() =>
                 {
-                    LblStatusInfo.Text = statusInfo;
+                    LblStatusInfo.Text = createStatusInfo();
                     progressBar1.Style = ProgressBarStyle.Continuous;
                     progressBar1.Value = index + 1;
                 }));
@@ -201,7 +210,7 @@ namespace VideoDedup
 
                     this.Invoke(new Action(() =>
                     {
-                        LblStatusInfo.Text = statusInfo + $"{Environment.NewLine}{next_video.FilePath}";
+                        LblStatusInfo.Text = createStatusInfo() + $"{Environment.NewLine}{next_video.FilePath}";
                     }));
 
                     if (!file.IsDurationEqual(next_video))
@@ -282,36 +291,24 @@ namespace VideoDedup
                     BtnCancel.Enabled = true;
                 }));
 
-                token.ThrowIfCancellationRequested();
-
                 duplicates = FindDuplicates(video_files, token);
-
-                token.ThrowIfCancellationRequested();
 
                 this.Invoke(new Action(() =>
                 {
                     LblStatusInfo.Text = $"Found {duplicates.Count()} duplicates";
                     progressBar1.Style = ProgressBarStyle.Continuous;
                     progressBar1.Value = 0;
-                    ResolveDuplicates(duplicates);
                     BtnDedup.Enabled = true;
                     BtnCancel.Enabled = false;
                 }));
-            }, token)
-                .ContinueWith(t =>
-            {
                 this.Invoke(new Action(() =>
                 {
-                    progressBar1.Style = ProgressBarStyle.Continuous;
-                    progressBar1.Value = 0;
                     if (duplicates != null)
                     {
                         ResolveDuplicates(duplicates);
                     }
-                    BtnDedup.Enabled = true;
-                    BtnCancel.Enabled = false;
                 }));
-            }, TaskContinuationOptions.OnlyOnCanceled);
+            }, token);
         }
 
         private void BtnCancel_Click(object sender, EventArgs e)

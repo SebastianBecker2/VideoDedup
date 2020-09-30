@@ -6,5 +6,13 @@
   {
     "Done": true,
     "Text": "Cache MediaInfo (And Thumbnails?)"
+  },
+  {
+    "Done": true,
+    "Text": "Cache can contain more files than actually exist"
+  },
+  {
+    "Done": true,
+    "Text": "Load thumbnails in comparison dialog lazy"
   }
 ]
