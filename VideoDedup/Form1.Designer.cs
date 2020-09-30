@@ -131,7 +131,7 @@
             this.Controls.Add(this.BtnDedup);
             this.Controls.Add(this.BtnToDoManager);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "VideoFileDedup";
             this.ResumeLayout(false);
             this.PerformLayout();
 

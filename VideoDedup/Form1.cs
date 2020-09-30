@@ -154,7 +154,11 @@ namespace VideoDedup
             var timer = Stopwatch.StartNew();
             for (int index = 0; index < videoFileList.Count - 1; index++)
             {
-                cancelToken.ThrowIfCancellationRequested();
+                if (cancelToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
                 var file = videoFileList[index];
 
                 var statusInfo = $"Comparing {index + 1}/{videoFileList.Count()}" +
@@ -170,7 +174,11 @@ namespace VideoDedup
 
                 for (int next_index = index + 1; next_index < videoFileList.Count; next_index++)
                 {
-                    cancelToken.ThrowIfCancellationRequested();
+                    if (cancelToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
                     var next_video = videoFileList[next_index];
 
                     this.Invoke(new Action(() =>
@@ -233,9 +241,9 @@ namespace VideoDedup
             }
             CancellationTokenSource = new CancellationTokenSource();
 
-            BtnDedup.Enabled = false;
-
             var token = CancellationTokenSource.Token;
+            IEnumerable<Tuple<VideoFile, VideoFile>> duplicates = null;
+            BtnDedup.Enabled = false;
 
             Task.Run(() =>
             {
@@ -258,7 +266,9 @@ namespace VideoDedup
 
                 token.ThrowIfCancellationRequested();
 
-                var duplicates = FindDuplicates(video_files, token);
+                duplicates = FindDuplicates(video_files, token);
+
+                token.ThrowIfCancellationRequested();
 
                 this.Invoke(new Action(() =>
                 {
@@ -276,6 +286,10 @@ namespace VideoDedup
                 {
                     progressBar1.Style = ProgressBarStyle.Continuous;
                     progressBar1.Value = 0;
+                    if (duplicates != null)
+                    {
+                        ResolveDuplicates(duplicates);
+                    }
                     BtnDedup.Enabled = true;
                     BtnCancel.Enabled = false;
                 }));
