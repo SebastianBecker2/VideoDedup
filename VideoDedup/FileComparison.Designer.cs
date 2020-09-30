@@ -29,13 +29,13 @@
         private void InitializeComponent()
         {
             this.SplitterContainer = new System.Windows.Forms.SplitContainer();
-            this.FpvLeft = new VideoDedup.FilePreview.FilePreview();
+            this.BtnShowLeft = new System.Windows.Forms.Button();
             this.btnDeleteLeft = new System.Windows.Forms.Button();
             this.BtnShowRight = new System.Windows.Forms.Button();
             this.btnDeleteRight = new System.Windows.Forms.Button();
-            this.FpvRight = new VideoDedup.FilePreview.FilePreview();
             this.btnCancel = new System.Windows.Forms.Button();
-            this.BtnShowLeft = new System.Windows.Forms.Button();
+            this.FpvLeft = new VideoDedup.FilePreview.FilePreview();
+            this.FpvRight = new VideoDedup.FilePreview.FilePreview();
             ((System.ComponentModel.ISupportInitialize)(this.SplitterContainer)).BeginInit();
             this.SplitterContainer.Panel1.SuspendLayout();
             this.SplitterContainer.Panel2.SuspendLayout();
@@ -66,17 +66,16 @@
             this.SplitterContainer.SplitterWidth = 6;
             this.SplitterContainer.TabIndex = 2;
             // 
-            // FpvLeft
+            // BtnShowLeft
             // 
-            this.FpvLeft.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.FpvLeft.HighlightColor = System.Drawing.SystemColors.Control;
-            this.FpvLeft.Location = new System.Drawing.Point(0, 0);
-            this.FpvLeft.Name = "FpvLeft";
-            this.FpvLeft.Size = new System.Drawing.Size(664, 544);
-            this.FpvLeft.TabIndex = 0;
-            this.FpvLeft.VideoFile = null;
+            this.BtnShowLeft.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnShowLeft.Location = new System.Drawing.Point(480, 550);
+            this.BtnShowLeft.Name = "BtnShowLeft";
+            this.BtnShowLeft.Size = new System.Drawing.Size(97, 23);
+            this.BtnShowLeft.TabIndex = 21;
+            this.BtnShowLeft.Text = "Show in Explorer";
+            this.BtnShowLeft.UseVisualStyleBackColor = true;
+            this.BtnShowLeft.Click += new System.EventHandler(this.BtnShowLeft_Click);
             // 
             // btnDeleteLeft
             // 
@@ -93,7 +92,6 @@
             // BtnShowRight
             // 
             this.BtnShowRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.BtnShowRight.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.BtnShowRight.Location = new System.Drawing.Point(82, 550);
             this.BtnShowRight.Name = "BtnShowRight";
             this.BtnShowRight.Size = new System.Drawing.Size(97, 23);
@@ -114,18 +112,6 @@
             this.btnDeleteRight.UseVisualStyleBackColor = true;
             this.btnDeleteRight.Click += new System.EventHandler(this.btnDeleteRight_Click);
             // 
-            // FpvRight
-            // 
-            this.FpvRight.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.FpvRight.HighlightColor = System.Drawing.SystemColors.Control;
-            this.FpvRight.Location = new System.Drawing.Point(0, 0);
-            this.FpvRight.Name = "FpvRight";
-            this.FpvRight.Size = new System.Drawing.Size(650, 544);
-            this.FpvRight.TabIndex = 0;
-            this.FpvRight.VideoFile = null;
-            // 
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -137,28 +123,39 @@
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             // 
-            // BtnShowLeft
+            // FpvLeft
             // 
-            this.BtnShowLeft.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.BtnShowLeft.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.BtnShowLeft.Location = new System.Drawing.Point(480, 550);
-            this.BtnShowLeft.Name = "BtnShowLeft";
-            this.BtnShowLeft.Size = new System.Drawing.Size(97, 23);
-            this.BtnShowLeft.TabIndex = 21;
-            this.BtnShowLeft.Text = "Show in Explorer";
-            this.BtnShowLeft.UseVisualStyleBackColor = true;
-            this.BtnShowLeft.Click += new System.EventHandler(this.BtnShowLeft_Click);
+            this.FpvLeft.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.FpvLeft.HighlightColor = System.Drawing.SystemColors.Control;
+            this.FpvLeft.Location = new System.Drawing.Point(0, 0);
+            this.FpvLeft.Name = "FpvLeft";
+            this.FpvLeft.Size = new System.Drawing.Size(664, 544);
+            this.FpvLeft.TabIndex = 0;
+            this.FpvLeft.VideoFile = null;
+            // 
+            // FpvRight
+            // 
+            this.FpvRight.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.FpvRight.HighlightColor = System.Drawing.SystemColors.Control;
+            this.FpvRight.Location = new System.Drawing.Point(0, 0);
+            this.FpvRight.Name = "FpvRight";
+            this.FpvRight.Size = new System.Drawing.Size(648, 544);
+            this.FpvRight.TabIndex = 0;
+            this.FpvRight.VideoFile = null;
             // 
             // FileComparison
             // 
-            this.AcceptButton = this.btnCancel;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(1345, 629);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.SplitterContainer);
             this.Name = "FileComparison";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "FileComparison";
             this.SplitterContainer.Panel1.ResumeLayout(false);
             this.SplitterContainer.Panel2.ResumeLayout(false);
