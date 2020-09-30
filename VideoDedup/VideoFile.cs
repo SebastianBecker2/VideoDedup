@@ -70,9 +70,9 @@ namespace VideoDedup
         }
 
         [JsonIgnore]
-        private int ThumbnailStepping
+        private double ThumbnailStepping
         {
-            get => (int)(Duration.TotalSeconds / (ThumbnailCount + 1));
+            get => (Duration.TotalSeconds / (ThumbnailCount + 1));
         }
 
         private TimeSpan? _Duration = null;
@@ -103,7 +103,7 @@ namespace VideoDedup
                 var image_stream = new MemoryStream();
                 try
                 {
-                    ffMpeg.GetVideoThumbnail(FilePath, image_stream, ThumbnailStepping * (index + 1));
+                    ffMpeg.GetVideoThumbnail(FilePath, image_stream, (float)ThumbnailStepping * (index + 1));
                     _Thumbnails[index] = Image.FromStream(image_stream);
                 } catch (Exception)
                 {
@@ -121,7 +121,8 @@ namespace VideoDedup
             foreach (var i in Enumerable.Range(0, ThumbnailCount))
             {
                 var diff = GetThumbnail(i).PercentageDifference(other.GetThumbnail(i));
-                ThumbnailDifferences.Add(diff > 0.5d);
+                Debug.Print(diff.ToString());
+                ThumbnailDifferences.Add(diff > 0.2d);
 
                 var diff_count = ThumbnailDifferences.Count(d => d);
 
