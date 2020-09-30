@@ -20,6 +20,9 @@ namespace VideoDedup
         public VideoFile LeftFile { get; set; }
         public VideoFile RightFile { get; set; }
 
+        private Task LeftThumbnailTask;
+        private Task RightThumbnailTask;
+
         public FileComparison()
         {
             InitializeComponent();
@@ -30,13 +33,32 @@ namespace VideoDedup
             SplitterContainer.SplitterDistance = SplitterContainer.Width / 2;
 
             FpvLeft.VideoFile = LeftFile;
+            LeftThumbnailTask = FpvLeft.UpdateDisplay();
             FpvRight.VideoFile = RightFile;
+            RightThumbnailTask = FpvRight.UpdateDisplay();
 
             base.OnLoad(e);
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            var result = DialogResult;
+            if (!LeftThumbnailTask.IsCompleted)
+            {
+                e.Cancel = true;
+                FpvLeft.CancelThumbnails();
+                LeftThumbnailTask.ContinueWith(t => DialogResult = result,
+                    TaskScheduler.FromCurrentSynchronizationContext());
+            }
+
+            if (!RightThumbnailTask.IsCompleted)
+            {
+                e.Cancel = true;
+                FpvRight.CancelThumbnails();
+                RightThumbnailTask.ContinueWith(t => DialogResult = result,
+                    TaskScheduler.FromCurrentSynchronizationContext());
+            }
+
             base.OnFormClosing(e);
         }
 

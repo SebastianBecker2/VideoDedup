@@ -29,10 +29,22 @@ namespace VideoDedup.FilePreview
         set
             {
                 _VideoFile = value;
-                UpdateDisplay();
             }
         }
         private VideoFile _VideoFile;
+
+        private CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
+
+        public event EventHandler<ThumbnailLoadedEventArgs> ThumbnailLoaded;
+
+        protected virtual void OnThumbnailLoaded(Image thumbnail, int index)
+        {
+            ThumbnailLoaded?.Invoke(this, new ThumbnailLoadedEventArgs
+            {
+                Thumbnail = thumbnail,
+                Index = index
+            });
+        }
 
         public FilePreview()
         {
@@ -41,15 +53,15 @@ namespace VideoDedup.FilePreview
             ImlThumbnails.ColorDepth = ThumbnailColorDepth;
         }
 
-        private void UpdateDisplay()
+        public Task UpdateDisplay()
         {
             if (VideoFile == null)
             {
-                return;
+                return null;
             }
 
             DisplayInfo();
-            DisplayThumbnails();
+            return LoadThumbnails();
         }
 
         /// <summary>
@@ -95,17 +107,38 @@ namespace VideoDedup.FilePreview
                 stream.CodecLongName;
         }
 
-        private void DisplayThumbnails()
-        {
+        private Task LoadThumbnails() {
             var width = VideoFile.MediaInfo.Streams.First().Width;
             var height = VideoFile.MediaInfo.Streams.First().Height;
             SetImageSize(new Size(width, height));
 
-            foreach (var index in Enumerable.Range(0, VideoFile.ThumbnailCount))
+            var cancelToken = CancellationTokenSource.Token;
+            return Task.Run(() =>
             {
-                ImlThumbnails.Images.Add(VideoFile.GetThumbnail(index));
-                LsvThumbnails.Items.Add(new ListViewItem { ImageIndex = index });
-            }
+                foreach (var index in Enumerable.Range(0, VideoFile.ThumbnailCount))
+                {
+                    var image = VideoFile.GetThumbnail(index);
+
+                    if (cancelToken.IsCancellationRequested)
+                    {
+                        Debug.Print("Task cancelled");
+                        return;
+                    }
+
+                    Invoke((Action)delegate
+                    {
+                        ImlThumbnails.Images.Add(image);
+                        OnThumbnailLoaded(image, index);
+                        LsvThumbnails.Items.Add(new ListViewItem { ImageIndex = index });
+                    });
+                }
+            }, CancellationTokenSource.Token).ContinueWith(t => CancellationTokenSource.Dispose());
+        }
+
+        public void CancelThumbnails()
+        {
+            Debug.Print("Cancellation requested");
+            CancellationTokenSource.Cancel();
         }
     }
 }
