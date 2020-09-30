@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ToDoManager;
+using VideoDedup.Properties;
 
 namespace VideoDedup
 {
@@ -25,17 +26,34 @@ namespace VideoDedup
         {
             get
             {
-                var cache_folder = Path.Combine(TxtSourcePath.Text, CacheFolderName);
+                var cache_folder = Path.Combine(SourcePath, CacheFolderName);
                 Directory.CreateDirectory(cache_folder);
                 return Path.Combine(cache_folder, CacheFileName);
             }
         }
 
-        public IEnumerable<string> ExcludedDirectories
-            => new List<string> {
-                Path.Combine(TxtSourcePath.Text, "$RECYCLE.BIN"),
-                TxtExcludePaths.Text
-            }.Select(d => d.ToLower());
+        public string SourcePath
+        {
+            get { return Settings.Default.SourcePath; }
+            set
+            {
+                Settings.Default.SourcePath = value;
+                Settings.Default.Save();
+            }
+        }
+
+        public IList<string> ExcludedDirectories
+        {
+            get
+            {
+                return JsonConvert.DeserializeObject<List<string>>(Settings.Default.ExcludedDirectories);
+            }
+            set
+            {
+                Settings.Default.ExcludedDirectories = JsonConvert.SerializeObject(value);
+                Settings.Default.Save();
+            }
+        }
 
         public IEnumerable<string> VideoFileEndings
         {
@@ -77,7 +95,7 @@ namespace VideoDedup
 
                 IEnumerable<string> subDirectories = Directory
                     .GetDirectories(rootDirectory);
-                subDirectories = subDirectories.Where(d => !excludedDirectories.Contains(d.ToLower()));
+                subDirectories = subDirectories.Where(d => !excludedDirectories.Contains(d));
 
                 foreach (string directory in subDirectories)
                 {
@@ -253,7 +271,7 @@ namespace VideoDedup
                     progressBar1.Style = ProgressBarStyle.Marquee;
                 }));
 
-                var video_files = LoadVideoFileList(TxtSourcePath.Text);
+                var video_files = LoadVideoFileList(SourcePath);
 
                 this.Invoke(new Action(() =>
                 {
@@ -299,6 +317,21 @@ namespace VideoDedup
         private void BtnCancel_Click(object sender, EventArgs e)
         {
             CancellationTokenSource.Cancel();
+        }
+
+        private void BtnConfig_Click(object sender, EventArgs e)
+        {
+            using (var dlg = new Config())
+            {
+                dlg.SourcePath = SourcePath;
+                dlg.ExcludedDirectories = ExcludedDirectories;
+                if (dlg.ShowDialog() != DialogResult.OK)
+                {
+                    return;
+                }
+                SourcePath = dlg.SourcePath;
+                ExcludedDirectories = dlg.ExcludedDirectories;
+            }
         }
     }
 }
