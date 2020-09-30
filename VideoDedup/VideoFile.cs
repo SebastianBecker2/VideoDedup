@@ -8,34 +8,34 @@ using NReco.VideoInfo;
 using System.Diagnostics;
 using System.Drawing;
 using XnaFan.ImageComparison;
+using Newtonsoft.Json;
+using NReco.VideoConverter;
 
 namespace VideoDedup
 {
-    public class VideoFile
+    public class VideoFile : IEquatable<VideoFile>
     {
-        private readonly static int ThumbnailCount = 20;
+        public readonly static int ThumbnailCount = 20;
         private readonly static int DurationEqualityLimit = 10; // as seconds
 
-        public string FilePath { get; }
-        public string FileName
+        [JsonProperty]
+        public string FilePath { get; private set; }
+        [JsonIgnore]
+        public string FileName => Path.GetFileName(FilePath);
+        [JsonIgnore]
+        public MediaInfo MediaInfo
         {
             get
             {
-                return Path.GetFileName(FilePath);
-            }
-        }
-        public MediaInfo FileInfo
-        {
-            get
-            {
-                if (_FileInfo == null)
+                if (_MediaInfo == null)
                 {
                     var probe = new FFProbe();
-                    _FileInfo = probe.GetMediaInfo(FilePath);
+                    _MediaInfo = probe.GetMediaInfo(FilePath);
                 }
-                return _FileInfo;
+                return _MediaInfo;
             }
         }
+        [JsonIgnore]
         public long FileSize
         {
             get
@@ -46,31 +46,39 @@ namespace VideoDedup
                 }
                 return _FileSize.Value;
             }
+            private set => _FileSize = value;
         }
-        public TimeSpan Duration { get { return FileInfo.Duration; } }
-        public IList<Image> Thumbnails
+        [JsonProperty]
+        public TimeSpan Duration
         {
             get
             {
-                if (_Thumbnails == null)
+                if (_Duration == null)
                 {
-                    _Thumbnails = new List<Image>();
-                    var step = (int)(Duration.TotalSeconds / (ThumbnailCount + 1));
-                    foreach (var i in Enumerable.Range(0, ThumbnailCount))
+                    try { 
+                    _Duration = MediaInfo.Duration;
+
+                    }
+                    catch (Exception)
                     {
-                        var ffMpeg = new NReco.VideoConverter.FFMpegConverter();
-                        var image_stream = new MemoryStream();
-                        ffMpeg.GetVideoThumbnail(FilePath, image_stream, step * i);
-                        _Thumbnails.Add(Image.FromStream(image_stream));
+                        _Duration = new TimeSpan();
                     }
                 }
-                return _Thumbnails;
+                return _Duration.Value;
             }
+            private set => _Duration = value;
         }
 
-        private MediaInfo _FileInfo = null;
+        [JsonIgnore]
+        private int ThumbnailStepping
+        {
+            get => (int)(Duration.TotalSeconds / (ThumbnailCount + 1));
+        }
+
+        private TimeSpan? _Duration = null;
         private long? _FileSize = null;
-        private IList<Image> _Thumbnails = null;
+        private IDictionary<int, Image> _Thumbnails = new Dictionary<int, Image>();
+        private MediaInfo _MediaInfo = null;
 
         public VideoFile(string path)
         {
@@ -82,12 +90,37 @@ namespace VideoDedup
             return Math.Abs((Duration - other.Duration).TotalSeconds) < DurationEqualityLimit;
         }
 
+        public Image GetThumbnail(int index)
+        {
+            if (index >= ThumbnailCount || index < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index), "Index out of range.");
+            }
+
+            if (!_Thumbnails.ContainsKey(index))
+            {
+                var ffMpeg = new NReco.VideoConverter.FFMpegConverter();
+                var image_stream = new MemoryStream();
+                try
+                {
+                    ffMpeg.GetVideoThumbnail(FilePath, image_stream, ThumbnailStepping * (index + 1));
+                    _Thumbnails[index] = Image.FromStream(image_stream);
+                } catch (Exception)
+                {
+                    Debug.Print($"Unable to load thumbnail index {index} for {FilePath}");
+                    _Thumbnails[index] = new Bitmap(1, 1);
+                }
+            }
+
+            return _Thumbnails[index];
+        }
+
         public bool AreThumbnailsEqual(VideoFile other)
         {
             IList<bool> ThumbnailDifferences = new List<bool>();
             foreach (var i in Enumerable.Range(0, ThumbnailCount))
             {
-                var diff = Thumbnails[i].PercentageDifference(other.Thumbnails[i]);
+                var diff = GetThumbnail(i).PercentageDifference(other.GetThumbnail(i));
                 ThumbnailDifferences.Add(diff > 0.5d);
 
                 var diff_count = ThumbnailDifferences.Count(d => d);
@@ -102,12 +135,33 @@ namespace VideoDedup
 
         public void DisposeThumbnails()
         {
-            foreach (var thumbnail in Thumbnails)
-            {
-                thumbnail.Dispose();
-            }
-            Thumbnails.Clear();
-            _Thumbnails = null;
+            _Thumbnails.Clear();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as VideoFile);
+        }
+
+        public bool Equals(VideoFile other)
+        {
+            return other != null &&
+                   FilePath == other.FilePath;
+        }
+
+        public override int GetHashCode()
+        {
+            return 1230029444 + EqualityComparer<string>.Default.GetHashCode(FilePath);
+        }
+
+        public static bool operator ==(VideoFile left, VideoFile right)
+        {
+            return EqualityComparer<VideoFile>.Default.Equals(left, right);
+        }
+
+        public static bool operator !=(VideoFile left, VideoFile right)
+        {
+            return !(left == right);
         }
     }
 }

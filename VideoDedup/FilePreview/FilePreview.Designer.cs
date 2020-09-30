@@ -42,20 +42,21 @@
             // 
             // LsvThumbnails
             // 
-            this.LsvThumbnails.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.LsvThumbnails.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.LsvThumbnails.HideSelection = false;
             this.LsvThumbnails.LargeImageList = this.ImlThumbnails;
             this.LsvThumbnails.Location = new System.Drawing.Point(3, 80);
             this.LsvThumbnails.Name = "LsvThumbnails";
             this.LsvThumbnails.Size = new System.Drawing.Size(417, 350);
+            this.LsvThumbnails.SmallImageList = this.ImlThumbnails;
             this.LsvThumbnails.TabIndex = 2;
             this.LsvThumbnails.UseCompatibleStateImageBehavior = false;
             // 
             // TxtInfo
             // 
-            this.TxtInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.TxtInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.TxtInfo.Location = new System.Drawing.Point(4, 4);
             this.TxtInfo.Multiline = true;

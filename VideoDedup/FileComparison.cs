@@ -17,11 +17,8 @@ namespace VideoDedup
 {
     public partial class FileComparison : Form
     {
-        public string SourceFilePath { get; set; }
-        public string DestinationFilePath { get; set; }
-
-        private Task SourceThumbnailTask;
-        private Task DestinationThumbnailTask;
+        public VideoFile LeftFile { get; set; }
+        public VideoFile RightFile { get; set; }
 
         public FileComparison()
         {
@@ -32,170 +29,63 @@ namespace VideoDedup
         {
             SplitterContainer.SplitterDistance = SplitterContainer.Width / 2;
 
-            LblFilePath.Text = DestinationFilePath;
-
-            SourceThumbnailTask = FpvSource.LoadFile(SourceFilePath);
-            DestinationThumbnailTask = FpvDestination.LoadFile(DestinationFilePath);
+            FpvLeft.VideoFile = LeftFile;
+            FpvRight.VideoFile = RightFile;
 
             base.OnLoad(e);
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            var result = DialogResult;
-            if (!SourceThumbnailTask.IsCompleted)
-            {
-
-                e.Cancel = true;
-                FpvSource.CancelThumbnails();
-                SourceThumbnailTask.ContinueWith(t => DialogResult = result,
-                    TaskScheduler.FromCurrentSynchronizationContext());
-            }
-
-            if (!DestinationThumbnailTask.IsCompleted)
-            {
-                e.Cancel = true;
-                FpvDestination.CancelThumbnails();
-                DestinationThumbnailTask.ContinueWith(t => DialogResult = result,
-                    TaskScheduler.FromCurrentSynchronizationContext());
-            }
-
             base.OnFormClosing(e);
         }
 
-        private void FpvSource_FileInfoLoaded(object sender, FilePreview.FileInfoLoadedEventArgs e)
+        private void btnDeleteLeft_Click(object sender, EventArgs e)
         {
-            if (FpvDestination.FileInfo == null)
+            try
             {
-                return;
+                File.Delete(LeftFile.FilePath);
             }
-
-            TryAutoCompare();
-        }
-
-        private void FpvDestination_FileInfoLoaded(object sender, FilePreview.FileInfoLoadedEventArgs e)
-        {
-            if (FpvSource.FileInfo == null)
+            catch (Exception exc)
             {
-                return;
-            }
-
-            TryAutoCompare();
-        }
-
-        private void TryAutoCompare()
-        {
-            var dest_dur = FpvDestination.FileInfo.Duration;
-            var src_dur = FpvSource.FileInfo.Duration;
-            var dur_diff = Math.Abs((dest_dur - src_dur).TotalSeconds);
-            if (dur_diff > 10)
-            {
-                // Keep both?
-                btnKeepBoth.Focus();
-
-                // Files are too different
-                // User has to decide
-                return;
-            }
-
-            var dest_size = FpvDestination.FileSize;
-            var src_size = FpvSource.FileSize;
-            var size_diff = Math.Abs(dest_size - src_size);
-            if (size_diff < 100 * 1024)
-            {
-                // Keep old
-                btnKeepOld.Focus();
-                FpvDestination.HighlightColor = Color.LightGreen;
-            }
-            else
-            {
-                // Thumbnail compare is done
-                // for each event of the thumbnails
-                // loaded
-                DoThumbnailCompare = true;
-                return;
+                MessageBox.Show(exc.Message);
             }
         }
 
-        bool DoThumbnailCompare = false;
-        int SourceThumbnailIndex = -1;
-        int DestinationThumbnailIndex = -1;
-        IList<bool> FrameDifferences = new List<bool>();
-
-        private void FpvSource_ThumbnailLoaded(object sender, FilePreview.ThumbnailLoadedEventArgs e)
+        private void btnDeleteRight_Click(object sender, EventArgs e)
         {
-            SourceThumbnailIndex = e.Index;
-
-            // Do we even want to compare?
-            if (!DoThumbnailCompare)
+            try
             {
-                return;
+                File.Delete(RightFile.FilePath);
             }
-
-            // Do we even have the corresponding image?
-            if (e.Index > DestinationThumbnailIndex)
+            catch (Exception exc)
             {
-                return;
+                MessageBox.Show(exc.Message);
             }
-
-            var corresponding_thumbnail = FpvDestination.GetThumbnail(e.Index);
-            CompareThumbnails(e.Thumbnail, corresponding_thumbnail);
         }
 
-        private void FpvDestination_ThumbnailLoaded(object sender, FilePreview.ThumbnailLoadedEventArgs e)
+        private void OpenFileInExplorer(string filePath)
         {
-            DestinationThumbnailIndex = e.Index;
-
-            // Do we even want to compare?
-            if (!DoThumbnailCompare)
+            if (!File.Exists(filePath))
             {
                 return;
             }
 
-            // Do we even have the corresponding image?
-            if (e.Index > SourceThumbnailIndex)
-            {
-                return;
-            }
+            // combine the arguments together
+            // it doesn't matter if there is a space after ','
+            string argument = "/select, \"" + filePath + "\"";
 
-            var corresponding_thumbnail = FpvSource.GetThumbnail(e.Index);
-            CompareThumbnails(e.Thumbnail, corresponding_thumbnail);
+            Process.Start("explorer.exe", argument);
         }
 
-        private void CompareThumbnails(Image source, Image destination)
+        private void BtnShowRight_Click(object sender, EventArgs e)
         {
-            var diff = source.PercentageDifference(destination);
+            OpenFileInExplorer(RightFile.FilePath);
+        }
 
-            FrameDifferences.Add(diff > 0.5d);
-
-            var diff_count = FrameDifferences.Count(d => d);
-
-            if (diff_count == 1)
-            {
-                return;
-            }
-
-            if (diff_count >= 2)
-            {
-                DoThumbnailCompare = false;
-                btnKeepBoth.Focus();
-                return;
-            }
-
-            var dest_size = FpvDestination.FileSize;
-            var src_size = FpvSource.FileSize;
-            if (dest_size > src_size)
-            {
-                // Keep old
-                btnKeepOld.Focus();
-                FpvDestination.HighlightColor = Color.LightGreen;
-            }
-            else
-            {
-                // Take new
-                btnKeepNew.Focus();
-                FpvSource.HighlightColor = Color.LightGreen;
-            }
+        private void BtnShowLeft_Click(object sender, EventArgs e)
+        {
+            OpenFileInExplorer(LeftFile.FilePath);
         }
     }
 }
