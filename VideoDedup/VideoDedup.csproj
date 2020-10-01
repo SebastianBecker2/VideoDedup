@@ -67,6 +67,12 @@
     <Compile Include="Config.Designer.cs">
       <DependentUpon>Config.cs</DependentUpon>
     </Compile>
+    <Compile Include="DurationSelection.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DurationSelection.Designer.cs">
+      <DependentUpon>DurationSelection.cs</DependentUpon>
+    </Compile>
     <Compile Include="FileComparison.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -91,6 +97,9 @@
     <Compile Include="VideoFile.cs" />
     <EmbeddedResource Include="Config.resx">
       <DependentUpon>Config.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DurationSelection.resx">
+      <DependentUpon>DurationSelection.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FileComparison.resx">
       <DependentUpon>FileComparison.cs</DependentUpon>

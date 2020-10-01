@@ -62,12 +62,12 @@
             this.BtnDedup.UseVisualStyleBackColor = true;
             this.BtnDedup.Click += new System.EventHandler(this.BtnDedup_Click);
             // 
-            // progressBar1
+            // ProgressBar
             // 
             this.ProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ProgressBar.Location = new System.Drawing.Point(12, 12);
-            this.ProgressBar.Name = "progressBar1";
+            this.ProgressBar.Name = "ProgressBar";
             this.ProgressBar.Size = new System.Drawing.Size(569, 23);
             this.ProgressBar.TabIndex = 5;
             // 
@@ -121,6 +121,7 @@
             // BtnResolveConflicts
             // 
             this.BtnResolveConflicts.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnResolveConflicts.Enabled = false;
             this.BtnResolveConflicts.Location = new System.Drawing.Point(506, 107);
             this.BtnResolveConflicts.Name = "BtnResolveConflicts";
             this.BtnResolveConflicts.Size = new System.Drawing.Size(75, 23);

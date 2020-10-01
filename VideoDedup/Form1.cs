@@ -83,6 +83,9 @@ namespace VideoDedup
 
         private CancellationTokenSource CancellationTokenSource { get; set; }
 
+        private TimeSpan? SelectedMinimumDuration { get; set; } = null;
+        private TimeSpan? SelectedMaximumDuration { get; set; } = null;
+
         public Form1()
         {
             InitializeComponent();
@@ -232,7 +235,10 @@ namespace VideoDedup
                     if (file.AreThumbnailsEqual(nextVideo))
                     {
                         this.Invoke(new Action(() =>
-                            Duplicates.Add(Tuple.Create(file, nextVideo))));
+                        {
+                            Duplicates.Add(Tuple.Create(file, nextVideo));
+                            BtnResolveConflicts.Enabled = true;
+                        }));
                         Debug.Print(file.FilePath);
                         Debug.Print($" - equal to: {nextVideo.FilePath}");
                     }
@@ -280,13 +286,17 @@ namespace VideoDedup
                     {
                         // Remove from list
                         Duplicates.RemoveAt(index);
+                        if (!Duplicates.Any())
+                        {
+                            BtnResolveConflicts.Enabled = false;
+                        }
                     }
                     if (result == DialogResult.Abort)
                     {
                         // Keep in list
                         return;
                     }
-                    if (dlg.ShowDialog() == DialogResult.No)
+                    if (result == DialogResult.No)
                     {
                         // Move to back of list
                         Duplicates.RemoveAt(index);
@@ -312,12 +322,34 @@ namespace VideoDedup
                     ProgressBar.Value = counter;
                 }));
 
+                // For now we only preload the duration
+                // since the size is only rarely used
+                // in the comparison dialog. No need
+                // to preload it.
                 var duration = f.Duration;
-                var size = f.FileSize;
+                //var size = f.FileSize;
                 if (cancelToken.IsCancellationRequested)
                 {
                     break;
                 }
+            }
+        }
+
+        private void SelectedDuration(TimeSpan min, TimeSpan max)
+        {
+            using (var dlg = new DurationSelection())
+            {
+                dlg.AbsolutMinimumDuration = min;
+                dlg.AbsolutMaximumDuration = max;
+                dlg.SelectedMinimumDuration = SelectedMinimumDuration;
+                dlg.SelectedMaximumDuration = SelectedMaximumDuration;
+                if (dlg.ShowDialog() != DialogResult.OK)
+                {
+                    CancellationTokenSource.Cancel();
+                    return;
+                }
+                SelectedMinimumDuration = dlg.SelectedMinimumDuration;
+                SelectedMaximumDuration = dlg.SelectedMaximumDuration;
             }
         }
 
@@ -340,9 +372,6 @@ namespace VideoDedup
             {
                 var videoFiles = GetVideoFileList(SourcePath);
 
-                // Save the data we have gathered.
-                SaveVideoFilesCache(videoFiles, CacheFilePath);
-
                 this.Invoke(new Action(() =>
                 {
                     LblStatusInfo.Text = $"Loading for media information 0/{videoFiles.Count()}";
@@ -354,6 +383,23 @@ namespace VideoDedup
 
                 PreloadFiles(videoFiles, cancelToken);
 
+                // Save the data we have gathered.
+                SaveVideoFilesCache(videoFiles, CacheFilePath);
+
+                if (cancelToken.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                this.Invoke(new Action(() =>
+                {
+                    ElapsedTimer.Stop();
+                    SelectedDuration(
+                        videoFiles.Min(f => f.Duration),
+                        videoFiles.Max(f => f.Duration));
+                    ElapsedTimer.Start();
+                }));
+
                 if (cancelToken.IsCancellationRequested)
                 {
                     return;
@@ -363,6 +409,8 @@ namespace VideoDedup
                 // and sort the remaining files.
                 var ordered_video_files = videoFiles
                     .Where(f => f.Duration != new TimeSpan())
+                    .Where(f => f.Duration >= SelectedMinimumDuration.Value)
+                    .Where(f => f.Duration <= SelectedMaximumDuration.Value)
                     .OrderBy(f => f.Duration);
 
                 this.Invoke(new Action(() =>
