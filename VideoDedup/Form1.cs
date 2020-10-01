@@ -55,12 +55,25 @@ namespace VideoDedup
             }
         }
 
-        public IEnumerable<string> VideoFileEndings
+        public IList<string> FileExtensions
         {
-            get => new List<string>
+            get
             {
-                ".mp4", ".mpg", ".avi", ".wmv", ".flv", ".m4v", ".mov", ".mpeg", ".rm", ".mts", ".3gp"
-            };
+                var file_extensions = JsonConvert.DeserializeObject<List<string>>(Settings.Default.FileExtensions);
+                if (file_extensions == null || !file_extensions.Any())
+                {
+                    return new List<string>
+                        {
+                            ".mp4", ".mpg", ".avi", ".wmv", ".flv", ".m4v", ".mov", ".mpeg", ".rm", ".mts", ".3gp"
+                        };
+                }
+                return file_extensions;
+            }
+            set
+            {
+                Settings.Default.FileExtensions = JsonConvert.SerializeObject(value);
+                Settings.Default.Save();
+            }
         }
 
         private CancellationTokenSource CancellationTokenSource { get; set; }
@@ -141,7 +154,7 @@ namespace VideoDedup
 
             // Get all video files in source path.
             var found_files = GetAllAccessibleFilesIn(sourcePath, ExcludedDirectories)
-                .Where(f => VideoFileEndings.Contains(Path.GetExtension(f).ToLower()))
+                .Where(f => FileExtensions.Contains(Path.GetExtension(f).ToLower()))
                 .Select(f => new VideoFile(f));
 
             // Basically overwrite the found files with cached files
@@ -188,7 +201,7 @@ namespace VideoDedup
 
                 var file = videoFileList[index];
 
-                Func<string> createStatusInfo = ()=> $"Comparing {index + 1}/{videoFileList.Count()}" +
+                Func<string> createStatusInfo = () => $"Comparing {index + 1}/{videoFileList.Count()}" +
                     $"{Environment.NewLine}Duplicates found: {duplicates.Count()}" +
                     $"{Environment.NewLine}{file.FilePath}" +
                     $"{Environment.NewLine}Duration: {file.Duration}";
@@ -324,12 +337,14 @@ namespace VideoDedup
             using (var dlg = new Config())
             {
                 dlg.SourcePath = SourcePath;
+                dlg.FileExtensions = FileExtensions;
                 dlg.ExcludedDirectories = ExcludedDirectories;
                 if (dlg.ShowDialog() != DialogResult.OK)
                 {
                     return;
                 }
                 SourcePath = dlg.SourcePath;
+                FileExtensions = dlg.FileExtensions;
                 ExcludedDirectories = dlg.ExcludedDirectories;
             }
         }

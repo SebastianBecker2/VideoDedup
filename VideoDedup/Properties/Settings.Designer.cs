@@ -46,5 +46,17 @@ namespace VideoDedup.Properties {
                 this["ExcludedDirectories"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string FileExtensions {
+            get {
+                return ((string)(this["FileExtensions"]));
+            }
+            set {
+                this["FileExtensions"] = value;
+            }
+        }
     }
 }

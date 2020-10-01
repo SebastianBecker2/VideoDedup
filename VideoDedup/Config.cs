@@ -17,6 +17,7 @@ namespace VideoDedup
     {
         public string SourcePath { get; set; }
         public IList<string> ExcludedDirectories { get; set; }
+        public IList<string> FileExtensions { get; set; }
 
         public Config()
         {
@@ -29,8 +30,14 @@ namespace VideoDedup
 
             if (ExcludedDirectories != null)
             {
-                LsbExceptionPaths.Items.AddRange(ExcludedDirectories.ToArray());
+                LsbExcludedDirectories.Items.AddRange(ExcludedDirectories.ToArray());
             }
+
+            if (FileExtensions != null)
+            {
+                LsbFileExtensions.Items.AddRange(FileExtensions.ToArray());
+            }
+
 
             base.OnLoad(e);
         }
@@ -38,7 +45,8 @@ namespace VideoDedup
         private void BtnOkay_Click(object sender, EventArgs e)
         {
             SourcePath = TxtSourcePath.Text;
-            ExcludedDirectories = LsbExceptionPaths.Items.Cast<string>().ToList();
+            ExcludedDirectories = LsbExcludedDirectories.Items.Cast<string>().ToList();
+            FileExtensions = LsbFileExtensions.Items.Cast<string>().ToList();
             DialogResult = DialogResult.OK;
         }
 
@@ -57,7 +65,7 @@ namespace VideoDedup
             }
         }
 
-        private void BtnAddExceptionPath_Click(object sender, EventArgs e)
+        private void BtnAddExcludedDirectory_Click(object sender, EventArgs e)
         {
             using (var dlg = new CommonOpenFileDialog())
             {
@@ -68,15 +76,33 @@ namespace VideoDedup
                     return;
                 }
 
-                LsbExceptionPaths.Items.Add(dlg.FileName);
+                LsbExcludedDirectories.Items.Add(dlg.FileName);
             }
         }
 
-        private void BtnRemoveExceptionPath_Click(object sender, EventArgs e)
+        private void BtnRemoveExcludedDirectory_Click(object sender, EventArgs e)
         {
-            foreach (var s in LsbExceptionPaths.SelectedItems.OfType<string>().ToList())
+            foreach (var s in LsbExcludedDirectories.SelectedItems.OfType<string>().ToList())
             {
-                LsbExceptionPaths.Items.Remove(s);
+                LsbExcludedDirectories.Items.Remove(s);
+            }
+        }
+
+        private void BtnAddFileExtension_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(TxtFileExtension.Text))
+            {
+                return;
+            }
+
+            LsbFileExtensions.Items.Add(TxtFileExtension.Text);
+        }
+
+        private void BtnRemoveFileExtension_Click(object sender, EventArgs e)
+        {
+            foreach (var s in LsbFileExtensions.SelectedItems.OfType<string>().ToList())
+            {
+                LsbFileExtensions.Items.Remove(s);
             }
         }
     }
