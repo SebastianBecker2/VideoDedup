@@ -1,7 +1,11 @@
 [
   {
     "Done": false,
-    "Text": "Add continuation? Setting a minimum duration? maximum duration? Resolve conflicts while searching for deduplications"
+    "Text": "Add continuation? Setting a minimum duration? maximum duration? "
+  },
+  {
+    "Done": true,
+    "Text": "Cancellable media information gatherino"
   },
   {
     "Done": true,
@@ -44,7 +48,7 @@
     "Text": "Load thumbnails in comparison dialog lazy"
   },
   {
-    "Done": false,
-    "Text": "Cancellable media information gatherino"
+    "Done": true,
+    "Text": "Resolve conflicts while searching for deduplications"
   }
 ]
