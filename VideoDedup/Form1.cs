@@ -236,17 +236,20 @@ namespace VideoDedup
 
         private void ResolveDuplicates(IEnumerable<Tuple<VideoFile, VideoFile>> duplicates)
         {
+            Debug.Print($"Comparing {duplicates.Count()} duplicates.");
             foreach ((var left, var right) in duplicates)
             {
                 // Mostely because we might have deleted
                 // this file during the previous compare
                 if (!File.Exists(left.FilePath))
                 {
-                    return;
+                    Debug.Print($"{left.FilePath} doesn't exist anymore. Can't compare.");
+                    continue;
                 }
                 if (!File.Exists(right.FilePath))
                 {
-                    return;
+                    Debug.Print($"{right.FilePath} doesn't exist anymore. Can't compare.");
+                    continue;
                 }
 
                 using (var dlg = new FileComparison())

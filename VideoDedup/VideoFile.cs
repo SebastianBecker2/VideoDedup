@@ -99,7 +99,7 @@ namespace VideoDedup
 
             if (!_Thumbnails.ContainsKey(index))
             {
-                var ffMpeg = new NReco.VideoConverter.FFMpegConverter();
+                var ffMpeg = new FFMpegConverter();
                 var image_stream = new MemoryStream();
                 try
                 {
@@ -121,7 +121,6 @@ namespace VideoDedup
             foreach (var i in Enumerable.Range(0, ThumbnailCount))
             {
                 var diff = GetThumbnail(i).PercentageDifference(other.GetThumbnail(i));
-                Debug.Print(diff.ToString());
                 ThumbnailDifferences.Add(diff > 0.2d);
 
                 var diff_count = ThumbnailDifferences.Count(d => d);
