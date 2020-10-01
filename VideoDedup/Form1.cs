@@ -76,6 +76,8 @@ namespace VideoDedup
             }
         }
 
+        private TimeSpan ElapsedSeconds { get; set; } = new TimeSpan();
+
         private CancellationTokenSource CancellationTokenSource { get; set; }
 
         public Form1()
@@ -287,15 +289,13 @@ namespace VideoDedup
             var token = CancellationTokenSource.Token;
             IEnumerable<Tuple<VideoFile, VideoFile>> duplicates = null;
             BtnDedup.Enabled = false;
+            LblStatusInfo.Text = "Searching for files and loading media information...";
+            progressBar1.Style = ProgressBarStyle.Marquee;
+            ElapsedSeconds = new TimeSpan();
+            timer1.Start();
 
             Task.Run(() =>
             {
-                this.Invoke(new Action(() =>
-                {
-                    LblStatusInfo.Text = "Searching for files and loading media information...";
-                    progressBar1.Style = ProgressBarStyle.Marquee;
-                }));
-
                 var video_files = LoadVideoFileList(SourcePath);
 
                 this.Invoke(new Action(() =>
@@ -316,6 +316,7 @@ namespace VideoDedup
                     progressBar1.Value = 0;
                     BtnDedup.Enabled = true;
                     BtnCancel.Enabled = false;
+                    timer1.Stop();
                 }));
                 this.Invoke(new Action(() =>
                 {
@@ -347,6 +348,12 @@ namespace VideoDedup
                 FileExtensions = dlg.FileExtensions;
                 ExcludedDirectories = dlg.ExcludedDirectories;
             }
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            ElapsedSeconds = ElapsedSeconds.Add(TimeSpan.FromSeconds(1));
+            LblTimer.Text = ElapsedSeconds.ToString();
         }
     }
 }

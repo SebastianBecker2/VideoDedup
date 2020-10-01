@@ -1,15 +1,15 @@
 [
   {
     "Done": false,
-    "Text": "Add file ending configuration"
-  },
-  {
-    "Done": false,
     "Text": "Add continuation? Setting a minimum duration? maximum duration? Resolve conflicts while searching for deduplications"
   },
   {
-    "Done": false,
+    "Done": true,
     "Text": "Add timer to show for how long we are dedupping"
+  },
+  {
+    "Done": true,
+    "Text": "Add file ending configuration"
   },
   {
     "Done": true,

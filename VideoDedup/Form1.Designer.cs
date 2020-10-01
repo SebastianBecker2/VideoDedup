@@ -28,12 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.BtnToDoManager = new System.Windows.Forms.Button();
             this.BtnDedup = new System.Windows.Forms.Button();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.LblStatusInfo = new System.Windows.Forms.Label();
             this.BtnCancel = new System.Windows.Forms.Button();
             this.BtnConfig = new System.Windows.Forms.Button();
+            this.LblTimer = new System.Windows.Forms.Label();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // BtnToDoManager
@@ -99,11 +102,27 @@
             this.BtnConfig.UseVisualStyleBackColor = true;
             this.BtnConfig.Click += new System.EventHandler(this.BtnConfig_Click);
             // 
+            // LblTimer
+            // 
+            this.LblTimer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.LblTimer.AutoSize = true;
+            this.LblTimer.Location = new System.Drawing.Point(370, 112);
+            this.LblTimer.Name = "LblTimer";
+            this.LblTimer.Size = new System.Drawing.Size(49, 13);
+            this.LblTimer.TabIndex = 9;
+            this.LblTimer.Text = "00:00:00";
+            // 
+            // timer1
+            // 
+            this.timer1.Interval = 1000;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(593, 142);
+            this.Controls.Add(this.LblTimer);
             this.Controls.Add(this.BtnConfig);
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.LblStatusInfo);
@@ -125,6 +144,8 @@
         private System.Windows.Forms.Label LblStatusInfo;
         private System.Windows.Forms.Button BtnCancel;
         private System.Windows.Forms.Button BtnConfig;
+        private System.Windows.Forms.Label LblTimer;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 
