@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -64,25 +65,55 @@ namespace VideoDedup
 
         private void btnDeleteLeft_Click(object sender, EventArgs e)
         {
-            try
+            Action delete_and_close = () =>
             {
-                File.Delete(LeftFile.FilePath);
+                try
+                {
+                    File.Delete(LeftFile.FilePath);
+                    DialogResult = DialogResult.OK;
+                }
+                catch (Exception exc)
+                {
+                    MessageBox.Show(exc.Message);
+                }
+            };
+
+            if (!LeftThumbnailTask.IsCompleted)
+            {
+                FpvLeft.CancelThumbnails();
+                LeftThumbnailTask.ContinueWith(t => delete_and_close(),
+                    TaskScheduler.FromCurrentSynchronizationContext());
             }
-            catch (Exception exc)
+            else
             {
-                MessageBox.Show(exc.Message);
+                delete_and_close();
             }
         }
 
         private void btnDeleteRight_Click(object sender, EventArgs e)
         {
-            try
+            Action delete_and_close = () =>
             {
-                File.Delete(RightFile.FilePath);
+                try
+                {
+                    File.Delete(RightFile.FilePath);
+                    DialogResult = DialogResult.OK;
+                }
+                catch (Exception exc)
+                {
+                    MessageBox.Show(exc.Message);
+                }
+            };
+
+            if (!RightThumbnailTask.IsCompleted)
+            {
+                FpvRight.CancelThumbnails();
+                RightThumbnailTask.ContinueWith(t => delete_and_close(),
+                    TaskScheduler.FromCurrentSynchronizationContext());
             }
-            catch (Exception exc)
+            else
             {
-                MessageBox.Show(exc.Message);
+                delete_and_close();
             }
         }
 

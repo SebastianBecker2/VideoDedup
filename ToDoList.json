@@ -1,5 +1,33 @@
 [
   {
+    "Done": false,
+    "Text": "Add file ending configuration"
+  },
+  {
+    "Done": false,
+    "Text": "Add continuation? Setting a minimum duration? maximum duration? Resolve conflicts while searching for deduplications"
+  },
+  {
+    "Done": false,
+    "Text": "Add timer to show for how long we are dedupping"
+  },
+  {
+    "Done": true,
+    "Text": "make delete button set dialog result manually (so in case of exception, it won't close)"
+  },
+  {
+    "Done": true,
+    "Text": "Make delete button cancel thubnail loading"
+  },
+  {
+    "Done": true,
+    "Text": "move compare dlg buttons to the outside instead of the inside"
+  },
+  {
+    "Done": true,
+    "Text": "make compare dlg window fullscreen"
+  },
+  {
     "Done": true,
     "Text": "Don't load all thumbnails beforehand. Load them on demand. So that 2 completely different thumbnails will avoid loading the others."
   },
