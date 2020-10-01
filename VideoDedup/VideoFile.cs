@@ -48,15 +48,16 @@ namespace VideoDedup
             }
             private set => _FileSize = value;
         }
-        [JsonProperty]
+        [JsonIgnore]
         public TimeSpan Duration
         {
             get
             {
                 if (_Duration == null)
                 {
-                    try { 
-                    _Duration = MediaInfo.Duration;
+                    try
+                    {
+                        _Duration = MediaInfo.Duration;
 
                     }
                     catch (Exception)
@@ -75,6 +76,7 @@ namespace VideoDedup
             get => (Duration.TotalSeconds / (ThumbnailCount + 1));
         }
 
+        [JsonProperty]
         private TimeSpan? _Duration = null;
         private long? _FileSize = null;
         private IDictionary<int, Image> _Thumbnails = new Dictionary<int, Image>();
@@ -105,7 +107,8 @@ namespace VideoDedup
                 {
                     ffMpeg.GetVideoThumbnail(FilePath, image_stream, (float)ThumbnailStepping * (index + 1));
                     _Thumbnails[index] = Image.FromStream(image_stream);
-                } catch (Exception)
+                }
+                catch (Exception)
                 {
                     Debug.Print($"Unable to load thumbnail index {index} for {FilePath}");
                     _Thumbnails[index] = new Bitmap(1, 1);
