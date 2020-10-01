@@ -78,6 +78,7 @@ namespace VideoDedup
 
         [JsonProperty]
         private TimeSpan? _Duration = null;
+        [JsonProperty]
         private long? _FileSize = null;
         private IDictionary<int, Image> _Thumbnails = new Dictionary<int, Image>();
         private MediaInfo _MediaInfo = null;
