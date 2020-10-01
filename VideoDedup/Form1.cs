@@ -207,6 +207,7 @@ namespace VideoDedup
                 }
 
                 var file = videoFileList[index];
+                SelectedMinimumDuration = file.Duration;
 
                 this.Invoke(new Action(() =>
                 {
@@ -335,7 +336,7 @@ namespace VideoDedup
             }
         }
 
-        private void SelectedDuration(TimeSpan min, TimeSpan max)
+        private void SelectDuration(TimeSpan min, TimeSpan max)
         {
             using (var dlg = new DurationSelection())
             {
@@ -394,7 +395,7 @@ namespace VideoDedup
                 this.Invoke(new Action(() =>
                 {
                     ElapsedTimer.Stop();
-                    SelectedDuration(
+                    SelectDuration(
                         videoFiles.Min(f => f.Duration),
                         videoFiles.Max(f => f.Duration));
                     ElapsedTimer.Start();
