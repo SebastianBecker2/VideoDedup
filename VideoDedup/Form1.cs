@@ -76,7 +76,10 @@ namespace VideoDedup
             }
         }
 
-        private TimeSpan ElapsedSeconds { get; set; } = new TimeSpan();
+        private TimeSpan ElapsedTime { get; set; } = new TimeSpan();
+
+        private IList<Tuple<VideoFile, VideoFile>> Duplicates { get; set; }
+            = new List<Tuple<VideoFile, VideoFile>>();
 
         private CancellationTokenSource CancellationTokenSource { get; set; }
 
@@ -93,12 +96,24 @@ namespace VideoDedup
             }
         }
 
+        private void UpdateStatusInfo(int index, int fileCount, VideoFile currentFile, VideoFile otherFile = null)
+        {
+            LblStatusInfo.Text = $"Comparing {index + 1}/{fileCount}" +
+                    $"{Environment.NewLine}Duplicates found: {Duplicates.Count()}" +
+                    $"{Environment.NewLine}{currentFile.FilePath}" +
+                    $"{Environment.NewLine}Duration: {currentFile.Duration}";
+            if (otherFile != null)
+            {
+                LblStatusInfo.Text += $"{Environment.NewLine}{otherFile.FilePath}";
+            }
+        }
+
         public static IEnumerable<string> GetAllAccessibleFilesIn(
             string rootDirectory,
             IEnumerable<string> excludedDirectories = null,
             string searchPattern = "*.*")
         {
-            List<string> files = new List<string>();
+            IEnumerable<string> files = new List<string>();
             if (excludedDirectories == null)
             {
                 excludedDirectories = new List<string>();
@@ -106,15 +121,13 @@ namespace VideoDedup
 
             try
             {
-                files.AddRange(Directory.GetFiles(rootDirectory, searchPattern, SearchOption.TopDirectoryOnly));
+                files = files.Concat(Directory.EnumerateFiles(rootDirectory, searchPattern, SearchOption.TopDirectoryOnly));
 
-                IEnumerable<string> subDirectories = Directory
-                    .GetDirectories(rootDirectory);
-                subDirectories = subDirectories.Where(d => !excludedDirectories.Contains(d));
-
-                foreach (string directory in subDirectories)
+                foreach (string directory in Directory
+                    .GetDirectories(rootDirectory)
+                    .Where(d => !excludedDirectories.Contains(d)))
                 {
-                    files.AddRange(GetAllAccessibleFilesIn(directory, excludedDirectories, searchPattern));
+                    files = files.Concat(GetAllAccessibleFilesIn(directory, excludedDirectories, searchPattern));
                 }
             }
             catch (UnauthorizedAccessException)
@@ -125,7 +138,9 @@ namespace VideoDedup
             return files;
         }
 
-        private void SaveVideoFilesCache(IEnumerable<VideoFile> videoFiles, string cache_path)
+        private void SaveVideoFilesCache(
+            IEnumerable<VideoFile> videoFiles,
+            string cache_path)
         {
             var timer = Stopwatch.StartNew();
             File.WriteAllText(cache_path, JsonConvert.SerializeObject(videoFiles, Formatting.Indented));
@@ -145,53 +160,40 @@ namespace VideoDedup
             }
         }
 
-        private IOrderedEnumerable<VideoFile> LoadVideoFileList(string sourcePath)
+        private IEnumerable<VideoFile> GetVideoFileList(string sourcePath)
         {
             var timer = Stopwatch.StartNew();
-            var cached_files = LoadVideoFilesCache(CacheFilePath);
-            if (cached_files == null)
-            {
-                cached_files = new HashSet<VideoFile>();
-            }
 
             // Get all video files in source path.
+            var fileExtensions = FileExtensions.ToList();
             var found_files = GetAllAccessibleFilesIn(sourcePath, ExcludedDirectories)
-                .Where(f => FileExtensions.Contains(Path.GetExtension(f).ToLower()))
+                .Where(f => fileExtensions.Contains(Path.GetExtension(f), StringComparer.CurrentCultureIgnoreCase))
                 .Select(f => new VideoFile(f));
 
-            // Basically overwrite the found files with cached files
-            // and make sure we don't take cached files that don't exist
-            // anymore.
-            cached_files.UnionWith(found_files);
-            cached_files.RemoveWhere(f => !found_files.Contains(f));
-
-            // Output damaged files for which we can't read the MediaInfo.
-            foreach (var invalid_file in cached_files
-                .Where(f => f.Duration == new TimeSpan()))
+            var cached_files = LoadVideoFilesCache(CacheFilePath);
+            if (cached_files == null || !cached_files.Any())
             {
-                Debug.Print($"Invalid file: {invalid_file.FilePath}");
+                cached_files = new HashSet<VideoFile>(found_files);
             }
-
-            // Removed files that are damaged and don't have valid MediaInfo
-            // and sort the remaining files.
-            var video_files = cached_files
-                .Where(f => f.Duration != new TimeSpan())
-                .OrderBy(f => f.Duration);
-
-            // Save the data we have gathered.
-            SaveVideoFilesCache(video_files, CacheFilePath);
+            else
+            {
+                // Basically overwrite the found files with cached files
+                // and make sure we don't take cached files that don't exist
+                // anymore.
+                cached_files.RemoveWhere(f => !File.Exists(f.FilePath));
+                cached_files.UnionWith(found_files);
+            }
             timer.Stop();
 
-            Debug.Print($"Found {video_files.Count()} video files in {timer.ElapsedMilliseconds} ms");
-            return video_files;
+            Debug.Print($"Found {cached_files.Count()} video files in {timer.ElapsedMilliseconds} ms");
+            return cached_files;
         }
 
-        private IEnumerable<Tuple<VideoFile, VideoFile>> FindDuplicates(
-            IOrderedEnumerable<VideoFile> videoFiles, CancellationToken cancelToken)
+        private void FindDuplicates(
+            IOrderedEnumerable<VideoFile> videoFiles,
+            CancellationToken cancelToken)
         {
             var videoFileList = videoFiles.ToList();
-
-            var duplicates = new List<Tuple<VideoFile, VideoFile>>();
 
             var timer = Stopwatch.StartNew();
             for (int index = 0; index < videoFileList.Count - 1; index++)
@@ -203,57 +205,56 @@ namespace VideoDedup
 
                 var file = videoFileList[index];
 
-                Func<string> createStatusInfo = () => $"Comparing {index + 1}/{videoFileList.Count()}" +
-                    $"{Environment.NewLine}Duplicates found: {duplicates.Count()}" +
-                    $"{Environment.NewLine}{file.FilePath}" +
-                    $"{Environment.NewLine}Duration: {file.Duration}";
                 this.Invoke(new Action(() =>
                 {
-                    LblStatusInfo.Text = createStatusInfo();
-                    progressBar1.Style = ProgressBarStyle.Continuous;
-                    progressBar1.Value = index + 1;
+                    UpdateStatusInfo(index, videoFileList.Count(), file);
+                    ProgressBar.Style = ProgressBarStyle.Continuous;
+                    ProgressBar.Value = index + 1;
                 }));
 
-                for (int next_index = index + 1; next_index < videoFileList.Count; next_index++)
+                for (int nextIndex = index + 1; nextIndex < videoFileList.Count; nextIndex++)
                 {
                     if (cancelToken.IsCancellationRequested)
                     {
                         break;
                     }
 
-                    var next_video = videoFileList[next_index];
+                    var nextVideo = videoFileList[nextIndex];
 
                     this.Invoke(new Action(() =>
-                    {
-                        LblStatusInfo.Text = createStatusInfo() + $"{Environment.NewLine}{next_video.FilePath}";
-                    }));
+                        UpdateStatusInfo(index, videoFileList.Count(), file, nextVideo)));
 
-                    if (!file.IsDurationEqual(next_video))
+                    if (!file.IsDurationEqual(nextVideo))
                     {
                         break;
                     }
 
-                    if (file.AreThumbnailsEqual(next_video))
+                    if (file.AreThumbnailsEqual(nextVideo))
                     {
-                        duplicates.Add(Tuple.Create(file, next_video));
+                        this.Invoke(new Action(() =>
+                            Duplicates.Add(Tuple.Create(file, nextVideo))));
                         Debug.Print(file.FilePath);
-                        Debug.Print($" - equal to: {next_video.FilePath}");
+                        Debug.Print($" - equal to: {nextVideo.FilePath}");
                     }
                 }
 
                 file.DisposeThumbnails();
             }
             timer.Stop();
-            Debug.Print($"Found {duplicates.Count()} in {timer.ElapsedMilliseconds} ms");
 
-            return duplicates;
+            this.Invoke(new Action(() =>
+                Debug.Print($"Found {Duplicates.Count()} in {timer.ElapsedMilliseconds} ms")));
         }
 
-        private void ResolveDuplicates(IEnumerable<Tuple<VideoFile, VideoFile>> duplicates)
+        private void ResolveDuplicates()
         {
-            Debug.Print($"Comparing {duplicates.Count()} duplicates.");
-            foreach ((var left, var right) in duplicates)
+            var duplicateCount = Duplicates.Count();
+            Debug.Print($"Comparing {duplicateCount} duplicates.");
+
+            foreach (var index in Enumerable.Range(0, duplicateCount))
             {
+                (var left, var right) = Duplicates[index];
+
                 // Mostely because we might have deleted
                 // this file during the previous compare
                 if (!File.Exists(left.FilePath))
@@ -271,9 +272,51 @@ namespace VideoDedup
                 {
                     dlg.LeftFile = left;
                     dlg.RightFile = right;
-                    dlg.ShowDialog();
+                    var result = dlg.ShowDialog();
                     left.DisposeThumbnails();
                     right.DisposeThumbnails();
+
+                    if (result == DialogResult.Yes)
+                    {
+                        // Remove from list
+                        Duplicates.RemoveAt(index);
+                    }
+                    if (result == DialogResult.Abort)
+                    {
+                        // Keep in list
+                        return;
+                    }
+                    if (dlg.ShowDialog() == DialogResult.No)
+                    {
+                        // Move to back of list
+                        Duplicates.RemoveAt(index);
+                        Duplicates.Add(Tuple.Create(left, right));
+                    }
+                }
+            }
+        }
+
+        private void PreloadFiles(
+            IEnumerable<VideoFile> videoFiles,
+            CancellationToken cancelToken)
+        {
+            int counter = 0;
+            foreach (var f in videoFiles)
+            {
+                counter++;
+
+                this.Invoke(new Action(() =>
+                {
+                    LblStatusInfo.Text = $"Loading for media information for" +
+                        $" {counter}/{videoFiles.Count()}";
+                    ProgressBar.Value = counter;
+                }));
+
+                var duration = f.Duration;
+                var size = f.FileSize;
+                if (cancelToken.IsCancellationRequested)
+                {
+                    break;
                 }
             }
         }
@@ -286,46 +329,63 @@ namespace VideoDedup
             }
             CancellationTokenSource = new CancellationTokenSource();
 
-            var token = CancellationTokenSource.Token;
-            IEnumerable<Tuple<VideoFile, VideoFile>> duplicates = null;
+            var cancelToken = CancellationTokenSource.Token;
             BtnDedup.Enabled = false;
-            LblStatusInfo.Text = "Searching for files and loading media information...";
-            progressBar1.Style = ProgressBarStyle.Marquee;
-            ElapsedSeconds = new TimeSpan();
-            timer1.Start();
+            LblStatusInfo.Text = "Searching for files...";
+            ProgressBar.Style = ProgressBarStyle.Marquee;
+            ElapsedTime = new TimeSpan();
+            ElapsedTimer.Start();
 
             Task.Run(() =>
             {
-                var video_files = LoadVideoFileList(SourcePath);
+                var videoFiles = GetVideoFileList(SourcePath);
+
+                // Save the data we have gathered.
+                SaveVideoFilesCache(videoFiles, CacheFilePath);
 
                 this.Invoke(new Action(() =>
                 {
-                    LblStatusInfo.Text = $"Comparing 0/{video_files.Count()}";
-                    progressBar1.Style = ProgressBarStyle.Continuous;
-                    progressBar1.Maximum = video_files.Count();
-                    progressBar1.Value = 0;
+                    LblStatusInfo.Text = $"Loading for media information 0/{videoFiles.Count()}";
+                    ProgressBar.Style = ProgressBarStyle.Continuous;
+                    ProgressBar.Maximum = videoFiles.Count();
+                    ProgressBar.Value = 0;
                     BtnCancel.Enabled = true;
                 }));
 
-                duplicates = FindDuplicates(video_files, token);
+                PreloadFiles(videoFiles, cancelToken);
+
+                if (cancelToken.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                // Removed files that are damaged and don't have valid MediaInfo
+                // and sort the remaining files.
+                var ordered_video_files = videoFiles
+                    .Where(f => f.Duration != new TimeSpan())
+                    .OrderBy(f => f.Duration);
 
                 this.Invoke(new Action(() =>
                 {
-                    LblStatusInfo.Text = $"Found {duplicates.Count()} duplicates";
-                    progressBar1.Style = ProgressBarStyle.Continuous;
-                    progressBar1.Value = 0;
-                    BtnDedup.Enabled = true;
-                    BtnCancel.Enabled = false;
-                    timer1.Stop();
+                    LblStatusInfo.Text = $"Comparing 0/{ordered_video_files.Count()}";
+                    ProgressBar.Style = ProgressBarStyle.Continuous;
+                    ProgressBar.Maximum = ordered_video_files.Count();
+                    ProgressBar.Value = 0;
                 }));
+
+                FindDuplicates(ordered_video_files, cancelToken);
+            }, cancelToken).ContinueWith(t =>
+            {
                 this.Invoke(new Action(() =>
                 {
-                    if (duplicates != null)
-                    {
-                        ResolveDuplicates(duplicates);
-                    }
+                    LblStatusInfo.Text = $"Found {Duplicates.Count()} duplicates";
+                    ProgressBar.Style = ProgressBarStyle.Continuous;
+                    ProgressBar.Value = 0;
+                    BtnDedup.Enabled = true;
+                    BtnCancel.Enabled = false;
+                    ElapsedTimer.Stop();
                 }));
-            }, token);
+            });
         }
 
         private void BtnCancel_Click(object sender, EventArgs e)
@@ -350,10 +410,15 @@ namespace VideoDedup
             }
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
+        private void ElapsedTimer_Tick(object sender, EventArgs e)
         {
-            ElapsedSeconds = ElapsedSeconds.Add(TimeSpan.FromSeconds(1));
-            LblTimer.Text = ElapsedSeconds.ToString();
+            ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(1));
+            LblTimer.Text = ElapsedTime.ToString();
+        }
+
+        private void BtnResolveConflicts_Click(object sender, EventArgs e)
+        {
+            ResolveDuplicates();
         }
     }
 }

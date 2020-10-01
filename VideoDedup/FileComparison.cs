@@ -70,7 +70,7 @@ namespace VideoDedup
                 try
                 {
                     File.Delete(LeftFile.FilePath);
-                    DialogResult = DialogResult.OK;
+                    DialogResult = DialogResult.Yes;
                 }
                 catch (Exception exc)
                 {
@@ -97,7 +97,7 @@ namespace VideoDedup
                 try
                 {
                     File.Delete(RightFile.FilePath);
-                    DialogResult = DialogResult.OK;
+                    DialogResult = DialogResult.Yes;
                 }
                 catch (Exception exc)
                 {

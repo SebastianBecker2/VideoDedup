@@ -31,12 +31,13 @@
             this.components = new System.ComponentModel.Container();
             this.BtnToDoManager = new System.Windows.Forms.Button();
             this.BtnDedup = new System.Windows.Forms.Button();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.ProgressBar = new System.Windows.Forms.ProgressBar();
             this.LblStatusInfo = new System.Windows.Forms.Label();
             this.BtnCancel = new System.Windows.Forms.Button();
             this.BtnConfig = new System.Windows.Forms.Button();
             this.LblTimer = new System.Windows.Forms.Label();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.ElapsedTimer = new System.Windows.Forms.Timer(this.components);
+            this.BtnResolveConflicts = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // BtnToDoManager
@@ -53,7 +54,7 @@
             // BtnDedup
             // 
             this.BtnDedup.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnDedup.Location = new System.Drawing.Point(506, 107);
+            this.BtnDedup.Location = new System.Drawing.Point(425, 107);
             this.BtnDedup.Name = "BtnDedup";
             this.BtnDedup.Size = new System.Drawing.Size(75, 23);
             this.BtnDedup.TabIndex = 0;
@@ -63,12 +64,12 @@
             // 
             // progressBar1
             // 
-            this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.ProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.progressBar1.Location = new System.Drawing.Point(12, 12);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(569, 23);
-            this.progressBar1.TabIndex = 5;
+            this.ProgressBar.Location = new System.Drawing.Point(12, 12);
+            this.ProgressBar.Name = "progressBar1";
+            this.ProgressBar.Size = new System.Drawing.Size(569, 23);
+            this.ProgressBar.TabIndex = 5;
             // 
             // LblStatusInfo
             // 
@@ -83,7 +84,7 @@
             // 
             this.BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnCancel.Enabled = false;
-            this.BtnCancel.Location = new System.Drawing.Point(425, 107);
+            this.BtnCancel.Location = new System.Drawing.Point(344, 107);
             this.BtnCancel.Name = "BtnCancel";
             this.BtnCancel.Size = new System.Drawing.Size(75, 23);
             this.BtnCancel.TabIndex = 7;
@@ -106,27 +107,39 @@
             // 
             this.LblTimer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.LblTimer.AutoSize = true;
-            this.LblTimer.Location = new System.Drawing.Point(370, 112);
+            this.LblTimer.Location = new System.Drawing.Point(289, 112);
             this.LblTimer.Name = "LblTimer";
             this.LblTimer.Size = new System.Drawing.Size(49, 13);
             this.LblTimer.TabIndex = 9;
             this.LblTimer.Text = "00:00:00";
             // 
-            // timer1
+            // ElapsedTimer
             // 
-            this.timer1.Interval = 1000;
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            this.ElapsedTimer.Interval = 1000;
+            this.ElapsedTimer.Tick += new System.EventHandler(this.ElapsedTimer_Tick);
+            // 
+            // BtnResolveConflicts
+            // 
+            this.BtnResolveConflicts.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnResolveConflicts.Location = new System.Drawing.Point(506, 107);
+            this.BtnResolveConflicts.Name = "BtnResolveConflicts";
+            this.BtnResolveConflicts.Size = new System.Drawing.Size(75, 23);
+            this.BtnResolveConflicts.TabIndex = 10;
+            this.BtnResolveConflicts.Text = "Resolve";
+            this.BtnResolveConflicts.UseVisualStyleBackColor = true;
+            this.BtnResolveConflicts.Click += new System.EventHandler(this.BtnResolveConflicts_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(593, 142);
+            this.Controls.Add(this.BtnResolveConflicts);
             this.Controls.Add(this.LblTimer);
             this.Controls.Add(this.BtnConfig);
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.LblStatusInfo);
-            this.Controls.Add(this.progressBar1);
+            this.Controls.Add(this.ProgressBar);
             this.Controls.Add(this.BtnDedup);
             this.Controls.Add(this.BtnToDoManager);
             this.Name = "Form1";
@@ -140,12 +153,13 @@
 
         private System.Windows.Forms.Button BtnToDoManager;
         private System.Windows.Forms.Button BtnDedup;
-        private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.ProgressBar ProgressBar;
         private System.Windows.Forms.Label LblStatusInfo;
         private System.Windows.Forms.Button BtnCancel;
         private System.Windows.Forms.Button BtnConfig;
         private System.Windows.Forms.Label LblTimer;
-        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Timer ElapsedTimer;
+        private System.Windows.Forms.Button BtnResolveConflicts;
     }
 }
 

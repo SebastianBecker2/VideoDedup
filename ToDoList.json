@@ -42,5 +42,9 @@
   {
     "Done": true,
     "Text": "Load thumbnails in comparison dialog lazy"
+  },
+  {
+    "Done": false,
+    "Text": "Cancellable media information gatherino"
   }
 ]
