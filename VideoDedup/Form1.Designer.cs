@@ -43,7 +43,7 @@
             // BtnToDoManager
             // 
             this.BtnToDoManager.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.BtnToDoManager.Location = new System.Drawing.Point(93, 107);
+            this.BtnToDoManager.Location = new System.Drawing.Point(93, 118);
             this.BtnToDoManager.Name = "BtnToDoManager";
             this.BtnToDoManager.Size = new System.Drawing.Size(75, 23);
             this.BtnToDoManager.TabIndex = 1;
@@ -54,7 +54,7 @@
             // BtnDedup
             // 
             this.BtnDedup.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnDedup.Location = new System.Drawing.Point(425, 107);
+            this.BtnDedup.Location = new System.Drawing.Point(425, 118);
             this.BtnDedup.Name = "BtnDedup";
             this.BtnDedup.Size = new System.Drawing.Size(75, 23);
             this.BtnDedup.TabIndex = 0;
@@ -84,7 +84,7 @@
             // 
             this.BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnCancel.Enabled = false;
-            this.BtnCancel.Location = new System.Drawing.Point(344, 107);
+            this.BtnCancel.Location = new System.Drawing.Point(344, 118);
             this.BtnCancel.Name = "BtnCancel";
             this.BtnCancel.Size = new System.Drawing.Size(75, 23);
             this.BtnCancel.TabIndex = 7;
@@ -95,7 +95,7 @@
             // BtnConfig
             // 
             this.BtnConfig.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.BtnConfig.Location = new System.Drawing.Point(12, 107);
+            this.BtnConfig.Location = new System.Drawing.Point(12, 118);
             this.BtnConfig.Name = "BtnConfig";
             this.BtnConfig.Size = new System.Drawing.Size(75, 23);
             this.BtnConfig.TabIndex = 8;
@@ -107,7 +107,7 @@
             // 
             this.LblTimer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.LblTimer.AutoSize = true;
-            this.LblTimer.Location = new System.Drawing.Point(289, 112);
+            this.LblTimer.Location = new System.Drawing.Point(289, 123);
             this.LblTimer.Name = "LblTimer";
             this.LblTimer.Size = new System.Drawing.Size(49, 13);
             this.LblTimer.TabIndex = 9;
@@ -122,7 +122,7 @@
             // 
             this.BtnResolveConflicts.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnResolveConflicts.Enabled = false;
-            this.BtnResolveConflicts.Location = new System.Drawing.Point(506, 107);
+            this.BtnResolveConflicts.Location = new System.Drawing.Point(506, 118);
             this.BtnResolveConflicts.Name = "BtnResolveConflicts";
             this.BtnResolveConflicts.Size = new System.Drawing.Size(75, 23);
             this.BtnResolveConflicts.TabIndex = 10;
@@ -134,7 +134,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(593, 142);
+            this.ClientSize = new System.Drawing.Size(593, 153);
             this.Controls.Add(this.BtnResolveConflicts);
             this.Controls.Add(this.LblTimer);
             this.Controls.Add(this.BtnConfig);
