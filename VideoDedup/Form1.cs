@@ -364,6 +364,7 @@ namespace VideoDedup
 
             var cancelToken = CancellationTokenSource.Token;
             BtnDedup.Enabled = false;
+            BtnConfig.Enabled = false;
             LblStatusInfo.Text = "Searching for files...";
             ProgressBar.Style = ProgressBarStyle.Marquee;
             ElapsedTime = new TimeSpan();
@@ -432,6 +433,7 @@ namespace VideoDedup
                     ProgressBar.Style = ProgressBarStyle.Continuous;
                     ProgressBar.Value = 0;
                     BtnDedup.Enabled = true;
+                    BtnConfig.Enabled = true;
                     BtnCancel.Enabled = false;
                     ElapsedTimer.Stop();
                 }));
