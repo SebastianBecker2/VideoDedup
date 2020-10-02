@@ -114,7 +114,7 @@
             // 
             // LblTimer
             // 
-            this.LblTimer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.LblTimer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.LblTimer.AutoSize = true;
             this.LblTimer.Location = new System.Drawing.Point(532, 55);
             this.LblTimer.Name = "LblTimer";
