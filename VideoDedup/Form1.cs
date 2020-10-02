@@ -99,16 +99,12 @@ namespace VideoDedup
             }
         }
 
-        private void UpdateStatusInfo(int index, int fileCount, VideoFile currentFile, VideoFile otherFile = null)
+        private void UpdateStatusInfo(int index, int fileCount, VideoFile currentFile)
         {
             LblStatusInfo.Text = $"Comparing {index + 1}/{fileCount}" +
                     $"{Environment.NewLine}Duplicates found: {Duplicates.Count()}" +
                     $"{Environment.NewLine}{currentFile.FilePath}" +
                     $"{Environment.NewLine}Duration: {currentFile.Duration}";
-            if (otherFile != null)
-            {
-                LblStatusInfo.Text += $"{Environment.NewLine}{otherFile.FilePath}";
-            }
         }
 
         public static IEnumerable<string> GetAllAccessibleFilesIn(
@@ -207,7 +203,6 @@ namespace VideoDedup
                 }
 
                 var file = videoFileList[index];
-                SelectedMinimumDuration = file.Duration;
 
                 this.Invoke(new Action(() =>
                 {
@@ -224,9 +219,6 @@ namespace VideoDedup
                     }
 
                     var nextVideo = videoFileList[nextIndex];
-
-                    this.Invoke(new Action(() =>
-                        UpdateStatusInfo(index, videoFileList.Count(), file, nextVideo)));
 
                     if (!file.IsDurationEqual(nextVideo))
                     {
@@ -245,6 +237,7 @@ namespace VideoDedup
                     }
                 }
 
+                SelectedMinimumDuration = file.Duration;
                 file.DisposeThumbnails();
             }
             timer.Stop();

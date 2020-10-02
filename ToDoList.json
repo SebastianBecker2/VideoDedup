@@ -8,7 +8,7 @@
     "Text": "Minimize to tray?"
   },
   {
-    "Done": false,
+    "Done": true,
     "Text": "Less invoking of gui thread"
   },
   {
