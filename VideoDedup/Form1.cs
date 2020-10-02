@@ -255,10 +255,9 @@ namespace VideoDedup
 
         private void ResolveDuplicates()
         {
-            var duplicateCount = Duplicates.Count();
-            Debug.Print($"Comparing {duplicateCount} duplicates.");
+            Debug.Print($"Comparing {Duplicates.Count()} duplicates.");
 
-            foreach (var index in Enumerable.Range(0, duplicateCount))
+            for (var index = 0; index < Duplicates.Count();)
             {
                 (var left, var right) = Duplicates[index];
 
@@ -299,9 +298,7 @@ namespace VideoDedup
                     }
                     if (result == DialogResult.No)
                     {
-                        // Move to back of list
-                        Duplicates.RemoveAt(index);
-                        Duplicates.Add(Tuple.Create(left, right));
+                        index++;
                     }
                 }
             }

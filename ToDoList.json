@@ -1,5 +1,21 @@
 [
   {
+    "Done": false,
+    "Text": "Add progress to taskbar (https://stackoverflow.com/a/28391274/2347040)"
+  },
+  {
+    "Done": false,
+    "Text": "Minimize to tray?"
+  },
+  {
+    "Done": false,
+    "Text": "Less invoking of gui thread"
+  },
+  {
+    "Done": false,
+    "Text": "Skip with 2 duplicates reshows the first one (because the first one is removed from the list, placed at the end and the index is increased...\r\nWe should not increase the index in that case. Or just not move it to the end...)"
+  },
+  {
     "Done": true,
     "Text": "Add continuation? Setting a minimum duration? maximum duration? "
   },
