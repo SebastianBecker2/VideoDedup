@@ -44,6 +44,8 @@
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.LblDuplicateCount = new System.Windows.Forms.Label();
+            this.LblCurrentFile = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -114,7 +116,7 @@
             // 
             this.LblTimer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.LblTimer.AutoSize = true;
-            this.LblTimer.Location = new System.Drawing.Point(289, 140);
+            this.LblTimer.Location = new System.Drawing.Point(532, 55);
             this.LblTimer.Name = "LblTimer";
             this.LblTimer.Size = new System.Drawing.Size(49, 13);
             this.LblTimer.TabIndex = 9;
@@ -178,11 +180,31 @@
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
+            // LblDuplicateCount
+            // 
+            this.LblDuplicateCount.AutoSize = true;
+            this.LblDuplicateCount.Location = new System.Drawing.Point(9, 70);
+            this.LblDuplicateCount.Name = "LblDuplicateCount";
+            this.LblDuplicateCount.Size = new System.Drawing.Size(99, 13);
+            this.LblDuplicateCount.TabIndex = 12;
+            this.LblDuplicateCount.Text = "Duplicates found: 0";
+            // 
+            // LblCurrentFile
+            // 
+            this.LblCurrentFile.AutoSize = true;
+            this.LblCurrentFile.Location = new System.Drawing.Point(9, 85);
+            this.LblCurrentFile.Name = "LblCurrentFile";
+            this.LblCurrentFile.Size = new System.Drawing.Size(55, 13);
+            this.LblCurrentFile.TabIndex = 13;
+            this.LblCurrentFile.Text = "Checking:";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(593, 170);
+            this.Controls.Add(this.LblCurrentFile);
+            this.Controls.Add(this.LblDuplicateCount);
             this.Controls.Add(this.BtnResolveConflicts);
             this.Controls.Add(this.LblTimer);
             this.Controls.Add(this.BtnConfig);
@@ -219,6 +241,8 @@
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.Label LblDuplicateCount;
+        private System.Windows.Forms.Label LblCurrentFile;
     }
 }
 

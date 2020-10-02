@@ -99,6 +99,7 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="ISynchronizeInvokeExtension.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProgressBarExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

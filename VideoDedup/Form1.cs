@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,6 +23,15 @@ namespace VideoDedup
     {
         private readonly static string CacheFolderName = "VideoDedupCache";
         private readonly static string CacheFileName = "video_files.cache";
+
+        private readonly static string StatusInfoComparing = "Comparing: {0}/{1}";
+        private readonly static string StatusInfoLoading = "Loading media info: {0}/{1}";
+        private readonly static string StatusInfoSearching = "Searching for files...";
+
+        private readonly static string StatusInfoDuplicateCount = "Duplicates found {0}";
+        private readonly static string StatusInfoChecking = "Checking: ";
+
+        private string CurrentStatusInfo { get; set; }
 
         public string CacheFilePath
         {
@@ -100,12 +110,69 @@ namespace VideoDedup
             }
         }
 
-        private void UpdateStatusInfo(int index, int fileCount, VideoFile currentFile)
+        private void UpdateProgress(
+            string statusInfo,
+            int counter,
+            int maxCount)
         {
-            LblStatusInfo.Text = $"Comparing {index + 1}/{fileCount}" +
-                    $"{Environment.NewLine}Duplicates found: {Duplicates.Count()}" +
-                    $"{Environment.NewLine}{currentFile.FilePath}" +
-                    $"{Environment.NewLine}Duration: {currentFile.Duration}";
+            this.InvokeIfRequired(() =>
+            {
+                if (!string.IsNullOrWhiteSpace(statusInfo))
+                {
+                    CurrentStatusInfo = statusInfo;
+                }
+                LblStatusInfo.Text = string.Format(
+                    CurrentStatusInfo, 
+                    counter, 
+                    maxCount);
+
+                if (maxCount > 0)
+                {
+                    TaskbarManager.Instance.SetProgressState(
+                        TaskbarProgressBarState.Normal, 
+                        Handle);
+                    ProgressBar.Style = ProgressBarStyle.Continuous;
+                }
+                else
+                {
+                    TaskbarManager.Instance.SetProgressState(
+                        TaskbarProgressBarState.Indeterminate, 
+                        Handle);
+                    ProgressBar.Style = ProgressBarStyle.Marquee;
+                }
+
+                ProgressBar.Value = counter;
+                ProgressBar.Maximum = maxCount == 0 ? 1 : maxCount;
+                TaskbarManager.Instance.SetProgressValue(
+                    counter,
+                    maxCount,
+                    Handle);
+            });
+        }
+
+        private void RemoveDuplicate(int index)
+        {
+            this.InvokeIfRequired(() =>
+            {
+                Duplicates.RemoveAt(index);
+                LblDuplicateCount.Text = string.Format(
+                    StatusInfoDuplicateCount, Duplicates.Count());
+                if (!Duplicates.Any())
+                {
+                    BtnResolveConflicts.Enabled = false;
+                }
+            });
+        }
+
+        private void AddDuplicate(VideoFile left, VideoFile right)
+        {
+            this.InvokeIfRequired(() =>
+            {
+                Duplicates.Add(Tuple.Create(left, right));
+                LblDuplicateCount.Text = string.Format(
+                    StatusInfoDuplicateCount, Duplicates.Count());
+                BtnResolveConflicts.Enabled = true;
+            });
         }
 
         public static IEnumerable<string> GetAllAccessibleFilesIn(
@@ -195,7 +262,6 @@ namespace VideoDedup
         {
             var videoFileList = videoFiles.ToList();
 
-            var timer = Stopwatch.StartNew();
             for (int index = 0; index < videoFileList.Count() - 1; index++)
             {
                 if (cancelToken.IsCancellationRequested)
@@ -205,12 +271,12 @@ namespace VideoDedup
 
                 var file = videoFileList[index];
 
-                this.Invoke(new Action(() =>
+                this.InvokeIfRequired(() =>
                 {
-                    UpdateStatusInfo(index, videoFileList.Count(), file);
-                    ProgressBar.Value = index + 1;
-                    TaskbarManager.Instance.SetProgressValue(index + 1, videoFileList.Count(), Handle);
-                }));
+                    LblCurrentFile.Text = StatusInfoChecking + $"{file.FilePath}" +
+                        $"{Environment.NewLine}Duration: {file.Duration}";
+                    UpdateProgress(StatusInfoComparing, index, videoFileList.Count());
+                });
 
                 for (int nextIndex = index + 1; nextIndex < videoFileList.Count; nextIndex++)
                 {
@@ -219,38 +285,26 @@ namespace VideoDedup
                         break;
                     }
 
-                    var nextVideo = videoFileList[nextIndex];
+                    var nextFile = videoFileList[nextIndex];
 
-                    if (!file.IsDurationEqual(nextVideo))
+                    if (!file.IsDurationEqual(nextFile))
                     {
                         break;
                     }
 
-                    if (file.AreThumbnailsEqual(nextVideo))
+                    if (file.AreThumbnailsEqual(nextFile))
                     {
-                        this.Invoke(new Action(() =>
-                        {
-                            Duplicates.Add(Tuple.Create(file, nextVideo));
-                            BtnResolveConflicts.Enabled = true;
-                        }));
-                        Debug.Print(file.FilePath);
-                        Debug.Print($" - equal to: {nextVideo.FilePath}");
+                        AddDuplicate(file, nextFile);
                     }
                 }
 
                 SelectedMinimumDuration = file.Duration;
                 file.DisposeThumbnails();
             }
-            timer.Stop();
-
-            this.Invoke(new Action(() =>
-                Debug.Print($"Found {Duplicates.Count()} in {timer.ElapsedMilliseconds} ms")));
         }
 
         private void ResolveDuplicates()
         {
-            Debug.Print($"Comparing {Duplicates.Count()} duplicates.");
-
             for (var index = 0; index < Duplicates.Count();)
             {
                 (var left, var right) = Duplicates[index];
@@ -278,12 +332,7 @@ namespace VideoDedup
 
                     if (result == DialogResult.Yes)
                     {
-                        // Remove from list
-                        Duplicates.RemoveAt(index);
-                        if (!Duplicates.Any())
-                        {
-                            BtnResolveConflicts.Enabled = false;
-                        }
+                        RemoveDuplicate(index);
                     }
                     if (result == DialogResult.Abort)
                     {
@@ -303,17 +352,16 @@ namespace VideoDedup
             CancellationToken cancelToken)
         {
             int counter = 0;
+            DateTime? lastUpdate = null;
             foreach (var f in videoFiles)
             {
                 counter++;
 
-                this.Invoke(new Action(() =>
+                if (lastUpdate == null
+                    || (lastUpdate.Value - DateTime.Now).TotalMilliseconds > 100)
                 {
-                    LblStatusInfo.Text = $"Loading for media information for" +
-                        $" {counter}/{videoFiles.Count()}";
-                    ProgressBar.Value = counter;
-                    TaskbarManager.Instance.SetProgressValue(counter, videoFiles.Count(), Handle);
-                }));
+                    UpdateProgress(StatusInfoLoading, counter, videoFiles.Count());
+                }
 
                 // For now we only preload the duration
                 // since the size is only rarely used
@@ -357,9 +405,9 @@ namespace VideoDedup
             var cancelToken = CancellationTokenSource.Token;
             BtnDedup.Enabled = false;
             BtnConfig.Enabled = false;
-            LblStatusInfo.Text = "Searching for files...";
-            TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Indeterminate, Handle);
-            ProgressBar.Style = ProgressBarStyle.Marquee;
+            BtnCancel.Enabled = false;
+            LblCurrentFile.Text = StatusInfoChecking;
+            UpdateProgress(StatusInfoSearching, 0, 0);
             ElapsedTime = new TimeSpan();
             ElapsedTimer.Start();
 
@@ -367,16 +415,11 @@ namespace VideoDedup
             {
                 var videoFiles = GetVideoFileList(SourcePath);
 
-                this.Invoke(new Action(() =>
+                this.InvokeIfRequired(() =>
                 {
-                    LblStatusInfo.Text = $"Loading for media information 0/{videoFiles.Count()}";
-                    TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal, Handle);
-                    TaskbarManager.Instance.SetProgressValue(0, videoFiles.Count(), Handle);
-                    ProgressBar.Style = ProgressBarStyle.Continuous;
-                    ProgressBar.Maximum = videoFiles.Count();
-                    ProgressBar.Value = 0;
+                    UpdateProgress(StatusInfoLoading, 0, videoFiles.Count());
                     BtnCancel.Enabled = true;
-                }));
+                });
 
                 PreloadFiles(videoFiles, cancelToken);
 
@@ -410,15 +453,7 @@ namespace VideoDedup
                     .Where(f => f.Duration <= SelectedMaximumDuration.Value)
                     .OrderBy(f => f.Duration);
 
-                this.Invoke(new Action(() =>
-                {
-                    LblStatusInfo.Text = $"Comparing 0/{orderedVideoFiles.Count()}";
-                    TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal, Handle);
-                    TaskbarManager.Instance.SetProgressValue(0, orderedVideoFiles.Count(), Handle);
-                    ProgressBar.Style = ProgressBarStyle.Continuous;
-                    ProgressBar.Maximum = orderedVideoFiles.Count();
-                    ProgressBar.Value = 0;
-                }));
+                UpdateProgress(StatusInfoComparing, 0, videoFiles.Count());
 
                 FindDuplicates(orderedVideoFiles, cancelToken);
             }, cancelToken).ContinueWith(t =>
