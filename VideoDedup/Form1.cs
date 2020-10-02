@@ -207,7 +207,6 @@ namespace VideoDedup
                 this.Invoke(new Action(() =>
                 {
                     UpdateStatusInfo(index, videoFileList.Count(), file);
-                    ProgressBar.Style = ProgressBarStyle.Continuous;
                     ProgressBar.Value = index + 1;
                 }));
 

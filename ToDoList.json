@@ -8,6 +8,10 @@
     "Text": "Minimize to tray?"
   },
   {
+    "Done": false,
+    "Text": "Add Icons"
+  },
+  {
     "Done": true,
     "Text": "Less invoking of gui thread"
   },
@@ -66,5 +70,9 @@
   {
     "Done": true,
     "Text": "Resolve conflicts while searching for deduplications"
+  },
+  {
+    "Done": false,
+    "Text": "Update status info when resolving a duplicate. To update the duplicate count there.\r\n(Should keep the currently processed file information on there, when it's still searching for duplicates.)"
   }
 ]
