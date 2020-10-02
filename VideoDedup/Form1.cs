@@ -1,4 +1,5 @@
 ﻿using Microsoft.WindowsAPICodePack.Shell;
+using Microsoft.WindowsAPICodePack.Taskbar;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -195,7 +196,7 @@ namespace VideoDedup
             var videoFileList = videoFiles.ToList();
 
             var timer = Stopwatch.StartNew();
-            for (int index = 0; index < videoFileList.Count - 1; index++)
+            for (int index = 0; index < videoFileList.Count() - 1; index++)
             {
                 if (cancelToken.IsCancellationRequested)
                 {
@@ -208,6 +209,7 @@ namespace VideoDedup
                 {
                     UpdateStatusInfo(index, videoFileList.Count(), file);
                     ProgressBar.Value = index + 1;
+                    TaskbarManager.Instance.SetProgressValue(index + 1, videoFileList.Count(), Handle);
                 }));
 
                 for (int nextIndex = index + 1; nextIndex < videoFileList.Count; nextIndex++)
@@ -310,6 +312,7 @@ namespace VideoDedup
                     LblStatusInfo.Text = $"Loading for media information for" +
                         $" {counter}/{videoFiles.Count()}";
                     ProgressBar.Value = counter;
+                    TaskbarManager.Instance.SetProgressValue(counter, videoFiles.Count(), Handle);
                 }));
 
                 // For now we only preload the duration
@@ -355,6 +358,7 @@ namespace VideoDedup
             BtnDedup.Enabled = false;
             BtnConfig.Enabled = false;
             LblStatusInfo.Text = "Searching for files...";
+            TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Indeterminate, Handle);
             ProgressBar.Style = ProgressBarStyle.Marquee;
             ElapsedTime = new TimeSpan();
             ElapsedTimer.Start();
@@ -366,6 +370,8 @@ namespace VideoDedup
                 this.Invoke(new Action(() =>
                 {
                     LblStatusInfo.Text = $"Loading for media information 0/{videoFiles.Count()}";
+                    TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal, Handle);
+                    TaskbarManager.Instance.SetProgressValue(0, videoFiles.Count(), Handle);
                     ProgressBar.Style = ProgressBarStyle.Continuous;
                     ProgressBar.Maximum = videoFiles.Count();
                     ProgressBar.Value = 0;
@@ -398,7 +404,7 @@ namespace VideoDedup
 
                 // Removed files that are damaged and don't have valid MediaInfo
                 // and sort the remaining files.
-                var ordered_video_files = videoFiles
+                var orderedVideoFiles = videoFiles
                     .Where(f => f.Duration != new TimeSpan())
                     .Where(f => f.Duration >= SelectedMinimumDuration.Value)
                     .Where(f => f.Duration <= SelectedMaximumDuration.Value)
@@ -406,19 +412,20 @@ namespace VideoDedup
 
                 this.Invoke(new Action(() =>
                 {
-                    LblStatusInfo.Text = $"Comparing 0/{ordered_video_files.Count()}";
+                    LblStatusInfo.Text = $"Comparing 0/{orderedVideoFiles.Count()}";
+                    TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal, Handle);
+                    TaskbarManager.Instance.SetProgressValue(0, orderedVideoFiles.Count(), Handle);
                     ProgressBar.Style = ProgressBarStyle.Continuous;
-                    ProgressBar.Maximum = ordered_video_files.Count();
+                    ProgressBar.Maximum = orderedVideoFiles.Count();
                     ProgressBar.Value = 0;
                 }));
 
-                FindDuplicates(ordered_video_files, cancelToken);
+                FindDuplicates(orderedVideoFiles, cancelToken);
             }, cancelToken).ContinueWith(t =>
             {
                 this.Invoke(new Action(() =>
                 {
-                    ProgressBar.Style = ProgressBarStyle.Continuous;
-                    ProgressBar.Value = 0;
+                    TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress, Handle);
                     BtnDedup.Enabled = true;
                     BtnConfig.Enabled = true;
                     BtnCancel.Enabled = false;

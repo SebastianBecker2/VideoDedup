@@ -1,6 +1,6 @@
 [
   {
-    "Done": false,
+    "Done": true,
     "Text": "Add progress to taskbar (https://stackoverflow.com/a/28391274/2347040)"
   },
   {
@@ -10,6 +10,10 @@
   {
     "Done": false,
     "Text": "Add Icons"
+  },
+  {
+    "Done": false,
+    "Text": "Update status info when resolving a duplicate. To update the duplicate count there.\r\n(Should keep the currently processed file information on there, when it's still searching for duplicates.)"
   },
   {
     "Done": true,
@@ -70,9 +74,5 @@
   {
     "Done": true,
     "Text": "Resolve conflicts while searching for deduplications"
-  },
-  {
-    "Done": false,
-    "Text": "Update status info when resolving a duplicate. To update the duplicate count there.\r\n(Should keep the currently processed file information on there, when it's still searching for duplicates.)"
   }
 ]
