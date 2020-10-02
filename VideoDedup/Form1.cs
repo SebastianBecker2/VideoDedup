@@ -423,15 +423,13 @@ namespace VideoDedup
                 FindDuplicates(orderedVideoFiles, cancelToken);
             }, cancelToken).ContinueWith(t =>
             {
-                this.Invoke(new Action(() =>
-                {
-                    TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress, Handle);
-                    BtnDedup.Enabled = true;
-                    BtnConfig.Enabled = true;
-                    BtnCancel.Enabled = false;
-                    ElapsedTimer.Stop();
-                }));
-            });
+                TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress, Handle);
+                ProgressBar.Stop();
+                BtnDedup.Enabled = true;
+                BtnConfig.Enabled = true;
+                BtnCancel.Enabled = false;
+                ElapsedTimer.Stop();
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private void BtnCancel_Click(object sender, EventArgs e)
