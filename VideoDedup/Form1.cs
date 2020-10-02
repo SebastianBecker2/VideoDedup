@@ -425,8 +425,6 @@ namespace VideoDedup
             {
                 this.Invoke(new Action(() =>
                 {
-                    LblStatusInfo.Text += $"{Environment.NewLine}" +
-                        $"Found {Duplicates.Count()} duplicates.";
                     ProgressBar.Style = ProgressBarStyle.Continuous;
                     ProgressBar.Value = 0;
                     BtnDedup.Enabled = true;

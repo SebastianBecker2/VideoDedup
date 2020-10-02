@@ -12,7 +12,7 @@
     "Text": "Less invoking of gui thread"
   },
   {
-    "Done": false,
+    "Done": true,
     "Text": "Skip with 2 duplicates reshows the first one (because the first one is removed from the list, placed at the end and the index is increased...\r\nWe should not increase the index in that case. Or just not move it to the end...)"
   },
   {
