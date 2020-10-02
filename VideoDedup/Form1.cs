@@ -464,5 +464,18 @@ namespace VideoDedup
         {
             ResolveDuplicates();
         }
+
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var dlg = new About())
+            {
+                dlg.ShowDialog();
+            }
+        }
     }
 }

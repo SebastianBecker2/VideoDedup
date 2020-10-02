@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.BtnToDoManager = new System.Windows.Forms.Button();
             this.BtnDedup = new System.Windows.Forms.Button();
             this.ProgressBar = new System.Windows.Forms.ProgressBar();
@@ -38,12 +39,18 @@
             this.LblTimer = new System.Windows.Forms.Label();
             this.ElapsedTimer = new System.Windows.Forms.Timer(this.components);
             this.BtnResolveConflicts = new System.Windows.Forms.Button();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // BtnToDoManager
             // 
             this.BtnToDoManager.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.BtnToDoManager.Location = new System.Drawing.Point(93, 118);
+            this.BtnToDoManager.Location = new System.Drawing.Point(93, 135);
             this.BtnToDoManager.Name = "BtnToDoManager";
             this.BtnToDoManager.Size = new System.Drawing.Size(75, 23);
             this.BtnToDoManager.TabIndex = 1;
@@ -54,7 +61,7 @@
             // BtnDedup
             // 
             this.BtnDedup.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnDedup.Location = new System.Drawing.Point(425, 118);
+            this.BtnDedup.Location = new System.Drawing.Point(425, 135);
             this.BtnDedup.Name = "BtnDedup";
             this.BtnDedup.Size = new System.Drawing.Size(75, 23);
             this.BtnDedup.TabIndex = 0;
@@ -66,7 +73,7 @@
             // 
             this.ProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.ProgressBar.Location = new System.Drawing.Point(12, 12);
+            this.ProgressBar.Location = new System.Drawing.Point(12, 29);
             this.ProgressBar.Name = "ProgressBar";
             this.ProgressBar.Size = new System.Drawing.Size(569, 23);
             this.ProgressBar.TabIndex = 5;
@@ -74,7 +81,7 @@
             // LblStatusInfo
             // 
             this.LblStatusInfo.AutoSize = true;
-            this.LblStatusInfo.Location = new System.Drawing.Point(9, 38);
+            this.LblStatusInfo.Location = new System.Drawing.Point(9, 55);
             this.LblStatusInfo.Name = "LblStatusInfo";
             this.LblStatusInfo.Size = new System.Drawing.Size(49, 13);
             this.LblStatusInfo.TabIndex = 6;
@@ -84,7 +91,7 @@
             // 
             this.BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnCancel.Enabled = false;
-            this.BtnCancel.Location = new System.Drawing.Point(344, 118);
+            this.BtnCancel.Location = new System.Drawing.Point(344, 135);
             this.BtnCancel.Name = "BtnCancel";
             this.BtnCancel.Size = new System.Drawing.Size(75, 23);
             this.BtnCancel.TabIndex = 7;
@@ -95,7 +102,7 @@
             // BtnConfig
             // 
             this.BtnConfig.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.BtnConfig.Location = new System.Drawing.Point(12, 118);
+            this.BtnConfig.Location = new System.Drawing.Point(12, 135);
             this.BtnConfig.Name = "BtnConfig";
             this.BtnConfig.Size = new System.Drawing.Size(75, 23);
             this.BtnConfig.TabIndex = 8;
@@ -107,7 +114,7 @@
             // 
             this.LblTimer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.LblTimer.AutoSize = true;
-            this.LblTimer.Location = new System.Drawing.Point(289, 123);
+            this.LblTimer.Location = new System.Drawing.Point(289, 140);
             this.LblTimer.Name = "LblTimer";
             this.LblTimer.Size = new System.Drawing.Size(49, 13);
             this.LblTimer.TabIndex = 9;
@@ -122,7 +129,7 @@
             // 
             this.BtnResolveConflicts.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnResolveConflicts.Enabled = false;
-            this.BtnResolveConflicts.Location = new System.Drawing.Point(506, 118);
+            this.BtnResolveConflicts.Location = new System.Drawing.Point(506, 135);
             this.BtnResolveConflicts.Name = "BtnResolveConflicts";
             this.BtnResolveConflicts.Size = new System.Drawing.Size(75, 23);
             this.BtnResolveConflicts.TabIndex = 10;
@@ -130,11 +137,52 @@
             this.BtnResolveConflicts.UseVisualStyleBackColor = true;
             this.BtnResolveConflicts.Click += new System.EventHandler(this.BtnResolveConflicts_Click);
             // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem,
+            this.toolStripMenuItem1});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(593, 24);
+            this.menuStrip1.TabIndex = 11;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.closeToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "File";
+            // 
+            // closeToolStripMenuItem
+            // 
+            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.closeToolStripMenuItem.Text = "Close";
+            this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.aboutToolStripMenuItem});
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(24, 20);
+            this.toolStripMenuItem1.Text = "?";
+            // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.aboutToolStripMenuItem.Text = "About";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(593, 153);
+            this.ClientSize = new System.Drawing.Size(593, 170);
             this.Controls.Add(this.BtnResolveConflicts);
             this.Controls.Add(this.LblTimer);
             this.Controls.Add(this.BtnConfig);
@@ -143,8 +191,13 @@
             this.Controls.Add(this.ProgressBar);
             this.Controls.Add(this.BtnDedup);
             this.Controls.Add(this.BtnToDoManager);
+            this.Controls.Add(this.menuStrip1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
             this.Text = "VideoFileDedup";
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -161,6 +214,11 @@
         private System.Windows.Forms.Label LblTimer;
         private System.Windows.Forms.Timer ElapsedTimer;
         private System.Windows.Forms.Button BtnResolveConflicts;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
     }
 }
 

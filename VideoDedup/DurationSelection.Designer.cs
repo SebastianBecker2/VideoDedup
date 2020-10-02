@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DurationSelection));
             this.MaximumSlider = new System.Windows.Forms.TrackBar();
             this.LblDurationInfo = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
@@ -140,6 +141,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.LblDurationInfo);
             this.Controls.Add(this.MaximumSlider);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "DurationSelection";
             this.Text = "DurationSelection";
             ((System.ComponentModel.ISupportInitialize)(this.MaximumSlider)).EndInit();

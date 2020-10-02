@@ -28,12 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Config));
             this.BtnSelectSourcePath = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.TxtSourcePath = new System.Windows.Forms.TextBox();
             this.BtnCancel = new System.Windows.Forms.Button();
             this.BtnOkay = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.TxtFileExtension = new System.Windows.Forms.TextBox();
             this.LsbFileExtensions = new System.Windows.Forms.ListBox();
             this.label2 = new System.Windows.Forms.Label();
             this.BtnRemoveFileExtension = new System.Windows.Forms.Button();
@@ -42,7 +44,6 @@
             this.LsbExcludedDirectories = new System.Windows.Forms.ListBox();
             this.BtnAddExcludedDirectory = new System.Windows.Forms.Button();
             this.BtnRemoveExcludedDirectory = new System.Windows.Forms.Button();
-            this.TxtFileExtension = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -126,6 +127,15 @@
             this.splitContainer1.Size = new System.Drawing.Size(402, 333);
             this.splitContainer1.SplitterDistance = 164;
             this.splitContainer1.TabIndex = 22;
+            // 
+            // TxtFileExtension
+            // 
+            this.TxtFileExtension.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.TxtFileExtension.Location = new System.Drawing.Point(94, 3);
+            this.TxtFileExtension.Name = "TxtFileExtension";
+            this.TxtFileExtension.Size = new System.Drawing.Size(281, 20);
+            this.TxtFileExtension.TabIndex = 10;
             // 
             // LsbFileExtensions
             // 
@@ -211,15 +221,6 @@
             this.BtnRemoveExcludedDirectory.UseVisualStyleBackColor = true;
             this.BtnRemoveExcludedDirectory.Click += new System.EventHandler(this.BtnRemoveExcludedDirectory_Click);
             // 
-            // TxtFileExtension
-            // 
-            this.TxtFileExtension.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.TxtFileExtension.Location = new System.Drawing.Point(94, 3);
-            this.TxtFileExtension.Name = "TxtFileExtension";
-            this.TxtFileExtension.Size = new System.Drawing.Size(281, 20);
-            this.TxtFileExtension.TabIndex = 10;
-            // 
             // Config
             // 
             this.AcceptButton = this.BtnOkay;
@@ -233,6 +234,7 @@
             this.Controls.Add(this.TxtSourcePath);
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.BtnOkay);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Config";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Config";
