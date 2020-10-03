@@ -57,7 +57,7 @@
             this.BtnToDoManager.Name = "BtnToDoManager";
             this.BtnToDoManager.Size = new System.Drawing.Size(75, 23);
             this.BtnToDoManager.TabIndex = 1;
-            this.BtnToDoManager.Text = "ToDo List";
+            this.BtnToDoManager.Text = "&ToDo List";
             this.BtnToDoManager.UseVisualStyleBackColor = true;
             this.BtnToDoManager.Click += new System.EventHandler(this.BtnToDoManager_Click);
             // 
@@ -68,7 +68,7 @@
             this.BtnDedup.Name = "BtnDedup";
             this.BtnDedup.Size = new System.Drawing.Size(75, 23);
             this.BtnDedup.TabIndex = 0;
-            this.BtnDedup.Text = "Dedup";
+            this.BtnDedup.Text = "&Dedup";
             this.BtnDedup.UseVisualStyleBackColor = true;
             this.BtnDedup.Click += new System.EventHandler(this.BtnDedup_Click);
             // 
@@ -93,12 +93,13 @@
             // BtnCancel
             // 
             this.BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.BtnCancel.Enabled = false;
             this.BtnCancel.Location = new System.Drawing.Point(344, 135);
             this.BtnCancel.Name = "BtnCancel";
             this.BtnCancel.Size = new System.Drawing.Size(75, 23);
             this.BtnCancel.TabIndex = 7;
-            this.BtnCancel.Text = "Cancel";
+            this.BtnCancel.Text = "&Cancel";
             this.BtnCancel.UseVisualStyleBackColor = true;
             this.BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
@@ -109,7 +110,7 @@
             this.BtnConfig.Name = "BtnConfig";
             this.BtnConfig.Size = new System.Drawing.Size(75, 23);
             this.BtnConfig.TabIndex = 8;
-            this.BtnConfig.Text = "Config";
+            this.BtnConfig.Text = "C&onfig";
             this.BtnConfig.UseVisualStyleBackColor = true;
             this.BtnConfig.Click += new System.EventHandler(this.BtnConfig_Click);
             // 
@@ -136,7 +137,7 @@
             this.BtnResolveConflicts.Name = "BtnResolveConflicts";
             this.BtnResolveConflicts.Size = new System.Drawing.Size(75, 23);
             this.BtnResolveConflicts.TabIndex = 10;
-            this.BtnResolveConflicts.Text = "Resolve";
+            this.BtnResolveConflicts.Text = "&Resolve";
             this.BtnResolveConflicts.UseVisualStyleBackColor = true;
             this.BtnResolveConflicts.Click += new System.EventHandler(this.BtnResolveConflicts_Click);
             // 
@@ -209,6 +210,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.BtnCancel;
             this.ClientSize = new System.Drawing.Size(593, 170);
             this.Controls.Add(this.LblCurrentFile);
             this.Controls.Add(this.LblDuplicateCount);

@@ -75,7 +75,7 @@
             this.BtnShowLeft.Name = "BtnShowLeft";
             this.BtnShowLeft.Size = new System.Drawing.Size(97, 23);
             this.BtnShowLeft.TabIndex = 21;
-            this.BtnShowLeft.Text = "Show in Explorer";
+            this.BtnShowLeft.Text = "&Show in Explorer";
             this.BtnShowLeft.UseVisualStyleBackColor = true;
             this.BtnShowLeft.Click += new System.EventHandler(this.BtnShowLeft_Click);
             // 
@@ -98,29 +98,29 @@
             this.btnDeleteLeft.Name = "btnDeleteLeft";
             this.btnDeleteLeft.Size = new System.Drawing.Size(75, 23);
             this.btnDeleteLeft.TabIndex = 18;
-            this.btnDeleteLeft.Text = "Delete Left";
+            this.btnDeleteLeft.Text = "Delete &Left";
             this.btnDeleteLeft.UseVisualStyleBackColor = true;
             this.btnDeleteLeft.Click += new System.EventHandler(this.btnDeleteLeft_Click);
             // 
             // BtnShowRight
             // 
             this.BtnShowRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnShowRight.Location = new System.Drawing.Point(190, 346);
+            this.BtnShowRight.Location = new System.Drawing.Point(188, 346);
             this.BtnShowRight.Name = "BtnShowRight";
             this.BtnShowRight.Size = new System.Drawing.Size(97, 23);
             this.BtnShowRight.TabIndex = 20;
-            this.BtnShowRight.Text = "Show in Explorer";
+            this.BtnShowRight.Text = "Show in &Explorer";
             this.BtnShowRight.UseVisualStyleBackColor = true;
             this.BtnShowRight.Click += new System.EventHandler(this.BtnShowRight_Click);
             // 
             // btnDeleteRight
             // 
             this.btnDeleteRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeleteRight.Location = new System.Drawing.Point(109, 346);
+            this.btnDeleteRight.Location = new System.Drawing.Point(107, 346);
             this.btnDeleteRight.Name = "btnDeleteRight";
             this.btnDeleteRight.Size = new System.Drawing.Size(75, 23);
             this.btnDeleteRight.TabIndex = 19;
-            this.btnDeleteRight.Text = "Delete Right";
+            this.btnDeleteRight.Text = "Delete &Right";
             this.btnDeleteRight.UseVisualStyleBackColor = true;
             this.btnDeleteRight.Click += new System.EventHandler(this.btnDeleteRight_Click);
             // 
@@ -132,7 +132,7 @@
             this.FpvRight.HighlightColor = System.Drawing.SystemColors.Control;
             this.FpvRight.Location = new System.Drawing.Point(0, 0);
             this.FpvRight.Name = "FpvRight";
-            this.FpvRight.Size = new System.Drawing.Size(297, 340);
+            this.FpvRight.Size = new System.Drawing.Size(295, 340);
             this.FpvRight.TabIndex = 0;
             this.FpvRight.VideoFile = null;
             // 
@@ -144,7 +144,7 @@
             this.btnClose.Name = "btnClose";
             this.btnClose.Size = new System.Drawing.Size(75, 23);
             this.btnClose.TabIndex = 16;
-            this.btnClose.Text = "Close";
+            this.btnClose.Text = "&Close";
             this.btnClose.UseVisualStyleBackColor = true;
             // 
             // BtnSkip
@@ -155,7 +155,7 @@
             this.BtnSkip.Name = "BtnSkip";
             this.BtnSkip.Size = new System.Drawing.Size(75, 23);
             this.BtnSkip.TabIndex = 17;
-            this.BtnSkip.Text = "Skip";
+            this.BtnSkip.Text = "&Skip";
             this.BtnSkip.UseVisualStyleBackColor = true;
             // 
             // FileComparison

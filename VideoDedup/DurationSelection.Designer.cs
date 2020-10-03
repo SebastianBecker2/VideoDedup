@@ -112,7 +112,7 @@
             this.BtnOK.Name = "BtnOK";
             this.BtnOK.Size = new System.Drawing.Size(75, 23);
             this.BtnOK.TabIndex = 7;
-            this.BtnOK.Text = "OK";
+            this.BtnOK.Text = "&OK";
             this.BtnOK.UseVisualStyleBackColor = true;
             this.BtnOK.Click += new System.EventHandler(this.BtnOK_Click);
             // 
@@ -124,7 +124,7 @@
             this.BtnCancel.Name = "BtnCancel";
             this.BtnCancel.Size = new System.Drawing.Size(75, 23);
             this.BtnCancel.TabIndex = 8;
-            this.BtnCancel.Text = "Cancel";
+            this.BtnCancel.Text = "&Cancel";
             this.BtnCancel.UseVisualStyleBackColor = true;
             // 
             // DurationSelection
