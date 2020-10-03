@@ -1,5 +1,21 @@
 [
   {
+    "Done": false,
+    "Text": "On Cancel, discard all thumbnails (in gui thread to be thread safe! Or sync?)"
+  },
+  {
+    "Done": false,
+    "Text": "Change Tray Icon when duplicates are found"
+  },
+  {
+    "Done": true,
+    "Text": "Highlight larger file in comparison dialog"
+  },
+  {
+    "Done": false,
+    "Text": "Duration formatting in main dlg without second fractions"
+  },
+  {
     "Done": true,
     "Text": "Minimize to tray?"
   },

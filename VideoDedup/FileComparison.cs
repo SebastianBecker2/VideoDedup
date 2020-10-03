@@ -38,6 +38,20 @@ namespace VideoDedup
             FpvRight.VideoFile = RightFile;
             RightThumbnailTask = FpvRight.UpdateDisplay();
 
+            var leftSize = LeftFile.FileSize;
+            var rightSize = RightFile.FileSize;
+            if (Math.Abs(leftSize - rightSize) > (100 * 1024))
+            {
+                if (leftSize > rightSize)
+                {
+                    FpvLeft.HighlightColor = Color.LightGreen;
+                }
+                else
+                {
+                    FpvRight.HighlightColor = Color.LightGreen;
+                }
+            }
+
             base.OnLoad(e);
         }
 
