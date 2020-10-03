@@ -15,7 +15,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ToDoManager;
+using VideoDedup.ISynchronizeInvokeExtensions;
+using VideoDedup.ProgressBarExtension;
 using VideoDedup.Properties;
+using VideoDedup.TimeSpanExtension;
 
 namespace VideoDedup
 {
@@ -460,7 +463,9 @@ namespace VideoDedup
                 FindDuplicates(orderedVideoFiles, cancelToken);
             }, cancelToken).ContinueWith(t =>
             {
-                TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress, Handle);
+                TaskbarManager.Instance.SetProgressState(
+                    TaskbarProgressBarState.NoProgress,
+                    Handle);
                 ProgressBar.Stop();
                 BtnDedup.Enabled = true;
                 BtnConfig.Enabled = true;
