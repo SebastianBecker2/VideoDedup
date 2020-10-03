@@ -297,7 +297,12 @@ namespace VideoDedup
                         break;
                     }
 
-                    if (file.AreThumbnailsEqual(nextFile))
+                    bool areEqual;
+                    lock (file) lock (nextFile)
+                    {
+                        areEqual = file.AreThumbnailsEqual(nextFile);
+                    }
+                    if (areEqual)
                     {
                         AddDuplicate(file, nextFile);
                     }
@@ -331,11 +336,15 @@ namespace VideoDedup
 
                 using (var dlg = new FileComparison())
                 {
-                    dlg.LeftFile = left;
-                    dlg.RightFile = right;
-                    var result = dlg.ShowDialog();
-                    left.DisposeThumbnails();
-                    right.DisposeThumbnails();
+                    DialogResult result;
+                    lock (left) lock (right)
+                        {
+                            dlg.LeftFile = left;
+                            dlg.RightFile = right;
+                            result = dlg.ShowDialog();
+                            left.DisposeThumbnails();
+                            right.DisposeThumbnails();
+                        }
 
                     if (result == DialogResult.Yes)
                     {
