@@ -227,6 +227,7 @@
             this.MainMenuStrip = this.MenuStrip;
             this.Name = "VideoDedup";
             this.Text = "VideoDedup";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.VideoDedup_FormClosing);
             this.Resize += new System.EventHandler(this.Form1_Resize);
             this.MenuStrip.ResumeLayout(false);
             this.MenuStrip.PerformLayout();

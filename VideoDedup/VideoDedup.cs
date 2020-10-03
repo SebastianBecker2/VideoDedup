@@ -125,21 +125,21 @@ namespace VideoDedup
                     CurrentStatusInfo = statusInfo;
                 }
                 LblStatusInfo.Text = string.Format(
-                    CurrentStatusInfo, 
-                    counter, 
+                    CurrentStatusInfo,
+                    counter,
                     maxCount);
 
                 if (maxCount > 0)
                 {
                     TaskbarManager.Instance.SetProgressState(
-                        TaskbarProgressBarState.Normal, 
+                        TaskbarProgressBarState.Normal,
                         Handle);
                     ProgressBar.Style = ProgressBarStyle.Continuous;
                 }
                 else
                 {
                     TaskbarManager.Instance.SetProgressState(
-                        TaskbarProgressBarState.Indeterminate, 
+                        TaskbarProgressBarState.Indeterminate,
                         Handle);
                     ProgressBar.Style = ProgressBarStyle.Marquee;
                 }
@@ -542,6 +542,41 @@ namespace VideoDedup
             {
                 this.Visible = false;
                 NotifyIcon.Visible = true;
+            }
+        }
+
+        private void VideoDedup_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (Duplicates.Any())
+            {
+                var selection = MessageBox.Show(
+                    $"There are {Duplicates.Count()} duplicates to resolve." +
+                    $"{Environment.NewLine}Are you sure you want to close?",
+                    "Discard duplicates?",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+
+                if (selection == DialogResult.No)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+            }
+
+            if (ElapsedTimer.Enabled)
+            {
+                var selection = MessageBox.Show(
+                    $"VideoDedup is currently search for duplicates." +
+                    $"{Environment.NewLine}Are you sure you want to close?",
+                    "Cancel search?",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+
+                if (selection == DialogResult.No)
+                {
+                    e.Cancel = true;
+                    return;
+                }
             }
         }
     }
