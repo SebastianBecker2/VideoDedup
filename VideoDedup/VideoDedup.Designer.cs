@@ -193,10 +193,12 @@
             // 
             // LblCurrentFile
             // 
-            this.LblCurrentFile.AutoSize = true;
+            this.LblCurrentFile.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.LblCurrentFile.Location = new System.Drawing.Point(9, 85);
             this.LblCurrentFile.Name = "LblCurrentFile";
-            this.LblCurrentFile.Size = new System.Drawing.Size(55, 13);
+            this.LblCurrentFile.Size = new System.Drawing.Size(572, 47);
             this.LblCurrentFile.TabIndex = 13;
             this.LblCurrentFile.Text = "Checking:";
             // 
