@@ -31,11 +31,11 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FileComparison));
             this.SplitterContainer = new System.Windows.Forms.SplitContainer();
             this.BtnShowLeft = new System.Windows.Forms.Button();
-            this.FpvLeft = new VideoDedup.FilePreview.FilePreview();
+            this.FpvLeft = new global::VideoDedup.FilePreview.FilePreview();
             this.btnDeleteLeft = new System.Windows.Forms.Button();
             this.BtnShowRight = new System.Windows.Forms.Button();
             this.btnDeleteRight = new System.Windows.Forms.Button();
-            this.FpvRight = new VideoDedup.FilePreview.FilePreview();
+            this.FpvRight = new global::VideoDedup.FilePreview.FilePreview();
             this.btnClose = new System.Windows.Forms.Button();
             this.BtnSkip = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.SplitterContainer)).BeginInit();

@@ -22,7 +22,7 @@ using VideoDedup.TimeSpanExtension;
 
 namespace VideoDedup
 {
-    public partial class Form1 : Form
+    public partial class VideoDedup : Form
     {
         private readonly static string CacheFolderName = "VideoDedupCache";
         private readonly static string CacheFileName = "video_files.cache";
@@ -100,7 +100,7 @@ namespace VideoDedup
         private TimeSpan? SelectedMinimumDuration { get; set; } = null;
         private TimeSpan? SelectedMaximumDuration { get; set; } = null;
 
-        public Form1()
+        public VideoDedup()
         {
             InitializeComponent();
         }
@@ -163,7 +163,7 @@ namespace VideoDedup
                 if (!Duplicates.Any())
                 {
                     BtnResolveConflicts.Enabled = false;
-                    notifyIcon1.Icon = Resources.film;
+                    NotifyIcon.Icon = Resources.film;
                 }
             });
         }
@@ -176,7 +176,7 @@ namespace VideoDedup
                 LblDuplicateCount.Text = string.Format(
                     StatusInfoDuplicateCount, Duplicates.Count());
                 BtnResolveConflicts.Enabled = true;
-                notifyIcon1.Icon = Resources.film_error;
+                NotifyIcon.Icon = Resources.film_error;
             });
         }
 
@@ -533,7 +533,7 @@ namespace VideoDedup
             this.Visible = true;
             this.WindowState = FormWindowState.Normal;
             this.ShowInTaskbar = true;
-            notifyIcon1.Visible = false;
+            NotifyIcon.Visible = false;
         }
 
         private void Form1_Resize(object sender, EventArgs e)
@@ -541,7 +541,7 @@ namespace VideoDedup
             if (this.WindowState == FormWindowState.Minimized)
             {
                 this.Visible = false;
-                notifyIcon1.Visible = true;
+                NotifyIcon.Visible = true;
             }
         }
     }

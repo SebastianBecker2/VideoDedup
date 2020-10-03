@@ -1,6 +1,6 @@
 ﻿namespace VideoDedup
 {
-    partial class Form1
+    partial class VideoDedup
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VideoDedup));
             this.BtnToDoManager = new System.Windows.Forms.Button();
             this.BtnDedup = new System.Windows.Forms.Button();
             this.ProgressBar = new System.Windows.Forms.ProgressBar();
@@ -39,15 +39,15 @@
             this.LblTimer = new System.Windows.Forms.Label();
             this.ElapsedTimer = new System.Windows.Forms.Timer(this.components);
             this.BtnResolveConflicts = new System.Windows.Forms.Button();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.MenuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.LblDuplicateCount = new System.Windows.Forms.Label();
             this.LblCurrentFile = new System.Windows.Forms.Label();
-            this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
-            this.menuStrip1.SuspendLayout();
+            this.NotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.MenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // BtnToDoManager
@@ -141,16 +141,16 @@
             this.BtnResolveConflicts.UseVisualStyleBackColor = true;
             this.BtnResolveConflicts.Click += new System.EventHandler(this.BtnResolveConflicts_Click);
             // 
-            // menuStrip1
+            // MenuStrip
             // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.MenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.toolStripMenuItem1});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(593, 24);
-            this.menuStrip1.TabIndex = 11;
-            this.menuStrip1.Text = "menuStrip1";
+            this.MenuStrip.Location = new System.Drawing.Point(0, 0);
+            this.MenuStrip.Name = "MenuStrip";
+            this.MenuStrip.Size = new System.Drawing.Size(593, 24);
+            this.MenuStrip.TabIndex = 11;
+            this.MenuStrip.Text = "menuStrip1";
             // 
             // fileToolStripMenuItem
             // 
@@ -200,13 +200,13 @@
             this.LblCurrentFile.TabIndex = 13;
             this.LblCurrentFile.Text = "Checking:";
             // 
-            // notifyIcon1
+            // NotifyIcon
             // 
-            this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
-            this.notifyIcon1.Text = "VideoDedup";
-            this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
+            this.NotifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("NotifyIcon.Icon")));
+            this.NotifyIcon.Text = "VideoDedup";
+            this.NotifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
             // 
-            // Form1
+            // VideoDedup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -222,14 +222,14 @@
             this.Controls.Add(this.ProgressBar);
             this.Controls.Add(this.BtnDedup);
             this.Controls.Add(this.BtnToDoManager);
-            this.Controls.Add(this.menuStrip1);
+            this.Controls.Add(this.MenuStrip);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MainMenuStrip = this.menuStrip1;
-            this.Name = "Form1";
+            this.MainMenuStrip = this.MenuStrip;
+            this.Name = "VideoDedup";
             this.Text = "VideoDedup";
             this.Resize += new System.EventHandler(this.Form1_Resize);
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
+            this.MenuStrip.ResumeLayout(false);
+            this.MenuStrip.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -246,14 +246,14 @@
         private System.Windows.Forms.Label LblTimer;
         private System.Windows.Forms.Timer ElapsedTimer;
         private System.Windows.Forms.Button BtnResolveConflicts;
-        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.MenuStrip MenuStrip;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.Label LblDuplicateCount;
         private System.Windows.Forms.Label LblCurrentFile;
-        private System.Windows.Forms.NotifyIcon notifyIcon1;
+        private System.Windows.Forms.NotifyIcon NotifyIcon;
     }
 }
 
