@@ -280,7 +280,7 @@ namespace VideoDedup
                 {
                     LblCurrentFile.Text = StatusInfoChecking + $"{file.FilePath}" +
                         $"{Environment.NewLine}Duration: {file.Duration.ToPrettyString()}";
-                    UpdateProgress(StatusInfoComparing, index, videoFileList.Count());
+                    UpdateProgress(StatusInfoComparing, index + 1, videoFileList.Count());
                 });
 
                 for (int nextIndex = index + 1; nextIndex < videoFileList.Count; nextIndex++)
@@ -371,12 +371,10 @@ namespace VideoDedup
             DateTime? lastUpdate = null;
             foreach (var f in videoFiles)
             {
-                counter++;
-
                 if (lastUpdate == null
                     || (lastUpdate.Value - DateTime.Now).TotalMilliseconds > 100)
                 {
-                    UpdateProgress(StatusInfoLoading, counter, videoFiles.Count());
+                    UpdateProgress(StatusInfoLoading, ++counter, videoFiles.Count());
                 }
 
                 // For now we only preload the duration
