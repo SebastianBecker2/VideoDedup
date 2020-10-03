@@ -314,11 +314,13 @@ namespace VideoDedup
                 if (!File.Exists(left.FilePath))
                 {
                     Debug.Print($"{left.FilePath} doesn't exist anymore. Can't compare.");
+                    RemoveDuplicate(index);
                     continue;
                 }
                 if (!File.Exists(right.FilePath))
                 {
                     Debug.Print($"{right.FilePath} doesn't exist anymore. Can't compare.");
+                    RemoveDuplicate(index);
                     continue;
                 }
 
