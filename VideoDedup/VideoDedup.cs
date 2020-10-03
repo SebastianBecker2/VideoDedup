@@ -36,6 +36,8 @@ namespace VideoDedup
 
         private string CurrentStatusInfo { get; set; }
 
+        private DateTime? lastStatusUpdate { get; set; } = null;
+
         public string CacheFilePath
         {
             get
@@ -120,10 +122,20 @@ namespace VideoDedup
         {
             this.InvokeIfRequired(() =>
             {
+                if (lastStatusUpdate.HasValue
+                    && (DateTime.Now- lastStatusUpdate.Value).TotalMilliseconds < 100
+                    && maxCount - counter > 2
+                    && counter > 0)
+                {
+                    return;
+                }
+                lastStatusUpdate = DateTime.Now;
+
                 if (!string.IsNullOrWhiteSpace(statusInfo))
                 {
                     CurrentStatusInfo = statusInfo;
                 }
+
                 LblStatusInfo.Text = string.Format(
                     CurrentStatusInfo,
                     counter,
@@ -299,9 +311,9 @@ namespace VideoDedup
 
                     bool areEqual;
                     lock (file) lock (nextFile)
-                    {
-                        areEqual = file.AreThumbnailsEqual(nextFile);
-                    }
+                        {
+                            areEqual = file.AreThumbnailsEqual(nextFile);
+                        }
                     if (areEqual)
                     {
                         AddDuplicate(file, nextFile);
@@ -310,6 +322,15 @@ namespace VideoDedup
 
                 SelectedMinimumDuration = file.Duration;
                 file.DisposeThumbnails();
+            }
+
+
+            if (!cancelToken.IsCancellationRequested)
+            {
+                this.InvokeIfRequired(() =>
+                {
+                    UpdateProgress(StatusInfoComparing, videoFileList.Count(), videoFileList.Count());
+                });
             }
         }
 
@@ -368,14 +389,9 @@ namespace VideoDedup
             CancellationToken cancelToken)
         {
             int counter = 0;
-            DateTime? lastUpdate = null;
             foreach (var f in videoFiles)
             {
-                if (lastUpdate == null
-                    || (lastUpdate.Value - DateTime.Now).TotalMilliseconds > 100)
-                {
-                    UpdateProgress(StatusInfoLoading, ++counter, videoFiles.Count());
-                }
+                UpdateProgress(StatusInfoLoading, ++counter, videoFiles.Count());
 
                 // For now we only preload the duration
                 // since the size is only rarely used
@@ -462,10 +478,10 @@ namespace VideoDedup
                 // Removed files that are damaged and don't have valid MediaInfo
                 // and sort the remaining files.
                 var orderedVideoFiles = videoFiles
-                    .Where(f => f.Duration != new TimeSpan())
-                    .Where(f => f.Duration >= SelectedMinimumDuration.Value)
-                    .Where(f => f.Duration <= SelectedMaximumDuration.Value)
-                    .OrderBy(f => f.Duration);
+                .Where(f => f.Duration != new TimeSpan())
+                .Where(f => f.Duration >= SelectedMinimumDuration.Value)
+                .Where(f => f.Duration <= SelectedMaximumDuration.Value)
+                .OrderBy(f => f.Duration);
 
                 UpdateProgress(StatusInfoComparing, 0, videoFiles.Count());
 
@@ -481,7 +497,10 @@ namespace VideoDedup
                 TaskbarManager.Instance.SetProgressState(
                     TaskbarProgressBarState.NoProgress,
                     Handle);
-                ProgressBar.Stop();
+                if (cancelToken.IsCancellationRequested)
+                {
+                    ProgressBar.Stop();
+                }
                 BtnDedup.Enabled = true;
                 BtnConfig.Enabled = true;
                 BtnCancel.Enabled = false;
