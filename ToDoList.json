@@ -1,7 +1,7 @@
 [
   {
     "Done": false,
-    "Text": "On Cancel, discard all thumbnails (in gui thread to be thread safe! Or sync?)"
+    "Text": "On Cancel, discard all thumbnails (in gui thread to be thread safe! Or sync? Or use IDisposable?)"
   },
   {
     "Done": false,

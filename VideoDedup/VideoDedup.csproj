@@ -131,6 +131,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -155,6 +156,15 @@
       <Project>{678EBC3A-44FE-4325-85AA-866001164074}</Project>
       <Name>ToDoManager</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="film.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="film_error.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="film_link.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

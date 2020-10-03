@@ -163,6 +163,7 @@ namespace VideoDedup
                 if (!Duplicates.Any())
                 {
                     BtnResolveConflicts.Enabled = false;
+                    notifyIcon1.Icon = Resources.film;
                 }
             });
         }
@@ -175,6 +176,7 @@ namespace VideoDedup
                 LblDuplicateCount.Text = string.Format(
                     StatusInfoDuplicateCount, Duplicates.Count());
                 BtnResolveConflicts.Enabled = true;
+                notifyIcon1.Icon = Resources.film_error;
             });
         }
 
