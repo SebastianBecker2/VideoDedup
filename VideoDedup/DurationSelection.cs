@@ -13,17 +13,9 @@ namespace VideoDedup
 {
     public partial class DurationSelection : Form
     {
-        private readonly static string TimeSpanLongFormat = @"dd\.hh\:mm\:ss";
-        private readonly static string TimeSpanShortFormat = @"hh\:mm\:ss";
-
-        private static string ToString(TimeSpan ts)
-        {
-            string format = ts.Days >= 1 ? TimeSpanLongFormat : TimeSpanShortFormat;
-            return ts.ToString(format);
-        }
         private static string ToString(TimeSpan? ts)
         {
-            return ToString(ts.Value);
+            return ts.Value.ToPrettyString();
         }
 
         public TimeSpan AbsolutMaximumDuration { get; set; }

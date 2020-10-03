@@ -274,7 +274,7 @@ namespace VideoDedup
                 this.InvokeIfRequired(() =>
                 {
                     LblCurrentFile.Text = StatusInfoChecking + $"{file.FilePath}" +
-                        $"{Environment.NewLine}Duration: {file.Duration}";
+                        $"{Environment.NewLine}Duration: {file.Duration.ToPrettyString()}";
                     UpdateProgress(StatusInfoComparing, index, videoFileList.Count());
                 });
 

@@ -103,6 +103,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="ProgressBarExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TimeSpanExtension.cs" />
     <Compile Include="VideoFile.cs" />
     <EmbeddedResource Include="About.resx">
       <DependentUpon>About.cs</DependentUpon>
