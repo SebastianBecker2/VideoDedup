@@ -463,6 +463,12 @@ namespace VideoDedup
                 UpdateProgress(StatusInfoComparing, 0, videoFiles.Count());
 
                 FindDuplicates(orderedVideoFiles, cancelToken);
+
+                // Cleanup in case of cancel
+                foreach (var file in orderedVideoFiles)
+                {
+                    file.DisposeThumbnails();
+                }
             }, cancelToken).ContinueWith(t =>
             {
                 TaskbarManager.Instance.SetProgressState(

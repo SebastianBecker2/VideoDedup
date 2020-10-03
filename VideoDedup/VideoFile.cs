@@ -10,6 +10,7 @@ using System.Drawing;
 using XnaFan.ImageComparison;
 using Newtonsoft.Json;
 using NReco.VideoConverter;
+using System.Threading;
 
 namespace VideoDedup
 {
@@ -82,6 +83,7 @@ namespace VideoDedup
         private long? _FileSize = null;
         private IDictionary<int, Image> _Thumbnails = new Dictionary<int, Image>();
         private MediaInfo _MediaInfo = null;
+        private object _Mutex = new object();
 
         public VideoFile(string path)
         {
@@ -95,51 +97,60 @@ namespace VideoDedup
 
         public Image GetThumbnail(int index)
         {
-            if (index >= ThumbnailCount || index < 0)
+            lock (_Mutex)
             {
-                throw new ArgumentOutOfRangeException(nameof(index), "Index out of range.");
-            }
-
-            if (!_Thumbnails.ContainsKey(index))
-            {
-                var ffMpeg = new FFMpegConverter();
-                var image_stream = new MemoryStream();
-                try
+                if (index >= ThumbnailCount || index < 0)
                 {
-                    ffMpeg.GetVideoThumbnail(FilePath, image_stream, (float)ThumbnailStepping * (index + 1));
-                    _Thumbnails[index] = Image.FromStream(image_stream);
+                    throw new ArgumentOutOfRangeException(nameof(index), "Index out of range.");
                 }
-                catch (Exception)
-                {
-                    Debug.Print($"Unable to load thumbnail index {index} for {FilePath}");
-                    _Thumbnails[index] = new Bitmap(1, 1);
-                }
-            }
 
-            return _Thumbnails[index];
+                if (!_Thumbnails.ContainsKey(index))
+                {
+                    var ffMpeg = new FFMpegConverter();
+                    var image_stream = new MemoryStream();
+                    try
+                    {
+                        ffMpeg.GetVideoThumbnail(FilePath, image_stream, (float)ThumbnailStepping * (index + 1));
+                        _Thumbnails[index] = Image.FromStream(image_stream);
+                    }
+                    catch (Exception)
+                    {
+                        Debug.Print($"Unable to load thumbnail index {index} for {FilePath}");
+                        _Thumbnails[index] = new Bitmap(1, 1);
+                    }
+                }
+
+                return _Thumbnails[index];
+            }
         }
 
         public bool AreThumbnailsEqual(VideoFile other)
         {
-            IList<bool> ThumbnailDifferences = new List<bool>();
-            foreach (var i in Enumerable.Range(0, ThumbnailCount))
+            lock (_Mutex)
             {
-                var diff = GetThumbnail(i).PercentageDifference(other.GetThumbnail(i));
-                ThumbnailDifferences.Add(diff > 0.2d);
-
-                var diff_count = ThumbnailDifferences.Count(d => d);
-
-                if (diff_count >= 2)
+                IList<bool> ThumbnailDifferences = new List<bool>();
+                foreach (var i in Enumerable.Range(0, ThumbnailCount))
                 {
-                    return false;
+                    var diff = GetThumbnail(i).PercentageDifference(other.GetThumbnail(i));
+                    ThumbnailDifferences.Add(diff > 0.2d);
+
+                    var diff_count = ThumbnailDifferences.Count(d => d);
+
+                    if (diff_count >= 2)
+                    {
+                        return false;
+                    }
                 }
+                return true;
             }
-            return true;
         }
 
         public void DisposeThumbnails()
         {
-            _Thumbnails.Clear();
+            lock (_Mutex)
+            {
+                _Thumbnails.Clear();
+            }
         }
 
         public override bool Equals(object obj)
