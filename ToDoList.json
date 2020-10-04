@@ -4,10 +4,6 @@
     "Text": "Race Condition when resolving duplicates while one of the files is being used to find duplicates. They both use the Thumbnails at the same time.\r\n(The actual thumbnails, not the Collection. Same issue when cancelling and while doing so, resolving a file whose thumbnails are being disposed.)"
   },
   {
-    "Done": false,
-    "Text": "Parallel calls to image compare?"
-  },
-  {
     "Done": true,
     "Text": "LblCurrentFile no autosize but or at least max width to form width (to cut it off properly at the right side instead of falling out of the dialog)"
   },
@@ -102,5 +98,9 @@
   {
     "Done": true,
     "Text": "Resolve conflicts while searching for deduplications"
+  },
+  {
+    "Done": false,
+    "Text": "Configurable compare (Max difference in duration and Thumbnail count with max accepted differernt thumbnails)"
   }
 ]
