@@ -122,15 +122,16 @@ namespace VideoDedup
 
         public bool AreThumbnailsEqual(VideoFile other)
         {
-            IList<bool> ThumbnailDifferences = new List<bool>();
+            int differernceCount = 0;
             foreach (var i in Enumerable.Range(0, ThumbnailCount))
             {
                 var diff = GetThumbnail(i).PercentageDifference(other.GetThumbnail(i));
-                ThumbnailDifferences.Add(diff > 0.2d);
+                if (diff > 0.2d)
+                {
+                    ++differernceCount;
+                }
 
-                var diff_count = ThumbnailDifferences.Count(d => d);
-
-                if (diff_count >= 2)
+                if (differernceCount >= 2)
                 {
                     return false;
                 }
