@@ -107,6 +107,14 @@ namespace VideoDedup
             InitializeComponent();
         }
 
+        protected override void OnLoad(EventArgs e)
+        {
+#if !DEBUG
+            BtnToDoManager.Visible = false;
+#endif
+            base.OnLoad(e);
+        }
+
         private void BtnToDoManager_Click(object sender, EventArgs e)
         {
             using (var dlg = new ToDoManager.ToDoManager())
