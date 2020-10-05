@@ -58,5 +58,53 @@ namespace VideoDedup.Properties {
                 this["FileExtensions"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int ThumbnailViewCount {
+            get {
+                return ((int)(this["ThumbnailViewCount"]));
+            }
+            set {
+                this["ThumbnailViewCount"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        public int MaxThumbnailComparison {
+            get {
+                return ((int)(this["MaxThumbnailComparison"]));
+            }
+            set {
+                this["MaxThumbnailComparison"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int MaxDifferentThumbnails {
+            get {
+                return ((int)(this["MaxDifferentThumbnails"]));
+            }
+            set {
+                this["MaxDifferentThumbnails"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.2")]
+        public double MaxDifferencePercentage {
+            get {
+                return ((double)(this["MaxDifferencePercentage"]));
+            }
+            set {
+                this["MaxDifferencePercentage"] = value;
+            }
+        }
     }
 }
