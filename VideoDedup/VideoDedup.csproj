@@ -74,6 +74,7 @@
     <Compile Include="Config.Designer.cs">
       <DependentUpon>Config.cs</DependentUpon>
     </Compile>
+    <Compile Include="ConfigData.cs" />
     <Compile Include="DurationSelection.cs">
       <SubType>Form</SubType>
     </Compile>

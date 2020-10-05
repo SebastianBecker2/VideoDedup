@@ -15,10 +15,6 @@ namespace VideoDedup
 {
     public partial class Config : Form
     {
-        public string SourcePath { get; set; }
-        public IList<string> ExcludedDirectories { get; set; }
-        public IList<string> FileExtensions { get; set; }
-
         public Config()
         {
             InitializeComponent();
@@ -26,16 +22,16 @@ namespace VideoDedup
 
         protected override void OnLoad(EventArgs e)
         {
-            TxtSourcePath.Text = SourcePath;
+            TxtSourcePath.Text = ConfigData.SourcePath;
 
-            if (ExcludedDirectories != null)
+            if (ConfigData.ExcludedDirectories != null)
             {
-                LsbExcludedDirectories.Items.AddRange(ExcludedDirectories.ToArray());
+                LsbExcludedDirectories.Items.AddRange(ConfigData.ExcludedDirectories.ToArray());
             }
 
-            if (FileExtensions != null)
+            if (ConfigData.FileExtensions != null)
             {
-                LsbFileExtensions.Items.AddRange(FileExtensions.ToArray());
+                LsbFileExtensions.Items.AddRange(ConfigData.FileExtensions.ToArray());
             }
 
 
@@ -44,9 +40,9 @@ namespace VideoDedup
 
         private void BtnOkay_Click(object sender, EventArgs e)
         {
-            SourcePath = TxtSourcePath.Text;
-            ExcludedDirectories = LsbExcludedDirectories.Items.Cast<string>().ToList();
-            FileExtensions = LsbFileExtensions.Items.Cast<string>().ToList();
+            ConfigData.SourcePath = TxtSourcePath.Text;
+            ConfigData.ExcludedDirectories = LsbExcludedDirectories.Items.Cast<string>().ToList();
+            ConfigData.FileExtensions = LsbFileExtensions.Items.Cast<string>().ToList();
             DialogResult = DialogResult.OK;
         }
 
