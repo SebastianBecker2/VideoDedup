@@ -61,7 +61,7 @@ namespace VideoDedup.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        [global::System.Configuration.DefaultSettingValueAttribute("8")]
         public int ThumbnailViewCount {
             get {
                 return ((int)(this["ThumbnailViewCount"]));
@@ -97,7 +97,7 @@ namespace VideoDedup.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.2")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.3")]
         public double MaxDifferencePercentage {
             get {
                 return ((double)(this["MaxDifferencePercentage"]));
