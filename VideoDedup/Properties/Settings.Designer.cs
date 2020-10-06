@@ -106,5 +106,29 @@ namespace VideoDedup.Properties {
                 this["MaxDifferencePercentage"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int MaxDurationDifferernce {
+            get {
+                return ((int)(this["MaxDurationDifferernce"]));
+            }
+            set {
+                this["MaxDurationDifferernce"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Seconds")]
+        public string DurationDifferenceType {
+            get {
+                return ((string)(this["DurationDifferenceType"]));
+            }
+            set {
+                this["DurationDifferenceType"] = value;
+            }
+        }
     }
 }

@@ -23,5 +23,11 @@
     <Setting Name="MaxDifferencePercentage" Type="System.Double" Scope="User">
       <Value Profile="(Default)">0.3</Value>
     </Setting>
+    <Setting Name="MaxDurationDifferernce" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="DurationDifferenceType" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Seconds</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

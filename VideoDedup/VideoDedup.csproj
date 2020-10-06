@@ -50,6 +50,7 @@
     </Reference>
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -75,6 +76,7 @@
       <DependentUpon>Config.cs</DependentUpon>
     </Compile>
     <Compile Include="ConfigData.cs" />
+    <Compile Include="DurationDifferenceType.cs" />
     <Compile Include="DurationSelection.cs">
       <SubType>Form</SubType>
     </Compile>

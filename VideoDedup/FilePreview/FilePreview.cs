@@ -115,9 +115,9 @@ namespace VideoDedup.FilePreview
             var cancelToken = CancellationTokenSource.Token;
             return Task.Run(() =>
             {
-                foreach (var index in Enumerable.Range(0, VideoFile.ThumbnailCount))
+                foreach (var index in Enumerable.Range(0, ConfigData.ThumbnailViewCount))
                 {
-                    var image = VideoFile.GetThumbnail(index);
+                    var image = VideoFile.GetThumbnail(index, ConfigData.ThumbnailViewCount);
 
                     if (cancelToken.IsCancellationRequested)
                     {

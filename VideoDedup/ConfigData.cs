@@ -122,5 +122,47 @@ namespace VideoDedup
                 Settings.Default.Save();
             }
         }
+
+        public static int MaxDurationDifference
+        {
+            get
+            {
+                return Settings.Default.MaxDurationDifferernce;
+            }
+            set
+            {
+                Settings.Default.MaxDurationDifferernce = value;
+                Settings.Default.Save();
+            }
+        }
+
+        public static DurationDifferenceType DurationDifferenceType
+        {
+            get
+            {
+                if (_DurationDifferenceType == null)
+                {
+                    if (Enum.TryParse(
+                        Settings.Default.DurationDifferenceType,
+                        true,
+                        out DurationDifferenceType value))
+                    {
+                        _DurationDifferenceType = value;
+                    }
+                    else
+                    {
+                        _DurationDifferenceType = DurationDifferenceType.Seconds;
+                    }
+                }
+                return _DurationDifferenceType.Value;
+            }
+            set
+            {
+                _DurationDifferenceType = value;
+                Settings.Default.DurationDifferenceType = value.ToString();
+                Settings.Default.Save();
+            }
+        }
+        private static DurationDifferenceType? _DurationDifferenceType = null;
     }
 }
