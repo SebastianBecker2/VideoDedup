@@ -132,7 +132,7 @@ namespace VideoDedup
                 var other_thumbnail = other.GetThumbnail(i, ConfigData.MaxThumbnailComparison);
                 var diff = this_thumbnail.PercentageDifference(other_thumbnail);
 
-                if (diff > ConfigData.MaxDifferencePercentage)
+                if (diff > ConfigData.MaxDifferencePercentage / 100)
                 {
                     ++differernceCount;
                 }

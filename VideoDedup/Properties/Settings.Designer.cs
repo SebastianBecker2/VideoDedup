@@ -97,10 +97,10 @@ namespace VideoDedup.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.3")]
-        public double MaxDifferencePercentage {
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
+        public int MaxDifferencePercentage {
             get {
-                return ((double)(this["MaxDifferencePercentage"]));
+                return ((int)(this["MaxDifferencePercentage"]));
             }
             set {
                 this["MaxDifferencePercentage"] = value;

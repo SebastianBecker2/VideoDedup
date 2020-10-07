@@ -20,8 +20,8 @@
     <Setting Name="MaxDifferentThumbnails" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">1</Value>
     </Setting>
-    <Setting Name="MaxDifferencePercentage" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0.3</Value>
+    <Setting Name="MaxDifferencePercentage" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">30</Value>
     </Setting>
     <Setting Name="MaxDurationDifferernce" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">10</Value>
