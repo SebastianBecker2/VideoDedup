@@ -375,7 +375,7 @@ namespace VideoDedup
             using (var dlg = new DurationSelection())
             {
                 dlg.AbsolutMinimumDuration = min;
-                dlg.AbsolutMaximumDuration = max;
+                dlg.AbsolutMaximumDuration = max.Add(TimeSpan.FromSeconds(1));
                 dlg.SelectedMinimumDuration = SelectedMinimumDuration;
                 dlg.SelectedMaximumDuration = SelectedMaximumDuration;
                 if (dlg.ShowDialog() != DialogResult.OK)

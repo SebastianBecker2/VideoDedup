@@ -1,15 +1,15 @@
 [
   {
     "Done": true,
-    "Text": "Configurable compare (Max difference in duration and Thumbnail count with max accepted differernt thumbnails)"
-  },
-  {
-    "Done": false,
     "Text": "Exception in DurationSelection when only two videos and restarting a finished comparison.\r\n(The value of the slider will be set to maxvalue + 1, which causes exception...)"
   },
   {
-    "Done": false,
+    "Done": true,
     "Text": "DurationSelection MaxDuration is exclusive. When having only two videos, the longest will be excluded since MaxDuration is not bigger."
+  },
+  {
+    "Done": true,
+    "Text": "Configurable compare (Max difference in duration and Thumbnail count with max accepted differernt thumbnails)"
   },
   {
     "Done": true,
@@ -110,5 +110,9 @@
   {
     "Done": true,
     "Text": "Resolve conflicts while searching for deduplications"
+  },
+  {
+    "Done": false,
+    "Text": "Rerunning dedup while there are still duplicates can cause double duplicates.\r\n(Though, not sure if that isn't actually  the right way to go)"
   }
 ]
