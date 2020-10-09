@@ -34,6 +34,16 @@ namespace VideoDedup
                 LsbFileExtensions.Items.AddRange(ConfigData.FileExtensions.ToArray());
             }
 
+            NumMaxThumbnailComparison.Value = ConfigData.MaxThumbnailComparison;
+            NumMaxDifferentThumbnails.Value = ConfigData.MaxDifferentThumbnails;
+            NumMaxDifferentPercentage.Value = ConfigData.MaxDifferencePercentage;
+
+            RdbDurationDifferencePercent.Checked = ConfigData.DurationDifferenceType == DurationDifferenceType.Percent;
+            RdbDurationDifferenceSeconds.Checked = ConfigData.DurationDifferenceType != DurationDifferenceType.Percent;
+            NumMaxDurationDifferencePercent.Value = ConfigData.MaxDurationDifferencePercent;
+            NumMaxDurationDifferenceSeconds.Value = ConfigData.MaxDurationDifferenceSeconds;
+
+            NumThumbnailViewCount.Value = ConfigData.ThumbnailViewCount;
 
             base.OnLoad(e);
         }
@@ -43,6 +53,24 @@ namespace VideoDedup
             ConfigData.SourcePath = TxtSourcePath.Text;
             ConfigData.ExcludedDirectories = LsbExcludedDirectories.Items.Cast<string>().ToList();
             ConfigData.FileExtensions = LsbFileExtensions.Items.Cast<string>().ToList();
+
+            ConfigData.MaxThumbnailComparison = (int)NumMaxThumbnailComparison.Value;
+            ConfigData.MaxDifferentThumbnails = (int)NumMaxDifferentThumbnails.Value;
+            ConfigData.MaxDifferencePercentage = (int)NumMaxDifferentPercentage.Value;
+
+            if (RdbDurationDifferencePercent.Checked)
+            {
+                ConfigData.DurationDifferenceType = DurationDifferenceType.Percent;
+            }
+            else
+            {
+                ConfigData.DurationDifferenceType = DurationDifferenceType.Seconds;
+            }
+            ConfigData.MaxDurationDifferencePercent = (int)NumMaxDurationDifferencePercent.Value;
+            ConfigData.MaxDurationDifferenceSeconds = (int)NumMaxDurationDifferenceSeconds.Value;
+
+            ConfigData.ThumbnailViewCount = (int)NumThumbnailViewCount.Value;
+
             DialogResult = DialogResult.OK;
         }
 

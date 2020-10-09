@@ -110,7 +110,7 @@ namespace VideoDedup
             }
         }
 
-        public static double MaxDifferencePercentage
+        public static int MaxDifferencePercentage
         {
             get
             {
@@ -123,15 +123,28 @@ namespace VideoDedup
             }
         }
 
-        public static int MaxDurationDifference
+        public static int MaxDurationDifferenceSeconds
         {
             get
             {
-                return Settings.Default.MaxDurationDifferernce;
+                return Settings.Default.MaxDurationDifferernceSeconds;
             }
             set
             {
-                Settings.Default.MaxDurationDifferernce = value;
+                Settings.Default.MaxDurationDifferernceSeconds = value;
+                Settings.Default.Save();
+            }
+        }
+
+        public static int MaxDurationDifferencePercent
+        {
+            get
+            {
+                return Settings.Default.MaxDurationDifferencePercent;
+            }
+            set
+            {
+                Settings.Default.MaxDurationDifferencePercent = value;
                 Settings.Default.Save();
             }
         }

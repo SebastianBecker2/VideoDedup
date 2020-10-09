@@ -110,12 +110,12 @@ namespace VideoDedup.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("10")]
-        public int MaxDurationDifferernce {
+        public int MaxDurationDifferernceSeconds {
             get {
-                return ((int)(this["MaxDurationDifferernce"]));
+                return ((int)(this["MaxDurationDifferernceSeconds"]));
             }
             set {
-                this["MaxDurationDifferernce"] = value;
+                this["MaxDurationDifferernceSeconds"] = value;
             }
         }
         
@@ -128,6 +128,18 @@ namespace VideoDedup.Properties {
             }
             set {
                 this["DurationDifferenceType"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int MaxDurationDifferencePercent {
+            get {
+                return ((int)(this["MaxDurationDifferencePercent"]));
+            }
+            set {
+                this["MaxDurationDifferencePercent"] = value;
             }
         }
     }

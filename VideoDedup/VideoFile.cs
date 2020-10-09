@@ -86,10 +86,10 @@ namespace VideoDedup
             switch (ConfigData.DurationDifferenceType)
             {
             case DurationDifferenceType.Seconds:
-                return Math.Abs((Duration - other.Duration).TotalSeconds) < ConfigData.MaxDurationDifference;
+                return Math.Abs((Duration - other.Duration).TotalSeconds) < ConfigData.MaxDurationDifferenceSeconds;
             case DurationDifferenceType.Percent:
                 var difference = Math.Abs((Duration - other.Duration).TotalSeconds);
-                var max_diff = (Duration.TotalSeconds / 100 * ConfigData.MaxDurationDifference);
+                var max_diff = Duration.TotalSeconds / 100 * ConfigData.MaxDurationDifferencePercent;
                 return difference < max_diff;
             default:
                 throw new ConfigurationErrorsException("DurationDifferenceType has not valid value");
@@ -131,8 +131,8 @@ namespace VideoDedup
                 var this_thumbnail = GetThumbnail(i, ConfigData.MaxThumbnailComparison);
                 var other_thumbnail = other.GetThumbnail(i, ConfigData.MaxThumbnailComparison);
                 var diff = this_thumbnail.PercentageDifference(other_thumbnail);
-
-                if (diff > ConfigData.MaxDifferencePercentage / 100)
+                Debug.Print($"{i} Difference: {diff}");
+                if (diff > (double)ConfigData.MaxDifferencePercentage / 100)
                 {
                     ++differernceCount;
                 }
