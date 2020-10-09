@@ -1,5 +1,9 @@
 [
   {
+    "Done": false,
+    "Text": "Rerunning dedup while there are still duplicates can cause double duplicates.\r\n(Though, not sure if that isn't actually  the right way to go)"
+  },
+  {
     "Done": true,
     "Text": "Exception in DurationSelection when only two videos and restarting a finished comparison.\r\n(The value of the slider will be set to maxvalue + 1, which causes exception...)"
   },
@@ -113,6 +117,6 @@
   },
   {
     "Done": false,
-    "Text": "Rerunning dedup while there are still duplicates can cause double duplicates.\r\n(Though, not sure if that isn't actually  the right way to go)"
+    "Text": "Run dedup as service, monitoring the folder for changed of video files."
   }
 ]
