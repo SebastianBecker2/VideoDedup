@@ -11,14 +11,12 @@ using XnaFan.ImageComparison;
 using Newtonsoft.Json;
 using NReco.VideoConverter;
 using System.Threading;
+using System.Configuration;
 
 namespace VideoDedup
 {
     public class VideoFile : object, IEquatable<VideoFile>
     {
-        public readonly static int ThumbnailCount = 20;
-        private readonly static int DurationEqualityLimit = 10; // as seconds
-
         [JsonProperty]
         public string FilePath { get; private set; }
         [JsonIgnore]
@@ -71,12 +69,6 @@ namespace VideoDedup
             private set => _Duration = value;
         }
 
-        [JsonIgnore]
-        private double ThumbnailStepping
-        {
-            get => (Duration.TotalSeconds / (ThumbnailCount + 1));
-        }
-
         [JsonProperty]
         private TimeSpan? _Duration = null;
         [JsonProperty]
@@ -91,12 +83,22 @@ namespace VideoDedup
 
         public bool IsDurationEqual(VideoFile other)
         {
-            return Math.Abs((Duration - other.Duration).TotalSeconds) < DurationEqualityLimit;
+            switch (ConfigData.DurationDifferenceType)
+            {
+            case DurationDifferenceType.Seconds:
+                return Math.Abs((Duration - other.Duration).TotalSeconds) < ConfigData.MaxDurationDifferenceSeconds;
+            case DurationDifferenceType.Percent:
+                var difference = Math.Abs((Duration - other.Duration).TotalSeconds);
+                var max_diff = Duration.TotalSeconds / 100 * ConfigData.MaxDurationDifferencePercent;
+                return difference < max_diff;
+            default:
+                throw new ConfigurationErrorsException("DurationDifferenceType has not valid value");
+            }
         }
 
-        public Image GetThumbnail(int index)
+        public Image GetThumbnail(int index, int thumbnailCount)
         {
-            if (index >= ThumbnailCount || index < 0)
+            if (index >= thumbnailCount || index < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(index), "Index out of range.");
             }
@@ -107,7 +109,8 @@ namespace VideoDedup
                 var image_stream = new MemoryStream();
                 try
                 {
-                    ffMpeg.GetVideoThumbnail(FilePath, image_stream, (float)ThumbnailStepping * (index + 1));
+                    var stepping = Duration.TotalSeconds / (thumbnailCount + 1);
+                    ffMpeg.GetVideoThumbnail(FilePath, image_stream, (float)stepping * (index + 1));
                     _Thumbnails[index] = Image.FromStream(image_stream);
                 }
                 catch (Exception)
@@ -122,15 +125,19 @@ namespace VideoDedup
 
         public bool AreThumbnailsEqual(VideoFile other)
         {
-            IList<bool> ThumbnailDifferences = new List<bool>();
-            foreach (var i in Enumerable.Range(0, ThumbnailCount))
+            int differernceCount = 0;
+            foreach (var i in Enumerable.Range(0, ConfigData.MaxThumbnailComparison))
             {
-                var diff = GetThumbnail(i).PercentageDifference(other.GetThumbnail(i));
-                ThumbnailDifferences.Add(diff > 0.2d);
+                var this_thumbnail = GetThumbnail(i, ConfigData.MaxThumbnailComparison);
+                var other_thumbnail = other.GetThumbnail(i, ConfigData.MaxThumbnailComparison);
+                var diff = this_thumbnail.PercentageDifference(other_thumbnail);
+                Debug.Print($"{i} Difference: {diff}");
+                if (diff > (double)ConfigData.MaxDifferencePercentage / 100)
+                {
+                    ++differernceCount;
+                }
 
-                var diff_count = ThumbnailDifferences.Count(d => d);
-
-                if (diff_count >= 2)
+                if (differernceCount > ConfigData.MaxDifferentThumbnails)
                 {
                     return false;
                 }

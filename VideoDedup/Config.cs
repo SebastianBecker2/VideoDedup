@@ -15,10 +15,6 @@ namespace VideoDedup
 {
     public partial class Config : Form
     {
-        public string SourcePath { get; set; }
-        public IList<string> ExcludedDirectories { get; set; }
-        public IList<string> FileExtensions { get; set; }
-
         public Config()
         {
             InitializeComponent();
@@ -26,27 +22,55 @@ namespace VideoDedup
 
         protected override void OnLoad(EventArgs e)
         {
-            TxtSourcePath.Text = SourcePath;
+            TxtSourcePath.Text = ConfigData.SourcePath;
 
-            if (ExcludedDirectories != null)
+            if (ConfigData.ExcludedDirectories != null)
             {
-                LsbExcludedDirectories.Items.AddRange(ExcludedDirectories.ToArray());
+                LsbExcludedDirectories.Items.AddRange(ConfigData.ExcludedDirectories.ToArray());
             }
 
-            if (FileExtensions != null)
+            if (ConfigData.FileExtensions != null)
             {
-                LsbFileExtensions.Items.AddRange(FileExtensions.ToArray());
+                LsbFileExtensions.Items.AddRange(ConfigData.FileExtensions.ToArray());
             }
 
+            NumMaxThumbnailComparison.Value = ConfigData.MaxThumbnailComparison;
+            NumMaxDifferentThumbnails.Value = ConfigData.MaxDifferentThumbnails;
+            NumMaxDifferentPercentage.Value = ConfigData.MaxDifferencePercentage;
+
+            RdbDurationDifferencePercent.Checked = ConfigData.DurationDifferenceType == DurationDifferenceType.Percent;
+            RdbDurationDifferenceSeconds.Checked = ConfigData.DurationDifferenceType != DurationDifferenceType.Percent;
+            NumMaxDurationDifferencePercent.Value = ConfigData.MaxDurationDifferencePercent;
+            NumMaxDurationDifferenceSeconds.Value = ConfigData.MaxDurationDifferenceSeconds;
+
+            NumThumbnailViewCount.Value = ConfigData.ThumbnailViewCount;
 
             base.OnLoad(e);
         }
 
         private void BtnOkay_Click(object sender, EventArgs e)
         {
-            SourcePath = TxtSourcePath.Text;
-            ExcludedDirectories = LsbExcludedDirectories.Items.Cast<string>().ToList();
-            FileExtensions = LsbFileExtensions.Items.Cast<string>().ToList();
+            ConfigData.SourcePath = TxtSourcePath.Text;
+            ConfigData.ExcludedDirectories = LsbExcludedDirectories.Items.Cast<string>().ToList();
+            ConfigData.FileExtensions = LsbFileExtensions.Items.Cast<string>().ToList();
+
+            ConfigData.MaxThumbnailComparison = (int)NumMaxThumbnailComparison.Value;
+            ConfigData.MaxDifferentThumbnails = (int)NumMaxDifferentThumbnails.Value;
+            ConfigData.MaxDifferencePercentage = (int)NumMaxDifferentPercentage.Value;
+
+            if (RdbDurationDifferencePercent.Checked)
+            {
+                ConfigData.DurationDifferenceType = DurationDifferenceType.Percent;
+            }
+            else
+            {
+                ConfigData.DurationDifferenceType = DurationDifferenceType.Seconds;
+            }
+            ConfigData.MaxDurationDifferencePercent = (int)NumMaxDurationDifferencePercent.Value;
+            ConfigData.MaxDurationDifferenceSeconds = (int)NumMaxDurationDifferenceSeconds.Value;
+
+            ConfigData.ThumbnailViewCount = (int)NumThumbnailViewCount.Value;
+
             DialogResult = DialogResult.OK;
         }
 

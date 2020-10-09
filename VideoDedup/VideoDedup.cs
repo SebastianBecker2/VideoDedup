@@ -36,61 +36,17 @@ namespace VideoDedup
 
         private string CurrentStatusInfo { get; set; }
 
-        private DateTime? lastStatusUpdate { get; set; } = null;
-
-        public string CacheFilePath
+        private string CacheFilePath
         {
             get
             {
-                var cache_folder = Path.Combine(SourcePath, CacheFolderName);
+                var cache_folder = Path.Combine(ConfigData.SourcePath, CacheFolderName);
                 Directory.CreateDirectory(cache_folder);
                 return Path.Combine(cache_folder, CacheFileName);
             }
         }
 
-        public string SourcePath
-        {
-            get { return Settings.Default.SourcePath; }
-            set
-            {
-                Settings.Default.SourcePath = value;
-                Settings.Default.Save();
-            }
-        }
-
-        public IList<string> ExcludedDirectories
-        {
-            get
-            {
-                return JsonConvert.DeserializeObject<List<string>>(Settings.Default.ExcludedDirectories);
-            }
-            set
-            {
-                Settings.Default.ExcludedDirectories = JsonConvert.SerializeObject(value);
-                Settings.Default.Save();
-            }
-        }
-
-        public IList<string> FileExtensions
-        {
-            get
-            {
-                var file_extensions = JsonConvert.DeserializeObject<List<string>>(Settings.Default.FileExtensions);
-                if (file_extensions == null || !file_extensions.Any())
-                {
-                    return new List<string>
-                        {
-                            ".mp4", ".mpg", ".avi", ".wmv", ".flv", ".m4v", ".mov", ".mpeg", ".rm", ".mts", ".3gp"
-                        };
-                }
-                return file_extensions;
-            }
-            set
-            {
-                Settings.Default.FileExtensions = JsonConvert.SerializeObject(value);
-                Settings.Default.Save();
-            }
-        }
+        private DateTime? lastStatusUpdate { get; set; } = null;
 
         private TimeSpan ElapsedTime { get; set; } = new TimeSpan();
 
@@ -257,8 +213,8 @@ namespace VideoDedup
             var timer = Stopwatch.StartNew();
 
             // Get all video files in source path.
-            var fileExtensions = FileExtensions.ToList();
-            var found_files = GetAllAccessibleFilesIn(sourcePath, ExcludedDirectories)
+            var fileExtensions = ConfigData.FileExtensions.ToList();
+            var found_files = GetAllAccessibleFilesIn(sourcePath, ConfigData.ExcludedDirectories)
                 .Where(f => fileExtensions.Contains(Path.GetExtension(f), StringComparer.CurrentCultureIgnoreCase))
                 .Select(f => new VideoFile(f));
 
@@ -451,7 +407,7 @@ namespace VideoDedup
 
             Task.Run(() =>
             {
-                var videoFiles = GetVideoFileList(SourcePath);
+                var videoFiles = GetVideoFileList(ConfigData.SourcePath);
 
                 this.InvokeIfRequired(() =>
                 {
@@ -525,16 +481,10 @@ namespace VideoDedup
         {
             using (var dlg = new Config())
             {
-                dlg.SourcePath = SourcePath;
-                dlg.FileExtensions = FileExtensions;
-                dlg.ExcludedDirectories = ExcludedDirectories;
                 if (dlg.ShowDialog() != DialogResult.OK)
                 {
                     return;
                 }
-                SourcePath = dlg.SourcePath;
-                FileExtensions = dlg.FileExtensions;
-                ExcludedDirectories = dlg.ExcludedDirectories;
             }
         }
 

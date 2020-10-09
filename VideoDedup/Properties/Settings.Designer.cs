@@ -58,5 +58,89 @@ namespace VideoDedup.Properties {
                 this["FileExtensions"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8")]
+        public int ThumbnailViewCount {
+            get {
+                return ((int)(this["ThumbnailViewCount"]));
+            }
+            set {
+                this["ThumbnailViewCount"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        public int MaxThumbnailComparison {
+            get {
+                return ((int)(this["MaxThumbnailComparison"]));
+            }
+            set {
+                this["MaxThumbnailComparison"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int MaxDifferentThumbnails {
+            get {
+                return ((int)(this["MaxDifferentThumbnails"]));
+            }
+            set {
+                this["MaxDifferentThumbnails"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
+        public int MaxDifferencePercentage {
+            get {
+                return ((int)(this["MaxDifferencePercentage"]));
+            }
+            set {
+                this["MaxDifferencePercentage"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int MaxDurationDifferernceSeconds {
+            get {
+                return ((int)(this["MaxDurationDifferernceSeconds"]));
+            }
+            set {
+                this["MaxDurationDifferernceSeconds"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Seconds")]
+        public string DurationDifferenceType {
+            get {
+                return ((string)(this["DurationDifferenceType"]));
+            }
+            set {
+                this["DurationDifferenceType"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int MaxDurationDifferencePercent {
+            get {
+                return ((int)(this["MaxDurationDifferencePercent"]));
+            }
+            set {
+                this["MaxDurationDifferencePercent"] = value;
+            }
+        }
     }
 }
