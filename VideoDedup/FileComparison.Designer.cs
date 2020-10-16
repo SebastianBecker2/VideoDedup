@@ -38,6 +38,7 @@
             this.FpvRight = new global::VideoDedup.FilePreview.FilePreview();
             this.btnClose = new System.Windows.Forms.Button();
             this.BtnSkip = new System.Windows.Forms.Button();
+            this.BtnDiscard = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.SplitterContainer)).BeginInit();
             this.SplitterContainer.Panel1.SuspendLayout();
             this.SplitterContainer.Panel2.SuspendLayout();
@@ -105,7 +106,7 @@
             // BtnShowRight
             // 
             this.BtnShowRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnShowRight.Location = new System.Drawing.Point(188, 346);
+            this.BtnShowRight.Location = new System.Drawing.Point(184, 346);
             this.BtnShowRight.Name = "BtnShowRight";
             this.BtnShowRight.Size = new System.Drawing.Size(97, 23);
             this.BtnShowRight.TabIndex = 20;
@@ -116,7 +117,7 @@
             // btnDeleteRight
             // 
             this.btnDeleteRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeleteRight.Location = new System.Drawing.Point(107, 346);
+            this.btnDeleteRight.Location = new System.Drawing.Point(103, 346);
             this.btnDeleteRight.Name = "btnDeleteRight";
             this.btnDeleteRight.Size = new System.Drawing.Size(75, 23);
             this.btnDeleteRight.TabIndex = 19;
@@ -132,14 +133,14 @@
             this.FpvRight.HighlightColor = System.Drawing.SystemColors.Control;
             this.FpvRight.Location = new System.Drawing.Point(0, 0);
             this.FpvRight.Name = "FpvRight";
-            this.FpvRight.Size = new System.Drawing.Size(295, 340);
+            this.FpvRight.Size = new System.Drawing.Size(291, 340);
             this.FpvRight.TabIndex = 0;
             this.FpvRight.VideoFile = null;
             // 
             // btnClose
             // 
             this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnClose.DialogResult = System.Windows.Forms.DialogResult.Abort;
+            this.btnClose.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnClose.Location = new System.Drawing.Point(548, 390);
             this.btnClose.Name = "btnClose";
             this.btnClose.Size = new System.Drawing.Size(75, 23);
@@ -158,6 +159,17 @@
             this.BtnSkip.Text = "&Skip";
             this.BtnSkip.UseVisualStyleBackColor = true;
             // 
+            // BtnDiscard
+            // 
+            this.BtnDiscard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnDiscard.DialogResult = System.Windows.Forms.DialogResult.Yes;
+            this.BtnDiscard.Location = new System.Drawing.Point(386, 390);
+            this.BtnDiscard.Name = "BtnDiscard";
+            this.BtnDiscard.Size = new System.Drawing.Size(75, 23);
+            this.BtnDiscard.TabIndex = 18;
+            this.BtnDiscard.Text = "&Discard";
+            this.BtnDiscard.UseVisualStyleBackColor = true;
+            // 
             // FileComparison
             // 
             this.AcceptButton = this.BtnSkip;
@@ -165,6 +177,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnClose;
             this.ClientSize = new System.Drawing.Size(635, 425);
+            this.Controls.Add(this.BtnDiscard);
             this.Controls.Add(this.BtnSkip);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.SplitterContainer);
@@ -190,5 +203,6 @@
         private System.Windows.Forms.Button BtnShowRight;
         private System.Windows.Forms.Button BtnShowLeft;
         private System.Windows.Forms.Button BtnSkip;
+        private System.Windows.Forms.Button BtnDiscard;
     }
 }

@@ -87,7 +87,7 @@ namespace VideoDedup
             this.InvokeIfRequired(() =>
             {
                 if (lastStatusUpdate.HasValue
-                    && (DateTime.Now- lastStatusUpdate.Value).TotalMilliseconds < 100
+                    && (DateTime.Now - lastStatusUpdate.Value).TotalMilliseconds < 100
                     && maxCount - counter > 2
                     && counter > 0)
                 {
@@ -129,6 +129,19 @@ namespace VideoDedup
             });
         }
 
+        private void ClearDuplicates()
+        {
+            this.InvokeIfRequired(() =>
+            {
+                Duplicates.Clear();
+                LblDuplicateCount.Text = string.Format(
+                    StatusInfoDuplicateCount, Duplicates.Count());
+                BtnResolveDuplicates.Enabled = false;
+                BtnDiscardDuplicates.Enabled = false;
+                NotifyIcon.Icon = Resources.film;
+            });
+        }
+
         private void RemoveDuplicate(int index)
         {
             this.InvokeIfRequired(() =>
@@ -138,7 +151,8 @@ namespace VideoDedup
                     StatusInfoDuplicateCount, Duplicates.Count());
                 if (!Duplicates.Any())
                 {
-                    BtnResolveConflicts.Enabled = false;
+                    BtnResolveDuplicates.Enabled = false;
+                    BtnDiscardDuplicates.Enabled = false;
                     NotifyIcon.Icon = Resources.film;
                 }
             });
@@ -151,7 +165,8 @@ namespace VideoDedup
                 Duplicates.Add(Tuple.Create(left, right));
                 LblDuplicateCount.Text = string.Format(
                     StatusInfoDuplicateCount, Duplicates.Count());
-                BtnResolveConflicts.Enabled = true;
+                BtnResolveDuplicates.Enabled = true;
+                BtnDiscardDuplicates.Enabled = true;
                 NotifyIcon.Icon = Resources.film_error;
             });
         }
@@ -335,7 +350,7 @@ namespace VideoDedup
                     {
                         RemoveDuplicate(index);
                     }
-                    if (result == DialogResult.Abort)
+                    if (result == DialogResult.Cancel)
                     {
                         // Keep in list
                         return;
@@ -561,6 +576,26 @@ namespace VideoDedup
                     e.Cancel = true;
                     return;
                 }
+            }
+        }
+
+        private void BtnDiscard_Click(object sender, EventArgs e)
+        {
+            if (Duplicates.Any())
+            {
+                var selection = MessageBox.Show(
+                                $"There are {Duplicates.Count()} duplicates to resolve." +
+                                $"{Environment.NewLine}Are you sure you want to discard them?",
+                                "Discard duplicates?",
+                                MessageBoxButtons.YesNo,
+                                MessageBoxIcon.Warning);
+
+                if (selection == DialogResult.No)
+                {
+                    return;
+                }
+
+                ClearDuplicates();
             }
         }
     }

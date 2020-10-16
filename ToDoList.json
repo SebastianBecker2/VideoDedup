@@ -9,6 +9,14 @@
   },
   {
     "Done": true,
+    "Text": "Add discard button to main form"
+  },
+  {
+    "Done": true,
+    "Text": "Add discard button to comparison form"
+  },
+  {
+    "Done": true,
     "Text": "Exception in DurationSelection when only two videos and restarting a finished comparison.\r\n(The value of the slider will be set to maxvalue + 1, which causes exception...)"
   },
   {
@@ -118,13 +126,5 @@
   {
     "Done": true,
     "Text": "Resolve conflicts while searching for deduplications"
-  },
-  {
-    "Done": false,
-    "Text": "Add discard button to main form"
-  },
-  {
-    "Done": false,
-    "Text": "Add discard button to comparison form"
   }
 ]

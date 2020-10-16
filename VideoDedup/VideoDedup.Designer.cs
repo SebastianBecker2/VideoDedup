@@ -38,7 +38,7 @@
             this.BtnConfig = new System.Windows.Forms.Button();
             this.LblTimer = new System.Windows.Forms.Label();
             this.ElapsedTimer = new System.Windows.Forms.Timer(this.components);
-            this.BtnResolveConflicts = new System.Windows.Forms.Button();
+            this.BtnResolveDuplicates = new System.Windows.Forms.Button();
             this.MenuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -47,6 +47,7 @@
             this.LblDuplicateCount = new System.Windows.Forms.Label();
             this.LblCurrentFile = new System.Windows.Forms.Label();
             this.NotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.BtnDiscardDuplicates = new System.Windows.Forms.Button();
             this.MenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -131,15 +132,15 @@
             // 
             // BtnResolveConflicts
             // 
-            this.BtnResolveConflicts.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnResolveConflicts.Enabled = false;
-            this.BtnResolveConflicts.Location = new System.Drawing.Point(506, 135);
-            this.BtnResolveConflicts.Name = "BtnResolveConflicts";
-            this.BtnResolveConflicts.Size = new System.Drawing.Size(75, 23);
-            this.BtnResolveConflicts.TabIndex = 10;
-            this.BtnResolveConflicts.Text = "&Resolve";
-            this.BtnResolveConflicts.UseVisualStyleBackColor = true;
-            this.BtnResolveConflicts.Click += new System.EventHandler(this.BtnResolveConflicts_Click);
+            this.BtnResolveDuplicates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnResolveDuplicates.Enabled = false;
+            this.BtnResolveDuplicates.Location = new System.Drawing.Point(506, 135);
+            this.BtnResolveDuplicates.Name = "BtnResolveConflicts";
+            this.BtnResolveDuplicates.Size = new System.Drawing.Size(75, 23);
+            this.BtnResolveDuplicates.TabIndex = 10;
+            this.BtnResolveDuplicates.Text = "&Resolve";
+            this.BtnResolveDuplicates.UseVisualStyleBackColor = true;
+            this.BtnResolveDuplicates.Click += new System.EventHandler(this.BtnResolveConflicts_Click);
             // 
             // MenuStrip
             // 
@@ -178,7 +179,7 @@
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
             this.aboutToolStripMenuItem.Text = "&About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -208,15 +209,29 @@
             this.NotifyIcon.Text = "VideoDedup";
             this.NotifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
             // 
+            // BtnDiscard
+            // 
+            this.BtnDiscardDuplicates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnDiscardDuplicates.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.BtnDiscardDuplicates.Enabled = false;
+            this.BtnDiscardDuplicates.Location = new System.Drawing.Point(234, 135);
+            this.BtnDiscardDuplicates.Name = "BtnDiscard";
+            this.BtnDiscardDuplicates.Size = new System.Drawing.Size(104, 23);
+            this.BtnDiscardDuplicates.TabIndex = 14;
+            this.BtnDiscardDuplicates.Text = "Discard Duplicates";
+            this.BtnDiscardDuplicates.UseVisualStyleBackColor = true;
+            this.BtnDiscardDuplicates.Click += new System.EventHandler(this.BtnDiscard_Click);
+            // 
             // VideoDedup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.BtnCancel;
             this.ClientSize = new System.Drawing.Size(593, 170);
+            this.Controls.Add(this.BtnDiscardDuplicates);
             this.Controls.Add(this.LblCurrentFile);
             this.Controls.Add(this.LblDuplicateCount);
-            this.Controls.Add(this.BtnResolveConflicts);
+            this.Controls.Add(this.BtnResolveDuplicates);
             this.Controls.Add(this.LblTimer);
             this.Controls.Add(this.BtnConfig);
             this.Controls.Add(this.BtnCancel);
@@ -248,7 +263,7 @@
         private System.Windows.Forms.Button BtnConfig;
         private System.Windows.Forms.Label LblTimer;
         private System.Windows.Forms.Timer ElapsedTimer;
-        private System.Windows.Forms.Button BtnResolveConflicts;
+        private System.Windows.Forms.Button BtnResolveDuplicates;
         private System.Windows.Forms.MenuStrip MenuStrip;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
@@ -257,6 +272,7 @@
         private System.Windows.Forms.Label LblDuplicateCount;
         private System.Windows.Forms.Label LblCurrentFile;
         private System.Windows.Forms.NotifyIcon NotifyIcon;
+        private System.Windows.Forms.Button BtnDiscardDuplicates;
     }
 }
 
