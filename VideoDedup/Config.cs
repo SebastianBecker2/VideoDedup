@@ -91,17 +91,7 @@ namespace VideoDedup
 
         private void BtnAddExcludedDirectory_Click(object sender, EventArgs e)
         {
-            using (var dlg = new CommonOpenFileDialog())
-            {
-                dlg.IsFolderPicker = true;
 
-                if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
-                {
-                    return;
-                }
-
-                LsbExcludedDirectories.Items.Add(dlg.FileName);
-            }
         }
 
         private void BtnRemoveExcludedDirectory_Click(object sender, EventArgs e)

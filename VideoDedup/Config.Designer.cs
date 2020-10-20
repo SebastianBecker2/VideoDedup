@@ -324,6 +324,7 @@
             this.BtnSelectSourcePath.TabIndex = 19;
             this.BtnSelectSourcePath.Text = "...";
             this.BtnSelectSourcePath.UseVisualStyleBackColor = true;
+            this.BtnSelectSourcePath.Click += new System.EventHandler(this.BtnSelectSourcePath_Click);
             // 
             // TxtSourcePath
             // 
@@ -408,6 +409,7 @@
             this.BtnRemoveFileExtension.TabIndex = 9;
             this.BtnRemoveFileExtension.Text = "-";
             this.BtnRemoveFileExtension.UseVisualStyleBackColor = true;
+            this.BtnRemoveFileExtension.Click += new System.EventHandler(this.BtnRemoveFileExtension_Click);
             // 
             // BtnAddFileExtension
             // 
@@ -418,6 +420,7 @@
             this.BtnAddFileExtension.TabIndex = 8;
             this.BtnAddFileExtension.Text = "+";
             this.BtnAddFileExtension.UseVisualStyleBackColor = true;
+            this.BtnAddFileExtension.Click += new System.EventHandler(this.BtnAddFileExtension_Click);
             // 
             // label4
             // 
@@ -448,6 +451,7 @@
             this.BtnAddExcludedDirectory.TabIndex = 13;
             this.BtnAddExcludedDirectory.Text = "+";
             this.BtnAddExcludedDirectory.UseVisualStyleBackColor = true;
+            this.BtnAddExcludedDirectory.Click += new System.EventHandler(this.BtnAddExcludedDirectory_Click);
             // 
             // BtnRemoveExcludedDirectory
             // 
@@ -458,6 +462,7 @@
             this.BtnRemoveExcludedDirectory.TabIndex = 14;
             this.BtnRemoveExcludedDirectory.Text = "-";
             this.BtnRemoveExcludedDirectory.UseVisualStyleBackColor = true;
+            this.BtnRemoveExcludedDirectory.Click += new System.EventHandler(this.BtnRemoveExcludedDirectory_Click);
             // 
             // tableLayoutPanel2
             // 
