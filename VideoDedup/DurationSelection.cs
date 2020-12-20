@@ -17,151 +17,151 @@ namespace VideoDedup
 
         private bool ProgrammaticUpdate { get; set; } = false;
 
-        public DurationSelection() => this.InitializeComponent();
+        public DurationSelection() => InitializeComponent();
 
         protected override void OnLoad(EventArgs e)
         {
-            this.ProgrammaticUpdate = true;
+            ProgrammaticUpdate = true;
 
-            this.LblDurationInfo.Text = $"Videos are between " +
-                $"{ToString(this.AbsolutMinimumDuration)} and " +
-                $"{ToString(this.AbsolutMaximumDuration)} long.";
+            LblDurationInfo.Text = $"Videos are between " +
+                $"{ToString(AbsolutMinimumDuration)} and " +
+                $"{ToString(AbsolutMaximumDuration)} long.";
 
-            if (this.SelectedMinimumDuration == null)
+            if (SelectedMinimumDuration == null)
             {
-                this.SelectedMinimumDuration = this.AbsolutMinimumDuration;
+                SelectedMinimumDuration = AbsolutMinimumDuration;
             }
-            this.TxtMinimumDuration.Text = ToString(this.SelectedMinimumDuration);
+            TxtMinimumDuration.Text = ToString(SelectedMinimumDuration);
 
-            if (this.SelectedMaximumDuration == null)
+            if (SelectedMaximumDuration == null)
             {
-                this.SelectedMaximumDuration = this.AbsolutMaximumDuration;
+                SelectedMaximumDuration = AbsolutMaximumDuration;
             }
-            this.TxtMaximumDuration.Text = ToString(this.SelectedMaximumDuration);
+            TxtMaximumDuration.Text = ToString(SelectedMaximumDuration);
 
-            this.MinimumSlider.Minimum = (int)this.AbsolutMinimumDuration.TotalSeconds;
-            this.MinimumSlider.Maximum = (int)this.AbsolutMaximumDuration.TotalSeconds;
-            this.MinimumSlider.Value = (int)this.SelectedMinimumDuration.Value.TotalSeconds;
+            MinimumSlider.Minimum = (int)AbsolutMinimumDuration.TotalSeconds;
+            MinimumSlider.Maximum = (int)AbsolutMaximumDuration.TotalSeconds;
+            MinimumSlider.Value = (int)SelectedMinimumDuration.Value.TotalSeconds;
 
-            this.MaximumSlider.Minimum = (int)this.AbsolutMinimumDuration.TotalSeconds;
-            this.MaximumSlider.Maximum = (int)this.AbsolutMaximumDuration.TotalSeconds;
-            this.MaximumSlider.Value = (int)this.SelectedMaximumDuration.Value.TotalSeconds;
+            MaximumSlider.Minimum = (int)AbsolutMinimumDuration.TotalSeconds;
+            MaximumSlider.Maximum = (int)AbsolutMaximumDuration.TotalSeconds;
+            MaximumSlider.Value = (int)SelectedMaximumDuration.Value.TotalSeconds;
 
-            this.ProgrammaticUpdate = false;
+            ProgrammaticUpdate = false;
 
             base.OnLoad(e);
         }
 
         private void BtnOK_Click(object sender, EventArgs e)
         {
-            if (!TimeSpan.TryParse(this.TxtMinimumDuration.Text, out var duration))
+            if (!TimeSpan.TryParse(TxtMinimumDuration.Text, out var duration))
             {
                 _ = MessageBox.Show("Minimum duration is not valid.");
                 return;
             }
-            this.SelectedMinimumDuration = duration;
+            SelectedMinimumDuration = duration;
 
-            if (!TimeSpan.TryParse(this.TxtMaximumDuration.Text, out duration))
+            if (!TimeSpan.TryParse(TxtMaximumDuration.Text, out duration))
             {
                 _ = MessageBox.Show("Maximum duration is not valid.");
                 return;
             }
-            this.SelectedMaximumDuration = duration;
+            SelectedMaximumDuration = duration;
 
-            if (this.SelectedMaximumDuration <= this.SelectedMinimumDuration)
+            if (SelectedMaximumDuration <= SelectedMinimumDuration)
             {
-                var temp = this.SelectedMaximumDuration;
-                this.SelectedMaximumDuration = this.SelectedMinimumDuration;
-                this.SelectedMinimumDuration = temp;
+                var temp = SelectedMaximumDuration;
+                SelectedMaximumDuration = SelectedMinimumDuration;
+                SelectedMinimumDuration = temp;
             }
 
-            this.DialogResult = DialogResult.OK;
+            DialogResult = DialogResult.OK;
         }
 
         private void MinimumSlider_Scroll(object sender, EventArgs e)
         {
-            if (this.ProgrammaticUpdate)
+            if (ProgrammaticUpdate)
             {
                 return;
             }
-            this.ProgrammaticUpdate = true;
+            ProgrammaticUpdate = true;
 
-            this.SelectedMinimumDuration = new TimeSpan(0, 0, this.MinimumSlider.Value);
-            this.TxtMinimumDuration.Text = ToString(this.SelectedMinimumDuration);
+            SelectedMinimumDuration = new TimeSpan(0, 0, MinimumSlider.Value);
+            TxtMinimumDuration.Text = ToString(SelectedMinimumDuration);
 
-            this.ProgrammaticUpdate = false;
+            ProgrammaticUpdate = false;
         }
 
         private void MaximumSlider_Scroll(object sender, EventArgs e)
         {
-            if (this.ProgrammaticUpdate)
+            if (ProgrammaticUpdate)
             {
                 return;
             }
-            this.ProgrammaticUpdate = true;
+            ProgrammaticUpdate = true;
 
-            this.SelectedMaximumDuration = new TimeSpan(0, 0, this.MaximumSlider.Value);
-            this.TxtMaximumDuration.Text = ToString(this.SelectedMaximumDuration);
+            SelectedMaximumDuration = new TimeSpan(0, 0, MaximumSlider.Value);
+            TxtMaximumDuration.Text = ToString(SelectedMaximumDuration);
 
-            this.ProgrammaticUpdate = false;
+            ProgrammaticUpdate = false;
         }
 
         private void TxtMinimumDuration_TextChanged(object sender, EventArgs e)
         {
-            if (this.ProgrammaticUpdate)
+            if (ProgrammaticUpdate)
             {
                 return;
             }
 
             try
             {
-                this.ProgrammaticUpdate = true;
+                ProgrammaticUpdate = true;
 
-                if (!TimeSpan.TryParse(this.TxtMinimumDuration.Text, out var duration))
+                if (!TimeSpan.TryParse(TxtMinimumDuration.Text, out var duration))
                 {
                     Debug.Print("Can't parse");
                     return;
                 }
                 var secs = (int)duration.TotalSeconds;
-                if (secs > this.MinimumSlider.Maximum || secs < this.MinimumSlider.Minimum)
+                if (secs > MinimumSlider.Maximum || secs < MinimumSlider.Minimum)
                 {
                     Debug.Print("Too large or too small");
                     return;
                 }
-                this.MinimumSlider.Value = secs;
+                MinimumSlider.Value = secs;
 
             }
             finally
             {
-                this.ProgrammaticUpdate = false;
+                ProgrammaticUpdate = false;
             }
         }
 
         private void TxtMaximumDuration_TextChanged(object sender, EventArgs e)
         {
-            if (this.ProgrammaticUpdate)
+            if (ProgrammaticUpdate)
             {
                 return;
             }
 
             try
             {
-                this.ProgrammaticUpdate = true;
+                ProgrammaticUpdate = true;
 
-                if (!TimeSpan.TryParse(this.TxtMaximumDuration.Text, out var duration))
+                if (!TimeSpan.TryParse(TxtMaximumDuration.Text, out var duration))
                 {
                     return;
                 }
                 var secs = (int)duration.TotalSeconds;
-                if (secs > this.MaximumSlider.Maximum || secs < this.MaximumSlider.Minimum)
+                if (secs > MaximumSlider.Maximum || secs < MaximumSlider.Minimum)
                 {
                     return;
                 }
-                this.MaximumSlider.Value = secs;
+                MaximumSlider.Value = secs;
             }
             finally
             {
-                this.ProgrammaticUpdate = false;
+                ProgrammaticUpdate = false;
             }
         }
     }

@@ -86,7 +86,7 @@ namespace VideoDedup
         public event EventHandler<DuplicateCountChangedEventArgs> DuplicateCountChanged;
         protected virtual void OnDuplicateCountChanged() => DuplicateCountChanged?.Invoke(this, new DuplicateCountChangedEventArgs
         {
-            Count = this.Duplicates.Count
+            Count = Duplicates.Count
         });
 
         public event EventHandler<StatusChangedEventArgs> StatusChanged;
@@ -112,28 +112,28 @@ namespace VideoDedup
                 throw new ArgumentNullException(nameof(config));
             }
 
-            this.Configuration = config;
+            Configuration = config;
 
-            this.FileWatcher.Changed += this.FileWatcher_Changed;
-            this.FileWatcher.Deleted += this.FileWatcher_Deleted;
-            this.FileWatcher.IncludeSubdirectories = true;
-            this.FileWatcher.Path = this.Configuration.SourcePath;
-            this.FileWatcher.EnableRaisingEvents = true;
+            FileWatcher.Changed += FileWatcher_Changed;
+            FileWatcher.Deleted += FileWatcher_Deleted;
+            FileWatcher.IncludeSubdirectories = true;
+            FileWatcher.Path = Configuration.SourcePath;
+            FileWatcher.EnableRaisingEvents = true;
 
-            this.RestartProcessingFolder();
+            RestartProcessingFolder();
         }
 
         public void EnqueueDuplicate(Duplicate duplicate)
         {
-            _ = this.Duplicates.TryAdd(duplicate);
-            this.OnDuplicateCountChanged();
+            _ = Duplicates.TryAdd(duplicate);
+            OnDuplicateCountChanged();
         }
 
         public bool DequeueDuplcate(out Duplicate duplicate)
         {
-            if (this.Duplicates.TryTake(out duplicate))
+            if (Duplicates.TryTake(out duplicate))
             {
-                this.OnDuplicateCountChanged();
+                OnDuplicateCountChanged();
                 return true;
             }
             return false;
@@ -154,43 +154,43 @@ namespace VideoDedup
 
         private void RestartProcessingFolder()
         {
-            this.CancelSource.Cancel();
-            this.DedupTask?.Wait();
-            this.CancelSource?.Dispose();
-            lock (this.DedupLock)
+            CancelSource.Cancel();
+            DedupTask?.Wait();
+            CancelSource?.Dispose();
+            lock (DedupLock)
             {
-                this.CancelSource = new CancellationTokenSource();
-                this.DedupTask = Task.Factory.StartNew(this.ProcessFolder);
+                CancelSource = new CancellationTokenSource();
+                DedupTask = Task.Factory.StartNew(ProcessFolder);
             }
         }
 
         private void StartProcessingChanges()
         {
-            lock (this.DedupLock)
+            lock (DedupLock)
             {
                 // If the task is still running,
                 // it will check for new files on it's own.
-                if (this.DedupTask != null)
+                if (DedupTask != null)
                 {
                     return;
                 }
 
-                this.DedupTask = Task.Factory.StartNew(this.ProcessChanges);
+                DedupTask = Task.Factory.StartNew(ProcessChanges);
             }
         }
 
         private void FileWatcher_Deleted(object sender, FileSystemEventArgs e)
         {
-            _ = this.DeletedFiles.TryAdd(new VideoFile(e.FullPath));
-            this.OnLogged(string.Format(LogDeletedFile, e.FullPath));
-            this.StartProcessingChanges();
+            _ = DeletedFiles.TryAdd(new VideoFile(e.FullPath));
+            OnLogged(string.Format(LogDeletedFile, e.FullPath));
+            StartProcessingChanges();
         }
 
         private void FileWatcher_Changed(object sender, FileSystemEventArgs e)
         {
-            _ = this.NewFiles.TryAdd(new VideoFile(e.FullPath));
-            this.OnLogged(string.Format(LogNewFile, e.FullPath));
-            this.StartProcessingChanges();
+            _ = NewFiles.TryAdd(new VideoFile(e.FullPath));
+            OnLogged(string.Format(LogNewFile, e.FullPath));
+            StartProcessingChanges();
         }
 
         private static IEnumerable<string> GetAllAccessibleFilesIn(
@@ -239,7 +239,7 @@ namespace VideoDedup
         {
             var timer = Stopwatch.StartNew();
 
-            this.OnProgressUpdate(StatusInfoSearching, 0, 0);
+            OnProgressUpdate(StatusInfoSearching, 0, 0);
 
             // Get all video files in source path.
             var fileExtensions = ConfigData.FileExtensions.ToList();
@@ -262,7 +262,7 @@ namespace VideoDedup
             }
             timer.Stop();
 
-            this.OnProgressUpdate(StatusInfoLoading, 0, cached_files.Count());
+            OnProgressUpdate(StatusInfoLoading, 0, cached_files.Count());
             Debug.Print($"Found {cached_files.Count()} video files in {timer.ElapsedMilliseconds} ms");
             return cached_files;
         }
@@ -274,7 +274,7 @@ namespace VideoDedup
             var counter = 0;
             foreach (var f in videoFiles)
             {
-                this.OnProgressUpdate(StatusInfoLoading,
+                OnProgressUpdate(StatusInfoLoading,
                     ++counter,
                     videoFiles.Count());
 
@@ -305,7 +305,7 @@ namespace VideoDedup
             IEnumerable<VideoFile> videoFiles,
             CancellationToken cancelToken)
         {
-            this.OnProgressUpdate(StatusInfoComparing, 0, videoFiles.Count());
+            OnProgressUpdate(StatusInfoComparing, 0, videoFiles.Count());
 
             var videoFileList = videoFiles.OrderBy(f => f.Duration).ToList();
 
@@ -318,10 +318,10 @@ namespace VideoDedup
 
                 var file = videoFileList[index];
 
-                this.OnLogged(string.Format(LogCheckingFile,
+                OnLogged(string.Format(LogCheckingFile,
                     file.FilePath,
                     file.Duration.ToPrettyString()));
-                this.OnProgressUpdate(StatusInfoComparing,
+                OnProgressUpdate(StatusInfoComparing,
                     index + 1,
                     videoFileList.Count());
 
@@ -334,71 +334,71 @@ namespace VideoDedup
 
                     var nextFile = videoFileList[nextIndex];
 
-                    if (!file.IsDurationEqual(nextFile, this.Configuration))
+                    if (!file.IsDurationEqual(nextFile, Configuration))
                     {
                         break;
                     }
 
-                    if (file.AreThumbnailsEqual(nextFile, this.Configuration))
+                    if (file.AreThumbnailsEqual(nextFile, Configuration))
                     {
-                        this.EnqueueDuplicate(new Duplicate(file, nextFile));
+                        EnqueueDuplicate(new Duplicate(file, nextFile));
                     }
                 }
 
                 file.DisposeThumbnails();
             }
 
-            this.OnProgressUpdate(StatusInfoComparing,
+            OnProgressUpdate(StatusInfoComparing,
                 videoFileList.Count(),
                 videoFileList.Count());
         }
 
         private void ProcessChangesIfAny()
         {
-            lock (this.DedupLock)
+            lock (DedupLock)
             {
-                if (!this.NewFiles.Any() && !this.DeletedFiles.Any())
+                if (!NewFiles.Any() && !DeletedFiles.Any())
                 {
-                    this.DedupTask = null;
+                    DedupTask = null;
                     return;
                 }
 
-                this.DedupTask = Task.Factory.StartNew(this.ProcessChanges);
+                DedupTask = Task.Factory.StartNew(ProcessChanges);
             }
         }
 
         private void ProcessFolder()
         {
-            var cancelToken = this.CancelSource.Token;
+            var cancelToken = CancelSource.Token;
 
-            this.VideoFiles = this.GetVideoFileList(this.Configuration.SourcePath);
+            VideoFiles = GetVideoFileList(Configuration.SourcePath);
 
             // Cancellable preload of files
-            this.PreloadFiles(this.VideoFiles, cancelToken);
+            PreloadFiles(VideoFiles, cancelToken);
 
             // Remove invalid files
-            this.VideoFiles = this.VideoFiles.Where(f => f.Duration != TimeSpan.Zero);
+            VideoFiles = VideoFiles.Where(f => f.Duration != TimeSpan.Zero);
 
-            SaveVideoFilesCache(this.VideoFiles, CacheFilePath);
+            SaveVideoFilesCache(VideoFiles, CacheFilePath);
 
-            this.FindDuplicates(this.VideoFiles, cancelToken);
+            FindDuplicates(VideoFiles, cancelToken);
 
             // Cleanup in case of cancel
-            foreach (var file in this.VideoFiles)
+            foreach (var file in VideoFiles)
             {
                 file.DisposeThumbnails();
             }
 
-            this.ProcessChangesIfAny();
+            ProcessChangesIfAny();
         }
 
         private void ProcessChanges()
         {
 #pragma warning disable IDE0059 // Unnecessary assignment of a value
-            var cancelToken = this.CancelSource.Token;
+            var cancelToken = CancelSource.Token;
 #pragma warning restore IDE0059 // Unnecessary assignment of a value
 
-            while (this.NewFiles.TryTake(out var file))
+            while (NewFiles.TryTake(out var file))
             {
                 if (!file.WaitForFileAccess())
                 {
@@ -406,31 +406,31 @@ namespace VideoDedup
                 }
             }
 
-            this.ProcessChangesIfAny();
+            ProcessChangesIfAny();
         }
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!this.disposedValue)
+            if (!disposedValue)
             {
                 if (disposing)
                 {
-                    this.CancelSource.Cancel();
-                    this.DedupTask?.Wait();
-                    this.CancelSource?.Dispose();
-                    this.DedupTask?.Dispose();
-                    this.FileWatcher?.Dispose();
+                    CancelSource.Cancel();
+                    DedupTask?.Wait();
+                    CancelSource?.Dispose();
+                    DedupTask?.Dispose();
+                    FileWatcher?.Dispose();
                     // TODO: dispose managed state (managed objects)
                 }
 
-                this.disposedValue = true;
+                disposedValue = true;
             }
         }
 
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            this.Dispose(disposing: true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
     }

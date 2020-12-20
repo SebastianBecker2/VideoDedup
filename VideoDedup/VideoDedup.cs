@@ -19,7 +19,7 @@ namespace VideoDedup
 
         private Dedupper Dedupper { get; set; } = null;
 
-        public VideoDedup() => this.InitializeComponent();
+        public VideoDedup() => InitializeComponent();
 
         protected override void OnLoad(EventArgs e) =>
 #if !DEBUG
@@ -40,22 +40,22 @@ namespace VideoDedup
             int counter,
             int maxCount) => this.InvokeIfRequired(() =>
                            {
-                               if (this.LastStatusUpdate.HasValue
-                                   && (DateTime.Now - this.LastStatusUpdate.Value).TotalMilliseconds < 100
+                               if (LastStatusUpdate.HasValue
+                                   && (DateTime.Now - LastStatusUpdate.Value).TotalMilliseconds < 100
                                    && maxCount - counter > 2
                                    && counter > 0)
                                {
                                    return;
                                }
-                               this.LastStatusUpdate = DateTime.Now;
+                               LastStatusUpdate = DateTime.Now;
 
                                if (!string.IsNullOrWhiteSpace(statusInfo))
                                {
-                                   this.CurrentStatusInfo = statusInfo;
+                                   CurrentStatusInfo = statusInfo;
                                }
 
-                               this.LblStatusInfo.Text = string.Format(
-                                   this.CurrentStatusInfo,
+                               LblStatusInfo.Text = string.Format(
+                                   CurrentStatusInfo,
                                    counter,
                                    maxCount);
 
@@ -63,23 +63,23 @@ namespace VideoDedup
                                {
                                    TaskbarManager.Instance.SetProgressState(
                                        TaskbarProgressBarState.Normal,
-                                       this.Handle);
-                                   this.ProgressBar.Style = ProgressBarStyle.Continuous;
+                                       Handle);
+                                   ProgressBar.Style = ProgressBarStyle.Continuous;
                                }
                                else
                                {
                                    TaskbarManager.Instance.SetProgressState(
                                        TaskbarProgressBarState.Indeterminate,
-                                       this.Handle);
-                                   this.ProgressBar.Style = ProgressBarStyle.Marquee;
+                                       Handle);
+                                   ProgressBar.Style = ProgressBarStyle.Marquee;
                                }
 
-                               this.ProgressBar.Value = counter;
-                               this.ProgressBar.Maximum = maxCount == 0 ? 1 : maxCount;
+                               ProgressBar.Value = counter;
+                               ProgressBar.Maximum = maxCount == 0 ? 1 : maxCount;
                                TaskbarManager.Instance.SetProgressValue(
                                    counter,
                                    maxCount,
-                                   this.Handle);
+                                   Handle);
                            });
 
         private void BtnDedup_Click(object sender, EventArgs e)
@@ -96,30 +96,30 @@ namespace VideoDedup
                 MaxDurationDifferencePercent = ConfigData.MaxDurationDifferencePercent,
                 MaxThumbnailComparison = ConfigData.MaxThumbnailComparison,
             };
-            this.Dedupper = new Dedupper(configuration);
-            this.Dedupper.ProgressUpdate += (s, args) => this.UpdateProgress(args.StatusInfo,
+            Dedupper = new Dedupper(configuration);
+            Dedupper.ProgressUpdate += (s, args) => UpdateProgress(args.StatusInfo,
                 args.Counter,
                 args.MaxCount);
-            this.Dedupper.DuplicateCountChanged += (s, args) =>
+            Dedupper.DuplicateCountChanged += (s, args) =>
             {
-                this.LblDuplicateCount.InvokeIfRequired(() =>
-                    this.LblDuplicateCount.Text = string.Format(StatusInfoDuplicateCount, args.Count));
-                this.BtnResolveDuplicates.InvokeIfRequired(() =>
-                    this.BtnResolveDuplicates.Enabled = args.Count > 0);
+                LblDuplicateCount.InvokeIfRequired(() =>
+                    LblDuplicateCount.Text = string.Format(StatusInfoDuplicateCount, args.Count));
+                BtnResolveDuplicates.InvokeIfRequired(() =>
+                    BtnResolveDuplicates.Enabled = args.Count > 0);
             };
-            this.Dedupper.Logged += (s, args) =>
-                this.TxtLog.InvokeIfRequired(() =>
-                    this.TxtLog.AppendText(args.Message + Environment.NewLine));
+            Dedupper.Logged += (s, args) =>
+                TxtLog.InvokeIfRequired(() =>
+                    TxtLog.AppendText(args.Message + Environment.NewLine));
 
-            this.BtnDedup.Enabled = false;
-            this.BtnCancel.Enabled = true;
+            BtnDedup.Enabled = false;
+            BtnCancel.Enabled = true;
         }
 
         private void BtnCancel_Click(object sender, EventArgs e)
         {
-            this.Dedupper.Dispose();
-            this.BtnDedup.Enabled = true;
-            this.BtnCancel.Enabled = false;
+            Dedupper.Dispose();
+            BtnDedup.Enabled = true;
+            BtnCancel.Enabled = false;
         }
 
         private void BtnConfig_Click(object sender, EventArgs e)
@@ -135,13 +135,13 @@ namespace VideoDedup
 
         private void ElapsedTimer_Tick(object sender, EventArgs e)
         {
-            this.ElapsedTime = this.ElapsedTime.Add(TimeSpan.FromSeconds(1));
-            this.LblTimer.Text = this.ElapsedTime.ToString();
+            ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(1));
+            LblTimer.Text = ElapsedTime.ToString();
         }
 
         private void BtnResolveConflicts_Click(object sender, EventArgs e)
         {
-            while (this.Dedupper.DequeueDuplcate(out var duplicate))
+            while (Dedupper.DequeueDuplcate(out var duplicate))
             {
                 (var left, var right) = duplicate;
                 // Mostely because we might have deleted
@@ -176,12 +176,12 @@ namespace VideoDedup
                     }
                     if (result == DialogResult.Cancel)
                     {
-                        this.Dedupper.EnqueueDuplicate(duplicate);
+                        Dedupper.EnqueueDuplicate(duplicate);
                         return;
                     }
                     if (result == DialogResult.No) // Skip
                     {
-                        this.Dedupper.EnqueueDuplicate(duplicate);
+                        Dedupper.EnqueueDuplicate(duplicate);
                     }
                 }
             }
@@ -199,18 +199,18 @@ namespace VideoDedup
 
         private void NotifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            this.Visible = true;
-            this.WindowState = FormWindowState.Normal;
-            this.ShowInTaskbar = true;
-            this.NotifyIcon.Visible = false;
+            Visible = true;
+            WindowState = FormWindowState.Normal;
+            ShowInTaskbar = true;
+            NotifyIcon.Visible = false;
         }
 
         private void Form1_Resize(object sender, EventArgs e)
         {
-            if (this.WindowState == FormWindowState.Minimized)
+            if (WindowState == FormWindowState.Minimized)
             {
-                this.Visible = false;
-                this.NotifyIcon.Visible = true;
+                Visible = false;
+                NotifyIcon.Visible = true;
             }
         }
 
@@ -232,7 +232,7 @@ namespace VideoDedup
             //    }
             //}
 
-            if (this.ElapsedTimer.Enabled)
+            if (ElapsedTimer.Enabled)
             {
                 var selection = MessageBox.Show(
                     $"VideoDedup is currently search for duplicates." +

@@ -7,13 +7,13 @@ namespace VideoDedup
     {
         public About()
         {
-            this.InitializeComponent();
-            this.Text = string.Format("About {0}", this.AssemblyTitle);
-            this.labelProductName.Text = this.AssemblyProduct;
-            this.labelVersion.Text = string.Format("Version {0}", this.AssemblyVersion);
-            this.labelCopyright.Text = this.AssemblyCopyright;
-            this.labelCompanyName.Text = this.AssemblyCompany;
-            this.textBoxDescription.Text = this.AssemblyDescription;
+            InitializeComponent();
+            Text = string.Format("About {0}", AssemblyTitle);
+            labelProductName.Text = AssemblyProduct;
+            labelVersion.Text = string.Format("Version {0}", AssemblyVersion);
+            labelCopyright.Text = AssemblyCopyright;
+            labelCompanyName.Text = AssemblyCompany;
+            textBoxDescription.Text = AssemblyDescription;
         }
 
         #region Assembly Attribute Accessors

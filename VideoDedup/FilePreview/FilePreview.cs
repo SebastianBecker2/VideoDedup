@@ -15,8 +15,8 @@ namespace VideoDedup.FilePreview
 
         public Color HighlightColor
         {
-            get => this.TxtInfo.BackColor;
-            set => this.TxtInfo.BackColor = value;
+            get => TxtInfo.BackColor;
+            set => TxtInfo.BackColor = value;
         }
 
         public VideoFile VideoFile { get; set; }
@@ -33,20 +33,20 @@ namespace VideoDedup.FilePreview
 
         public FilePreview()
         {
-            this.InitializeComponent();
+            InitializeComponent();
 
-            this.ImlThumbnails.ColorDepth = ThumbnailColorDepth;
+            ImlThumbnails.ColorDepth = ThumbnailColorDepth;
         }
 
         public Task UpdateDisplay()
         {
-            if (this.VideoFile == null)
+            if (VideoFile == null)
             {
                 return null;
             }
 
-            this.DisplayInfo();
-            return this.LoadThumbnails();
+            DisplayInfo();
+            return LoadThumbnails();
         }
 
         /// <summary>
@@ -62,31 +62,31 @@ namespace VideoDedup.FilePreview
             if (width > height)
             {
                 height = (int)(height / ((double)width / ThumbnailSize.Width));
-                this.ImlThumbnails.ImageSize = new Size(ThumbnailSize.Width, height);
+                ImlThumbnails.ImageSize = new Size(ThumbnailSize.Width, height);
             }
             else
             {
                 width = (int)(width / ((double)height / ThumbnailSize.Height));
-                this.ImlThumbnails.ImageSize = new Size(width, ThumbnailSize.Height);
+                ImlThumbnails.ImageSize = new Size(width, ThumbnailSize.Height);
             }
         }
 
         private void DisplayInfo()
         {
-            var file_size = this.VideoFile.FileSize;
-            var media_info = this.VideoFile.MediaInfo;
+            var file_size = VideoFile.FileSize;
+            var media_info = VideoFile.MediaInfo;
 
-            this.TxtInfo.Text = this.VideoFile.FilePath + Environment.NewLine;
-            this.TxtInfo.Text += (file_size / (1024 * 1024)).ToString() + " MB" + Environment.NewLine;
+            TxtInfo.Text = VideoFile.FilePath + Environment.NewLine;
+            TxtInfo.Text += (file_size / (1024 * 1024)).ToString() + " MB" + Environment.NewLine;
             var duration_format = media_info.Duration.Hours >= 1 ? @"hh\:mm\:ss" : @"mm\:ss";
-            this.TxtInfo.Text += media_info.Duration.ToString(duration_format) + Environment.NewLine;
+            TxtInfo.Text += media_info.Duration.ToString(duration_format) + Environment.NewLine;
 
             var stream = media_info.Streams.FirstOrDefault(s => s.CodecType == "video");
             if (stream == null)
             {
                 return;
             }
-            this.TxtInfo.Text += stream.Width.ToString() +
+            TxtInfo.Text += stream.Width.ToString() +
                 " x " + stream.Height.ToString() +
                 " @ " + stream.FrameRate + " Frames" + Environment.NewLine +
                 stream.CodecLongName;
@@ -94,16 +94,16 @@ namespace VideoDedup.FilePreview
 
         private Task LoadThumbnails()
         {
-            var width = this.VideoFile.MediaInfo.Streams.First().Width;
-            var height = this.VideoFile.MediaInfo.Streams.First().Height;
-            this.SetImageSize(new Size(width, height));
+            var width = VideoFile.MediaInfo.Streams.First().Width;
+            var height = VideoFile.MediaInfo.Streams.First().Height;
+            SetImageSize(new Size(width, height));
 
-            var cancelToken = this.cancellationTokenSource.Token;
+            var cancelToken = cancellationTokenSource.Token;
             return Task.Run(() =>
             {
                 foreach (var index in Enumerable.Range(0, ConfigData.ThumbnailViewCount))
                 {
-                    var image = this.VideoFile.GetThumbnail(index, ConfigData.ThumbnailViewCount);
+                    var image = VideoFile.GetThumbnail(index, ConfigData.ThumbnailViewCount);
 
                     if (cancelToken.IsCancellationRequested)
                     {
@@ -111,20 +111,20 @@ namespace VideoDedup.FilePreview
                         return;
                     }
 
-                    _ = this.Invoke((Action)delegate
+                    _ = Invoke((Action)delegate
                       {
-                          this.ImlThumbnails.Images.Add(image);
-                          this.OnThumbnailLoaded(image, index);
-                          _ = this.LsvThumbnails.Items.Add(new ListViewItem { ImageIndex = index });
+                          ImlThumbnails.Images.Add(image);
+                          OnThumbnailLoaded(image, index);
+                          _ = LsvThumbnails.Items.Add(new ListViewItem { ImageIndex = index });
                       });
                 }
-            }, this.cancellationTokenSource.Token).ContinueWith(t => this.cancellationTokenSource.Dispose());
+            }, cancellationTokenSource.Token).ContinueWith(t => cancellationTokenSource.Dispose());
         }
 
         public void CancelThumbnails()
         {
             Debug.Print("Cancellation requested");
-            this.cancellationTokenSource.Cancel();
+            cancellationTokenSource.Cancel();
         }
     }
 }

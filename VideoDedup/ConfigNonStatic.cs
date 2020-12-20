@@ -22,16 +22,16 @@ namespace VideoDedup
 
         public DurationDifferenceType DurationDifferenceType { get; set; }
 
-        DurationDifferenceType IDurationComparisonSettings.DifferenceType => this.DurationDifferenceType;
+        DurationDifferenceType IDurationComparisonSettings.DifferenceType => DurationDifferenceType;
 
-        int IDurationComparisonSettings.MaxDifferenceSeconds => this.MaxDurationDifferenceSeconds;
+        int IDurationComparisonSettings.MaxDifferenceSeconds => MaxDurationDifferenceSeconds;
 
-        int IDurationComparisonSettings.MaxDifferencePercent => this.MaxDurationDifferencePercent;
+        int IDurationComparisonSettings.MaxDifferencePercent => MaxDurationDifferencePercent;
 
-        int IThumbnailComparisonSettings.MaxDifferencePercent => this.MaxDifferencePercentage;
+        int IThumbnailComparisonSettings.MaxDifferencePercent => MaxDifferencePercentage;
 
-        int IThumbnailComparisonSettings.MaxCompares => this.MaxThumbnailComparison;
+        int IThumbnailComparisonSettings.MaxCompares => MaxThumbnailComparison;
 
-        int IThumbnailComparisonSettings.MaxDifferentThumbnails => this.MaxDifferentThumbnails;
+        int IThumbnailComparisonSettings.MaxDifferentThumbnails => MaxDifferentThumbnails;
     }
 }

@@ -18,18 +18,18 @@ namespace VideoDedup
         [JsonProperty]
         public string FilePath { get; private set; }
         [JsonIgnore]
-        public string FileName => Path.GetFileName(this.FilePath);
+        public string FileName => Path.GetFileName(FilePath);
         [JsonIgnore]
         public MediaInfo MediaInfo
         {
             get
             {
-                if (this.mediaInfo == null)
+                if (mediaInfo == null)
                 {
                     var probe = new FFProbe();
-                    this.mediaInfo = probe.GetMediaInfo(this.FilePath);
+                    mediaInfo = probe.GetMediaInfo(FilePath);
                 }
-                return this.mediaInfo;
+                return mediaInfo;
             }
         }
         [JsonIgnore]
@@ -37,34 +37,34 @@ namespace VideoDedup
         {
             get
             {
-                if (this.fileSize == null)
+                if (fileSize == null)
                 {
-                    this.fileSize = new FileInfo(this.FilePath).Length;
+                    fileSize = new FileInfo(FilePath).Length;
                 }
-                return this.fileSize.Value;
+                return fileSize.Value;
             }
-            private set => this.fileSize = value;
+            private set => fileSize = value;
         }
         [JsonIgnore]
         public TimeSpan Duration
         {
             get
             {
-                if (this.duration == null)
+                if (duration == null)
                 {
                     try
                     {
-                        this.duration = this.MediaInfo.Duration;
+                        duration = MediaInfo.Duration;
 
                     }
                     catch (Exception)
                     {
-                        this.duration = TimeSpan.Zero;
+                        duration = TimeSpan.Zero;
                     }
                 }
-                return this.duration.Value;
+                return duration.Value;
             }
-            private set => this.duration = value;
+            private set => duration = value;
         }
 
         [JsonProperty]
@@ -75,7 +75,7 @@ namespace VideoDedup
             new Dictionary<int, Image>();
         private MediaInfo mediaInfo = null;
 
-        public VideoFile(string path) => this.FilePath = path;
+        public VideoFile(string path) => FilePath = path;
 
         /// <summary>
         /// Special case for FileSystemWatcher change events.
@@ -93,7 +93,7 @@ namespace VideoDedup
             {
                 try
                 {
-                    using (var stream = File.Open(this.FilePath,
+                    using (var stream = File.Open(FilePath,
                         FileMode.Open,
                         FileAccess.Read,
                         FileShare.ReadWrite))
@@ -122,10 +122,10 @@ namespace VideoDedup
             switch (settings.DifferenceType)
             {
                 case DurationDifferenceType.Seconds:
-                    return Math.Abs((this.Duration - other.Duration).TotalSeconds) < settings.MaxDifferenceSeconds;
+                    return Math.Abs((Duration - other.Duration).TotalSeconds) < settings.MaxDifferenceSeconds;
                 case DurationDifferenceType.Percent:
-                    var difference = Math.Abs((this.Duration - other.Duration).TotalSeconds);
-                    var max_diff = this.Duration.TotalSeconds / 100 * settings.MaxDifferencePercent;
+                    var difference = Math.Abs((Duration - other.Duration).TotalSeconds);
+                    var max_diff = Duration.TotalSeconds / 100 * settings.MaxDifferencePercent;
                     return difference < max_diff;
                 default:
                     throw new ConfigurationErrorsException("DurationDifferenceType has not valid value");
@@ -139,24 +139,24 @@ namespace VideoDedup
                 throw new ArgumentOutOfRangeException(nameof(index), "Index out of range.");
             }
 
-            if (!this.thumbnails.ContainsKey(index))
+            if (!thumbnails.ContainsKey(index))
             {
                 var ffMpeg = new FFMpegConverter();
                 var image_stream = new MemoryStream();
                 try
                 {
-                    var stepping = this.Duration.TotalSeconds / (thumbnailCount + 1);
-                    ffMpeg.GetVideoThumbnail(this.FilePath, image_stream, (float)stepping * (index + 1));
-                    this.thumbnails[index] = Image.FromStream(image_stream);
+                    var stepping = Duration.TotalSeconds / (thumbnailCount + 1);
+                    ffMpeg.GetVideoThumbnail(FilePath, image_stream, (float)stepping * (index + 1));
+                    thumbnails[index] = Image.FromStream(image_stream);
                 }
                 catch (Exception)
                 {
-                    Debug.Print($"Unable to load thumbnail index {index} for {this.FilePath}");
-                    this.thumbnails[index] = new Bitmap(1, 1);
+                    Debug.Print($"Unable to load thumbnail index {index} for {FilePath}");
+                    thumbnails[index] = new Bitmap(1, 1);
                 }
             }
 
-            return this.thumbnails[index];
+            return thumbnails[index];
         }
 
         public bool AreThumbnailsEqual(VideoFile other, IThumbnailComparisonSettings settings)
@@ -164,7 +164,7 @@ namespace VideoDedup
             var differernceCount = 0;
             foreach (var i in Enumerable.Range(0, settings.MaxCompares))
             {
-                var this_thumbnail = this.GetThumbnail(i, settings.MaxCompares);
+                var this_thumbnail = GetThumbnail(i, settings.MaxCompares);
                 var other_thumbnail = other.GetThumbnail(i, settings.MaxCompares);
                 var diff = this_thumbnail.PercentageDifference(other_thumbnail);
                 Debug.Print($"{i} Difference: {diff}");
@@ -181,15 +181,15 @@ namespace VideoDedup
             return true;
         }
 
-        public void DisposeThumbnails() => this.thumbnails.Clear();
+        public void DisposeThumbnails() => thumbnails.Clear();
 
-        public override bool Equals(object obj) => this.Equals(obj as VideoFile);
+        public override bool Equals(object obj) => Equals(obj as VideoFile);
 
         public bool Equals(VideoFile other) => other != null &&
-                   this.FilePath == other.FilePath;
+                   FilePath == other.FilePath;
 
         public override int GetHashCode() =>
-            1230029444 + EqualityComparer<string>.Default.GetHashCode(this.FilePath);
+            1230029444 + EqualityComparer<string>.Default.GetHashCode(FilePath);
 
         public static bool operator ==(VideoFile left, VideoFile right) =>
             EqualityComparer<VideoFile>.Default.Equals(left, right);

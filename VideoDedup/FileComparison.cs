@@ -15,28 +15,28 @@ namespace VideoDedup
         private Task leftThumbnailTask;
         private Task rightThumbnailTask;
 
-        public FileComparison() => this.InitializeComponent();
+        public FileComparison() => InitializeComponent();
 
         protected override void OnLoad(EventArgs e)
         {
-            this.SplitterContainer.SplitterDistance = this.SplitterContainer.Width / 2;
+            SplitterContainer.SplitterDistance = SplitterContainer.Width / 2;
 
-            this.FpvLeft.VideoFile = this.LeftFile;
-            this.leftThumbnailTask = this.FpvLeft.UpdateDisplay();
-            this.FpvRight.VideoFile = this.RightFile;
-            this.rightThumbnailTask = this.FpvRight.UpdateDisplay();
+            FpvLeft.VideoFile = LeftFile;
+            leftThumbnailTask = FpvLeft.UpdateDisplay();
+            FpvRight.VideoFile = RightFile;
+            rightThumbnailTask = FpvRight.UpdateDisplay();
 
-            var leftSize = this.LeftFile.FileSize;
-            var rightSize = this.RightFile.FileSize;
+            var leftSize = LeftFile.FileSize;
+            var rightSize = RightFile.FileSize;
             if (Math.Abs(leftSize - rightSize) > (100 * 1024))
             {
                 if (leftSize > rightSize)
                 {
-                    this.FpvLeft.HighlightColor = Color.LightGreen;
+                    FpvLeft.HighlightColor = Color.LightGreen;
                 }
                 else
                 {
-                    this.FpvRight.HighlightColor = Color.LightGreen;
+                    FpvRight.HighlightColor = Color.LightGreen;
                 }
             }
 
@@ -45,20 +45,20 @@ namespace VideoDedup
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            var result = this.DialogResult;
-            if (!this.leftThumbnailTask.IsCompleted)
+            var result = DialogResult;
+            if (!leftThumbnailTask.IsCompleted)
             {
                 e.Cancel = true;
-                this.FpvLeft.CancelThumbnails();
-                _ = this.leftThumbnailTask.ContinueWith(t => this.DialogResult = result,
+                FpvLeft.CancelThumbnails();
+                _ = leftThumbnailTask.ContinueWith(t => DialogResult = result,
                     TaskScheduler.FromCurrentSynchronizationContext());
             }
 
-            if (!this.rightThumbnailTask.IsCompleted)
+            if (!rightThumbnailTask.IsCompleted)
             {
                 e.Cancel = true;
-                this.FpvRight.CancelThumbnails();
-                _ = this.rightThumbnailTask.ContinueWith(t => this.DialogResult = result,
+                FpvRight.CancelThumbnails();
+                _ = rightThumbnailTask.ContinueWith(t => DialogResult = result,
                     TaskScheduler.FromCurrentSynchronizationContext());
             }
 
@@ -71,8 +71,8 @@ namespace VideoDedup
             {
                 try
                 {
-                    File.Delete(this.LeftFile.FilePath);
-                    this.DialogResult = DialogResult.Yes;
+                    File.Delete(LeftFile.FilePath);
+                    DialogResult = DialogResult.Yes;
                 }
                 catch (Exception exc)
                 {
@@ -80,10 +80,10 @@ namespace VideoDedup
                 }
             }
 
-            if (!this.leftThumbnailTask.IsCompleted)
+            if (!leftThumbnailTask.IsCompleted)
             {
-                this.FpvLeft.CancelThumbnails();
-                _ = this.leftThumbnailTask.ContinueWith(t => delete_and_close(),
+                FpvLeft.CancelThumbnails();
+                _ = leftThumbnailTask.ContinueWith(t => delete_and_close(),
                     TaskScheduler.FromCurrentSynchronizationContext());
             }
             else
@@ -98,8 +98,8 @@ namespace VideoDedup
             {
                 try
                 {
-                    File.Delete(this.RightFile.FilePath);
-                    this.DialogResult = DialogResult.Yes;
+                    File.Delete(RightFile.FilePath);
+                    DialogResult = DialogResult.Yes;
                 }
                 catch (Exception exc)
                 {
@@ -107,10 +107,10 @@ namespace VideoDedup
                 }
             }
 
-            if (!this.rightThumbnailTask.IsCompleted)
+            if (!rightThumbnailTask.IsCompleted)
             {
-                this.FpvRight.CancelThumbnails();
-                _ = this.rightThumbnailTask.ContinueWith(t => delete_and_close(),
+                FpvRight.CancelThumbnails();
+                _ = rightThumbnailTask.ContinueWith(t => delete_and_close(),
                     TaskScheduler.FromCurrentSynchronizationContext());
             }
             else
@@ -133,8 +133,8 @@ namespace VideoDedup
             _ = Process.Start("explorer.exe", argument);
         }
 
-        private void BtnShowRight_Click(object sender, EventArgs e) => this.OpenFileInExplorer(this.RightFile.FilePath);
+        private void BtnShowRight_Click(object sender, EventArgs e) => OpenFileInExplorer(RightFile.FilePath);
 
-        private void BtnShowLeft_Click(object sender, EventArgs e) => this.OpenFileInExplorer(this.LeftFile.FilePath);
+        private void BtnShowLeft_Click(object sender, EventArgs e) => OpenFileInExplorer(LeftFile.FilePath);
     }
 }
