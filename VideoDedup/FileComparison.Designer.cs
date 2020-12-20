@@ -101,7 +101,7 @@
             this.btnDeleteLeft.TabIndex = 18;
             this.btnDeleteLeft.Text = "Delete &Left";
             this.btnDeleteLeft.UseVisualStyleBackColor = true;
-            this.btnDeleteLeft.Click += new System.EventHandler(this.btnDeleteLeft_Click);
+            this.btnDeleteLeft.Click += new System.EventHandler(this.BtnDeleteLeft_Click);
             // 
             // BtnShowRight
             // 
@@ -123,7 +123,7 @@
             this.btnDeleteRight.TabIndex = 19;
             this.btnDeleteRight.Text = "Delete &Right";
             this.btnDeleteRight.UseVisualStyleBackColor = true;
-            this.btnDeleteRight.Click += new System.EventHandler(this.btnDeleteRight_Click);
+            this.btnDeleteRight.Click += new System.EventHandler(this.BtnDeleteRight_Click);
             // 
             // FpvRight
             // 

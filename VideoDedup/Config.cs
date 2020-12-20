@@ -1,64 +1,54 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using VideoDedup.Properties;
-
 namespace VideoDedup
 {
+    using System;
+    using System.Data;
+    using System.Linq;
+    using System.Windows.Forms;
+    using Microsoft.WindowsAPICodePack.Dialogs;
+
     public partial class Config : Form
     {
-        public Config()
-        {
-            InitializeComponent();
-        }
+        public Config() => this.InitializeComponent();
 
         protected override void OnLoad(EventArgs e)
         {
-            TxtSourcePath.Text = ConfigData.SourcePath;
+            this.TxtSourcePath.Text = ConfigData.SourcePath;
 
             if (ConfigData.ExcludedDirectories != null)
             {
-                LsbExcludedDirectories.Items.AddRange(ConfigData.ExcludedDirectories.ToArray());
+                this.LsbExcludedDirectories.Items.AddRange(ConfigData.ExcludedDirectories.ToArray());
             }
 
             if (ConfigData.FileExtensions != null)
             {
-                LsbFileExtensions.Items.AddRange(ConfigData.FileExtensions.ToArray());
+                this.LsbFileExtensions.Items.AddRange(ConfigData.FileExtensions.ToArray());
             }
 
-            NumMaxThumbnailComparison.Value = ConfigData.MaxThumbnailComparison;
-            NumMaxDifferentThumbnails.Value = ConfigData.MaxDifferentThumbnails;
-            NumMaxDifferentPercentage.Value = ConfigData.MaxDifferencePercentage;
+            this.NumMaxThumbnailComparison.Value = ConfigData.MaxThumbnailComparison;
+            this.NumMaxDifferentThumbnails.Value = ConfigData.MaxDifferentThumbnails;
+            this.NumMaxDifferentPercentage.Value = ConfigData.MaxDifferencePercentage;
 
-            RdbDurationDifferencePercent.Checked = ConfigData.DurationDifferenceType == DurationDifferenceType.Percent;
-            RdbDurationDifferenceSeconds.Checked = ConfigData.DurationDifferenceType != DurationDifferenceType.Percent;
-            NumMaxDurationDifferencePercent.Value = ConfigData.MaxDurationDifferencePercent;
-            NumMaxDurationDifferenceSeconds.Value = ConfigData.MaxDurationDifferenceSeconds;
+            this.RdbDurationDifferencePercent.Checked = ConfigData.DurationDifferenceType == DurationDifferenceType.Percent;
+            this.RdbDurationDifferenceSeconds.Checked = ConfigData.DurationDifferenceType != DurationDifferenceType.Percent;
+            this.NumMaxDurationDifferencePercent.Value = ConfigData.MaxDurationDifferencePercent;
+            this.NumMaxDurationDifferenceSeconds.Value = ConfigData.MaxDurationDifferenceSeconds;
 
-            NumThumbnailViewCount.Value = ConfigData.ThumbnailViewCount;
+            this.NumThumbnailViewCount.Value = ConfigData.ThumbnailViewCount;
 
             base.OnLoad(e);
         }
 
         private void BtnOkay_Click(object sender, EventArgs e)
         {
-            ConfigData.SourcePath = TxtSourcePath.Text;
-            ConfigData.ExcludedDirectories = LsbExcludedDirectories.Items.Cast<string>().ToList();
-            ConfigData.FileExtensions = LsbFileExtensions.Items.Cast<string>().ToList();
+            ConfigData.SourcePath = this.TxtSourcePath.Text;
+            ConfigData.ExcludedDirectories = this.LsbExcludedDirectories.Items.Cast<string>().ToList();
+            ConfigData.FileExtensions = this.LsbFileExtensions.Items.Cast<string>().ToList();
 
-            ConfigData.MaxThumbnailComparison = (int)NumMaxThumbnailComparison.Value;
-            ConfigData.MaxDifferentThumbnails = (int)NumMaxDifferentThumbnails.Value;
-            ConfigData.MaxDifferencePercentage = (int)NumMaxDifferentPercentage.Value;
+            ConfigData.MaxThumbnailComparison = (int)this.NumMaxThumbnailComparison.Value;
+            ConfigData.MaxDifferentThumbnails = (int)this.NumMaxDifferentThumbnails.Value;
+            ConfigData.MaxDifferencePercentage = (int)this.NumMaxDifferentPercentage.Value;
 
-            if (RdbDurationDifferencePercent.Checked)
+            if (this.RdbDurationDifferencePercent.Checked)
             {
                 ConfigData.DurationDifferenceType = DurationDifferenceType.Percent;
             }
@@ -66,12 +56,12 @@ namespace VideoDedup
             {
                 ConfigData.DurationDifferenceType = DurationDifferenceType.Seconds;
             }
-            ConfigData.MaxDurationDifferencePercent = (int)NumMaxDurationDifferencePercent.Value;
-            ConfigData.MaxDurationDifferenceSeconds = (int)NumMaxDurationDifferenceSeconds.Value;
+            ConfigData.MaxDurationDifferencePercent = (int)this.NumMaxDurationDifferencePercent.Value;
+            ConfigData.MaxDurationDifferenceSeconds = (int)this.NumMaxDurationDifferenceSeconds.Value;
 
-            ConfigData.ThumbnailViewCount = (int)NumThumbnailViewCount.Value;
+            ConfigData.ThumbnailViewCount = (int)this.NumThumbnailViewCount.Value;
 
-            DialogResult = DialogResult.OK;
+            this.DialogResult = DialogResult.OK;
         }
 
         private void BtnSelectSourcePath_Click(object sender, EventArgs e)
@@ -85,7 +75,7 @@ namespace VideoDedup
                     return;
                 }
 
-                TxtSourcePath.Text = dlg.FileName;
+                this.TxtSourcePath.Text = dlg.FileName;
             }
         }
 
@@ -96,27 +86,27 @@ namespace VideoDedup
 
         private void BtnRemoveExcludedDirectory_Click(object sender, EventArgs e)
         {
-            foreach (var s in LsbExcludedDirectories.SelectedItems.OfType<string>().ToList())
+            foreach (var s in this.LsbExcludedDirectories.SelectedItems.OfType<string>().ToList())
             {
-                LsbExcludedDirectories.Items.Remove(s);
+                this.LsbExcludedDirectories.Items.Remove(s);
             }
         }
 
         private void BtnAddFileExtension_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(TxtFileExtension.Text))
+            if (string.IsNullOrWhiteSpace(this.TxtFileExtension.Text))
             {
                 return;
             }
 
-            LsbFileExtensions.Items.Add(TxtFileExtension.Text);
+            _ = this.LsbFileExtensions.Items.Add(this.TxtFileExtension.Text);
         }
 
         private void BtnRemoveFileExtension_Click(object sender, EventArgs e)
         {
-            foreach (var s in LsbFileExtensions.SelectedItems.OfType<string>().ToList())
+            foreach (var s in this.LsbFileExtensions.SelectedItems.OfType<string>().ToList())
             {
-                LsbFileExtensions.Items.Remove(s);
+                this.LsbFileExtensions.Items.Remove(s);
             }
         }
     }

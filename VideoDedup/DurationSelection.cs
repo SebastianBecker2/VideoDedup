@@ -1,23 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using VideoDedup.TimeSpanExtension;
-
 namespace VideoDedup
 {
+    using System;
+    using System.Diagnostics;
+    using System.Windows.Forms;
+    using global::VideoDedup.TimeSpanExtension;
+
     public partial class DurationSelection : Form
     {
-        private static string ToString(TimeSpan? ts)
-        {
-            return ts.Value.ToPrettyString();
-        }
+        private static string ToString(TimeSpan? ts) => ts.Value.ToPrettyString();
 
         public TimeSpan AbsolutMaximumDuration { get; set; }
         public TimeSpan AbsolutMinimumDuration { get; set; }
@@ -27,154 +17,151 @@ namespace VideoDedup
 
         private bool ProgrammaticUpdate { get; set; } = false;
 
-        public DurationSelection()
-        {
-            InitializeComponent();
-        }
+        public DurationSelection() => this.InitializeComponent();
 
         protected override void OnLoad(EventArgs e)
         {
-            ProgrammaticUpdate = true;
+            this.ProgrammaticUpdate = true;
 
-            LblDurationInfo.Text = $"Videos are between " +
-                $"{ToString(AbsolutMinimumDuration)} and " +
-                $"{ToString(AbsolutMaximumDuration)} long.";
+            this.LblDurationInfo.Text = $"Videos are between " +
+                $"{ToString(this.AbsolutMinimumDuration)} and " +
+                $"{ToString(this.AbsolutMaximumDuration)} long.";
 
-            if (SelectedMinimumDuration == null)
+            if (this.SelectedMinimumDuration == null)
             {
-                SelectedMinimumDuration = AbsolutMinimumDuration;
+                this.SelectedMinimumDuration = this.AbsolutMinimumDuration;
             }
-            TxtMinimumDuration.Text = ToString(SelectedMinimumDuration);
+            this.TxtMinimumDuration.Text = ToString(this.SelectedMinimumDuration);
 
-            if (SelectedMaximumDuration == null)
+            if (this.SelectedMaximumDuration == null)
             {
-                SelectedMaximumDuration = AbsolutMaximumDuration;
+                this.SelectedMaximumDuration = this.AbsolutMaximumDuration;
             }
-            TxtMaximumDuration.Text = ToString(SelectedMaximumDuration);
+            this.TxtMaximumDuration.Text = ToString(this.SelectedMaximumDuration);
 
-            MinimumSlider.Minimum = (int)AbsolutMinimumDuration.TotalSeconds;
-            MinimumSlider.Maximum = (int)AbsolutMaximumDuration.TotalSeconds;
-            MinimumSlider.Value = (int)SelectedMinimumDuration.Value.TotalSeconds;
+            this.MinimumSlider.Minimum = (int)this.AbsolutMinimumDuration.TotalSeconds;
+            this.MinimumSlider.Maximum = (int)this.AbsolutMaximumDuration.TotalSeconds;
+            this.MinimumSlider.Value = (int)this.SelectedMinimumDuration.Value.TotalSeconds;
 
-            MaximumSlider.Minimum = (int)AbsolutMinimumDuration.TotalSeconds;
-            MaximumSlider.Maximum = (int)AbsolutMaximumDuration.TotalSeconds;
-            MaximumSlider.Value = (int)SelectedMaximumDuration.Value.TotalSeconds;
+            this.MaximumSlider.Minimum = (int)this.AbsolutMinimumDuration.TotalSeconds;
+            this.MaximumSlider.Maximum = (int)this.AbsolutMaximumDuration.TotalSeconds;
+            this.MaximumSlider.Value = (int)this.SelectedMaximumDuration.Value.TotalSeconds;
 
-            ProgrammaticUpdate = false;
+            this.ProgrammaticUpdate = false;
 
             base.OnLoad(e);
         }
 
         private void BtnOK_Click(object sender, EventArgs e)
         {
-            if (!TimeSpan.TryParse(TxtMinimumDuration.Text, out TimeSpan duration))
+            if (!TimeSpan.TryParse(this.TxtMinimumDuration.Text, out var duration))
             {
-                MessageBox.Show("Minimum duration is not valid.");
+                _ = MessageBox.Show("Minimum duration is not valid.");
                 return;
             }
-            SelectedMinimumDuration = duration;
+            this.SelectedMinimumDuration = duration;
 
-            if (!TimeSpan.TryParse(TxtMaximumDuration.Text, out duration))
+            if (!TimeSpan.TryParse(this.TxtMaximumDuration.Text, out duration))
             {
-                MessageBox.Show("Maximum duration is not valid.");
+                _ = MessageBox.Show("Maximum duration is not valid.");
                 return;
             }
-            SelectedMaximumDuration = duration;
+            this.SelectedMaximumDuration = duration;
 
-            if (SelectedMaximumDuration <= SelectedMinimumDuration)
+            if (this.SelectedMaximumDuration <= this.SelectedMinimumDuration)
             {
-                var temp = SelectedMaximumDuration;
-                SelectedMaximumDuration = SelectedMinimumDuration;
-                SelectedMinimumDuration = temp;
+                var temp = this.SelectedMaximumDuration;
+                this.SelectedMaximumDuration = this.SelectedMinimumDuration;
+                this.SelectedMinimumDuration = temp;
             }
 
-            DialogResult = DialogResult.OK;
+            this.DialogResult = DialogResult.OK;
         }
 
         private void MinimumSlider_Scroll(object sender, EventArgs e)
         {
-            if (ProgrammaticUpdate)
+            if (this.ProgrammaticUpdate)
             {
                 return;
             }
-            ProgrammaticUpdate = true;
+            this.ProgrammaticUpdate = true;
 
-            SelectedMinimumDuration = new TimeSpan(0, 0, MinimumSlider.Value);
-            TxtMinimumDuration.Text = ToString(SelectedMinimumDuration);
+            this.SelectedMinimumDuration = new TimeSpan(0, 0, this.MinimumSlider.Value);
+            this.TxtMinimumDuration.Text = ToString(this.SelectedMinimumDuration);
 
-            ProgrammaticUpdate = false;
+            this.ProgrammaticUpdate = false;
         }
 
         private void MaximumSlider_Scroll(object sender, EventArgs e)
         {
-            if (ProgrammaticUpdate)
+            if (this.ProgrammaticUpdate)
             {
                 return;
             }
-            ProgrammaticUpdate = true;
+            this.ProgrammaticUpdate = true;
 
-            SelectedMaximumDuration = new TimeSpan(0, 0, MaximumSlider.Value);
-            TxtMaximumDuration.Text = ToString(SelectedMaximumDuration);
+            this.SelectedMaximumDuration = new TimeSpan(0, 0, this.MaximumSlider.Value);
+            this.TxtMaximumDuration.Text = ToString(this.SelectedMaximumDuration);
 
-            ProgrammaticUpdate = false;
+            this.ProgrammaticUpdate = false;
         }
 
         private void TxtMinimumDuration_TextChanged(object sender, EventArgs e)
         {
-            if (ProgrammaticUpdate)
+            if (this.ProgrammaticUpdate)
             {
                 return;
             }
 
             try
             {
-                ProgrammaticUpdate = true;
+                this.ProgrammaticUpdate = true;
 
-                if (!TimeSpan.TryParse(TxtMinimumDuration.Text, out TimeSpan duration))
+                if (!TimeSpan.TryParse(this.TxtMinimumDuration.Text, out var duration))
                 {
                     Debug.Print("Can't parse");
                     return;
                 }
                 var secs = (int)duration.TotalSeconds;
-                if (secs > MinimumSlider.Maximum || secs < MinimumSlider.Minimum)
+                if (secs > this.MinimumSlider.Maximum || secs < this.MinimumSlider.Minimum)
                 {
                     Debug.Print("Too large or too small");
                     return;
                 }
-                MinimumSlider.Value = secs;
+                this.MinimumSlider.Value = secs;
 
             }
             finally
             {
-                ProgrammaticUpdate = false;
+                this.ProgrammaticUpdate = false;
             }
         }
 
         private void TxtMaximumDuration_TextChanged(object sender, EventArgs e)
         {
-            if (ProgrammaticUpdate)
+            if (this.ProgrammaticUpdate)
             {
                 return;
             }
 
             try
             {
-                ProgrammaticUpdate = true;
+                this.ProgrammaticUpdate = true;
 
-                if (!TimeSpan.TryParse(TxtMaximumDuration.Text, out TimeSpan duration))
+                if (!TimeSpan.TryParse(this.TxtMaximumDuration.Text, out var duration))
                 {
                     return;
                 }
                 var secs = (int)duration.TotalSeconds;
-                if (secs > MaximumSlider.Maximum || secs < MaximumSlider.Minimum)
+                if (secs > this.MaximumSlider.Maximum || secs < this.MaximumSlider.Minimum)
                 {
                     return;
                 }
-                MaximumSlider.Value = secs;
+                this.MaximumSlider.Value = secs;
             }
             finally
             {
-                ProgrammaticUpdate = false;
+                this.ProgrammaticUpdate = false;
             }
         }
     }

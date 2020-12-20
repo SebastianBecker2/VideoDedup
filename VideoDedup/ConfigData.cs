@@ -1,20 +1,17 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VideoDedup.Properties;
-
 namespace VideoDedup
 {
-    static class ConfigData
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using global::VideoDedup.Properties;
+    using Newtonsoft.Json;
+
+    internal static class ConfigData
     {
 
         public static string SourcePath
         {
-            get { return Settings.Default.SourcePath; }
+            get => Settings.Default.SourcePath;
             set
             {
                 Settings.Default.SourcePath = value;
@@ -26,57 +23,54 @@ namespace VideoDedup
         {
             get
             {
-                if (_ExcludedDirectories == null)
+                if (excludedDirectories == null)
                 {
-                    _ExcludedDirectories = JsonConvert.DeserializeObject<List<string>>(Settings.Default.ExcludedDirectories);
+                    excludedDirectories = JsonConvert.DeserializeObject<List<string>>(Settings.Default.ExcludedDirectories);
                 }
-                return _ExcludedDirectories;
+                return excludedDirectories;
             }
             set
             {
-                _ExcludedDirectories = value;
-                Settings.Default.ExcludedDirectories = JsonConvert.SerializeObject(_ExcludedDirectories);
+                excludedDirectories = value;
+                Settings.Default.ExcludedDirectories = JsonConvert.SerializeObject(excludedDirectories);
                 Settings.Default.Save();
             }
         }
-        private static IList<string> _ExcludedDirectories = null;
+        private static IList<string> excludedDirectories = null;
 
         public static IList<string> FileExtensions
         {
             get
             {
-                if (_FileExtensions != null)
+                if (fileExtensions != null)
                 {
-                    return _FileExtensions;
+                    return fileExtensions;
                 }
 
-                _FileExtensions = JsonConvert.DeserializeObject<List<string>>(Settings.Default.FileExtensions);
-                if (_FileExtensions != null || _FileExtensions.Any())
+                fileExtensions = JsonConvert.DeserializeObject<List<string>>(Settings.Default.FileExtensions);
+                if (fileExtensions != null || fileExtensions.Any())
                 {
-                    return _FileExtensions;
+                    return fileExtensions;
                 }
 
-                _FileExtensions = new List<string>
+                fileExtensions = new List<string>
                     {
                         ".mp4", ".mpg", ".avi", ".wmv", ".flv", ".m4v", ".mov", ".mpeg", ".rm", ".mts", ".3gp"
                     };
-                return _FileExtensions;
+                return fileExtensions;
             }
             set
             {
-                _FileExtensions = value;
-                Settings.Default.FileExtensions = JsonConvert.SerializeObject(_FileExtensions);
+                fileExtensions = value;
+                Settings.Default.FileExtensions = JsonConvert.SerializeObject(fileExtensions);
                 Settings.Default.Save();
             }
         }
-        private static IList<string> _FileExtensions = null;
+        private static IList<string> fileExtensions = null;
 
         public static int ThumbnailViewCount
         {
-            get
-            {
-                return Settings.Default.ThumbnailViewCount;
-            }
+            get => Settings.Default.ThumbnailViewCount;
             set
             {
                 Settings.Default.ThumbnailViewCount = value;
@@ -86,10 +80,7 @@ namespace VideoDedup
 
         public static int MaxThumbnailComparison
         {
-            get
-            {
-                return Settings.Default.MaxThumbnailComparison;
-            }
+            get => Settings.Default.MaxThumbnailComparison;
             set
             {
                 Settings.Default.MaxThumbnailComparison = value;
@@ -99,10 +90,7 @@ namespace VideoDedup
 
         public static int MaxDifferentThumbnails
         {
-            get
-            {
-                return Settings.Default.MaxDifferentThumbnails;
-            }
+            get => Settings.Default.MaxDifferentThumbnails;
             set
             {
                 Settings.Default.MaxDifferentThumbnails = value;
@@ -112,10 +100,7 @@ namespace VideoDedup
 
         public static int MaxDifferencePercentage
         {
-            get
-            {
-                return Settings.Default.MaxDifferencePercentage;
-            }
+            get => Settings.Default.MaxDifferencePercentage;
             set
             {
                 Settings.Default.MaxDifferencePercentage = value;
@@ -125,10 +110,7 @@ namespace VideoDedup
 
         public static int MaxDurationDifferenceSeconds
         {
-            get
-            {
-                return Settings.Default.MaxDurationDifferernceSeconds;
-            }
+            get => Settings.Default.MaxDurationDifferernceSeconds;
             set
             {
                 Settings.Default.MaxDurationDifferernceSeconds = value;
@@ -138,10 +120,7 @@ namespace VideoDedup
 
         public static int MaxDurationDifferencePercent
         {
-            get
-            {
-                return Settings.Default.MaxDurationDifferencePercent;
-            }
+            get => Settings.Default.MaxDurationDifferencePercent;
             set
             {
                 Settings.Default.MaxDurationDifferencePercent = value;
@@ -153,29 +132,29 @@ namespace VideoDedup
         {
             get
             {
-                if (_DurationDifferenceType == null)
+                if (durationDifferenceType == null)
                 {
                     if (Enum.TryParse(
                         Settings.Default.DurationDifferenceType,
                         true,
                         out DurationDifferenceType value))
                     {
-                        _DurationDifferenceType = value;
+                        durationDifferenceType = value;
                     }
                     else
                     {
-                        _DurationDifferenceType = DurationDifferenceType.Seconds;
+                        durationDifferenceType = DurationDifferenceType.Seconds;
                     }
                 }
-                return _DurationDifferenceType.Value;
+                return durationDifferenceType.Value;
             }
             set
             {
-                _DurationDifferenceType = value;
+                durationDifferenceType = value;
                 Settings.Default.DurationDifferenceType = value.ToString();
                 Settings.Default.Save();
             }
         }
-        private static DurationDifferenceType? _DurationDifferenceType = null;
+        private static DurationDifferenceType? durationDifferenceType = null;
     }
 }

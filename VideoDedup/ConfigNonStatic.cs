@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace VideoDedup
+﻿namespace VideoDedup
 {
-    class ConfigNonStatic : IComparisonSettings
+    using System.Collections.Generic;
+
+    internal class ConfigNonStatic : IComparisonSettings
     {
         public string SourcePath { get; set; }
 
