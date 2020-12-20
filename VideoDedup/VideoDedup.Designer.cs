@@ -221,6 +221,7 @@
             this.TxtLog.Multiline = true;
             this.TxtLog.Name = "TxtLog";
             this.TxtLog.ReadOnly = true;
+            this.TxtLog.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.TxtLog.Size = new System.Drawing.Size(794, 251);
             this.TxtLog.TabIndex = 15;
             // 
