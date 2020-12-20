@@ -54,7 +54,6 @@ namespace VideoDedup
         private readonly static string StatusInfoLoading = "Loading media info: {0}/{1}";
         private readonly static string StatusInfoSearching = "Searching for files...";
 
-        private readonly static string StatusInfoDuplicateCount = "Duplicates found {0}";
         private readonly static string StatusInfoChecking = "Checking: ";
 
         private bool disposedValue;
@@ -347,8 +346,6 @@ namespace VideoDedup
         private void ProcessFolder()
         {
             var cancelToken = CancelSource.Token;
-
-            OnLogged(StatusInfoChecking);
 
             VideoFiles = GetVideoFileList(Configuration.SourcePath);
 
