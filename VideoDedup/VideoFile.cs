@@ -61,7 +61,7 @@ namespace VideoDedup
                     }
                     catch (Exception)
                     {
-                        _Duration = new TimeSpan();
+                        _Duration = TimeSpan.Zero;
                     }
                 }
                 return _Duration.Value;
@@ -79,6 +79,43 @@ namespace VideoDedup
         public VideoFile(string path)
         {
             FilePath = path;
+        }
+
+        /// <summary>
+        /// Special case for FileSystemWatcher change events.
+        /// When a large file has been written, the file might
+        /// not be accessable yet when the event comes in.
+        /// If we would try to read the duration right away
+        /// it would fail.
+        /// So we wait for read access to the file.
+        /// For a maximum of 1 second.
+        /// </summary>
+        /// <returns></returns>
+        public bool WaitForFileAccess()
+        {
+            for (int i = 0; i < 20; i++)
+            {
+                try
+                {
+                    using (var stream = File.Open(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    {
+                        if (stream != null)
+                        {
+                            return true;
+                        }
+                    }
+                }
+                catch (ArgumentOutOfRangeException) { throw; }
+                catch (ArgumentNullException) { return false; }
+                catch (ArgumentException) { return false; }
+                catch (PathTooLongException) { return false; }
+                catch (DirectoryNotFoundException) { return false; }
+                catch (NotSupportedException) { return false; }
+                catch (Exception) { }
+
+                Thread.Sleep(50);
+            }
+            return false;
         }
 
         public bool IsDurationEqual(VideoFile other)

@@ -76,6 +76,8 @@
       <DependentUpon>Config.cs</DependentUpon>
     </Compile>
     <Compile Include="ConfigData.cs" />
+    <Compile Include="ConfigNonStatic.cs" />
+    <Compile Include="Dedupper.cs" />
     <Compile Include="DurationDifferenceType.cs" />
     <Compile Include="DurationSelection.cs">
       <SubType>Form</SubType>

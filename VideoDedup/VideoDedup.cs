@@ -58,9 +58,71 @@ namespace VideoDedup
         private TimeSpan? SelectedMinimumDuration { get; set; } = null;
         private TimeSpan? SelectedMaximumDuration { get; set; } = null;
 
+        private FileSystemWatcher Watcher { get; set; } = new FileSystemWatcher();
+
         public VideoDedup()
         {
+            Watcher.Changed += WatcherChangeEventHandler;
+            Watcher.Created += WatcherCreatedEventHandler;
+            Watcher.Renamed += WatcherRenamedEventHandler;
+            Watcher.Deleted += WatcherDeletedEventHandler;
+            //Watcher.NotifyFilter = NotifyFilters.LastWrite;
+            //Watcher.NotifyFilter =
+            //NotifyFilters.Attributes |
+            //NotifyFilters.CreationTime |
+            //NotifyFilters.DirectoryName |
+            //NotifyFilters.FileName |
+            //NotifyFilters.LastAccess |
+            //NotifyFilters.LastWrite
+            //;
+            //NotifyFilters.Security |
+            //NotifyFilters.Size;
+            Watcher.Filter = "*.*";
+            Watcher.IncludeSubdirectories = true;
+
+            Watcher.Path = ConfigData.SourcePath;
+            Watcher.EnableRaisingEvents = true;
+
             InitializeComponent();
+        }
+
+        private void WatcherDeletedEventHandler(object sender, FileSystemEventArgs e)
+        {
+            Debug.Print("Deleted");
+            Debug.Print("File " + e.ChangeType.ToString() + ": " + e.Name);
+        }
+
+        private void WatcherRenamedEventHandler(object sender, RenamedEventArgs e)
+        {
+            if (!File.Exists(e.FullPath))
+            {
+                return;
+            }
+            Debug.Print("Renamed");
+            Debug.Print("File " + e.ChangeType.ToString() + ": " + e.Name);
+        }
+
+        private void WatcherCreatedEventHandler(object sender, FileSystemEventArgs e)
+        {
+            if (!File.Exists(e.FullPath))
+            {
+                return;
+            }
+            Debug.Print("Created");
+            Debug.Print("File " + e.ChangeType.ToString() + ": " + e.Name);
+        }
+
+        private void WatcherChangeEventHandler(object sender, FileSystemEventArgs e)
+        {
+            if (!File.Exists(e.FullPath))
+            {
+                return;
+            }
+            Debug.Print("Changed");
+            Debug.Print("File " + e.ChangeType.ToString() + ": " + e.Name);
+            var f = new VideoFile(e.FullPath);
+            Debug.Print("Duration: " + f.Duration.ToString());
+
         }
 
         protected override void OnLoad(EventArgs e)
@@ -315,22 +377,19 @@ namespace VideoDedup
 
         private void ResolveDuplicates()
         {
-            for (var index = 0; index < Duplicates.Count();)
+            while (Dedupper.DequeueDuplcate(out Duplicate duplicate))
             {
-                (var left, var right) = Duplicates[index];
-
+                (var left, var right) = duplicate;
                 // Mostely because we might have deleted
                 // this file during the previous compare
                 if (!File.Exists(left.FilePath))
                 {
                     Debug.Print($"{left.FilePath} doesn't exist anymore. Can't compare.");
-                    RemoveDuplicate(index);
                     continue;
                 }
                 if (!File.Exists(right.FilePath))
                 {
                     Debug.Print($"{right.FilePath} doesn't exist anymore. Can't compare.");
-                    RemoveDuplicate(index);
                     continue;
                 }
 
@@ -348,16 +407,16 @@ namespace VideoDedup
 
                     if (result == DialogResult.Yes)
                     {
-                        RemoveDuplicate(index);
+                        continue;
                     }
                     if (result == DialogResult.Cancel)
                     {
-                        // Keep in list
+                        Dedupper.EnqueueDuplicate(duplicate);
                         return;
                     }
-                    if (result == DialogResult.No)
+                    if (result == DialogResult.No) // Skip
                     {
-                        index++;
+                        Dedupper.EnqueueDuplicate(duplicate);
                     }
                 }
             }
@@ -403,93 +462,44 @@ namespace VideoDedup
             }
         }
 
+        Dedupper Dedupper;
         private void BtnDedup_Click(object sender, EventArgs e)
         {
-            if (CancellationTokenSource != null)
+            var configuration = new ConfigNonStatic
             {
-                CancellationTokenSource.Dispose();
-            }
-            CancellationTokenSource = new CancellationTokenSource();
+                DurationDifferenceType = ConfigData.DurationDifferenceType,
+                SourcePath = ConfigData.SourcePath,
+                ExcludedDirectories = ConfigData.ExcludedDirectories,
+                FileExtensions = ConfigData.FileExtensions,
+                MaxDifferentThumbnails = ConfigData.MaxDifferentThumbnails,
+                MaxDifferencePercentage = ConfigData.MaxDifferencePercentage,
+                MaxDurationDifferenceSeconds = ConfigData.MaxDurationDifferenceSeconds,
+                MaxDurationDifferencePercent = ConfigData.MaxDurationDifferencePercent,
+                MaxThumbnailComparison = ConfigData.MaxThumbnailComparison,
+            };
+            Dedupper = new Dedupper(configuration);
+            Dedupper.ProgressUpdate += (s, args) => UpdateProgress(args.StatusInfo,
+                args.Counter,
+                args.MaxCount);
+            Dedupper.DuplicateCountChanged += (s, args) =>
+            {
+                LblDuplicateCount.InvokeIfRequired(() =>
+                    LblDuplicateCount.Text = string.Format(StatusInfoDuplicateCount, args.Count));
+                BtnResolveDuplicates.InvokeIfRequired(() =>
+                    BtnResolveDuplicates.Enabled = args.Count > 0);
+            };
+            Dedupper.Logged += (s, args) =>
+                LblCurrentFile.InvokeIfRequired(() => LblCurrentFile.Text = args.Message);
 
-            var cancelToken = CancellationTokenSource.Token;
             BtnDedup.Enabled = false;
-            BtnConfig.Enabled = false;
-            BtnCancel.Enabled = false;
-            LblCurrentFile.Text = StatusInfoChecking;
-            UpdateProgress(StatusInfoSearching, 0, 0);
-            ElapsedTime = new TimeSpan();
-            ElapsedTimer.Start();
-
-            Task.Run(() =>
-            {
-                var videoFiles = GetVideoFileList(ConfigData.SourcePath);
-
-                this.InvokeIfRequired(() =>
-                {
-                    UpdateProgress(StatusInfoLoading, 0, videoFiles.Count());
-                    BtnCancel.Enabled = true;
-                });
-
-                PreloadFiles(videoFiles, cancelToken);
-
-                // Save the data we have gathered.
-                SaveVideoFilesCache(videoFiles, CacheFilePath);
-
-                if (cancelToken.IsCancellationRequested)
-                {
-                    return;
-                }
-
-                this.Invoke(new Action(() =>
-                {
-                    ElapsedTimer.Stop();
-                    SelectDuration(
-                        videoFiles.Min(f => f.Duration),
-                        videoFiles.Max(f => f.Duration));
-                    ElapsedTimer.Start();
-                }));
-
-                if (cancelToken.IsCancellationRequested)
-                {
-                    return;
-                }
-
-                // Removed files that are damaged and don't have valid MediaInfo
-                // and sort the remaining files.
-                var orderedVideoFiles = videoFiles
-                .Where(f => f.Duration != new TimeSpan())
-                .Where(f => f.Duration >= SelectedMinimumDuration.Value)
-                .Where(f => f.Duration <= SelectedMaximumDuration.Value)
-                .OrderBy(f => f.Duration);
-
-                UpdateProgress(StatusInfoComparing, 0, videoFiles.Count());
-
-                FindDuplicates(orderedVideoFiles, cancelToken);
-
-                // Cleanup in case of cancel
-                foreach (var file in orderedVideoFiles)
-                {
-                    file.DisposeThumbnails();
-                }
-            }, cancelToken).ContinueWith(t =>
-            {
-                TaskbarManager.Instance.SetProgressState(
-                    TaskbarProgressBarState.NoProgress,
-                    Handle);
-                if (cancelToken.IsCancellationRequested)
-                {
-                    ProgressBar.Stop();
-                }
-                BtnDedup.Enabled = true;
-                BtnConfig.Enabled = true;
-                BtnCancel.Enabled = false;
-                ElapsedTimer.Stop();
-            }, TaskScheduler.FromCurrentSynchronizationContext());
+            BtnCancel.Enabled = true;
         }
 
         private void BtnCancel_Click(object sender, EventArgs e)
         {
-            CancellationTokenSource.Cancel();
+            Dedupper.Dispose();
+            BtnDedup.Enabled = true;
+            BtnCancel.Enabled = false;
         }
 
         private void BtnConfig_Click(object sender, EventArgs e)
