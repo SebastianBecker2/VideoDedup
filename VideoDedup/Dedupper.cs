@@ -57,13 +57,11 @@ namespace VideoDedup
         private static readonly string StatusInfoLoading = "Loading media info: {0}/{1}";
         private static readonly string StatusInfoSearching = "Searching for files...";
 
-        private static readonly string LogCheckingFile =
-            "Checking: {0}" + Environment.NewLine + "Duration: {1}";
+        private static readonly string LogCheckingFile = "Checking: {0} - Duration: {1}";
         private static readonly string LogDeletedFile = "File deleted: {0}";
         private static readonly string LogNewFile = "File created: {0}";
 
-
-        private bool disposedValue;
+        private bool disposedValue; // For IDisposable
 
         private ConfigNonStatic Configuration { get; set; } = null;
         private Task DedupTask { get; set; } = null;
@@ -76,26 +74,30 @@ namespace VideoDedup
             = new ConcurrentQueue<VideoFile> { };
         private IProducerConsumerCollection<VideoFile> DeletedFiles { get; set; }
             = new ConcurrentQueue<VideoFile> { };
-        private IEnumerable<VideoFile> VideoFiles { get; set; }
+        private IList<VideoFile> VideoFiles { get; set; }
         private IProducerConsumerCollection<Duplicate> Duplicates { get; set; }
             = new ConcurrentQueue<Duplicate> { };
 
         public event EventHandler<StoppedEventArgs> Stopped;
-        protected virtual void OnStopped() => Stopped?.Invoke(this, new StoppedEventArgs { });
+        protected virtual void OnStopped() =>
+            Stopped?.Invoke(this, new StoppedEventArgs { });
 
         public event EventHandler<DuplicateCountChangedEventArgs> DuplicateCountChanged;
-        protected virtual void OnDuplicateCountChanged() => DuplicateCountChanged?.Invoke(this, new DuplicateCountChangedEventArgs
-        {
-            Count = Duplicates.Count
-        });
+        protected virtual void OnDuplicateCountChanged() =>
+            DuplicateCountChanged?.Invoke(this, new DuplicateCountChangedEventArgs
+            {
+                Count = Duplicates.Count
+            });
 
         public event EventHandler<StatusChangedEventArgs> StatusChanged;
-        protected virtual void OnStatusChanged() => StatusChanged?.Invoke(this, new StatusChangedEventArgs { });
+        protected virtual void OnStatusChanged() =>
+            StatusChanged?.Invoke(this, new StatusChangedEventArgs { });
 
         public event EventHandler<ProgressUpdateEventArgs> ProgressUpdate;
         protected virtual void OnProgressUpdate(string statusInfo,
             int counter,
-            int maxCount) => ProgressUpdate?.Invoke(this, new ProgressUpdateEventArgs
+            int maxCount) =>
+            ProgressUpdate?.Invoke(this, new ProgressUpdateEventArgs
             {
                 StatusInfo = statusInfo,
                 Counter = counter,
@@ -103,7 +105,11 @@ namespace VideoDedup
             });
 
         public event EventHandler<LoggedEventArgs> Logged;
-        protected virtual void OnLogged(string message) => Logged?.Invoke(this, new LoggedEventArgs { Message = message });
+        protected virtual void OnLogged(string message) =>
+            Logged?.Invoke(this, new LoggedEventArgs
+            {
+                Message = DateTime.Now.ToString("s") + " " + message,
+            });
 
         public Dedupper(ConfigNonStatic config)
         {
@@ -114,8 +120,11 @@ namespace VideoDedup
 
             Configuration = config;
 
-            FileWatcher.Changed += FileWatcher_Changed;
-            FileWatcher.Deleted += FileWatcher_Deleted;
+            FileWatcher.Changed += HandleFileWatcherChangedEvent;
+            FileWatcher.Deleted += HandleFileWatcherDeletedEvent;
+            FileWatcher.Error += HandleFileWatcherErrorEvent;
+            FileWatcher.Renamed += HandleFileWatcherRenamedEvent;
+            FileWatcher.Created += HandleFileWatcherCreatedEvent;
             FileWatcher.IncludeSubdirectories = true;
             FileWatcher.Path = Configuration.SourcePath;
             FileWatcher.EnableRaisingEvents = true;
@@ -179,17 +188,82 @@ namespace VideoDedup
             }
         }
 
-        private void FileWatcher_Deleted(object sender, FileSystemEventArgs e)
+        private void HandleFileWatcherDeletedEvent(object sender, FileSystemEventArgs e)
         {
-            _ = DeletedFiles.TryAdd(new VideoFile(e.FullPath));
-            OnLogged(string.Format(LogDeletedFile, e.FullPath));
+            OnLogged($"{nameof(HandleFileWatcherDeletedEvent)} - {e.FullPath}");
+            HandleDeletedFileEvent(e.FullPath);
+        }
+
+        private void HandleFileWatcherChangedEvent(object sender, FileSystemEventArgs e)
+        {
+            OnLogged($"{nameof(HandleFileWatcherChangedEvent)} - {e.FullPath}");
+            HandleNewFileEvent(e.FullPath);
+        }
+
+        private void HandleFileWatcherCreatedEvent(object sender, FileSystemEventArgs e)
+        {
+            OnLogged($"{nameof(HandleFileWatcherCreatedEvent)} - {e.FullPath}");
+            HandleNewFileEvent(e.FullPath);
+        }
+
+        private void HandleFileWatcherRenamedEvent(object sender, RenamedEventArgs e)
+        {
+            OnLogged($"{nameof(HandleFileWatcherRenamedEvent)} - {e.FullPath} - {e.OldFullPath}");
+            HandleDeletedFileEvent(e.OldFullPath);
+            HandleNewFileEvent(e.FullPath);
+        }
+
+        private void HandleFileWatcherErrorEvent(object sender, ErrorEventArgs e) =>
+            OnLogged("FileWatcher crashed! Unable to continue monitoring the source folder.");
+
+        private bool IsFilePathRelevant(string filePath)
+        {
+            if (!filePath.StartsWith(Configuration.SourcePath))
+            {
+                OnLogged($"File not in source folder: {filePath}");
+                return false;
+            }
+
+            foreach (var excludedPath in Configuration.ExcludedDirectories)
+            {
+                if (filePath.StartsWith(excludedPath))
+                {
+                    OnLogged($"File is in excluded directory: {filePath}");
+                    return false;
+                }
+            }
+
+            var extension = Path.GetExtension(filePath);
+            if (!Configuration.FileExtensions.Contains(extension))
+            {
+                OnLogged($"File doesn't have proper file extension: {filePath}");
+                return false;
+            }
+
+            return true;
+        }
+
+        private void HandleDeletedFileEvent(string filePath)
+        {
+            if (!IsFilePathRelevant(filePath))
+            {
+                return;
+            }
+
+            _ = DeletedFiles.TryAdd(new VideoFile(filePath));
+            OnLogged(string.Format(LogDeletedFile, filePath));
             StartProcessingChanges();
         }
 
-        private void FileWatcher_Changed(object sender, FileSystemEventArgs e)
+        private void HandleNewFileEvent(string filePath)
         {
-            _ = NewFiles.TryAdd(new VideoFile(e.FullPath));
-            OnLogged(string.Format(LogNewFile, e.FullPath));
+            if (!IsFilePathRelevant(filePath))
+            {
+                return;
+            }
+
+            _ = NewFiles.TryAdd(new VideoFile(filePath));
+            OnLogged(string.Format(LogNewFile, filePath));
             StartProcessingChanges();
         }
 
@@ -341,6 +415,7 @@ namespace VideoDedup
 
                     if (file.AreThumbnailsEqual(nextFile, Configuration))
                     {
+                        OnLogged($"Found duplicate of {file.FilePath} and {nextFile.FilePath}");
                         EnqueueDuplicate(new Duplicate(file, nextFile));
                     }
                 }
@@ -353,6 +428,38 @@ namespace VideoDedup
                 videoFileList.Count());
         }
 
+        private void FindDuplicatesOf(
+            IEnumerable<VideoFile> videoFiles,
+            VideoFile refFile,
+            CancellationToken cancelToken)
+        {
+            OnLogged($"Searching duplicates of {refFile.FileName}");
+
+            foreach (var file in videoFiles)
+            {
+                if (cancelToken.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                if (file == refFile)
+                {
+                    continue;
+                }
+
+                if (!file.IsDurationEqual(refFile, Configuration))
+                {
+                    continue;
+                }
+
+                if (file.AreThumbnailsEqual(refFile, Configuration))
+                {
+                    OnLogged($"Found duplicate of {refFile.FilePath} and {file.FilePath}");
+                    EnqueueDuplicate(new Duplicate(refFile, file));
+                }
+            }
+        }
+
         private void ProcessChangesIfAny()
         {
             lock (DedupLock)
@@ -360,6 +467,7 @@ namespace VideoDedup
                 if (!NewFiles.Any() && !DeletedFiles.Any())
                 {
                     DedupTask = null;
+                    OnLogged("Going to sleep");
                     return;
                 }
 
@@ -371,22 +479,38 @@ namespace VideoDedup
         {
             var cancelToken = CancelSource.Token;
 
-            VideoFiles = GetVideoFileList(Configuration.SourcePath);
+            var videoFiles = GetVideoFileList(Configuration.SourcePath);
+            if (cancelToken.IsCancellationRequested)
+            {
+                return;
+            }
 
             // Cancellable preload of files
-            PreloadFiles(VideoFiles, cancelToken);
+            PreloadFiles(videoFiles, cancelToken);
+            if (cancelToken.IsCancellationRequested)
+            {
+                return;
+            }
 
             // Remove invalid files
-            VideoFiles = VideoFiles.Where(f => f.Duration != TimeSpan.Zero);
-
+            VideoFiles = videoFiles
+                .Where(f => f.Duration != TimeSpan.Zero)
+                .ToList();
             SaveVideoFilesCache(VideoFiles, CacheFilePath);
+            if (cancelToken.IsCancellationRequested)
+            {
+                return;
+            }
 
             FindDuplicates(VideoFiles, cancelToken);
-
             // Cleanup in case of cancel
             foreach (var file in VideoFiles)
             {
                 file.DisposeThumbnails();
+            }
+            if (cancelToken.IsCancellationRequested)
+            {
+                return;
             }
 
             ProcessChangesIfAny();
@@ -394,15 +518,76 @@ namespace VideoDedup
 
         private void ProcessChanges()
         {
-#pragma warning disable IDE0059 // Unnecessary assignment of a value
             var cancelToken = CancelSource.Token;
-#pragma warning restore IDE0059 // Unnecessary assignment of a value
 
-            while (NewFiles.TryTake(out var file))
+            while (DeletedFiles.TryTake(out var deletedFile))
             {
-                if (!file.WaitForFileAccess())
+                if (VideoFiles.Remove(deletedFile))
                 {
+                    OnLogged($"Removed file: {deletedFile.FilePath}");
+                }
+                else
+                {
+                    OnLogged($"Deleted file not in VideoFile-List: {deletedFile.FilePath}");
+                }
+                if (cancelToken.IsCancellationRequested)
+                {
+                    return;
+                }
+            }
+
+            while (NewFiles.TryTake(out var newFile))
+            {
+                if (!newFile.WaitForFileAccess(cancelToken))
+                {
+                    OnLogged($"Unable to access new file: {newFile.FileName}");
+                    if (cancelToken.IsCancellationRequested)
+                    {
+                        return;
+                    }
                     continue;
+                }
+                if (cancelToken.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                if (newFile.Duration == TimeSpan.Zero)
+                {
+                    OnLogged($"New file has no duration: {newFile.FilePath}");
+                    continue;
+                }
+                if (cancelToken.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                if (!VideoFiles.Contains(newFile))
+                {
+                    OnLogged($"New file added to VideoFile-List: {newFile.FilePath}");
+                    VideoFiles.Add(newFile);
+                }
+                else
+                {
+                    OnLogged($"New file already in VideoFile-List: {newFile.FilePath}");
+                    continue;
+                }
+
+                SaveVideoFilesCache(VideoFiles, CacheFilePath);
+                if (cancelToken.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                FindDuplicatesOf(VideoFiles, newFile, cancelToken);
+                // Cleanup in case of cancel
+                foreach (var file in VideoFiles)
+                {
+                    file.DisposeThumbnails();
+                }
+                if (cancelToken.IsCancellationRequested)
+                {
+                    return;
                 }
             }
 
@@ -435,36 +620,3 @@ namespace VideoDedup
         }
     }
 }
-
-// Process Folder (initial processing)
-// 1) GetVideoFileList()
-// 2) PreloadFiles() // Cancellable and Statusable
-// 3) videoFiles = videoFiles.Where(f => f.Duration != new TimeSpan())
-// 4) SaveVideoFilesCache()
-// 5) Remove files outside of MinDuration and MaxDuration (Not yet, maybe later on)
-// 5) orderedVideoFiles = videoFiles.OrderBy(f => f.Duration) // Use List.sort()?
-// 6) FindDuplicates()
-// 7) DisposeThumbnails (in case of cancel in FindDuplicates??)
-
-// Process Changes (adding new files)
-// 1) PreloadFiles() // Of new files
-// 2) newVideoFiles = newVideoFiles.Where(f => f.Duration != new TimeSpan())
-// 3) videoFiles = orderedVideoFiles.Concat(newVideoFiles))
-// 4) SaveVideoFilesCache(videoFiles)
-// 5) Remove files outside of MinDuration and MaxDuration (Not yet, maybe later on)
-// 5) orderedVideoFiles = videoFiles.OrderBy(f => f.Duration) // Use List.sort()?
-// 6) FindDuplicates() // Of new files!!!
-// 7) DisposeThumbnails (in case of cancel in FindDuplicates??)
-
-
-// ProcessChangesIfAny() can't just be at the end.
-// It won't be called on exception or cancel.
-// But do we even want that?
-// We don't just cancel it anymore just for fun.
-// We cancel on config change or shutdown.
-// In those cases, we don't want to process changes.
-
-// ToDo:
-// - Implement FileSystemWatcher
-// - Handle New/Deleted files
-// - https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/formatting-rules
