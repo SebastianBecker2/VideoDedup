@@ -45,16 +45,16 @@
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.LblDuplicateCount = new System.Windows.Forms.Label();
-            this.LblCurrentFile = new System.Windows.Forms.Label();
             this.NotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.BtnDiscardDuplicates = new System.Windows.Forms.Button();
+            this.TxtLog = new System.Windows.Forms.TextBox();
             this.MenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // BtnToDoManager
             // 
             this.BtnToDoManager.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.BtnToDoManager.Location = new System.Drawing.Point(93, 135);
+            this.BtnToDoManager.Location = new System.Drawing.Point(93, 344);
             this.BtnToDoManager.Name = "BtnToDoManager";
             this.BtnToDoManager.Size = new System.Drawing.Size(75, 23);
             this.BtnToDoManager.TabIndex = 1;
@@ -65,7 +65,7 @@
             // BtnDedup
             // 
             this.BtnDedup.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnDedup.Location = new System.Drawing.Point(425, 135);
+            this.BtnDedup.Location = new System.Drawing.Point(651, 344);
             this.BtnDedup.Name = "BtnDedup";
             this.BtnDedup.Size = new System.Drawing.Size(75, 23);
             this.BtnDedup.TabIndex = 0;
@@ -79,7 +79,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ProgressBar.Location = new System.Drawing.Point(12, 29);
             this.ProgressBar.Name = "ProgressBar";
-            this.ProgressBar.Size = new System.Drawing.Size(569, 23);
+            this.ProgressBar.Size = new System.Drawing.Size(795, 23);
             this.ProgressBar.TabIndex = 5;
             // 
             // LblStatusInfo
@@ -96,7 +96,7 @@
             this.BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.BtnCancel.Enabled = false;
-            this.BtnCancel.Location = new System.Drawing.Point(344, 135);
+            this.BtnCancel.Location = new System.Drawing.Point(570, 344);
             this.BtnCancel.Name = "BtnCancel";
             this.BtnCancel.Size = new System.Drawing.Size(75, 23);
             this.BtnCancel.TabIndex = 7;
@@ -107,7 +107,7 @@
             // BtnConfig
             // 
             this.BtnConfig.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.BtnConfig.Location = new System.Drawing.Point(12, 135);
+            this.BtnConfig.Location = new System.Drawing.Point(12, 344);
             this.BtnConfig.Name = "BtnConfig";
             this.BtnConfig.Size = new System.Drawing.Size(75, 23);
             this.BtnConfig.TabIndex = 8;
@@ -119,7 +119,7 @@
             // 
             this.LblTimer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.LblTimer.AutoSize = true;
-            this.LblTimer.Location = new System.Drawing.Point(532, 55);
+            this.LblTimer.Location = new System.Drawing.Point(758, 55);
             this.LblTimer.Name = "LblTimer";
             this.LblTimer.Size = new System.Drawing.Size(49, 13);
             this.LblTimer.TabIndex = 9;
@@ -130,12 +130,12 @@
             this.ElapsedTimer.Interval = 1000;
             this.ElapsedTimer.Tick += new System.EventHandler(this.ElapsedTimer_Tick);
             // 
-            // BtnResolveConflicts
+            // BtnResolveDuplicates
             // 
             this.BtnResolveDuplicates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnResolveDuplicates.Enabled = false;
-            this.BtnResolveDuplicates.Location = new System.Drawing.Point(506, 135);
-            this.BtnResolveDuplicates.Name = "BtnResolveConflicts";
+            this.BtnResolveDuplicates.Location = new System.Drawing.Point(732, 344);
+            this.BtnResolveDuplicates.Name = "BtnResolveDuplicates";
             this.BtnResolveDuplicates.Size = new System.Drawing.Size(75, 23);
             this.BtnResolveDuplicates.TabIndex = 10;
             this.BtnResolveDuplicates.Text = "&Resolve";
@@ -149,7 +149,7 @@
             this.toolStripMenuItem1});
             this.MenuStrip.Location = new System.Drawing.Point(0, 0);
             this.MenuStrip.Name = "MenuStrip";
-            this.MenuStrip.Size = new System.Drawing.Size(593, 24);
+            this.MenuStrip.Size = new System.Drawing.Size(819, 24);
             this.MenuStrip.TabIndex = 11;
             this.MenuStrip.Text = "menuStrip1";
             // 
@@ -164,7 +164,7 @@
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.closeToolStripMenuItem.Text = "&Close";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
@@ -192,44 +192,46 @@
             this.LblDuplicateCount.TabIndex = 12;
             this.LblDuplicateCount.Text = "Duplicates found: 0";
             // 
-            // LblCurrentFile
-            // 
-            this.LblCurrentFile.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.LblCurrentFile.Location = new System.Drawing.Point(9, 85);
-            this.LblCurrentFile.Name = "LblCurrentFile";
-            this.LblCurrentFile.Size = new System.Drawing.Size(572, 47);
-            this.LblCurrentFile.TabIndex = 13;
-            this.LblCurrentFile.Text = "Checking:";
-            // 
             // NotifyIcon
             // 
             this.NotifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("NotifyIcon.Icon")));
             this.NotifyIcon.Text = "VideoDedup";
             this.NotifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
             // 
-            // BtnDiscard
+            // BtnDiscardDuplicates
             // 
             this.BtnDiscardDuplicates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnDiscardDuplicates.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.BtnDiscardDuplicates.Enabled = false;
-            this.BtnDiscardDuplicates.Location = new System.Drawing.Point(234, 135);
-            this.BtnDiscardDuplicates.Name = "BtnDiscard";
+            this.BtnDiscardDuplicates.Location = new System.Drawing.Point(460, 344);
+            this.BtnDiscardDuplicates.Name = "BtnDiscardDuplicates";
             this.BtnDiscardDuplicates.Size = new System.Drawing.Size(104, 23);
             this.BtnDiscardDuplicates.TabIndex = 14;
             this.BtnDiscardDuplicates.Text = "Discard Duplicates";
             this.BtnDiscardDuplicates.UseVisualStyleBackColor = true;
             this.BtnDiscardDuplicates.Click += new System.EventHandler(this.BtnDiscard_Click);
             // 
+            // TxtLog
+            // 
+            this.TxtLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.TxtLog.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.TxtLog.Location = new System.Drawing.Point(13, 87);
+            this.TxtLog.Multiline = true;
+            this.TxtLog.Name = "TxtLog";
+            this.TxtLog.ReadOnly = true;
+            this.TxtLog.Size = new System.Drawing.Size(794, 251);
+            this.TxtLog.TabIndex = 15;
+            // 
             // VideoDedup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.BtnCancel;
-            this.ClientSize = new System.Drawing.Size(593, 170);
+            this.ClientSize = new System.Drawing.Size(819, 379);
+            this.Controls.Add(this.TxtLog);
             this.Controls.Add(this.BtnDiscardDuplicates);
-            this.Controls.Add(this.LblCurrentFile);
             this.Controls.Add(this.LblDuplicateCount);
             this.Controls.Add(this.BtnResolveDuplicates);
             this.Controls.Add(this.LblTimer);
@@ -270,9 +272,9 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.Label LblDuplicateCount;
-        private System.Windows.Forms.Label LblCurrentFile;
         private System.Windows.Forms.NotifyIcon NotifyIcon;
         private System.Windows.Forms.Button BtnDiscardDuplicates;
+        private System.Windows.Forms.TextBox TxtLog;
     }
 }
 

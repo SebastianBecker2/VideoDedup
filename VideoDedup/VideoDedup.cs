@@ -32,85 +32,11 @@ namespace VideoDedup
 
         private TimeSpan ElapsedTime { get; set; } = new TimeSpan();
 
-        private FileSystemWatcher Watcher { get; set; } = new FileSystemWatcher();
-
         private Dedupper Dedupper { get; set; } = null;
 
         public VideoDedup()
         {
-            Watcher.Changed += WatcherChangeEventHandler;
-            Watcher.Created += WatcherCreatedEventHandler;
-            Watcher.Renamed += WatcherRenamedEventHandler;
-            Watcher.Deleted += WatcherDeletedEventHandler;
-            //Watcher.NotifyFilter = NotifyFilters.LastWrite;
-            //Watcher.NotifyFilter =
-            //NotifyFilters.Attributes |
-            //NotifyFilters.CreationTime |
-            //NotifyFilters.DirectoryName |
-            //NotifyFilters.FileName |
-            //NotifyFilters.LastAccess |
-            //NotifyFilters.LastWrite
-            //;
-            //NotifyFilters.Security |
-            //NotifyFilters.Size;
-            Watcher.Filter = "*.*";
-            Watcher.IncludeSubdirectories = true;
-
-            Watcher.Path = ConfigData.SourcePath;
-            Watcher.EnableRaisingEvents = true;
-
             InitializeComponent();
-        }
-
-        private void WatcherDeletedEventHandler(object sender, FileSystemEventArgs e)
-        {
-            Debug.Print("Deleted");
-            Debug.Print("File " + e.ChangeType.ToString() + ": " + e.Name);
-        }
-
-        private void WatcherRenamedEventHandler(object sender, RenamedEventArgs e)
-        {
-            if (!File.Exists(e.FullPath))
-            {
-                return;
-            }
-            Debug.Print("Renamed");
-            Debug.Print("File " + e.ChangeType.ToString() + ": " + e.Name);
-        }
-
-        private void WatcherCreatedEventHandler(object sender, FileSystemEventArgs e)
-        {
-            if (!File.Exists(e.FullPath))
-            {
-                return;
-            }
-            Debug.Print("Created");
-            Debug.Print("File " + e.ChangeType.ToString() + ": " + e.Name);
-        }
-
-        private void WatcherChangeEventHandler(object sender, FileSystemEventArgs e)
-        {
-            if (!File.Exists(e.FullPath))
-            {
-                return;
-            }
-            Debug.Print("Changed");
-            Debug.Print("File " + e.ChangeType.ToString() + ": " + e.Name);
-            var configuration = new ConfigNonStatic
-            {
-                DurationDifferenceType = ConfigData.DurationDifferenceType,
-                SourcePath = ConfigData.SourcePath,
-                ExcludedDirectories = ConfigData.ExcludedDirectories,
-                FileExtensions = ConfigData.FileExtensions,
-                MaxDifferentThumbnails = ConfigData.MaxDifferentThumbnails,
-                MaxDifferencePercentage = ConfigData.MaxDifferencePercentage,
-                MaxDurationDifferenceSeconds = ConfigData.MaxDurationDifferenceSeconds,
-                MaxDurationDifferencePercent = ConfigData.MaxDurationDifferencePercent,
-                MaxThumbnailComparison = ConfigData.MaxThumbnailComparison,
-            };
-            var f = new VideoFile(e.FullPath, configuration);
-            Debug.Print("Duration: " + f.Duration.ToString());
-
         }
 
         protected override void OnLoad(EventArgs e)
@@ -181,8 +107,6 @@ namespace VideoDedup
 
         private void BtnDedup_Click(object sender, EventArgs e)
         {
-            Watcher.Path = @"D:\VideoDedupTest2";
-
             var configuration = new ConfigNonStatic
             {
                 DurationDifferenceType = ConfigData.DurationDifferenceType,
@@ -207,7 +131,8 @@ namespace VideoDedup
                     BtnResolveDuplicates.Enabled = args.Count > 0);
             };
             Dedupper.Logged += (s, args) =>
-                LblCurrentFile.InvokeIfRequired(() => LblCurrentFile.Text = args.Message);
+                TxtLog.InvokeIfRequired(() => 
+                    TxtLog.AppendText(args.Message + Environment.NewLine));
 
             BtnDedup.Enabled = false;
             BtnCancel.Enabled = true;

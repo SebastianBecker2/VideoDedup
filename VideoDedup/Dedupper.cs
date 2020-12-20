@@ -54,7 +54,11 @@ namespace VideoDedup
         private readonly static string StatusInfoLoading = "Loading media info: {0}/{1}";
         private readonly static string StatusInfoSearching = "Searching for files...";
 
-        private readonly static string StatusInfoChecking = "Checking: ";
+        private readonly static string LogCheckingFile = 
+            "Checking: {0}" + Environment.NewLine +"Duration: {1}";
+        private readonly static string LogDeletedFile = "File deleted: {0}";
+        private readonly static string LogNewFile = "File created: {0}";
+
 
         private bool disposedValue;
 
@@ -63,6 +67,8 @@ namespace VideoDedup
         private object DedupLock { get; set; } = new object { };
         private CancellationTokenSource CancelSource { get; set; }
             = new CancellationTokenSource { };
+        private FileSystemWatcher FileWatcher { get; set; }
+            = new FileSystemWatcher { };
         private IProducerConsumerCollection<VideoFile> NewFiles { get; set; }
             = new ConcurrentQueue<VideoFile> { };
         private IProducerConsumerCollection<VideoFile> DeletedFiles { get; set; }
@@ -115,7 +121,25 @@ namespace VideoDedup
         {
             Configuration = config;
 
+            FileWatcher.Changed += FileWatcher_Changed;
+            FileWatcher.Deleted += FileWatcher_Deleted;
+            FileWatcher.IncludeSubdirectories = true;
+            FileWatcher.Path = Configuration.SourcePath;
+            FileWatcher.EnableRaisingEvents = true;
+
             RestartProcessingFolder();
+        }
+
+        private void FileWatcher_Deleted(object sender, FileSystemEventArgs e)
+        {
+            DeletedFiles.TryAdd(new VideoFile(e.FullPath, Configuration));
+            OnLogged(string.Format(LogDeletedFile, e.FullPath));
+        }
+
+        private void FileWatcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            NewFiles.TryAdd(new VideoFile(e.FullPath, Configuration));
+            OnLogged(string.Format(LogNewFile, e.FullPath));
         }
 
         public void EnqueueDuplicate(Duplicate duplicate)
@@ -295,8 +319,9 @@ namespace VideoDedup
 
                 var file = videoFileList[index];
 
-                OnLogged(StatusInfoChecking + $"{file.FilePath}{Environment.NewLine}" +
-                    $"Duration: {file.Duration.ToPrettyString()}");
+                OnLogged(string.Format(LogCheckingFile, 
+                    file.FilePath, 
+                    file.Duration.ToPrettyString()));
                 OnProgressUpdate(StatusInfoComparing,
                     index + 1,
                     videoFileList.Count());
@@ -345,6 +370,7 @@ namespace VideoDedup
 
         private void ProcessFolder()
         {
+            return;
             var cancelToken = CancelSource.Token;
 
             VideoFiles = GetVideoFileList(Configuration.SourcePath);
@@ -395,6 +421,8 @@ namespace VideoDedup
                     CancelSource.Cancel();
                     DedupTask?.Wait();
                     CancelSource?.Dispose();
+                    DedupTask?.Dispose();
+                    FileWatcher?.Dispose();
                     // TODO: dispose managed state (managed objects)
                 }
 
