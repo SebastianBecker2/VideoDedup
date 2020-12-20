@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VideoDedup
 {
-    enum DurationDifferenceType
+    public enum DurationDifferenceType
     {
         Seconds,
         Percent,

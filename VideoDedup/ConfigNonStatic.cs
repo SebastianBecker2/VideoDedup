@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VideoDedup
 {
-    class ConfigNonStatic
+    class ConfigNonStatic : IComparisonSettings
     {
         public string SourcePath { get; set; }
 

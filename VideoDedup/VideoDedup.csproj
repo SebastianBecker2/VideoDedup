@@ -98,6 +98,7 @@
       <DependentUpon>FilePreview.cs</DependentUpon>
     </Compile>
     <Compile Include="FilePreview\ThumbnailLoadedEventArgs.cs" />
+    <Compile Include="IComparisonSettings.cs" />
     <Compile Include="VideoDedup.cs">
       <SubType>Form</SubType>
     </Compile>

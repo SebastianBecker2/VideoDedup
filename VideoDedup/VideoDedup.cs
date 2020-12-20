@@ -120,7 +120,19 @@ namespace VideoDedup
             }
             Debug.Print("Changed");
             Debug.Print("File " + e.ChangeType.ToString() + ": " + e.Name);
-            var f = new VideoFile(e.FullPath);
+            var configuration = new ConfigNonStatic
+            {
+                DurationDifferenceType = ConfigData.DurationDifferenceType,
+                SourcePath = ConfigData.SourcePath,
+                ExcludedDirectories = ConfigData.ExcludedDirectories,
+                FileExtensions = ConfigData.FileExtensions,
+                MaxDifferentThumbnails = ConfigData.MaxDifferentThumbnails,
+                MaxDifferencePercentage = ConfigData.MaxDifferencePercentage,
+                MaxDurationDifferenceSeconds = ConfigData.MaxDurationDifferenceSeconds,
+                MaxDurationDifferencePercent = ConfigData.MaxDurationDifferencePercent,
+                MaxThumbnailComparison = ConfigData.MaxThumbnailComparison,
+            };
+            var f = new VideoFile(e.FullPath, configuration);
             Debug.Print("Duration: " + f.Duration.ToString());
 
         }
@@ -283,35 +295,6 @@ namespace VideoDedup
             {
                 return null;
             }
-        }
-
-        private IEnumerable<VideoFile> GetVideoFileList(string sourcePath)
-        {
-            var timer = Stopwatch.StartNew();
-
-            // Get all video files in source path.
-            var fileExtensions = ConfigData.FileExtensions.ToList();
-            var found_files = GetAllAccessibleFilesIn(sourcePath, ConfigData.ExcludedDirectories)
-                .Where(f => fileExtensions.Contains(Path.GetExtension(f), StringComparer.CurrentCultureIgnoreCase))
-                .Select(f => new VideoFile(f));
-
-            var cached_files = LoadVideoFilesCache(CacheFilePath);
-            if (cached_files == null || !cached_files.Any())
-            {
-                cached_files = new HashSet<VideoFile>(found_files);
-            }
-            else
-            {
-                // Basically overwrite the found files with cached files
-                // and make sure we don't take cached files that don't exist
-                // anymore.
-                cached_files.RemoveWhere(f => !File.Exists(f.FilePath));
-                cached_files.UnionWith(found_files);
-            }
-            timer.Stop();
-
-            Debug.Print($"Found {cached_files.Count()} video files in {timer.ElapsedMilliseconds} ms");
-            return cached_files;
         }
 
         private void FindDuplicates(
