@@ -74,13 +74,8 @@ namespace VideoDedup
         private readonly IDictionary<int, Image> thumbnails =
             new Dictionary<int, Image>();
         private MediaInfo mediaInfo = null;
-        private readonly IComparisonSettings settings;
 
-        public VideoFile(string path, IComparisonSettings comparisonSettings)
-        {
-            this.FilePath = path;
-            this.settings = comparisonSettings;
-        }
+        public VideoFile(string path) => this.FilePath = path;
 
         /// <summary>
         /// Special case for FileSystemWatcher change events.
@@ -122,15 +117,15 @@ namespace VideoDedup
             return false;
         }
 
-        public bool IsDurationEqual(VideoFile other)
+        public bool IsDurationEqual(VideoFile other, IDurationComparisonSettings settings)
         {
-            switch (this.settings.DurationDifferenceType)
+            switch (settings.DifferenceType)
             {
                 case DurationDifferenceType.Seconds:
-                    return Math.Abs((this.Duration - other.Duration).TotalSeconds) < this.settings.MaxDurationDifferenceSeconds;
+                    return Math.Abs((this.Duration - other.Duration).TotalSeconds) < settings.MaxDifferenceSeconds;
                 case DurationDifferenceType.Percent:
                     var difference = Math.Abs((this.Duration - other.Duration).TotalSeconds);
-                    var max_diff = this.Duration.TotalSeconds / 100 * this.settings.MaxDurationDifferencePercent;
+                    var max_diff = this.Duration.TotalSeconds / 100 * settings.MaxDifferencePercent;
                     return difference < max_diff;
                 default:
                     throw new ConfigurationErrorsException("DurationDifferenceType has not valid value");
@@ -164,21 +159,21 @@ namespace VideoDedup
             return this.thumbnails[index];
         }
 
-        public bool AreThumbnailsEqual(VideoFile other)
+        public bool AreThumbnailsEqual(VideoFile other, IThumbnailComparisonSettings settings)
         {
             var differernceCount = 0;
-            foreach (var i in Enumerable.Range(0, this.settings.MaxThumbnailComparison))
+            foreach (var i in Enumerable.Range(0, settings.MaxCompares))
             {
-                var this_thumbnail = this.GetThumbnail(i, this.settings.MaxThumbnailComparison);
-                var other_thumbnail = other.GetThumbnail(i, this.settings.MaxThumbnailComparison);
+                var this_thumbnail = this.GetThumbnail(i, settings.MaxCompares);
+                var other_thumbnail = other.GetThumbnail(i, settings.MaxCompares);
                 var diff = this_thumbnail.PercentageDifference(other_thumbnail);
                 Debug.Print($"{i} Difference: {diff}");
-                if (diff > (double)this.settings.MaxDifferencePercentage / 100)
+                if (diff > (double)settings.MaxDifferencePercent / 100)
                 {
                     ++differernceCount;
                 }
 
-                if (differernceCount > this.settings.MaxDifferentThumbnails)
+                if (differernceCount > settings.MaxDifferentThumbnails)
                 {
                     return false;
                 }

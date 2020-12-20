@@ -181,14 +181,14 @@ namespace VideoDedup
 
         private void FileWatcher_Deleted(object sender, FileSystemEventArgs e)
         {
-            _ = this.DeletedFiles.TryAdd(new VideoFile(e.FullPath, this.Configuration));
+            _ = this.DeletedFiles.TryAdd(new VideoFile(e.FullPath));
             this.OnLogged(string.Format(LogDeletedFile, e.FullPath));
             this.StartProcessingChanges();
         }
 
         private void FileWatcher_Changed(object sender, FileSystemEventArgs e)
         {
-            _ = this.NewFiles.TryAdd(new VideoFile(e.FullPath, this.Configuration));
+            _ = this.NewFiles.TryAdd(new VideoFile(e.FullPath));
             this.OnLogged(string.Format(LogNewFile, e.FullPath));
             this.StartProcessingChanges();
         }
@@ -245,7 +245,7 @@ namespace VideoDedup
             var fileExtensions = ConfigData.FileExtensions.ToList();
             var found_files = GetAllAccessibleFilesIn(sourcePath, ConfigData.ExcludedDirectories)
                 .Where(f => fileExtensions.Contains(Path.GetExtension(f), StringComparer.CurrentCultureIgnoreCase))
-                .Select(f => new VideoFile(f, this.Configuration));
+                .Select(f => new VideoFile(f));
 
             var cached_files = LoadVideoFilesCache(CacheFilePath);
             if (cached_files == null || !cached_files.Any())
@@ -334,12 +334,12 @@ namespace VideoDedup
 
                     var nextFile = videoFileList[nextIndex];
 
-                    if (!file.IsDurationEqual(nextFile))
+                    if (!file.IsDurationEqual(nextFile, this.Configuration))
                     {
                         break;
                     }
 
-                    if (file.AreThumbnailsEqual(nextFile))
+                    if (file.AreThumbnailsEqual(nextFile, this.Configuration))
                     {
                         this.EnqueueDuplicate(new Duplicate(file, nextFile));
                     }
@@ -373,7 +373,7 @@ namespace VideoDedup
 
             this.VideoFiles = this.GetVideoFileList(this.Configuration.SourcePath);
 
-            // Cancallable preload of files
+            // Cancellable preload of files
             this.PreloadFiles(this.VideoFiles, cancelToken);
 
             // Remove invalid files
@@ -404,10 +404,7 @@ namespace VideoDedup
                 {
                     continue;
                 }
-
-
             }
-
 
             this.ProcessChangesIfAny();
         }

@@ -1,8 +1,8 @@
-﻿namespace VideoDedup
+namespace VideoDedup
 {
     using System.Collections.Generic;
 
-    internal class ConfigNonStatic : IComparisonSettings
+    internal class ConfigNonStatic : IDurationComparisonSettings, IThumbnailComparisonSettings
     {
         public string SourcePath { get; set; }
 
@@ -21,5 +21,17 @@
         public int MaxDurationDifferencePercent { get; set; }
 
         public DurationDifferenceType DurationDifferenceType { get; set; }
+
+        DurationDifferenceType IDurationComparisonSettings.DifferenceType => this.DurationDifferenceType;
+
+        int IDurationComparisonSettings.MaxDifferenceSeconds => this.MaxDurationDifferenceSeconds;
+
+        int IDurationComparisonSettings.MaxDifferencePercent => this.MaxDurationDifferencePercent;
+
+        int IThumbnailComparisonSettings.MaxDifferencePercent => this.MaxDifferencePercentage;
+
+        int IThumbnailComparisonSettings.MaxCompares => this.MaxThumbnailComparison;
+
+        int IThumbnailComparisonSettings.MaxDifferentThumbnails => this.MaxDifferentThumbnails;
     }
 }
