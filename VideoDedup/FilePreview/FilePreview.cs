@@ -13,6 +13,8 @@ namespace VideoDedup.FilePreview
         private static readonly Size ThumbnailSize = new Size(256, 256);
         private static readonly ColorDepth ThumbnailColorDepth = ColorDepth.Depth32Bit;
 
+        public IResolverSettings Configuration { get; set; }
+
         public Color HighlightColor
         {
             get => TxtInfo.BackColor;
@@ -101,9 +103,9 @@ namespace VideoDedup.FilePreview
             var cancelToken = cancellationTokenSource.Token;
             return Task.Run(() =>
             {
-                foreach (var index in Enumerable.Range(0, ConfigData.ThumbnailViewCount))
+                foreach (var index in Enumerable.Range(0, Configuration.ThumbnailViewCount))
                 {
-                    var image = VideoFile.GetThumbnail(index, ConfigData.ThumbnailViewCount);
+                    var image = VideoFile.GetThumbnail(index, Configuration.ThumbnailViewCount);
 
                     if (cancelToken.IsCancellationRequested)
                     {

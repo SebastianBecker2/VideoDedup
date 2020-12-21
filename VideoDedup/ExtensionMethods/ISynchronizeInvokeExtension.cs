@@ -12,7 +12,7 @@ namespace VideoDedup.ISynchronizeInvokeExtensions
             {
                 try
                 {
-                    _ = @object.Invoke(action, new object[0]);
+                    _ = @object.BeginInvoke(action, new object[0]);
                 }
                 catch (ObjectDisposedException) { }
             }

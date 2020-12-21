@@ -1,160 +1,89 @@
 namespace VideoDedup
 {
-    using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
-    using global::VideoDedup.Properties;
-    using Newtonsoft.Json;
 
-    internal static class ConfigData
+    public class ConfigData :
+        IDedupperSettings,
+        IResolverSettings
     {
+        private static readonly string CacheFolderName = "VideoDedupCache";
+        private static readonly string CacheFileName = "video_files.cache";
 
-        public static string SourcePath
+        public string SourcePath { get; set; }
+
+        // Make IReadOnlyList?
+        public IList<string> ExcludedDirectories { get; set; }
+
+        // Make IReadOnlyList?
+        public IList<string> FileExtensions { get; set; }
+
+        public int MaxThumbnailComparison { get; set; }
+
+        public int MaxDifferentThumbnails { get; set; }
+
+        public int MaxDifferencePercentage { get; set; }
+
+        public int MaxDurationDifferenceSeconds { get; set; }
+
+        public int MaxDurationDifferencePercent { get; set; }
+
+        public DurationDifferenceType DurationDifferenceType { get; set; }
+
+        public int ThumbnailViewCount { get; set; }
+
+        public ConfigData Copy() => new ConfigData
         {
-            get => Settings.Default.SourcePath;
-            set
-            {
-                Settings.Default.SourcePath = value;
-                Settings.Default.Save();
-            }
-        }
+            SourcePath = SourcePath,
+            ExcludedDirectories = ExcludedDirectories.ToList(),
+            FileExtensions = FileExtensions.ToList(),
+            MaxThumbnailComparison = MaxThumbnailComparison,
+            MaxDifferentThumbnails = MaxDifferentThumbnails,
+            MaxDifferencePercentage = MaxDifferencePercentage,
+            MaxDurationDifferenceSeconds = MaxDurationDifferenceSeconds,
+            MaxDurationDifferencePercent = MaxDurationDifferencePercent,
+            DurationDifferenceType = DurationDifferenceType,
+            ThumbnailViewCount = ThumbnailViewCount,
+        };
 
-        public static IList<string> ExcludedDirectories
-        {
-            get
-            {
-                if (excludedDirectories == null)
-                {
-                    excludedDirectories = JsonConvert.DeserializeObject<List<string>>(Settings.Default.ExcludedDirectories);
-                }
-                return excludedDirectories;
-            }
-            set
-            {
-                excludedDirectories = value;
-                Settings.Default.ExcludedDirectories = JsonConvert.SerializeObject(excludedDirectories);
-                Settings.Default.Save();
-            }
-        }
-        private static IList<string> excludedDirectories = null;
+        DurationDifferenceType IDurationComparisonSettings.DifferenceType =>
+            DurationDifferenceType;
 
-        public static IList<string> FileExtensions
-        {
-            get
-            {
-                if (fileExtensions != null)
-                {
-                    return fileExtensions;
-                }
+        int IDurationComparisonSettings.MaxDifferenceSeconds =>
+            MaxDurationDifferenceSeconds;
 
-                fileExtensions = JsonConvert.DeserializeObject<List<string>>(Settings.Default.FileExtensions);
-                if (fileExtensions != null || fileExtensions.Any())
-                {
-                    return fileExtensions;
-                }
+        int IDurationComparisonSettings.MaxDifferencePercent =>
+            MaxDurationDifferencePercent;
 
-                fileExtensions = new List<string>
-                    {
-                        ".mp4", ".mpg", ".avi", ".wmv", ".flv", ".m4v", ".mov", ".mpeg", ".rm", ".mts", ".3gp"
-                    };
-                return fileExtensions;
-            }
-            set
-            {
-                fileExtensions = value;
-                Settings.Default.FileExtensions = JsonConvert.SerializeObject(fileExtensions);
-                Settings.Default.Save();
-            }
-        }
-        private static IList<string> fileExtensions = null;
+        int IThumbnailComparisonSettings.MaxDifferencePercent =>
+            MaxDifferencePercentage;
 
-        public static int ThumbnailViewCount
-        {
-            get => Settings.Default.ThumbnailViewCount;
-            set
-            {
-                Settings.Default.ThumbnailViewCount = value;
-                Settings.Default.Save();
-            }
-        }
+        int IThumbnailComparisonSettings.MaxCompares => MaxThumbnailComparison;
 
-        public static int MaxThumbnailComparison
-        {
-            get => Settings.Default.MaxThumbnailComparison;
-            set
-            {
-                Settings.Default.MaxThumbnailComparison = value;
-                Settings.Default.Save();
-            }
-        }
+        int IThumbnailComparisonSettings.MaxDifferentThumbnails =>
+            MaxDifferentThumbnails;
 
-        public static int MaxDifferentThumbnails
-        {
-            get => Settings.Default.MaxDifferentThumbnails;
-            set
-            {
-                Settings.Default.MaxDifferentThumbnails = value;
-                Settings.Default.Save();
-            }
-        }
+        int IResolverSettings.ThumbnailViewCount => ThumbnailViewCount;
 
-        public static int MaxDifferencePercentage
-        {
-            get => Settings.Default.MaxDifferencePercentage;
-            set
-            {
-                Settings.Default.MaxDifferencePercentage = value;
-                Settings.Default.Save();
-            }
-        }
+        string IFolderSettings.BasePath => SourcePath;
 
-        public static int MaxDurationDifferenceSeconds
-        {
-            get => Settings.Default.MaxDurationDifferernceSeconds;
-            set
-            {
-                Settings.Default.MaxDurationDifferernceSeconds = value;
-                Settings.Default.Save();
-            }
-        }
-
-        public static int MaxDurationDifferencePercent
-        {
-            get => Settings.Default.MaxDurationDifferencePercent;
-            set
-            {
-                Settings.Default.MaxDurationDifferencePercent = value;
-                Settings.Default.Save();
-            }
-        }
-
-        public static DurationDifferenceType DurationDifferenceType
+        string IFolderSettings.CachePath
         {
             get
             {
-                if (durationDifferenceType == null)
-                {
-                    if (Enum.TryParse(
-                        Settings.Default.DurationDifferenceType,
-                        true,
-                        out DurationDifferenceType value))
-                    {
-                        durationDifferenceType = value;
-                    }
-                    else
-                    {
-                        durationDifferenceType = DurationDifferenceType.Seconds;
-                    }
-                }
-                return durationDifferenceType.Value;
-            }
-            set
-            {
-                durationDifferenceType = value;
-                Settings.Default.DurationDifferenceType = value.ToString();
-                Settings.Default.Save();
+                var cache_folder = Path.Combine(SourcePath, CacheFolderName);
+                _ = Directory.CreateDirectory(cache_folder);
+                return Path.Combine(cache_folder, CacheFileName);
             }
         }
-        private static DurationDifferenceType? durationDifferenceType = null;
+
+        IEnumerable<string> IFolderSettings.ExcludedDirectories =>
+            ExcludedDirectories;
+
+        IEnumerable<string> IFolderSettings.FileExtensions =>
+            FileExtensions;
+
+        IDedupperSettings IDedupperSettings.Copy() => Copy();
     }
 }

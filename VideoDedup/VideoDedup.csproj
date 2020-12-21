@@ -69,14 +69,13 @@
     <Compile Include="About.Designer.cs">
       <DependentUpon>About.cs</DependentUpon>
     </Compile>
-    <Compile Include="Config.cs">
+    <Compile Include="ConfigDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Config.Designer.cs">
-      <DependentUpon>Config.cs</DependentUpon>
+    <Compile Include="ConfigDlg.Designer.cs">
+      <DependentUpon>ConfigDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="ConfigData.cs" />
-    <Compile Include="ConfigNonStatic.cs" />
     <Compile Include="Dedupper.cs" />
     <Compile Include="DurationDifferenceType.cs" />
     <Compile Include="DurationSelection.cs">
@@ -98,7 +97,10 @@
       <DependentUpon>FilePreview.cs</DependentUpon>
     </Compile>
     <Compile Include="FilePreview\ThumbnailLoadedEventArgs.cs" />
+    <Compile Include="IDedupperSettings.cs" />
     <Compile Include="IDurationComparisonSettings.cs" />
+    <Compile Include="IFolderSettings.cs" />
+    <Compile Include="IResolverSettings.cs" />
     <Compile Include="IThumbnailComparisonSettings.cs" />
     <Compile Include="VideoDedup.cs">
       <SubType>Form</SubType>
@@ -115,8 +117,8 @@
     <EmbeddedResource Include="About.resx">
       <DependentUpon>About.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Config.resx">
-      <DependentUpon>Config.cs</DependentUpon>
+    <EmbeddedResource Include="ConfigDlg.resx">
+      <DependentUpon>ConfigDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="DurationSelection.resx">
       <DependentUpon>DurationSelection.cs</DependentUpon>

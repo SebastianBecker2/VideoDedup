@@ -200,11 +200,28 @@ namespace VideoDedup
             return thumbnails[index];
         }
 
-        public bool AreThumbnailsEqual(VideoFile other, IThumbnailComparisonSettings settings)
+        public bool AreThumbnailsEqual(VideoFile other,
+            IThumbnailComparisonSettings settings,
+            CancellationToken cancelToken)
         {
+            if (other is null)
+            {
+                throw new ArgumentNullException(nameof(other));
+            }
+
+            if (settings is null)
+            {
+                throw new ArgumentNullException(nameof(settings));
+            }
+
             var differernceCount = 0;
             foreach (var i in Enumerable.Range(0, settings.MaxCompares))
             {
+                if (cancelToken.IsCancellationRequested)
+                {
+                    return false;
+                }
+
                 var this_thumbnail = GetThumbnail(i, settings.MaxCompares);
                 var other_thumbnail = other.GetThumbnail(i, settings.MaxCompares);
                 var diff = this_thumbnail.PercentageDifference(other_thumbnail);

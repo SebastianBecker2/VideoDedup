@@ -41,18 +41,6 @@ namespace VideoDedup
 
     internal class Dedupper : IDisposable
     {
-        private static readonly string CacheFolderName = "VideoDedupCache";
-        private static readonly string CacheFileName = "video_files.cache";
-        private static string CacheFilePath
-        {
-            get
-            {
-                var cache_folder = Path.Combine(ConfigData.SourcePath, CacheFolderName);
-                _ = Directory.CreateDirectory(cache_folder);
-                return Path.Combine(cache_folder, CacheFileName);
-            }
-        }
-
         private static readonly string StatusInfoComparing = "Comparing: {0}/{1}";
         private static readonly string StatusInfoLoading = "Loading media info: {0}/{1}";
         private static readonly string StatusInfoSearching = "Searching for files...";
@@ -63,7 +51,7 @@ namespace VideoDedup
 
         private bool disposedValue; // For IDisposable
 
-        private ConfigNonStatic Configuration { get; set; } = null;
+        private IDedupperSettings Configuration { get; set; } = null;
         private Task DedupTask { get; set; } = null;
         private object DedupLock { get; set; } = new object { };
         private CancellationTokenSource CancelSource { get; set; }
@@ -111,14 +99,14 @@ namespace VideoDedup
                 Message = DateTime.Now.ToString("s") + " " + message,
             });
 
-        public Dedupper(ConfigNonStatic config)
+        public Dedupper(IDedupperSettings config)
         {
             if (config is null)
             {
                 throw new ArgumentNullException(nameof(config));
             }
 
-            Configuration = config;
+            Configuration = config.Copy();
 
             FileWatcher.Changed += HandleFileWatcherChangedEvent;
             FileWatcher.Deleted += HandleFileWatcherDeletedEvent;
@@ -126,7 +114,7 @@ namespace VideoDedup
             FileWatcher.Renamed += HandleFileWatcherRenamedEvent;
             FileWatcher.Created += HandleFileWatcherCreatedEvent;
             FileWatcher.IncludeSubdirectories = true;
-            FileWatcher.Path = Configuration.SourcePath;
+            FileWatcher.Path = Configuration.BasePath;
             FileWatcher.EnableRaisingEvents = true;
 
             RestartProcessingFolder();
@@ -134,6 +122,11 @@ namespace VideoDedup
 
         public void EnqueueDuplicate(Duplicate duplicate)
         {
+            if (duplicate is null)
+            {
+                throw new ArgumentNullException(nameof(duplicate));
+            }
+
             _ = Duplicates.TryAdd(duplicate);
             OnDuplicateCountChanged();
         }
@@ -148,17 +141,17 @@ namespace VideoDedup
             return false;
         }
 
-        public void UpdateConfiguration(ConfigNonStatic config)
+        public void UpdateConfiguration(IDedupperSettings config)
         {
             if (config is null)
             {
                 throw new ArgumentNullException(nameof(config));
             }
-            // Depending on which cofigurations changed,
-            // it should try to avoid extra work.
-            // Changing the folder invalidates the video file list.
-            // But changing the MaxDifferentThumbnails only requires
-            // a new search for duplicates in the video file list.
+
+            Configuration = config.Copy();
+
+            FileWatcher.Path = Configuration.BasePath;
+            RestartProcessingFolder();
         }
 
         private void RestartProcessingFolder()
@@ -166,6 +159,10 @@ namespace VideoDedup
             CancelSource.Cancel();
             DedupTask?.Wait();
             CancelSource?.Dispose();
+
+            NewFiles = new ConcurrentQueue<VideoFile> { };
+            DeletedFiles = new ConcurrentQueue<VideoFile> { };
+
             lock (DedupLock)
             {
                 CancelSource = new CancellationTokenSource();
@@ -179,7 +176,7 @@ namespace VideoDedup
             {
                 // If the task is still running,
                 // it will check for new files on it's own.
-                if (DedupTask != null)
+                if (DedupTask.IsCompleted)
                 {
                     return;
                 }
@@ -216,15 +213,15 @@ namespace VideoDedup
         private void HandleFileWatcherErrorEvent(object sender, ErrorEventArgs e) =>
             OnLogged("FileWatcher crashed! Unable to continue monitoring the source folder.");
 
-        private bool IsFilePathRelevant(string filePath)
+        private bool IsFilePathRelevant(string filePath, IFolderSettings settings)
         {
-            if (!filePath.StartsWith(Configuration.SourcePath))
+            if (!filePath.StartsWith(settings.BasePath))
             {
                 OnLogged($"File not in source folder: {filePath}");
                 return false;
             }
 
-            foreach (var excludedPath in Configuration.ExcludedDirectories)
+            foreach (var excludedPath in settings.ExcludedDirectories)
             {
                 if (filePath.StartsWith(excludedPath))
                 {
@@ -234,7 +231,7 @@ namespace VideoDedup
             }
 
             var extension = Path.GetExtension(filePath);
-            if (!Configuration.FileExtensions.Contains(extension))
+            if (!settings.FileExtensions.Contains(extension))
             {
                 OnLogged($"File doesn't have proper file extension: {filePath}");
                 return false;
@@ -245,7 +242,7 @@ namespace VideoDedup
 
         private void HandleDeletedFileEvent(string filePath)
         {
-            if (!IsFilePathRelevant(filePath))
+            if (!IsFilePathRelevant(filePath, Configuration))
             {
                 return;
             }
@@ -257,7 +254,7 @@ namespace VideoDedup
 
         private void HandleNewFileEvent(string filePath)
         {
-            if (!IsFilePathRelevant(filePath))
+            if (!IsFilePathRelevant(filePath, Configuration))
             {
                 return;
             }
@@ -309,19 +306,24 @@ namespace VideoDedup
             }
         }
 
-        private IEnumerable<VideoFile> GetVideoFileList(string sourcePath)
+        private IEnumerable<VideoFile> GetVideoFileList(
+            IFolderSettings settings)
         {
             var timer = Stopwatch.StartNew();
 
             OnProgressUpdate(StatusInfoSearching, 0, 0);
 
             // Get all video files in source path.
-            var fileExtensions = ConfigData.FileExtensions.ToList();
-            var found_files = GetAllAccessibleFilesIn(sourcePath, ConfigData.ExcludedDirectories)
-                .Where(f => fileExtensions.Contains(Path.GetExtension(f), StringComparer.CurrentCultureIgnoreCase))
+            var fileExtensions = settings.FileExtensions.ToList();
+            var found_files = GetAllAccessibleFilesIn(
+                settings.BasePath,
+                settings.ExcludedDirectories)
+                .Where(f => fileExtensions.Contains(
+                    Path.GetExtension(f),
+                    StringComparer.CurrentCultureIgnoreCase))
                 .Select(f => new VideoFile(f));
 
-            var cached_files = LoadVideoFilesCache(CacheFilePath);
+            var cached_files = LoadVideoFilesCache(settings.CachePath);
             if (cached_files == null || !cached_files.Any())
             {
                 cached_files = new HashSet<VideoFile>(found_files);
@@ -337,7 +339,7 @@ namespace VideoDedup
             timer.Stop();
 
             OnProgressUpdate(StatusInfoLoading, 0, cached_files.Count());
-            Debug.Print($"Found {cached_files.Count()} video files in {timer.ElapsedMilliseconds} ms");
+            OnLogged($"Found {cached_files.Count()} video files in {timer.ElapsedMilliseconds} ms");
             return cached_files;
         }
 
@@ -413,7 +415,7 @@ namespace VideoDedup
                         break;
                     }
 
-                    if (file.AreThumbnailsEqual(nextFile, Configuration))
+                    if (file.AreThumbnailsEqual(nextFile, Configuration, cancelToken))
                     {
                         OnLogged($"Found duplicate of {file.FilePath} and {nextFile.FilePath}");
                         EnqueueDuplicate(new Duplicate(file, nextFile));
@@ -452,7 +454,7 @@ namespace VideoDedup
                     continue;
                 }
 
-                if (file.AreThumbnailsEqual(refFile, Configuration))
+                if (file.AreThumbnailsEqual(refFile, Configuration, cancelToken))
                 {
                     OnLogged($"Found duplicate of {refFile.FilePath} and {file.FilePath}");
                     EnqueueDuplicate(new Duplicate(refFile, file));
@@ -466,11 +468,9 @@ namespace VideoDedup
             {
                 if (!NewFiles.Any() && !DeletedFiles.Any())
                 {
-                    DedupTask = null;
                     OnLogged("Going to sleep");
                     return;
                 }
-
                 DedupTask = Task.Factory.StartNew(ProcessChanges);
             }
         }
@@ -479,7 +479,7 @@ namespace VideoDedup
         {
             var cancelToken = CancelSource.Token;
 
-            var videoFiles = GetVideoFileList(Configuration.SourcePath);
+            var videoFiles = GetVideoFileList(Configuration);
             if (cancelToken.IsCancellationRequested)
             {
                 return;
@@ -496,7 +496,7 @@ namespace VideoDedup
             VideoFiles = videoFiles
                 .Where(f => f.Duration != TimeSpan.Zero)
                 .ToList();
-            SaveVideoFilesCache(VideoFiles, CacheFilePath);
+            SaveVideoFilesCache(VideoFiles, Configuration.CachePath);
             if (cancelToken.IsCancellationRequested)
             {
                 return;
@@ -573,7 +573,7 @@ namespace VideoDedup
                     continue;
                 }
 
-                SaveVideoFilesCache(VideoFiles, CacheFilePath);
+                SaveVideoFilesCache(VideoFiles, Configuration.CachePath);
                 if (cancelToken.IsCancellationRequested)
                 {
                     return;

@@ -1,11 +1,15 @@
 namespace VideoDedup
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Windows.Forms;
     using global::VideoDedup.ISynchronizeInvokeExtensions;
+    using global::VideoDedup.Properties;
     using Microsoft.WindowsAPICodePack.Taskbar;
+    using Newtonsoft.Json;
 
     public partial class VideoDedup : Form
     {
@@ -19,13 +23,18 @@ namespace VideoDedup
 
         private Dedupper Dedupper { get; set; } = null;
 
+        private ConfigData Configuration { get; set; }
+
         public VideoDedup() => InitializeComponent();
 
-        protected override void OnLoad(EventArgs e) =>
+        protected override void OnLoad(EventArgs e)
+        {
 #if !DEBUG
             BtnToDoManager.Visible = false;
 #endif
+            Configuration = LoadConfig();
             base.OnLoad(e);
+        }
 
         private void BtnToDoManager_Click(object sender, EventArgs e)
         {
@@ -35,68 +44,118 @@ namespace VideoDedup
             }
         }
 
+        private ConfigData LoadConfig()
+        {
+            var excludedDirectories = JsonConvert.DeserializeObject<List<string>>(
+                Settings.Default.ExcludedDirectories);
+
+            var fileExtensions = JsonConvert.DeserializeObject<List<string>>(
+                Settings.Default.FileExtensions);
+            if (!fileExtensions.Any())
+            {
+                fileExtensions = new List<string>
+                    {
+                        ".mp4", ".mpg", ".avi", ".wmv", ".flv", ".m4v", ".mov", ".mpeg", ".rm", ".mts", ".3gp"
+                    };
+            }
+
+            DurationDifferenceType durationDifferenceType;
+            if (Enum.TryParse(
+                        Settings.Default.DurationDifferenceType,
+                        true,
+                        out DurationDifferenceType value))
+            {
+                durationDifferenceType = value;
+            }
+            else
+            {
+                durationDifferenceType = DurationDifferenceType.Seconds;
+            }
+
+            return new ConfigData
+            {
+                SourcePath = Settings.Default.SourcePath,
+                ExcludedDirectories = excludedDirectories,
+                FileExtensions = fileExtensions,
+                MaxThumbnailComparison = Settings.Default.MaxThumbnailComparison,
+                MaxDifferentThumbnails = Settings.Default.MaxDifferentThumbnails,
+                MaxDifferencePercentage = Settings.Default.MaxDifferencePercentage,
+                MaxDurationDifferenceSeconds = Settings.Default.MaxDurationDifferenceSeconds,
+                MaxDurationDifferencePercent = Settings.Default.MaxDurationDifferencePercent,
+                DurationDifferenceType = durationDifferenceType,
+                ThumbnailViewCount = Settings.Default.ThumbnailViewCount,
+            };
+        }
+
+        private void SaveConfig(ConfigData configuration)
+        {
+            Settings.Default.SourcePath =
+                Configuration.SourcePath;
+            Settings.Default.ExcludedDirectories =
+                JsonConvert.SerializeObject(configuration.ExcludedDirectories);
+            Settings.Default.FileExtensions =
+                JsonConvert.SerializeObject(configuration.FileExtensions);
+            Settings.Default.MaxThumbnailComparison =
+                Configuration.MaxThumbnailComparison;
+            Settings.Default.MaxDifferentThumbnails = configuration.MaxDifferentThumbnails;
+            Settings.Default.MaxDifferencePercentage = configuration.MaxDifferencePercentage;
+            Settings.Default.MaxDurationDifferenceSeconds = configuration.MaxDurationDifferenceSeconds;
+            Settings.Default.MaxDurationDifferencePercent = configuration.MaxDurationDifferencePercent;
+            Settings.Default.DurationDifferenceType = configuration.DurationDifferenceType.ToString();
+            Settings.Default.ThumbnailViewCount = configuration.ThumbnailViewCount;
+            Settings.Default.Save();
+        }
+
         private void UpdateProgress(
             string statusInfo,
             int counter,
             int maxCount) => this.InvokeIfRequired(() =>
-                           {
-                               if (LastStatusUpdate.HasValue
-                                   && (DateTime.Now - LastStatusUpdate.Value).TotalMilliseconds < 100
-                                   && maxCount - counter > 2
-                                   && counter > 0)
-                               {
-                                   return;
-                               }
-                               LastStatusUpdate = DateTime.Now;
+            {
+                if (LastStatusUpdate.HasValue
+                    && (DateTime.Now - LastStatusUpdate.Value).TotalMilliseconds < 100
+                    && maxCount - counter > 2
+                    && counter > 0)
+                {
+                    return;
+                }
+                LastStatusUpdate = DateTime.Now;
 
-                               if (!string.IsNullOrWhiteSpace(statusInfo))
-                               {
-                                   CurrentStatusInfo = statusInfo;
-                               }
+                if (!string.IsNullOrWhiteSpace(statusInfo))
+                {
+                    CurrentStatusInfo = statusInfo;
+                }
 
-                               LblStatusInfo.Text = string.Format(
-                                   CurrentStatusInfo,
-                                   counter,
-                                   maxCount);
+                LblStatusInfo.Text = string.Format(
+                    CurrentStatusInfo,
+                    counter,
+                    maxCount);
 
-                               if (maxCount > 0)
-                               {
-                                   TaskbarManager.Instance.SetProgressState(
-                                       TaskbarProgressBarState.Normal,
-                                       Handle);
-                                   ProgressBar.Style = ProgressBarStyle.Continuous;
-                               }
-                               else
-                               {
-                                   TaskbarManager.Instance.SetProgressState(
-                                       TaskbarProgressBarState.Indeterminate,
-                                       Handle);
-                                   ProgressBar.Style = ProgressBarStyle.Marquee;
-                               }
+                if (maxCount > 0)
+                {
+                    TaskbarManager.Instance.SetProgressState(
+                        TaskbarProgressBarState.Normal,
+                        Handle);
+                    ProgressBar.Style = ProgressBarStyle.Continuous;
+                }
+                else
+                {
+                    TaskbarManager.Instance.SetProgressState(
+                        TaskbarProgressBarState.Indeterminate,
+                        Handle);
+                    ProgressBar.Style = ProgressBarStyle.Marquee;
+                }
 
-                               ProgressBar.Value = counter;
-                               ProgressBar.Maximum = maxCount == 0 ? 1 : maxCount;
-                               TaskbarManager.Instance.SetProgressValue(
-                                   counter,
-                                   maxCount,
-                                   Handle);
-                           });
+                ProgressBar.Value = counter;
+                ProgressBar.Maximum = maxCount == 0 ? 1 : maxCount;
+                TaskbarManager.Instance.SetProgressValue(
+                    counter,
+                    maxCount,
+                    Handle);
+            });
 
         private void BtnDedup_Click(object sender, EventArgs e)
         {
-            var configuration = new ConfigNonStatic
-            {
-                DurationDifferenceType = ConfigData.DurationDifferenceType,
-                SourcePath = ConfigData.SourcePath,
-                ExcludedDirectories = ConfigData.ExcludedDirectories,
-                FileExtensions = ConfigData.FileExtensions,
-                MaxDifferentThumbnails = ConfigData.MaxDifferentThumbnails,
-                MaxDifferencePercentage = ConfigData.MaxDifferencePercentage,
-                MaxDurationDifferenceSeconds = ConfigData.MaxDurationDifferenceSeconds,
-                MaxDurationDifferencePercent = ConfigData.MaxDurationDifferencePercent,
-                MaxThumbnailComparison = ConfigData.MaxThumbnailComparison,
-            };
-            Dedupper = new Dedupper(configuration);
+            Dedupper = new Dedupper(Configuration);
             Dedupper.ProgressUpdate += (s, args) => UpdateProgress(args.StatusInfo,
                 args.Counter,
                 args.MaxCount);
@@ -124,12 +183,16 @@ namespace VideoDedup
 
         private void BtnConfig_Click(object sender, EventArgs e)
         {
-            using (var dlg = new Config())
+            using (var dlg = new ConfigDlg())
             {
+                dlg.Configuration = Configuration;
                 if (dlg.ShowDialog() != DialogResult.OK)
                 {
                     return;
                 }
+                Configuration = dlg.Configuration;
+                SaveConfig(Configuration);
+                Dedupper?.UpdateConfiguration(Configuration);
             }
         }
 
