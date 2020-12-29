@@ -13,8 +13,6 @@ namespace VideoDedupConsole
 
         public DuplicateData GetDuplicate() => Program.GetDuplicate();
 
-        public int GetDuplicateCount() => Program.GetDuplicateCount();
-
         public LogData GetLogEvents(LogToken logToken) =>
             Program.GetLogEntries(logToken);
 

@@ -150,6 +150,10 @@ namespace VideoDedupConsole
         {
             lock (CurrentStatusLock)
             {
+                lock (DuplicatesLock)
+                {
+                    CurrentStatus.DuplicateCount = Duplicates.Count();
+                }
                 return CurrentStatus.Clone();
             }
         }

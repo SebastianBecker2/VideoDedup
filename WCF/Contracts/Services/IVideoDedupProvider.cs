@@ -33,9 +33,6 @@ namespace Wcf.Contracts.Services
         DuplicateData GetDuplicate();
 
         [OperationContract]
-        int GetDuplicateCount();
-
-        [OperationContract]
         LogData GetLogEvents(LogToken logToken);
     }
 }

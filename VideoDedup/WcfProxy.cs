@@ -19,7 +19,6 @@ namespace VideoDedup
         public Wcf.Contracts.Data.ConfigData GetConfig() => Channel.GetConfig();
         public StatusData GetCurrentStatus() => Channel.GetCurrentStatus();
         public DuplicateData GetDuplicate() => Channel.GetDuplicate();
-        public int GetDuplicateCount() => Channel.GetDuplicateCount();
         public LogData GetLogEvents(LogToken logToken) =>
             Channel.GetLogEvents(logToken);
         public void ResolveDuplicate(Guid duplicateId,

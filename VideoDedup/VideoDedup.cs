@@ -177,10 +177,8 @@ namespace VideoDedup
             UpdateProgress(status.StatusMessage,
                 status.CurrentProgress,
                 status.MaximumProgress);
-
-            var duplicateCount = WcfProxy.GetDuplicateCount();
             LblDuplicateCount.Text =
-                string.Format(StatusInfoDuplicateCount, duplicateCount);
+                string.Format(StatusInfoDuplicateCount, status.DuplicateCount);
 
             var logData = WcfProxy.GetLogEvents(logToken);
             if (logToken != null && logToken.Id != logData.LogToken.Id)
@@ -287,21 +285,21 @@ namespace VideoDedup
             //    }
             //}
 
-            if (ElapsedTimer.Enabled)
-            {
-                var selection = MessageBox.Show(
-                    $"VideoDedup is currently search for duplicates." +
-                    $"{Environment.NewLine}Are you sure you want to close?",
-                    "Cancel search?",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Warning);
+            //if (ElapsedTimer.Enabled)
+            //{
+            //    var selection = MessageBox.Show(
+            //        $"VideoDedup is currently search for duplicates." +
+            //        $"{Environment.NewLine}Are you sure you want to close?",
+            //        "Cancel search?",
+            //        MessageBoxButtons.YesNo,
+            //        MessageBoxIcon.Warning);
 
-                if (selection == DialogResult.No)
-                {
-                    e.Cancel = true;
-                    return;
-                }
-            }
+            //    if (selection == DialogResult.No)
+            //    {
+            //        e.Cancel = true;
+            //        return;
+            //    }
+            //}
         }
 
         private void BtnDiscard_Click(object sender, EventArgs e)
