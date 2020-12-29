@@ -1,4 +1,4 @@
-namespace VideoDedup
+namespace VideoDedupShared
 {
     using System;
     using System.Collections.Generic;
@@ -19,19 +19,6 @@ namespace VideoDedup
         public string FilePath { get; private set; }
         [JsonIgnore]
         public string FileName => Path.GetFileName(FilePath);
-        [JsonIgnore]
-        public MediaInfo MediaInfo
-        {
-            get
-            {
-                if (mediaInfo == null)
-                {
-                    var probe = new FFProbe();
-                    mediaInfo = probe.GetMediaInfo(FilePath);
-                }
-                return mediaInfo;
-            }
-        }
         [JsonIgnore]
         public long FileSize
         {
@@ -55,7 +42,6 @@ namespace VideoDedup
                     try
                     {
                         duration = MediaInfo.Duration;
-
                     }
                     catch (Exception)
                     {
@@ -67,15 +53,58 @@ namespace VideoDedup
             private set => duration = value;
         }
 
+        [JsonIgnore]
+        public VideoCodecInfo VideoCodec
+        {
+            get
+            {
+                if (MediaInfo == null)
+                {
+                    return null;
+                }
+
+                var stream = MediaInfo.Streams.FirstOrDefault(s => s.CodecType == "video");
+                if (stream == null)
+                {
+                    return null;
+                }
+
+                return new VideoCodecInfo(stream);
+            }
+        }
+
         [JsonProperty]
         private TimeSpan? duration = null;
         [JsonProperty]
         private long? fileSize = null;
         private readonly IDictionary<int, Image> thumbnails =
             new Dictionary<int, Image>();
+        private MediaInfo MediaInfo
+        {
+            get
+            {
+                if (mediaInfo == null)
+                {
+                    var probe = new FFProbe();
+                    mediaInfo = probe.GetMediaInfo(FilePath);
+                }
+                return mediaInfo;
+            }
+        }
         private MediaInfo mediaInfo = null;
 
-        public VideoFile(string path) => FilePath = path;
+        public VideoFile() { }
+        public VideoFile(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                throw new ArgumentException(
+                    $"'{nameof(path)}' cannot be null or whitespace",
+                    nameof(path));
+            }
+
+            FilePath = path;
+        }
 
         /// <summary>
         /// Special case for FileSystemWatcher change events.
@@ -225,7 +254,7 @@ namespace VideoDedup
                 var this_thumbnail = GetThumbnail(i, settings.MaxCompares);
                 var other_thumbnail = other.GetThumbnail(i, settings.MaxCompares);
                 var diff = this_thumbnail.PercentageDifference(other_thumbnail);
-                Debug.Print($"{i} Difference: {diff}");
+                //Debug.Print($"{i} Difference: {diff}");
                 if (diff > (double)settings.MaxDifferencePercent / 100)
                 {
                     ++differernceCount;

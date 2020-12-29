@@ -1,8 +1,8 @@
-namespace VideoDedup.TimeSpanExtension
+namespace VideoDedupShared.TimeSpanExtension
 {
     using System;
 
-    internal static class TimeSpanExtension
+    public static class TimeSpanExtension
     {
         private static readonly string TimeSpanLongFormat = @"dd\.hh\:mm\:ss";
         private static readonly string TimeSpanShortFormat = @"hh\:mm\:ss";

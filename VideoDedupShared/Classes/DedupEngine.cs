@@ -1,4 +1,4 @@
-namespace VideoDedup
+namespace VideoDedupShared
 {
     using System;
     using System.Collections.Concurrent;
@@ -8,38 +8,32 @@ namespace VideoDedup
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using global::VideoDedup.TimeSpanExtension;
+    using TimeSpanExtension;
     using Newtonsoft.Json;
 
-    internal class Duplicate : Tuple<VideoFile, VideoFile>
+    public class StoppedEventArgs : EventArgs { }
+
+    public class DuplicateFoundEventArgs : EventArgs
     {
-        public Duplicate(VideoFile file1, VideoFile file2) : base(file1, file2)
-        {
-        }
+        public VideoFile File1 { get; set; }
+        public VideoFile File2 { get; set; }
     }
 
-    internal class StoppedEventArgs : EventArgs { }
+    public class StatusChangedEventArgs : EventArgs { }
 
-    internal class DuplicateCountChangedEventArgs : EventArgs
-    {
-        public int Count { get; set; }
-    }
-
-    internal class StatusChangedEventArgs : EventArgs { }
-
-    internal class ProgressUpdateEventArgs : EventArgs
+    public class ProgressUpdateEventArgs : EventArgs
     {
         public string StatusInfo { get; set; }
         public int Counter { get; set; }
         public int MaxCount { get; set; }
     }
 
-    internal class LoggedEventArgs : EventArgs
+    public class LoggedEventArgs : EventArgs
     {
         public string Message { get; set; }
     }
 
-    internal class Dedupper : IDisposable
+    public class DedupEngine : IDisposable
     {
         private static readonly string StatusInfoComparing = "Comparing: {0}/{1}";
         private static readonly string StatusInfoLoading = "Loading media info: {0}/{1}";
@@ -63,18 +57,18 @@ namespace VideoDedup
         private IProducerConsumerCollection<VideoFile> DeletedFiles { get; set; }
             = new ConcurrentQueue<VideoFile> { };
         private IList<VideoFile> VideoFiles { get; set; }
-        private IProducerConsumerCollection<Duplicate> Duplicates { get; set; }
-            = new ConcurrentQueue<Duplicate> { };
 
         public event EventHandler<StoppedEventArgs> Stopped;
         protected virtual void OnStopped() =>
             Stopped?.Invoke(this, new StoppedEventArgs { });
 
-        public event EventHandler<DuplicateCountChangedEventArgs> DuplicateCountChanged;
-        protected virtual void OnDuplicateCountChanged() =>
-            DuplicateCountChanged?.Invoke(this, new DuplicateCountChangedEventArgs
+        public event EventHandler<DuplicateFoundEventArgs> DuplicateFound;
+        protected virtual void OnDuplicateFound(VideoFile file1,
+            VideoFile file2) =>
+            DuplicateFound?.Invoke(this, new DuplicateFoundEventArgs
             {
-                Count = Duplicates.Count
+                File1 = file1,
+                File2 = file2,
             });
 
         public event EventHandler<StatusChangedEventArgs> StatusChanged;
@@ -99,47 +93,18 @@ namespace VideoDedup
                 Message = DateTime.Now.ToString("s") + " " + message,
             });
 
-        public Dedupper(IDedupperSettings config)
+        public DedupEngine()
         {
-            if (config is null)
-            {
-                throw new ArgumentNullException(nameof(config));
-            }
-
-            Configuration = config.Copy();
-
             FileWatcher.Changed += HandleFileWatcherChangedEvent;
             FileWatcher.Deleted += HandleFileWatcherDeletedEvent;
             FileWatcher.Error += HandleFileWatcherErrorEvent;
             FileWatcher.Renamed += HandleFileWatcherRenamedEvent;
             FileWatcher.Created += HandleFileWatcherCreatedEvent;
             FileWatcher.IncludeSubdirectories = true;
-            FileWatcher.Path = Configuration.BasePath;
-            FileWatcher.EnableRaisingEvents = true;
-
-            RestartProcessingFolder();
         }
 
-        public void EnqueueDuplicate(Duplicate duplicate)
-        {
-            if (duplicate is null)
-            {
-                throw new ArgumentNullException(nameof(duplicate));
-            }
-
-            _ = Duplicates.TryAdd(duplicate);
-            OnDuplicateCountChanged();
-        }
-
-        public bool DequeueDuplcate(out Duplicate duplicate)
-        {
-            if (Duplicates.TryTake(out duplicate))
-            {
-                OnDuplicateCountChanged();
-                return true;
-            }
-            return false;
-        }
+        public DedupEngine(IDedupperSettings config) : this() =>
+            UpdateConfiguration(config);
 
         public void UpdateConfiguration(IDedupperSettings config)
         {
@@ -151,23 +116,42 @@ namespace VideoDedup
             Configuration = config.Copy();
 
             FileWatcher.Path = Configuration.BasePath;
-            RestartProcessingFolder();
+            FileWatcher.EnableRaisingEvents = true;
         }
 
-        private void RestartProcessingFolder()
+        public void Start()
         {
-            CancelSource.Cancel();
-            DedupTask?.Wait();
-            CancelSource?.Dispose();
+            if (Configuration == null)
+            {
+                throw new InvalidOperationException("Unable to start. No configuration set");
+            }
+
+            if (DedupTask != null && !DedupTask.IsCompleted)
+            {
+                return;
+            }
 
             NewFiles = new ConcurrentQueue<VideoFile> { };
             DeletedFiles = new ConcurrentQueue<VideoFile> { };
 
             lock (DedupLock)
             {
+                DedupTask?.Dispose();
                 CancelSource = new CancellationTokenSource();
                 DedupTask = Task.Factory.StartNew(ProcessFolder);
             }
+        }
+
+        public void Stop()
+        {
+            if (DedupTask.IsCompleted)
+            {
+                return;
+            }
+
+            CancelSource.Cancel();
+            DedupTask?.Wait();
+            CancelSource?.Dispose();
         }
 
         private void StartProcessingChanges()
@@ -418,7 +402,7 @@ namespace VideoDedup
                     if (file.AreThumbnailsEqual(nextFile, Configuration, cancelToken))
                     {
                         OnLogged($"Found duplicate of {file.FilePath} and {nextFile.FilePath}");
-                        EnqueueDuplicate(new Duplicate(file, nextFile));
+                        OnDuplicateFound(file, nextFile);
                     }
                 }
 
@@ -457,7 +441,7 @@ namespace VideoDedup
                 if (file.AreThumbnailsEqual(refFile, Configuration, cancelToken))
                 {
                     OnLogged($"Found duplicate of {refFile.FilePath} and {file.FilePath}");
-                    EnqueueDuplicate(new Duplicate(refFile, file));
+                    OnDuplicateFound(refFile, file);
                 }
             }
         }

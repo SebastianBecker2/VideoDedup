@@ -1,4 +1,4 @@
-namespace VideoDedup
+namespace VideoDedupShared
 {
     using System.Collections.Generic;
 

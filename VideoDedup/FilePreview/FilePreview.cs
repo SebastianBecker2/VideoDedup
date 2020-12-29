@@ -7,6 +7,7 @@ namespace VideoDedup.FilePreview
     using System.Threading;
     using System.Threading.Tasks;
     using System.Windows.Forms;
+    using VideoDedupShared;
 
     public partial class FilePreview : UserControl
     {
@@ -55,11 +56,11 @@ namespace VideoDedup.FilePreview
         /// Scales the images to max 256x256
         /// but keeping the aspect ratio
         /// </summary>
-        /// <param name="original_size"></param>
-        private void SetImageSize(Size original_size)
+        /// <param name="originalSize"></param>
+        private void SetImageSize(Size originalSize)
         {
-            var width = original_size.Width;
-            var height = original_size.Height;
+            var width = originalSize.Width;
+            var height = originalSize.Height;
 
             if (width > height)
             {
@@ -75,29 +76,29 @@ namespace VideoDedup.FilePreview
 
         private void DisplayInfo()
         {
-            var file_size = VideoFile.FileSize;
-            var media_info = VideoFile.MediaInfo;
+            var fileSize = VideoFile.FileSize;
+            var duration = VideoFile.Duration;
+            var videoCodec = VideoFile.VideoCodec;
 
             TxtInfo.Text = VideoFile.FilePath + Environment.NewLine;
-            TxtInfo.Text += (file_size / (1024 * 1024)).ToString() + " MB" + Environment.NewLine;
-            var duration_format = media_info.Duration.Hours >= 1 ? @"hh\:mm\:ss" : @"mm\:ss";
-            TxtInfo.Text += media_info.Duration.ToString(duration_format) + Environment.NewLine;
+            TxtInfo.Text += (fileSize / (1024 * 1024)).ToString() + " MB" + Environment.NewLine;
+            var duration_format = duration.Hours >= 1 ? @"hh\:mm\:ss" : @"mm\:ss";
+            TxtInfo.Text += duration.ToString(duration_format) + Environment.NewLine;
 
-            var stream = media_info.Streams.FirstOrDefault(s => s.CodecType == "video");
-            if (stream == null)
+            if (videoCodec == null)
             {
                 return;
             }
-            TxtInfo.Text += stream.Width.ToString() +
-                " x " + stream.Height.ToString() +
-                " @ " + stream.FrameRate + " Frames" + Environment.NewLine +
-                stream.CodecLongName;
+            TxtInfo.Text += videoCodec.Width.ToString() +
+                " x " + videoCodec.Height.ToString() +
+                " @ " + videoCodec.FrameRate + " Frames" + Environment.NewLine +
+                videoCodec.CodecLongName;
         }
 
         private Task LoadThumbnails()
         {
-            var width = VideoFile.MediaInfo.Streams.First().Width;
-            var height = VideoFile.MediaInfo.Streams.First().Height;
+            var width = VideoFile.VideoCodec.Width;
+            var height = VideoFile.VideoCodec.Height;
             SetImageSize(new Size(width, height));
 
             var cancelToken = cancellationTokenSource.Token;

@@ -5,63 +5,64 @@ namespace VideoDedup
     using System.Linq;
     using System.Windows.Forms;
     using Microsoft.WindowsAPICodePack.Dialogs;
-
+    using VideoDedupShared;
     public partial class ConfigDlg : Form
     {
-        public ConfigData Configuration { get; set; }
+        public ConfigData ClientConfig { get; set; }
+        public Wcf.Contracts.Data.ConfigData ServerConfig { get; set; }
 
         public ConfigDlg() => InitializeComponent();
 
         protected override void OnLoad(EventArgs e)
         {
-            TxtSourcePath.Text = Configuration.SourcePath;
+            TxtSourcePath.Text = ServerConfig.SourcePath;
 
-            if (Configuration.ExcludedDirectories != null)
+            if (ServerConfig.ExcludedDirectories != null)
             {
-                LsbExcludedDirectories.Items.AddRange(Configuration.ExcludedDirectories.ToArray());
+                LsbExcludedDirectories.Items.AddRange(ServerConfig.ExcludedDirectories.ToArray());
             }
 
-            if (Configuration.FileExtensions != null)
+            if (ServerConfig.FileExtensions != null)
             {
-                LsbFileExtensions.Items.AddRange(Configuration.FileExtensions.ToArray());
+                LsbFileExtensions.Items.AddRange(ServerConfig.FileExtensions.ToArray());
             }
 
-            NumMaxThumbnailComparison.Value = Configuration.MaxThumbnailComparison;
-            NumMaxDifferentThumbnails.Value = Configuration.MaxDifferentThumbnails;
-            NumMaxDifferentPercentage.Value = Configuration.MaxDifferencePercentage;
+            NumMaxThumbnailComparison.Value = ServerConfig.MaxThumbnailComparison;
+            NumMaxDifferentThumbnails.Value = ServerConfig.MaxDifferentThumbnails;
+            NumMaxDifferentPercentage.Value = ServerConfig.MaxDifferencePercentage;
 
-            RdbDurationDifferencePercent.Checked = Configuration.DurationDifferenceType == DurationDifferenceType.Percent;
-            RdbDurationDifferenceSeconds.Checked = Configuration.DurationDifferenceType != DurationDifferenceType.Percent;
-            NumMaxDurationDifferencePercent.Value = Configuration.MaxDurationDifferencePercent;
-            NumMaxDurationDifferenceSeconds.Value = Configuration.MaxDurationDifferenceSeconds;
+            RdbDurationDifferencePercent.Checked = ServerConfig.DurationDifferenceType == DurationDifferenceType.Percent;
+            RdbDurationDifferenceSeconds.Checked = ServerConfig.DurationDifferenceType != DurationDifferenceType.Percent;
+            NumMaxDurationDifferencePercent.Value = ServerConfig.MaxDurationDifferencePercent;
+            NumMaxDurationDifferenceSeconds.Value = ServerConfig.MaxDurationDifferenceSeconds;
 
-            NumThumbnailViewCount.Value = Configuration.ThumbnailViewCount;
+            NumThumbnailViewCount.Value = ClientConfig.ThumbnailViewCount;
 
             base.OnLoad(e);
         }
 
         private void BtnOkay_Click(object sender, EventArgs e)
         {
-            Configuration.SourcePath = TxtSourcePath.Text;
-            Configuration.ExcludedDirectories = LsbExcludedDirectories.Items.Cast<string>().ToList();
-            Configuration.FileExtensions = LsbFileExtensions.Items.Cast<string>().ToList();
+            ServerConfig.SourcePath = TxtSourcePath.Text;
+            ServerConfig.ExcludedDirectories = LsbExcludedDirectories.Items.Cast<string>().ToList();
+            ServerConfig.FileExtensions = LsbFileExtensions.Items.Cast<string>().ToList();
 
-            Configuration.MaxThumbnailComparison = (int)NumMaxThumbnailComparison.Value;
-            Configuration.MaxDifferentThumbnails = (int)NumMaxDifferentThumbnails.Value;
-            Configuration.MaxDifferencePercentage = (int)NumMaxDifferentPercentage.Value;
+            ServerConfig.MaxThumbnailComparison = (int)NumMaxThumbnailComparison.Value;
+            ServerConfig.MaxDifferentThumbnails = (int)NumMaxDifferentThumbnails.Value;
+            ServerConfig.MaxDifferencePercentage = (int)NumMaxDifferentPercentage.Value;
 
             if (RdbDurationDifferencePercent.Checked)
             {
-                Configuration.DurationDifferenceType = DurationDifferenceType.Percent;
+                ServerConfig.DurationDifferenceType = DurationDifferenceType.Percent;
             }
             else
             {
-                Configuration.DurationDifferenceType = DurationDifferenceType.Seconds;
+                ServerConfig.DurationDifferenceType = DurationDifferenceType.Seconds;
             }
-            Configuration.MaxDurationDifferencePercent = (int)NumMaxDurationDifferencePercent.Value;
-            Configuration.MaxDurationDifferenceSeconds = (int)NumMaxDurationDifferenceSeconds.Value;
+            ServerConfig.MaxDurationDifferencePercent = (int)NumMaxDurationDifferencePercent.Value;
+            ServerConfig.MaxDurationDifferenceSeconds = (int)NumMaxDurationDifferenceSeconds.Value;
 
-            Configuration.ThumbnailViewCount = (int)NumThumbnailViewCount.Value;
+            ClientConfig.ThumbnailViewCount = (int)NumThumbnailViewCount.Value;
 
             DialogResult = DialogResult.OK;
         }

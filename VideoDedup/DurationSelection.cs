@@ -3,7 +3,7 @@ namespace VideoDedup
     using System;
     using System.Diagnostics;
     using System.Windows.Forms;
-    using global::VideoDedup.TimeSpanExtension;
+    using VideoDedupShared.TimeSpanExtension;
 
     public partial class DurationSelection : Form
     {

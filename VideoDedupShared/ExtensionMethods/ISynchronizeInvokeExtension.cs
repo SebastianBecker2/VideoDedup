@@ -1,10 +1,10 @@
-namespace VideoDedup.ISynchronizeInvokeExtensions
+namespace VideoDedupShared.ISynchronizeInvokeExtensions
 {
     using System;
     using System.ComponentModel;
     using System.Windows.Forms;
 
-    internal static class ISynchronizeInvokeExtensions
+    public static class ISynchronizeInvokeExtensions
     {
         public static void InvokeIfRequired(this ISynchronizeInvoke @object, MethodInvoker action)
         {

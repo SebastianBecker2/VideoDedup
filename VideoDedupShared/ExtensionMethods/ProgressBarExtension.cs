@@ -1,10 +1,10 @@
-namespace VideoDedup.ProgressBarExtension
+namespace VideoDedupShared.ProgressBarExtension
 {
     using System;
     using System.Runtime.InteropServices;
     using System.Windows.Forms;
 
-    internal static class ProgressBarExtension
+    public static class ProgressBarExtension
     {
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         private static extern uint SendMessage(

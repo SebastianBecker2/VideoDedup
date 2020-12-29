@@ -6,6 +6,7 @@ namespace VideoDedup
     using System.IO;
     using System.Threading.Tasks;
     using System.Windows.Forms;
+    using VideoDedupShared;
 
     public partial class FileComparison : Form
     {
