@@ -126,5 +126,9 @@
   {
     "Done": true,
     "Text": "Resolve conflicts while searching for deduplications"
+  },
+  {
+    "Done": false,
+    "Text": "Add monitoring option in config (to turn off or on)"
   }
 ]
