@@ -19,26 +19,21 @@ namespace VideoDedupShared
         public VideoFile File2 { get; set; }
     }
 
-    public class StatusChangedEventArgs : EventArgs { }
-
     public class ProgressUpdateEventArgs : EventArgs
     {
-        public string StatusInfo { get; set; }
+        public StatusType Type { get; set; }
         public int Counter { get; set; }
         public int MaxCount { get; set; }
+        public ProgressStyle Style { get; set; }
     }
 
     public class LoggedEventArgs : EventArgs
     {
-        public string Message { get; set; }
+        public string Message{ get; set; }
     }
 
     public class DedupEngine : IDisposable
     {
-        private static readonly string StatusInfoComparing = "Comparing: {0}/{1}";
-        private static readonly string StatusInfoLoading = "Loading media info: {0}/{1}";
-        private static readonly string StatusInfoSearching = "Searching for files...";
-
         private static readonly string LogCheckingFile = "Checking: {0} - Duration: {1}";
         private static readonly string LogDeletedFile = "File deleted: {0}";
         private static readonly string LogNewFile = "File created: {0}";
@@ -71,19 +66,25 @@ namespace VideoDedupShared
                 File2 = file2,
             });
 
-        public event EventHandler<StatusChangedEventArgs> StatusChanged;
-        protected virtual void OnStatusChanged() =>
-            StatusChanged?.Invoke(this, new StatusChangedEventArgs { });
-
         public event EventHandler<ProgressUpdateEventArgs> ProgressUpdate;
-        protected virtual void OnProgressUpdate(string statusInfo,
+        protected virtual void OnProgressUpdate(StatusType type,
             int counter,
             int maxCount) =>
             ProgressUpdate?.Invoke(this, new ProgressUpdateEventArgs
             {
-                StatusInfo = statusInfo,
+                Type = type,
                 Counter = counter,
-                MaxCount = maxCount
+                MaxCount = maxCount,
+                Style = ProgressStyle.Continuous,
+            });
+        protected virtual void OnProgressUpdate(StatusType type,
+            ProgressStyle style) =>
+            ProgressUpdate?.Invoke(this, new ProgressUpdateEventArgs
+            {
+                Type = type,
+                Counter = 0,
+                MaxCount = 0,
+                Style = style,
             });
 
         public event EventHandler<LoggedEventArgs> Logged;
@@ -114,22 +115,29 @@ namespace VideoDedupShared
             }
 
             Configuration = config.Copy();
-
-            FileWatcher.Path = Configuration.BasePath;
-            FileWatcher.EnableRaisingEvents = true;
         }
 
         public void Start()
         {
             if (Configuration == null)
             {
-                throw new InvalidOperationException("Unable to start. No configuration set");
+                throw new InvalidOperationException("Unable to start. " +
+                    "No configuration set.");
+            }
+
+            if (!Directory.Exists(Configuration.BasePath))
+            {
+                throw new InvalidOperationException("Unable to start. " +
+                    "Base path is not valid.");
             }
 
             if (DedupTask != null && !DedupTask.IsCompleted)
             {
                 return;
             }
+
+            FileWatcher.Path = Configuration.BasePath;
+            FileWatcher.EnableRaisingEvents = true;
 
             NewFiles = new ConcurrentQueue<VideoFile> { };
             DeletedFiles = new ConcurrentQueue<VideoFile> { };
@@ -144,7 +152,9 @@ namespace VideoDedupShared
 
         public void Stop()
         {
-            if (DedupTask.IsCompleted)
+            FileWatcher.EnableRaisingEvents = false;
+
+            if (DedupTask == null || DedupTask.IsCompleted)
             {
                 return;
             }
@@ -295,7 +305,7 @@ namespace VideoDedupShared
         {
             var timer = Stopwatch.StartNew();
 
-            OnProgressUpdate(StatusInfoSearching, 0, 0);
+            OnProgressUpdate(StatusType.Searching, ProgressStyle.Marquee);
 
             // Get all video files in source path.
             var fileExtensions = settings.FileExtensions.ToList();
@@ -322,7 +332,7 @@ namespace VideoDedupShared
             }
             timer.Stop();
 
-            OnProgressUpdate(StatusInfoLoading, 0, cached_files.Count());
+            OnProgressUpdate(StatusType.Loading, 0, cached_files.Count());
             OnLogged($"Found {cached_files.Count()} video files in {timer.ElapsedMilliseconds} ms");
             return cached_files;
         }
@@ -334,7 +344,7 @@ namespace VideoDedupShared
             var counter = 0;
             foreach (var f in videoFiles)
             {
-                OnProgressUpdate(StatusInfoLoading,
+                OnProgressUpdate(StatusType.Loading,
                     ++counter,
                     videoFiles.Count());
 
@@ -365,7 +375,7 @@ namespace VideoDedupShared
             IEnumerable<VideoFile> videoFiles,
             CancellationToken cancelToken)
         {
-            OnProgressUpdate(StatusInfoComparing, 0, videoFiles.Count());
+            OnProgressUpdate(StatusType.Comparing, 0, videoFiles.Count());
 
             var videoFileList = videoFiles.OrderBy(f => f.Duration).ToList();
 
@@ -381,7 +391,7 @@ namespace VideoDedupShared
                 OnLogged(string.Format(LogCheckingFile,
                     file.FilePath,
                     file.Duration.ToPrettyString()));
-                OnProgressUpdate(StatusInfoComparing,
+                OnProgressUpdate(StatusType.Comparing,
                     index + 1,
                     videoFileList.Count());
 
@@ -409,7 +419,7 @@ namespace VideoDedupShared
                 file.DisposeThumbnails();
             }
 
-            OnProgressUpdate(StatusInfoComparing,
+            OnProgressUpdate(StatusType.Comparing,
                 videoFileList.Count(),
                 videoFileList.Count());
         }
@@ -452,7 +462,8 @@ namespace VideoDedupShared
             {
                 if (!NewFiles.Any() && !DeletedFiles.Any())
                 {
-                    OnLogged("Going to sleep");
+                    OnProgressUpdate(StatusType.Monitoring, ProgressStyle.Marquee);
+                    OnLogged("Monitoring for file changes...");
                     return;
                 }
                 DedupTask = Task.Factory.StartNew(ProcessChanges);

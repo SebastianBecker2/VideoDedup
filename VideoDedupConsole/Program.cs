@@ -12,6 +12,15 @@ namespace VideoDedupConsole
 
     internal class Program
     {
+        private static readonly IReadOnlyDictionary<StatusType, string> StatusInfo
+            = new Dictionary<StatusType, string>
+        {
+            { StatusType.Comparing, "Comparing: {0}/{1}" },
+            { StatusType.Loading, "Loading media info: {0}/{1}" },
+            { StatusType.Searching, "Searching for files..." },
+            { StatusType.Monitoring, "Monitoring for file changes..." },
+        };
+
         private static IList<DuplicateWrapper> Duplicates { get; } =
             new List<DuplicateWrapper>();
         private static readonly object DuplicatesLock = new object();
@@ -163,9 +172,11 @@ namespace VideoDedupConsole
         {
             lock (CurrentStatusLock)
             {
+                CurrentStatus.StatusMessage = string.Format(
+                    StatusInfo[e.Type], e.Counter, e.MaxCount);
                 CurrentStatus.CurrentProgress = e.Counter;
                 CurrentStatus.MaximumProgress = e.MaxCount;
-                CurrentStatus.StatusMessage = e.StatusInfo;
+                CurrentStatus.ProgressStyle = e.Style;
             }
         }
 
@@ -237,12 +248,26 @@ namespace VideoDedupConsole
         {
             Dedupper.UpdateConfiguration(config);
             Dedupper.Stop();
+
             lock (LogEntriesLock)
             {
                 LogEntries.Clear();
                 logId = Guid.NewGuid();
             }
-            Dedupper.Start();
+
+            try
+            {
+                Dedupper.Start();
+            }
+            catch (InvalidOperationException exc)
+            {
+                lock (CurrentStatusLock)
+                {
+                    CurrentStatus.ProgressStyle = ProgressStyle.NoProgress;
+                    CurrentStatus.StatusMessage = exc.Message;
+                }
+                AddLogEntry(exc.Message);
+            }
         }
 
         private static void Main()
@@ -252,11 +277,29 @@ namespace VideoDedupConsole
             Dedupper.Logged += HandleLoggedEvent;
             Dedupper.UpdateConfiguration(LoadConfig());
 
+            lock (CurrentStatusLock)
+            {
+                CurrentStatus.ProgressStyle = ProgressStyle.Marquee;
+                CurrentStatus.StatusMessage = "Initializing...";
+            }
+
             var baseAddress = new Uri("net.tcp://localhost:41721/hello");
             using (var serviceHost = new ServiceHost(typeof(WcfService), baseAddress))
             {
                 serviceHost.Open();
-                Dedupper.Start();
+                try
+                {
+                    Dedupper.Start();
+                }
+                catch (InvalidOperationException exc)
+                {
+                    lock (CurrentStatusLock)
+                    {
+                        CurrentStatus.ProgressStyle = ProgressStyle.NoProgress;
+                        CurrentStatus.StatusMessage = exc.Message;
+                    }
+                    AddLogEntry(exc.Message);
+                }
 
                 Console.WriteLine("Service running.  Please 'Enter' to exit...");
                 _ = Console.ReadLine();

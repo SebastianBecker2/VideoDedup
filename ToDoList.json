@@ -8,6 +8,10 @@
     "Text": "Run dedup as service, monitoring the folder for changed of video files."
   },
   {
+    "Done": false,
+    "Text": "Add monitoring option in config (to turn off or on)"
+  },
+  {
     "Done": true,
     "Text": "Add discard button to main form"
   },
@@ -129,6 +133,14 @@
   },
   {
     "Done": false,
-    "Text": "Add monitoring option in config (to turn off or on)"
+    "Text": "Downscale thumbnails"
+  },
+  {
+    "Done": false,
+    "Text": "Convert thumbnails to jpeg"
+  },
+  {
+    "Done": false,
+    "Text": "VideoFile Interface for regular and serializable thumbnails"
   }
 ]

@@ -142,6 +142,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HandyTimer\SmartTimer.csproj">
+      <Project>{ba276bca-e923-4e5c-a483-ac04ddf0eb61}</Project>
+      <Name>SmartTimer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ToDoManager\ToDoManager.csproj">
       <Project>{678EBC3A-44FE-4325-85AA-866001164074}</Project>
       <Name>ToDoManager</Name>

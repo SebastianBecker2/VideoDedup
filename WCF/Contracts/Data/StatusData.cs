@@ -2,6 +2,7 @@ namespace Wcf.Contracts.Data
 {
     using System;
     using System.Runtime.Serialization;
+    using VideoDedupShared;
 
     [DataContract]
     public class StatusData
@@ -12,6 +13,8 @@ namespace Wcf.Contracts.Data
         public int CurrentProgress { get; set; }
         [DataMember]
         public int MaximumProgress { get; set; }
+        [DataMember]
+        public ProgressStyle ProgressStyle { get; set; }
         [DataMember]
         public string StatusMessage { get; set; }
         [DataMember]

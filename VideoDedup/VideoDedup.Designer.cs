@@ -37,7 +37,6 @@
             this.BtnCancel = new System.Windows.Forms.Button();
             this.BtnConfig = new System.Windows.Forms.Button();
             this.LblTimer = new System.Windows.Forms.Label();
-            this.ElapsedTimer = new System.Windows.Forms.Timer(this.components);
             this.BtnResolveDuplicates = new System.Windows.Forms.Button();
             this.MenuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -78,6 +77,7 @@
             this.ProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ProgressBar.Location = new System.Drawing.Point(12, 29);
+            this.ProgressBar.MarqueeAnimationSpeed = 50;
             this.ProgressBar.Name = "ProgressBar";
             this.ProgressBar.Size = new System.Drawing.Size(795, 23);
             this.ProgressBar.TabIndex = 5;
@@ -95,7 +95,6 @@
             // 
             this.BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.BtnCancel.Enabled = false;
             this.BtnCancel.Location = new System.Drawing.Point(570, 344);
             this.BtnCancel.Name = "BtnCancel";
             this.BtnCancel.Size = new System.Drawing.Size(75, 23);
@@ -124,11 +123,6 @@
             this.LblTimer.Size = new System.Drawing.Size(49, 13);
             this.LblTimer.TabIndex = 9;
             this.LblTimer.Text = "00:00:00";
-            // 
-            // ElapsedTimer
-            // 
-            this.ElapsedTimer.Interval = 1000;
-            this.ElapsedTimer.Tick += new System.EventHandler(this.ElapsedTimer_Tick);
             // 
             // BtnResolveDuplicates
             // 
@@ -265,7 +259,6 @@
         private System.Windows.Forms.Button BtnCancel;
         private System.Windows.Forms.Button BtnConfig;
         private System.Windows.Forms.Label LblTimer;
-        private System.Windows.Forms.Timer ElapsedTimer;
         private System.Windows.Forms.Button BtnResolveDuplicates;
         private System.Windows.Forms.MenuStrip MenuStrip;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;

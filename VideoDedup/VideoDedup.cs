@@ -19,25 +19,45 @@ namespace VideoDedup
         {
             get
             {
-                if (wcfProxy == null)
+                lock (WcfProxyLock)
                 {
-                    var binding = new NetTcpBinding();
-                    var baseAddress = new Uri("net.tcp://localhost:41721/hello");
-                    var address = new EndpointAddress(baseAddress);
-                    wcfProxy = new WcfProxy(binding, address);
+                    // https://stackoverflow.com/questions/2008382/how-to-heal-faulted-wcf-channels
+                    if (wcfProxy != null
+                        && wcfProxy.InnerChannel.State
+                        == CommunicationState.Faulted)
+                    {
+                        wcfProxy.Abort();
+                        wcfProxy = null;
+                    }
+
+                    if (wcfProxy == null)
+                    {
+                        var binding = new NetTcpBinding();
+                        var baseAddress = new Uri("net.tcp://localhost:41721/hello");
+                        var address = new EndpointAddress(baseAddress);
+                        wcfProxy = new WcfProxy(binding, address);
+                    }
+                    return wcfProxy;
                 }
-                return wcfProxy;
             }
         }
         private static WcfProxy wcfProxy = null;
+        private static readonly object WcfProxyLock = new object();
+
+        private static readonly TimeSpan StatusTimerInterval =
+            TimeSpan.FromSeconds(1);
 
         private static readonly string StatusInfoDuplicateCount = "Duplicates found {0}";
 
         private string CurrentStatusInfo { get; set; }
 
+        private static LogToken logToken = null;
+
         private DateTime? LastStatusUpdate { get; set; } = null;
 
         private TimeSpan ElapsedTime { get; set; } = new TimeSpan();
+
+        private SmartTimer.Timer statusTimer = null;
 
         private ConfigData Configuration { get; set; }
 
@@ -49,8 +69,61 @@ namespace VideoDedup
             BtnToDoManager.Visible = false;
 #endif
             Configuration = LoadConfig();
-            ElapsedTimer.Enabled = true;
+
+            statusTimer = new SmartTimer.Timer(StatusTimerCallback);
+            UpdateProgress("Connecting...", 0, 0, ProgressStyle.Marquee);
+            statusTimer.StartSingle(0);
+
             base.OnLoad(e);
+        }
+
+        private void StatusTimerCallback(object param)
+        {
+            try
+            {
+                var status = WcfProxy.GetCurrentStatus();
+                var logData = WcfProxy.GetLogEvents(logToken);
+
+                this.InvokeIfRequired(() =>
+                {
+                    ElapsedTime = ElapsedTime.Add(StatusTimerInterval);
+                    LblTimer.Text = ElapsedTime.ToString();
+
+                    UpdateProgress(status.StatusMessage,
+                        status.CurrentProgress,
+                        status.MaximumProgress,
+                        status.ProgressStyle);
+                    LblDuplicateCount.Text = string.Format(
+                        StatusInfoDuplicateCount,
+                        status.DuplicateCount);
+
+                    if (logToken != null && logToken.Id != logData.LogToken.Id)
+                    {
+                        TxtLog.Clear();
+                    }
+                    logToken = logData.LogToken;
+                    foreach (var log in logData.LogItems)
+                    {
+                        TxtLog.AppendText(log + Environment.NewLine);
+                    }
+                });
+            }
+            catch (EndpointNotFoundException)
+            {
+                this.InvokeIfRequired(() =>
+                    UpdateProgress("Connecting...",
+                    0, 0, ProgressStyle.Marquee));
+            }
+            catch (CommunicationObjectFaultedException)
+            {
+                this.InvokeIfRequired(() =>
+                    UpdateProgress("Connecting...",
+                    0, 0, ProgressStyle.Marquee));
+            }
+            finally
+            {
+                statusTimer.StartSingle(StatusTimerInterval);
+            }
         }
 
         private void BtnToDoManager_Click(object sender, EventArgs e)
@@ -75,48 +148,52 @@ namespace VideoDedup
         private void UpdateProgress(
             string statusInfo,
             int counter,
-            int maxCount)
+            int maxCount,
+            ProgressStyle style)
         {
-            if (LastStatusUpdate.HasValue
-                && (DateTime.Now - LastStatusUpdate.Value).TotalMilliseconds < 100
-                && maxCount - counter > 2
-                && counter > 0)
-            {
-                return;
-            }
-            LastStatusUpdate = DateTime.Now;
-
-            if (!string.IsNullOrWhiteSpace(statusInfo))
-            {
-                CurrentStatusInfo = statusInfo;
-            }
-
             LblStatusInfo.Text = string.Format(
-                CurrentStatusInfo,
+                statusInfo,
                 counter,
                 maxCount);
 
-            if (maxCount > 0)
+            // Regular progress (searching duplicates)
+            // Marquee (conecting, monitoring) [style = marquee, max = 1]
+            // Off (invalid configuration) [value = 0, max = 0]
+            if (style == ProgressStyle.NoProgress)
+            {
+                TaskbarManager.Instance.SetProgressState(
+                    TaskbarProgressBarState.NoProgress,
+                    Handle);
+                ProgressBar.Style = ProgressBarStyle.Continuous;
+                ProgressBar.Maximum = 0;
+                ProgressBar.Value = 0;
+            }
+            else if (style == ProgressStyle.Continuous)
             {
                 TaskbarManager.Instance.SetProgressState(
                     TaskbarProgressBarState.Normal,
                     Handle);
+                TaskbarManager.Instance.SetProgressValue(
+                    counter,
+                    maxCount,
+                    Handle);
                 ProgressBar.Style = ProgressBarStyle.Continuous;
+                ProgressBar.Maximum = maxCount;
+                ProgressBar.Value = counter;
             }
-            else
+            else if (style == ProgressStyle.Marquee)
             {
                 TaskbarManager.Instance.SetProgressState(
                     TaskbarProgressBarState.Indeterminate,
                     Handle);
                 ProgressBar.Style = ProgressBarStyle.Marquee;
+                ProgressBar.Maximum = 1;
+                ProgressBar.Value = 0;
             }
-
-            ProgressBar.Value = counter;
-            ProgressBar.Maximum = maxCount == 0 ? 1 : maxCount;
-            TaskbarManager.Instance.SetProgressValue(
-                counter,
-                maxCount,
-                Handle);
+            else
+            {
+                Debug.Assert(true);
+            }
         }
 
         private void BtnDedup_Click(object sender, EventArgs e)
@@ -143,6 +220,9 @@ namespace VideoDedup
 
         private void BtnCancel_Click(object sender, EventArgs e)
         {
+            //ProgressBar.Style = ProgressBarStyle.Marquee;
+            //ProgressBar.Value = 0;
+            //ProgressBar.Maximum = 0;
             //Dedupper.Dispose();
             //BtnDedup.Enabled = true;
             //BtnCancel.Enabled = false;
@@ -163,32 +243,6 @@ namespace VideoDedup
                 Configuration = dlg.ClientConfig;
                 SaveConfig(Configuration);
                 WcfProxy.SetConfig(dlg.ServerConfig);
-            }
-        }
-
-        private static LogToken logToken = null;
-
-        private void ElapsedTimer_Tick(object sender, EventArgs e)
-        {
-            ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(1));
-            LblTimer.Text = ElapsedTime.ToString();
-
-            var status = WcfProxy.GetCurrentStatus();
-            UpdateProgress(status.StatusMessage,
-                status.CurrentProgress,
-                status.MaximumProgress);
-            LblDuplicateCount.Text =
-                string.Format(StatusInfoDuplicateCount, status.DuplicateCount);
-
-            var logData = WcfProxy.GetLogEvents(logToken);
-            if (logToken != null && logToken.Id != logData.LogToken.Id)
-            {
-                TxtLog.Clear();
-            }
-            logToken = logData.LogToken;
-            foreach (var log in logData.LogItems)
-            {
-                TxtLog.AppendText(log + Environment.NewLine);
             }
         }
 
