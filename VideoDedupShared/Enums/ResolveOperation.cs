@@ -5,6 +5,7 @@ namespace VideoDedupShared
         DeleteFile1,
         DeleteFile2,
         Skip,
-        Ignore,
+        Discard,
+        Cancel,
     }
 }

@@ -1,15 +1,12 @@
 namespace VideoDedup.FilePreview
 {
     using System;
-    using System.Diagnostics;
     using System.Drawing;
     using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
     using System.Windows.Forms;
     using VideoDedupShared;
 
-    public partial class FilePreview : UserControl
+    public partial class FilePreviewDlg : UserControl
     {
         private static readonly Size ThumbnailSize = new Size(256, 256);
         private static readonly ColorDepth ThumbnailColorDepth = ColorDepth.Depth32Bit;
@@ -22,34 +19,43 @@ namespace VideoDedup.FilePreview
             set => TxtInfo.BackColor = value;
         }
 
-        public VideoFile VideoFile { get; set; }
-
-        private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-
-        public event EventHandler<ThumbnailLoadedEventArgs> ThumbnailLoaded;
-
-        protected virtual void OnThumbnailLoaded(Image thumbnail, int index) => ThumbnailLoaded?.Invoke(this, new ThumbnailLoadedEventArgs
+        public IVideoFile VideoFile
         {
-            Thumbnail = thumbnail,
-            Index = index
-        });
+            get => videoFile;
+            set
+            {
+                videoFile = value;
+                if (videoFile != null)
+                {
+                    UpdateDisplay();
+                }
+            }
+        }
+        private IVideoFile videoFile = null;
 
-        public FilePreview()
+        public FilePreviewDlg()
         {
             InitializeComponent();
 
             ImlThumbnails.ColorDepth = ThumbnailColorDepth;
+
         }
 
-        public Task UpdateDisplay()
+        public void UpdateDisplay()
         {
-            if (VideoFile == null)
-            {
-                return null;
-            }
-
             DisplayInfo();
-            return LoadThumbnails();
+
+            var width = VideoFile.VideoCodec.Width;
+            var height = VideoFile.VideoCodec.Height;
+            SetImageSize(new Size(width, height));
+
+            foreach (var index in Enumerable.Range(0, Configuration.ThumbnailViewCount))
+            {
+                var image = VideoFile.GetThumbnail(index, Configuration.ThumbnailViewCount);
+
+                ImlThumbnails.Images.Add(image);
+                _ = LsvThumbnails.Items.Add(new ListViewItem { ImageIndex = index });
+            }
         }
 
         /// <summary>
@@ -93,41 +99,6 @@ namespace VideoDedup.FilePreview
                 " x " + videoCodec.Height.ToString() +
                 " @ " + videoCodec.FrameRate + " Frames" + Environment.NewLine +
                 videoCodec.CodecLongName;
-        }
-
-        private Task LoadThumbnails()
-        {
-            var width = VideoFile.VideoCodec.Width;
-            var height = VideoFile.VideoCodec.Height;
-            SetImageSize(new Size(width, height));
-
-            var cancelToken = cancellationTokenSource.Token;
-            return Task.Run(() =>
-            {
-                foreach (var index in Enumerable.Range(0, Configuration.ThumbnailViewCount))
-                {
-                    var image = VideoFile.GetThumbnail(index, Configuration.ThumbnailViewCount);
-
-                    if (cancelToken.IsCancellationRequested)
-                    {
-                        Debug.Print("Task cancelled");
-                        return;
-                    }
-
-                    _ = Invoke((Action)delegate
-                      {
-                          ImlThumbnails.Images.Add(image);
-                          OnThumbnailLoaded(image, index);
-                          _ = LsvThumbnails.Items.Add(new ListViewItem { ImageIndex = index });
-                      });
-                }
-            }, cancellationTokenSource.Token).ContinueWith(t => cancellationTokenSource.Dispose());
-        }
-
-        public void CancelThumbnails()
-        {
-            Debug.Print("Cancellation requested");
-            cancellationTokenSource.Cancel();
         }
     }
 }

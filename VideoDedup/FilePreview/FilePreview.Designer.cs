@@ -1,6 +1,6 @@
-﻿namespace VideoDedup.FilePreview
+namespace VideoDedup.FilePreview
 {
-    partial class FilePreview
+    partial class FilePreviewDlg
     {
         /// <summary> 
         /// Required designer variable.
@@ -42,8 +42,8 @@
             // 
             // LsvThumbnails
             // 
-            this.LsvThumbnails.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.LsvThumbnails.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.LsvThumbnails.HideSelection = false;
             this.LsvThumbnails.LargeImageList = this.ImlThumbnails;
@@ -56,7 +56,7 @@
             // 
             // TxtInfo
             // 
-            this.TxtInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.TxtInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.TxtInfo.Location = new System.Drawing.Point(4, 4);
             this.TxtInfo.Multiline = true;

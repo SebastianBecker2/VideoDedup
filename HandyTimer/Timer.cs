@@ -4,7 +4,7 @@
 	[System.Security.Permissions.HostProtection(System.Security.Permissions.SecurityAction.LinkDemand, Synchronization = true, ExternalThreading = true)]
 	public class Timer : System.MarshalByRefObject, System.IDisposable
 	{
-		private System.Threading.Timer _timer;
+		private readonly System.Threading.Timer _timer;
 		public bool IsRunning { get; protected set; }
 		public bool IsPeriodic { get; protected set; }
 

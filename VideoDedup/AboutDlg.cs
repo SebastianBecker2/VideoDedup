@@ -3,9 +3,9 @@ namespace VideoDedup
     using System.Reflection;
     using System.Windows.Forms;
 
-    internal partial class About : Form
+    internal partial class AboutDlg : Form
     {
-        public About()
+        public AboutDlg()
         {
             InitializeComponent();
             Text = string.Format("About {0}", AssemblyTitle);

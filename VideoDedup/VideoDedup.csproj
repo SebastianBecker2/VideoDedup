@@ -58,11 +58,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="About.cs">
+    <Compile Include="AboutDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="About.Designer.cs">
-      <DependentUpon>About.cs</DependentUpon>
+    <Compile Include="AboutDlg.Designer.cs">
+      <DependentUpon>AboutDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="ConfigDlg.cs">
       <SubType>Form</SubType>
@@ -71,17 +71,11 @@
       <DependentUpon>ConfigDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="ConfigData.cs" />
-    <Compile Include="DurationSelection.cs">
+    <Compile Include="FileComparisonDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DurationSelection.Designer.cs">
-      <DependentUpon>DurationSelection.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FileComparison.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FileComparison.designer.cs">
-      <DependentUpon>FileComparison.cs</DependentUpon>
+    <Compile Include="FileComparisonDlg.designer.cs">
+      <DependentUpon>FileComparisonDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="FilePreview\FilePreview.cs">
       <SubType>UserControl</SubType>
@@ -89,33 +83,29 @@
     <Compile Include="FilePreview\FilePreview.Designer.cs">
       <DependentUpon>FilePreview.cs</DependentUpon>
     </Compile>
-    <Compile Include="FilePreview\ThumbnailLoadedEventArgs.cs" />
-    <Compile Include="VideoDedup.cs">
+    <Compile Include="VideoDedupDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="VideoDedup.Designer.cs">
-      <DependentUpon>VideoDedup.cs</DependentUpon>
+    <Compile Include="VideoDedupDlg.Designer.cs">
+      <DependentUpon>VideoDedupDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WcfProxy.cs" />
-    <EmbeddedResource Include="About.resx">
-      <DependentUpon>About.cs</DependentUpon>
+    <EmbeddedResource Include="AboutDlg.resx">
+      <DependentUpon>AboutDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ConfigDlg.resx">
       <DependentUpon>ConfigDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DurationSelection.resx">
-      <DependentUpon>DurationSelection.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FileComparison.resx">
-      <DependentUpon>FileComparison.cs</DependentUpon>
+    <EmbeddedResource Include="FileComparisonDlg.resx">
+      <DependentUpon>FileComparisonDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FilePreview\FilePreview.resx">
       <DependentUpon>FilePreview.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="VideoDedup.resx">
-      <DependentUpon>VideoDedup.cs</DependentUpon>
+    <EmbeddedResource Include="VideoDedupDlg.resx">
+      <DependentUpon>VideoDedupDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

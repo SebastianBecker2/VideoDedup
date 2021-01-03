@@ -3,6 +3,7 @@ namespace VideoDedupConsole
     using Newtonsoft.Json;
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.ServiceModel;
@@ -33,16 +34,45 @@ namespace VideoDedupConsole
             }
         }
 
-        public static DuplicateData GetDuplicate()
+        public static DuplicateData GetDuplicate(int thumbnailCount)
         {
             lock (DuplicatesLock)
             {
-                var duplicate = Duplicates.FirstOrDefault(d => d.LastRequest == null);
-                if (duplicate == null)
+                while (true)
                 {
-                    duplicate = Duplicates.OrderBy(d => d.LastRequest).FirstOrDefault();
+                    if (!Duplicates.Any())
+                    {
+                        return null;
+                    }
+
+                    // OrderBy is stable, so we get the first if multiple
+                    // don't have a real LastRequest time-stamp
+                    var duplicate = Duplicates
+                        .OrderBy(d => d.LastRequest)
+                        .First();
+
+                    if (!File.Exists(duplicate.File1.FilePath)
+                        || !File.Exists(duplicate.File2.FilePath))
+                    {
+                        _ = Duplicates.Remove(duplicate);
+                        continue;
+                    }
+
+                    // To preserve specific order
+                    // even when using multiple clients.
+                    // The most recently requested will be last
+                    // next time (when skipped). Or first when canceled.
+                    duplicate.LastRequest = DateTime.Now;
+
+                    return new DuplicateData
+                    {
+                        DuplicateId = duplicate.DuplicateId,
+                        File1 = new VideoFileWithThumbnails(
+                            duplicate.File1, thumbnailCount),
+                        File2 = new VideoFileWithThumbnails(
+                            duplicate.File2, thumbnailCount),
+                    };
                 }
-                return duplicate?.InnerDuplicate;
             }
         }
 
@@ -51,16 +81,7 @@ namespace VideoDedupConsole
         {
             lock (DuplicatesLock)
             {
-                var duplicate = new DuplicateData
-                {
-                    DuplicateId = Guid.NewGuid(),
-                    File1 = e.File1,
-                    File2 = e.File2,
-                };
-                Duplicates.Add(new DuplicateWrapper
-                {
-                    InnerDuplicate = duplicate,
-                });
+                Duplicates.Add(new DuplicateWrapper(e.File1, e.File2));
             }
         }
 
@@ -71,7 +92,7 @@ namespace VideoDedupConsole
             {
                 var duplicate = Duplicates
                     .FirstOrDefault(d =>
-                        d.InnerDuplicate.DuplicateId == duplicateId);
+                        d.DuplicateId == duplicateId);
 
                 if (duplicate == null)
                 {
@@ -93,19 +114,22 @@ namespace VideoDedupConsole
                 switch (resolveOperation)
                 {
                     case ResolveOperation.DeleteFile1:
-                        DeleteFile(duplicate.InnerDuplicate.File1.FilePath);
-                        Duplicates.Remove(duplicate);
+                        DeleteFile(duplicate.File1.FilePath);
+                        _ = Duplicates.Remove(duplicate);
                         break;
                     case ResolveOperation.DeleteFile2:
-                        DeleteFile(duplicate.InnerDuplicate.File2.FilePath);
-                        Duplicates.Remove(duplicate);
+                        DeleteFile(duplicate.File2.FilePath);
+                        _ = Duplicates.Remove(duplicate);
                         break;
                     case ResolveOperation.Skip:
                         // Do nothing.
                         // The duplicate is kept in the list for later.
                         break;
-                    case ResolveOperation.Ignore:
-                        Duplicates.Remove(duplicate);
+                    case ResolveOperation.Discard:
+                        _ = Duplicates.Remove(duplicate);
+                        break;
+                    case ResolveOperation.Cancel:
+                        duplicate.LastRequest = DateTime.MinValue;
                         break;
                     default:
                         throw new InvalidOperationException(
@@ -210,7 +234,7 @@ namespace VideoDedupConsole
                 durationDifferenceType = DurationDifferenceType.Seconds;
             }
 
-            return new Wcf.Contracts.Data.ConfigData
+            return new ConfigData
             {
                 SourcePath = Settings.Default.SourcePath,
                 ExcludedDirectories = excludedDirectories,

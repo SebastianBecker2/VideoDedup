@@ -30,7 +30,7 @@ namespace Wcf.Contracts.Services
             ResolveOperation resolveOperation);
 
         [OperationContract]
-        DuplicateData GetDuplicate();
+        DuplicateData GetDuplicate(int thumbnailCount);
 
         [OperationContract]
         LogData GetLogEvents(LogToken logToken);

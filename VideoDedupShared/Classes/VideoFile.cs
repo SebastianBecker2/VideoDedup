@@ -13,10 +13,10 @@ namespace VideoDedupShared
     using NReco.VideoInfo;
     using XnaFan.ImageComparison;
 
-    public class VideoFile : object, IEquatable<VideoFile>
+    public class VideoFile : IVideoFile, IEquatable<VideoFile>
     {
         [JsonProperty]
-        public string FilePath { get; private set; }
+        public string FilePath { get; }
         [JsonIgnore]
         public string FileName => Path.GetFileName(FilePath);
         [JsonIgnore]
@@ -24,11 +24,11 @@ namespace VideoDedupShared
         {
             get
             {
-                if (fileSize == null)
+                if (fileSize == 0)
                 {
                     fileSize = new FileInfo(FilePath).Length;
                 }
-                return fileSize.Value;
+                return fileSize;
             }
             private set => fileSize = value;
         }
@@ -37,7 +37,7 @@ namespace VideoDedupShared
         {
             get
             {
-                if (duration == null)
+                if (duration == TimeSpan.Zero)
                 {
                     try
                     {
@@ -48,7 +48,7 @@ namespace VideoDedupShared
                         duration = TimeSpan.Zero;
                     }
                 }
-                return duration.Value;
+                return duration;
             }
             private set => duration = value;
         }
@@ -74,11 +74,11 @@ namespace VideoDedupShared
         }
 
         [JsonProperty]
-        private TimeSpan? duration = null;
+        private TimeSpan duration = TimeSpan.Zero;
         [JsonProperty]
-        private long? fileSize = null;
-        private readonly IDictionary<int, Image> thumbnails =
-            new Dictionary<int, Image>();
+        private long fileSize = 0;
+        private readonly IDictionary<int, Bitmap> thumbnails =
+            new Dictionary<int, Bitmap>();
         private MediaInfo MediaInfo
         {
             get
@@ -203,7 +203,7 @@ namespace VideoDedupShared
             }
         }
 
-        public Image GetThumbnail(int index,
+        public Bitmap GetThumbnail(int index,
             int thumbnailCount)
         {
             if (index >= thumbnailCount || index < 0)
@@ -225,7 +225,7 @@ namespace VideoDedupShared
                         image_stream,
                         (float)stepping * (index + 1));
 
-                    thumbnails[index] = Image.FromStream(image_stream);
+                    thumbnails[index] = new Bitmap(image_stream);
                 }
                 catch (Exception)
                 {

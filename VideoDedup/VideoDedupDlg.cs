@@ -13,7 +13,7 @@ namespace VideoDedup
     using Newtonsoft.Json;
     using VideoDedupShared;
 
-    public partial class VideoDedup : Form
+    public partial class VideoDedupDlg : Form
     {
         private static WcfProxy WcfProxy
         {
@@ -32,7 +32,12 @@ namespace VideoDedup
 
                     if (wcfProxy == null)
                     {
-                        var binding = new NetTcpBinding();
+                        var binding = new NetTcpBinding
+                        {
+                            MaxReceivedMessageSize = int.MaxValue,
+                            MaxBufferSize = int.MaxValue
+                        };
+
                         var baseAddress = new Uri("net.tcp://localhost:41721/hello");
                         var address = new EndpointAddress(baseAddress);
                         wcfProxy = new WcfProxy(binding, address);
@@ -61,7 +66,7 @@ namespace VideoDedup
 
         private ConfigData Configuration { get; set; }
 
-        public VideoDedup() => InitializeComponent();
+        public VideoDedupDlg() => InitializeComponent();
 
         protected override void OnLoad(EventArgs e)
         {
@@ -96,6 +101,7 @@ namespace VideoDedup
                     LblDuplicateCount.Text = string.Format(
                         StatusInfoDuplicateCount,
                         status.DuplicateCount);
+                    BtnResolveDuplicates.Enabled = status.DuplicateCount > 0;
 
                     if (logToken != null && logToken.Id != logData.LogToken.Id)
                     {
@@ -108,21 +114,20 @@ namespace VideoDedup
                     }
                 });
             }
-            catch (EndpointNotFoundException)
+            catch (Exception ex) when (
+                ex is EndpointNotFoundException
+                || ex is CommunicationException)
             {
                 this.InvokeIfRequired(() =>
+                {
+                    BtnResolveDuplicates.Enabled = false;
                     UpdateProgress("Connecting...",
-                    0, 0, ProgressStyle.Marquee));
-            }
-            catch (CommunicationException)
-            {
-                this.InvokeIfRequired(() =>
-                    UpdateProgress("Connecting...",
-                    0, 0, ProgressStyle.Marquee));
+                        0, 0, ProgressStyle.Marquee);
+                });
             }
             finally
             {
-                statusTimer.StartSingle(StatusTimerInterval);
+                _ = statusTimer.StartSingle(StatusTimerInterval);
             }
         }
 
@@ -248,57 +253,46 @@ namespace VideoDedup
 
         private void BtnResolveConflicts_Click(object sender, EventArgs e)
         {
-            //while (Dedupper.DequeueDuplcate(out var duplicate))
-            //{
-            //    (var left, var right) = duplicate;
-            //    // Mostely because we might have deleted
-            //    // this file during the previous compare
-            //    if (!File.Exists(left.FilePath))
-            //    {
-            //        Debug.Print($"{left.FilePath} doesn't exist anymore. Can't compare.");
-            //        continue;
-            //    }
-            //    if (!File.Exists(right.FilePath))
-            //    {
-            //        Debug.Print($"{right.FilePath} doesn't exist anymore. Can't compare.");
-            //        continue;
-            //    }
+            try
+            {
+                while (true)
+                {
+                    var duplicate = WcfProxy.GetDuplicate(
+                        Configuration.ThumbnailViewCount);
+                    if (duplicate == null)
+                    {
+                        return;
+                    }
 
-            //    using (var dlg = new FileComparison())
-            //    {
-            //        DialogResult result;
-            //        lock (left)
-            //            lock (right)
-            //            {
-            //                dlg.LeftFile = left;
-            //                dlg.RightFile = right;
-            //                result = dlg.ShowDialog();
-            //                left.DisposeThumbnails();
-            //                right.DisposeThumbnails();
-            //            }
+                    using (var dlg = new FileComparisonDlg())
+                    {
+                        DialogResult result;
+                        dlg.Configuration = Configuration;
+                        dlg.LeftFile = duplicate.File1;
+                        dlg.RightFile = duplicate.File2;
+                        result = dlg.ShowDialog();
 
-            //        if (result == DialogResult.Yes)
-            //        {
-            //            continue;
-            //        }
-            //        if (result == DialogResult.Cancel)
-            //        {
-            //            Dedupper.EnqueueDuplicate(duplicate);
-            //            return;
-            //        }
-            //        if (result == DialogResult.No) // Skip
-            //        {
-            //            Dedupper.EnqueueDuplicate(duplicate);
-            //        }
-            //    }
-            //}
+                        if (result == DialogResult.Cancel)
+                        {
+                            WcfProxy.ResolveDuplicate(
+                                duplicate.DuplicateId,
+                                ResolveOperation.Cancel);
+                            return;
+                        }
+                        WcfProxy.ResolveDuplicate(
+                              duplicate.DuplicateId,
+                              dlg.ResolveOperation);
+                    }
+                }
+            }
+            catch (Exception) { }
         }
 
         private void CloseToolStripMenuItem_Click(object sender, EventArgs e) => Application.Exit();
 
         private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (var dlg = new About())
+            using (var dlg = new AboutDlg())
             {
                 _ = dlg.ShowDialog();
             }

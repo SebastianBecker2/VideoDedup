@@ -11,7 +11,8 @@ namespace VideoDedupConsole
 
         public StatusData GetCurrentStatus() => Program.GetCurrentStatus();
 
-        public DuplicateData GetDuplicate() => Program.GetDuplicate();
+        public DuplicateData GetDuplicate(int thumbnailCount) =>
+            Program.GetDuplicate(thumbnailCount);
 
         public LogData GetLogEvents(LogToken logToken) =>
             Program.GetLogEntries(logToken);

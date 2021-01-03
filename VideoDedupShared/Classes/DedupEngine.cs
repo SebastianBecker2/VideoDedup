@@ -170,7 +170,7 @@ namespace VideoDedupShared
             {
                 // If the task is still running,
                 // it will check for new files on it's own.
-                if (DedupTask.IsCompleted)
+                if (!DedupTask.IsCompleted)
                 {
                     return;
                 }
