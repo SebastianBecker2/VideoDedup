@@ -24,6 +24,9 @@ namespace Wcf.Contracts.Data
         public IList<string> FileExtensions { get; set; }
 
         [DataMember]
+        public bool Recursive { get; set; }
+
+        [DataMember]
         public int MaxThumbnailComparison { get; set; }
 
         [DataMember]
@@ -52,6 +55,7 @@ namespace Wcf.Contracts.Data
             MaxDurationDifferenceSeconds = MaxDurationDifferenceSeconds,
             MaxDurationDifferencePercent = MaxDurationDifferencePercent,
             DurationDifferenceType = DurationDifferenceType,
+            Recursive = Recursive,
         };
 
         DurationDifferenceType IDurationComparisonSettings.DifferenceType =>

@@ -187,7 +187,8 @@ namespace VideoDedupShared
             return false;
         }
 
-        public bool IsDurationEqual(VideoFile other, IDurationComparisonSettings settings)
+        public bool IsDurationEqual(VideoFile other,
+            IDurationComparisonSettings settings)
         {
             switch (settings.DifferenceType)
             {
@@ -202,11 +203,13 @@ namespace VideoDedupShared
             }
         }
 
-        public Image GetThumbnail(int index, int thumbnailCount)
+        public Image GetThumbnail(int index,
+            int thumbnailCount)
         {
             if (index >= thumbnailCount || index < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(index), "Index out of range.");
+                throw new ArgumentOutOfRangeException(nameof(index),
+                    "Index out of range.");
             }
 
             if (!thumbnails.ContainsKey(index))
@@ -215,13 +218,19 @@ namespace VideoDedupShared
                 var image_stream = new MemoryStream();
                 try
                 {
-                    var stepping = Duration.TotalSeconds / (thumbnailCount + 1);
-                    ffMpeg.GetVideoThumbnail(FilePath, image_stream, (float)stepping * (index + 1));
+                    var stepping = Duration.TotalSeconds /
+                        (thumbnailCount + 1);
+
+                    ffMpeg.GetVideoThumbnail(FilePath,
+                        image_stream,
+                        (float)stepping * (index + 1));
+
                     thumbnails[index] = Image.FromStream(image_stream);
                 }
                 catch (Exception)
                 {
-                    Debug.Print($"Unable to load thumbnail index {index} for {FilePath}");
+                    Debug.Print($"Unable to load thumbnail index {index} for" +
+                        $"{FilePath}");
                     thumbnails[index] = new Bitmap(1, 1);
                 }
             }

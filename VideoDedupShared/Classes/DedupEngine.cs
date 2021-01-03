@@ -29,7 +29,7 @@ namespace VideoDedupShared
 
     public class LoggedEventArgs : EventArgs
     {
-        public string Message{ get; set; }
+        public string Message { get; set; }
     }
 
     public class DedupEngine : IDisposable
@@ -261,6 +261,7 @@ namespace VideoDedupShared
         private static IEnumerable<string> GetAllAccessibleFilesIn(
             string rootDirectory,
             IEnumerable<string> excludedDirectories = null,
+            bool recursive = true,
             string searchPattern = "*.*")
         {
             IEnumerable<string> files = new List<string> { };
@@ -271,13 +272,18 @@ namespace VideoDedupShared
 
             try
             {
-                files = files.Concat(Directory.EnumerateFiles(rootDirectory, searchPattern, SearchOption.TopDirectoryOnly));
+                files = files.Concat(Directory.EnumerateFiles(rootDirectory,
+                    searchPattern, SearchOption.TopDirectoryOnly));
 
-                foreach (var directory in Directory
-                    .GetDirectories(rootDirectory)
-                    .Where(d => !excludedDirectories.Contains(d)))
+                if (recursive)
                 {
-                    files = files.Concat(GetAllAccessibleFilesIn(directory, excludedDirectories, searchPattern));
+                    foreach (var directory in Directory
+                        .GetDirectories(rootDirectory)
+                        .Where(d => !excludedDirectories.Contains(d)))
+                    {
+                        files = files.Concat(GetAllAccessibleFilesIn(directory,
+                            excludedDirectories, recursive, searchPattern));
+                    }
                 }
             }
             catch (UnauthorizedAccessException)
@@ -311,7 +317,8 @@ namespace VideoDedupShared
             var fileExtensions = settings.FileExtensions.ToList();
             var found_files = GetAllAccessibleFilesIn(
                 settings.BasePath,
-                settings.ExcludedDirectories)
+                settings.ExcludedDirectories,
+                settings.Recursive)
                 .Where(f => fileExtensions.Contains(
                     Path.GetExtension(f),
                     StringComparer.CurrentCultureIgnoreCase))
@@ -352,7 +359,7 @@ namespace VideoDedupShared
                 // since the size is only rarely used
                 // in the comparison dialog. No need
                 // to preload it.
-                var duration = f.Duration;
+                _ = f.Duration;
                 //var size = f.FileSize;
                 if (cancelToken.IsCancellationRequested)
                 {
@@ -373,6 +380,7 @@ namespace VideoDedupShared
 
         private void FindDuplicates(
             IEnumerable<VideoFile> videoFiles,
+            IDedupperSettings settings,
             CancellationToken cancelToken)
         {
             OnProgressUpdate(StatusType.Comparing, 0, videoFiles.Count());
@@ -404,12 +412,12 @@ namespace VideoDedupShared
 
                     var nextFile = videoFileList[nextIndex];
 
-                    if (!file.IsDurationEqual(nextFile, Configuration))
+                    if (!file.IsDurationEqual(nextFile, settings))
                     {
                         break;
                     }
 
-                    if (file.AreThumbnailsEqual(nextFile, Configuration, cancelToken))
+                    if (file.AreThumbnailsEqual(nextFile, settings, cancelToken))
                     {
                         OnLogged($"Found duplicate of {file.FilePath} and {nextFile.FilePath}");
                         OnDuplicateFound(file, nextFile);
@@ -497,7 +505,7 @@ namespace VideoDedupShared
                 return;
             }
 
-            FindDuplicates(VideoFiles, cancelToken);
+            FindDuplicates(VideoFiles, Configuration, cancelToken);
             // Cleanup in case of cancel
             foreach (var file in VideoFiles)
             {
