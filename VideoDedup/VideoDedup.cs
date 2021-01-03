@@ -114,7 +114,7 @@ namespace VideoDedup
                     UpdateProgress("Connecting...",
                     0, 0, ProgressStyle.Marquee));
             }
-            catch (CommunicationObjectFaultedException)
+            catch (CommunicationException)
             {
                 this.InvokeIfRequired(() =>
                     UpdateProgress("Connecting...",
