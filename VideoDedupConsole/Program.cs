@@ -76,6 +76,14 @@ namespace VideoDedupConsole
             }
         }
 
+        public static void DiscardDuplicates()
+        {
+            lock (DuplicatesLock)
+            {
+                Duplicates.Clear();
+            }
+        }
+
         private static void HandleDuplicateFoundEvent(object sender,
             DuplicateFoundEventArgs e)
         {

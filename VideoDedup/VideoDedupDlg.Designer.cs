@@ -1,4 +1,4 @@
-﻿namespace VideoDedup
+namespace VideoDedup
 {
     partial class VideoDedupDlg
     {
@@ -31,10 +31,8 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VideoDedupDlg));
             this.BtnToDoManager = new System.Windows.Forms.Button();
-            this.BtnDedup = new System.Windows.Forms.Button();
             this.ProgressBar = new System.Windows.Forms.ProgressBar();
             this.LblStatusInfo = new System.Windows.Forms.Label();
-            this.BtnCancel = new System.Windows.Forms.Button();
             this.BtnConfig = new System.Windows.Forms.Button();
             this.LblTimer = new System.Windows.Forms.Label();
             this.BtnResolveDuplicates = new System.Windows.Forms.Button();
@@ -61,17 +59,6 @@
             this.BtnToDoManager.UseVisualStyleBackColor = true;
             this.BtnToDoManager.Click += new System.EventHandler(this.BtnToDoManager_Click);
             // 
-            // BtnDedup
-            // 
-            this.BtnDedup.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnDedup.Location = new System.Drawing.Point(651, 344);
-            this.BtnDedup.Name = "BtnDedup";
-            this.BtnDedup.Size = new System.Drawing.Size(75, 23);
-            this.BtnDedup.TabIndex = 0;
-            this.BtnDedup.Text = "&Dedup";
-            this.BtnDedup.UseVisualStyleBackColor = true;
-            this.BtnDedup.Click += new System.EventHandler(this.BtnDedup_Click);
-            // 
             // ProgressBar
             // 
             this.ProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -90,18 +77,6 @@
             this.LblStatusInfo.Size = new System.Drawing.Size(49, 13);
             this.LblStatusInfo.TabIndex = 6;
             this.LblStatusInfo.Text = "Status:...";
-            // 
-            // BtnCancel
-            // 
-            this.BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.BtnCancel.Location = new System.Drawing.Point(570, 344);
-            this.BtnCancel.Name = "BtnCancel";
-            this.BtnCancel.Size = new System.Drawing.Size(75, 23);
-            this.BtnCancel.TabIndex = 7;
-            this.BtnCancel.Text = "&Cancel";
-            this.BtnCancel.UseVisualStyleBackColor = true;
-            this.BtnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
             // BtnConfig
             // 
@@ -197,7 +172,7 @@
             this.BtnDiscardDuplicates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnDiscardDuplicates.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.BtnDiscardDuplicates.Enabled = false;
-            this.BtnDiscardDuplicates.Location = new System.Drawing.Point(460, 344);
+            this.BtnDiscardDuplicates.Location = new System.Drawing.Point(622, 344);
             this.BtnDiscardDuplicates.Name = "BtnDiscardDuplicates";
             this.BtnDiscardDuplicates.Size = new System.Drawing.Size(104, 23);
             this.BtnDiscardDuplicates.TabIndex = 14;
@@ -219,11 +194,10 @@
             this.TxtLog.Size = new System.Drawing.Size(794, 251);
             this.TxtLog.TabIndex = 15;
             // 
-            // VideoDedup
+            // VideoDedupDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.CancelButton = this.BtnCancel;
             this.ClientSize = new System.Drawing.Size(819, 379);
             this.Controls.Add(this.TxtLog);
             this.Controls.Add(this.BtnDiscardDuplicates);
@@ -231,17 +205,14 @@
             this.Controls.Add(this.BtnResolveDuplicates);
             this.Controls.Add(this.LblTimer);
             this.Controls.Add(this.BtnConfig);
-            this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.LblStatusInfo);
             this.Controls.Add(this.ProgressBar);
-            this.Controls.Add(this.BtnDedup);
             this.Controls.Add(this.BtnToDoManager);
             this.Controls.Add(this.MenuStrip);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.MenuStrip;
-            this.Name = "VideoDedup";
+            this.Name = "VideoDedupDlg";
             this.Text = "VideoDedup";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.VideoDedup_FormClosing);
             this.Resize += new System.EventHandler(this.Form1_Resize);
             this.MenuStrip.ResumeLayout(false);
             this.MenuStrip.PerformLayout();
@@ -253,10 +224,8 @@
         #endregion
 
         private System.Windows.Forms.Button BtnToDoManager;
-        private System.Windows.Forms.Button BtnDedup;
         private System.Windows.Forms.ProgressBar ProgressBar;
         private System.Windows.Forms.Label LblStatusInfo;
-        private System.Windows.Forms.Button BtnCancel;
         private System.Windows.Forms.Button BtnConfig;
         private System.Windows.Forms.Label LblTimer;
         private System.Windows.Forms.Button BtnResolveDuplicates;

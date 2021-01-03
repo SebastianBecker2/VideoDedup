@@ -33,6 +33,9 @@ namespace Wcf.Contracts.Services
         DuplicateData GetDuplicate(int thumbnailCount);
 
         [OperationContract]
+        void DiscardDuplicates();
+
+        [OperationContract]
         LogData GetLogEvents(LogToken logToken);
     }
 }

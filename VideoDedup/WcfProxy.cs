@@ -27,6 +27,7 @@ namespace VideoDedup
             Channel.ResolveDuplicate(duplicateId, resolveOperation);
         public void SetConfig(Wcf.Contracts.Data.ConfigData configData) =>
             Channel.SetConfig(configData);
+        public void DiscardDuplicates() => Channel.DiscardDuplicates();
     }
 
 }

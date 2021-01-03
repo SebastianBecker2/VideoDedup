@@ -26,5 +26,8 @@ namespace VideoDedupConsole
             Program.SaveConfig(configData);
             Program.UpdateConfig(configData);
         }
+
+        void IVideoDedupProvider.DiscardDuplicates() =>
+            Program.DiscardDuplicates();
     }
 }

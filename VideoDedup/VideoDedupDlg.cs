@@ -54,13 +54,11 @@ namespace VideoDedup
 
         private static readonly string StatusInfoDuplicateCount = "Duplicates found {0}";
 
-        private string CurrentStatusInfo { get; set; }
-
         private static LogToken logToken = null;
 
-        private DateTime? LastStatusUpdate { get; set; } = null;
-
         private TimeSpan ElapsedTime { get; set; } = new TimeSpan();
+
+        private int DuplicateCount { get; set; } = 0;
 
         private SmartTimer.Timer statusTimer = null;
 
@@ -98,10 +96,13 @@ namespace VideoDedup
                         status.CurrentProgress,
                         status.MaximumProgress,
                         status.ProgressStyle);
+
+                    DuplicateCount = status.DuplicateCount;
                     LblDuplicateCount.Text = string.Format(
                         StatusInfoDuplicateCount,
-                        status.DuplicateCount);
-                    BtnResolveDuplicates.Enabled = status.DuplicateCount > 0;
+                        DuplicateCount);
+                    BtnResolveDuplicates.Enabled = DuplicateCount > 0;
+                    BtnDiscardDuplicates.Enabled = DuplicateCount > 0;
 
                     if (logToken != null && logToken.Id != logData.LogToken.Id)
                     {
@@ -201,38 +202,6 @@ namespace VideoDedup
             }
         }
 
-        private void BtnDedup_Click(object sender, EventArgs e)
-        {
-            TxtLog.Clear();
-            //Dedupper = new DedupEngine(Configuration);
-            //Dedupper.ProgressUpdate += (s, args) => UpdateProgress(args.StatusInfo,
-            //    args.Counter,
-            //    args.MaxCount);
-            //Dedupper.DuplicateCountChanged += (s, args) =>
-            //{
-            //    LblDuplicateCount.InvokeIfRequired(() =>
-            //        LblDuplicateCount.Text = string.Format(StatusInfoDuplicateCount, args.Count));
-            //    BtnResolveDuplicates.InvokeIfRequired(() =>
-            //        BtnResolveDuplicates.Enabled = args.Count > 0);
-            //};
-            //Dedupper.Logged += (s, args) =>
-            //    TxtLog.InvokeIfRequired(() =>
-            //        TxtLog.AppendText(args.Message + Environment.NewLine));
-
-            //BtnDedup.Enabled = false;
-            //BtnCancel.Enabled = true;
-        }
-
-        private void BtnCancel_Click(object sender, EventArgs e)
-        {
-            //ProgressBar.Style = ProgressBarStyle.Marquee;
-            //ProgressBar.Value = 0;
-            //ProgressBar.Maximum = 0;
-            //Dedupper.Dispose();
-            //BtnDedup.Enabled = true;
-            //BtnCancel.Enabled = false;
-        }
-
         private void BtnConfig_Click(object sender, EventArgs e)
         {
             using (var dlg = new ConfigDlg())
@@ -285,7 +254,10 @@ namespace VideoDedup
                     }
                 }
             }
-            catch (Exception) { }
+            catch (Exception ex) when (
+              ex is EndpointNotFoundException
+              || ex is CommunicationException)
+            { }
         }
 
         private void CloseToolStripMenuItem_Click(object sender, EventArgs e) => Application.Exit();
@@ -315,59 +287,28 @@ namespace VideoDedup
             }
         }
 
-        private void VideoDedup_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            //if (Duplicates.Any())
-            //{
-            //    var selection = MessageBox.Show(
-            //        $"There are {Duplicates.Count()} duplicates to resolve." +
-            //        $"{Environment.NewLine}Are you sure you want to close?",
-            //        "Discard duplicates?",
-            //        MessageBoxButtons.YesNo,
-            //        MessageBoxIcon.Warning);
-
-            //    if (selection == DialogResult.No)
-            //    {
-            //        e.Cancel = true;
-            //        return;
-            //    }
-            //}
-
-            //if (ElapsedTimer.Enabled)
-            //{
-            //    var selection = MessageBox.Show(
-            //        $"VideoDedup is currently search for duplicates." +
-            //        $"{Environment.NewLine}Are you sure you want to close?",
-            //        "Cancel search?",
-            //        MessageBoxButtons.YesNo,
-            //        MessageBoxIcon.Warning);
-
-            //    if (selection == DialogResult.No)
-            //    {
-            //        e.Cancel = true;
-            //        return;
-            //    }
-            //}
-        }
-
         private void BtnDiscard_Click(object sender, EventArgs e)
         {
-            //if (Duplicates.Any())
-            //{
-            //    var selection = MessageBox.Show(
-            //                    $"There are {Duplicates.Count()} duplicates to resolve." +
-            //                    $"{Environment.NewLine}Are you sure you want to discard them?",
-            //                    "Discard duplicates?",
-            //                    MessageBoxButtons.YesNo,
-            //                    MessageBoxIcon.Warning);
+            var selection = MessageBox.Show(
+                $"There are {DuplicateCount} duplicates to resolve." +
+                $"{Environment.NewLine}Are you sure you want to discard them?",
+                "Discard duplicates?",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
 
-            //    if (selection == DialogResult.No)
-            //    {
-            //        return;
-            //    }
+            if (selection == DialogResult.No)
+            {
+                return;
+            }
 
-            //    ClearDuplicates();
-            //}
+            try
+            {
+                WcfProxy.DiscardDuplicates();
+            }
+            catch (Exception ex) when (
+               ex is EndpointNotFoundException
+               || ex is CommunicationException)
+            { }
         }
     }
 }
