@@ -80,6 +80,11 @@ namespace VideoDedupConsole
         {
             lock (DuplicatesLock)
             {
+                foreach (var duplicate in Duplicates)
+                {
+                    duplicate.File1.DisposeThumbnails();
+                    duplicate.File2.DisposeThumbnails();
+                }
                 Duplicates.Clear();
             }
         }
@@ -123,10 +128,14 @@ namespace VideoDedupConsole
                 {
                     case ResolveOperation.DeleteFile1:
                         DeleteFile(duplicate.File1.FilePath);
+                        duplicate.File1.DisposeThumbnails();
+                        duplicate.File2.DisposeThumbnails();
                         _ = Duplicates.Remove(duplicate);
                         break;
                     case ResolveOperation.DeleteFile2:
                         DeleteFile(duplicate.File2.FilePath);
+                        duplicate.File1.DisposeThumbnails();
+                        duplicate.File2.DisposeThumbnails();
                         _ = Duplicates.Remove(duplicate);
                         break;
                     case ResolveOperation.Skip:
@@ -134,6 +143,8 @@ namespace VideoDedupConsole
                         // The duplicate is kept in the list for later.
                         break;
                     case ResolveOperation.Discard:
+                        duplicate.File1.DisposeThumbnails();
+                        duplicate.File2.DisposeThumbnails();
                         _ = Duplicates.Remove(duplicate);
                         break;
                     case ResolveOperation.Cancel:
