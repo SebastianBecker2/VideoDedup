@@ -7,7 +7,7 @@ namespace VideoDedupConsole
     {
         private class VideoFileRefCounter
         {
-            public VideoFilePreview VideoFile { get; set; }
+            public VideoFile VideoFile { get; set; }
             public int RefCount { get; set; }
 
         }
@@ -17,8 +17,8 @@ namespace VideoDedupConsole
 
         public IThumbnailSettings Configuration { get; set; }
 
-        public VideoFilePreview AddVideoFileReference(
-            VideoFilePreview videoFile)
+        public VideoFile AddVideoFileReference(
+            VideoFile videoFile)
         {
             if (UniqueVideoFiles.TryGetValue(videoFile, out var refCounter))
             {
@@ -26,7 +26,7 @@ namespace VideoDedupConsole
                 return refCounter.VideoFile;
             }
 
-            var videoFilePreview = new VideoFilePreview(
+            var videoFilePreview = new VideoFile(
                     videoFile, Configuration.Count);
             UniqueVideoFiles.Add(videoFile, new VideoFileRefCounter
             {

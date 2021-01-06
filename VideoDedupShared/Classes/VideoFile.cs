@@ -6,6 +6,7 @@ namespace VideoDedupShared
 {
     using System;
     using System.Collections.Generic;
+    using System.Configuration;
     using System.Diagnostics;
     using System.Drawing;
     using System.IO;
@@ -13,22 +14,26 @@ namespace VideoDedupShared
     using System.Runtime.Serialization;
     using System.Threading;
     using Newtonsoft.Json;
+    using NReco.VideoConverter;
+    using NReco.VideoInfo;
     using XnaFan.ImageComparison;
 
     [DataContract]
-    public class VideoFilePreview : VideoFileBase, IDisposable
+    public class VideoFile : IVideoFile, IDisposable
     {
-        internal VideoFilePreview() { }
+        internal VideoFile() { }
 
-        public VideoFilePreview(
-            VideoFilePreview other,
+        public VideoFile(
+            VideoFile other,
             int imageCount = 0)
-            : base(other.FilePath)
         {
             if (other is null)
             {
                 throw new ArgumentNullException(nameof(other));
             }
+
+            filePath = other.filePath;
+            this.imageCount = imageCount;
 
             // We have to do a bit more work here since we can't use
             // the other ctors because we don't want to eagerly load
@@ -43,12 +48,11 @@ namespace VideoDedupShared
                 foreach (var kvp in other.imageStreams)
                 {
                     var ms = new MemoryStream();
+                    kvp.Value.Position = 0;
                     kvp.Value.CopyTo(ms);
                     imageStreams.Add(kvp.Key, ms);
                 }
             }
-
-            this.imageCount = imageCount;
 
             foreach (var index in Enumerable.Range(0, ImageCount))
             {
@@ -56,25 +60,7 @@ namespace VideoDedupShared
             }
         }
 
-        public VideoFilePreview(
-            VideoFileBase other,
-            int imageCount = 0)
-            : this(other.FilePath, imageCount)
-        {
-            if (other is null)
-            {
-                throw new ArgumentNullException(nameof(other));
-            }
-
-            // We can't use the ctor that takes IVideoFile since
-            // we would screw with the caching in VideoFileBase.
-            fileSize = other.fileSize;
-            duration = other.duration;
-            videoCodec = other.videoCodec;
-            mediaInfo = other.mediaInfo;
-        }
-
-        public VideoFilePreview(
+        public VideoFile(
             IVideoFile other,
             int imageCount = 0)
             : this(other.FilePath, imageCount)
@@ -89,11 +75,17 @@ namespace VideoDedupShared
             videoCodec = other.VideoCodec;
         }
 
-        public VideoFilePreview(
+        public VideoFile(
             string filePath,
             int imageCount = 0)
-            : base(filePath)
         {
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                throw new ArgumentException($"'{nameof(filePath)}' cannot be" +
+                    $" null or whitespace", nameof(filePath));
+            }
+
+            this.filePath = filePath;
             this.imageCount = imageCount;
 
             foreach (var index in Enumerable.Range(0, ImageCount))
@@ -101,6 +93,93 @@ namespace VideoDedupShared
                 _ = GetImage(index, this.imageCount);
             }
         }
+
+        [JsonIgnore]
+        public string FilePath => filePath;
+        [DataMember]
+        [JsonProperty]
+        protected internal string filePath;
+
+        [JsonIgnore]
+        public string FileName => Path.GetFileName(FilePath);
+
+        [JsonIgnore]
+        public long FileSize
+        {
+            get
+            {
+                if (fileSize == 0)
+                {
+                    fileSize = new FileInfo(FilePath).Length;
+                }
+                return fileSize;
+            }
+        }
+        [JsonProperty]
+        [DataMember]
+        protected internal long fileSize = 0;
+
+        [JsonIgnore]
+        public TimeSpan Duration
+        {
+            get
+            {
+                if (duration == TimeSpan.Zero)
+                {
+                    try
+                    {
+                        duration = MediaInfo.Duration;
+                    }
+                    catch (Exception)
+                    {
+                        duration = TimeSpan.Zero;
+                    }
+                }
+                return duration;
+            }
+        }
+        [JsonProperty]
+        [DataMember]
+        protected internal TimeSpan duration = TimeSpan.Zero;
+
+        [JsonIgnore]
+        public VideoCodecInfo VideoCodec
+        {
+            get
+            {
+                if (MediaInfo == null)
+                {
+                    return null;
+                }
+
+                var stream = MediaInfo.Streams.FirstOrDefault(s => s.CodecType == "video");
+                if (stream == null)
+                {
+                    return null;
+                }
+
+                return new VideoCodecInfo(stream);
+            }
+        }
+        [JsonIgnore]
+        [DataMember]
+        protected internal VideoCodecInfo videoCodec = null;
+
+        [JsonIgnore]
+        protected MediaInfo MediaInfo
+        {
+            get
+            {
+                if (mediaInfo == null)
+                {
+                    var probe = new FFProbe();
+                    mediaInfo = probe.GetMediaInfo(FilePath);
+                }
+                return mediaInfo;
+            }
+        }
+        [JsonIgnore]
+        protected internal MediaInfo mediaInfo = null;
 
         [JsonIgnore]
         [DataMember]
@@ -119,7 +198,25 @@ namespace VideoDedupShared
                 kvp.Key,
                 Image.FromStream(kvp.Value)));
 
-        protected override MemoryStream GetImage(int index,
+        public bool IsDurationEqual(IVideoFile other,
+            IDurationComparisonSettings settings)
+        {
+            var diff = Math.Abs((Duration - other.Duration).TotalSeconds);
+            switch (settings.DifferenceType)
+            {
+                case DurationDifferenceType.Seconds:
+                    return diff < settings.MaxDifferenceSeconds;
+                case DurationDifferenceType.Percent:
+                    var max_diff = Duration.TotalSeconds / 100
+                        * settings.MaxDifferencePercent;
+                    return diff < max_diff;
+                default:
+                    throw new ConfigurationErrorsException(
+                        "DurationDifferenceType has not valid value");
+            }
+        }
+
+        protected MemoryStream GetImage(int index,
             int imageCount)
         {
             if (index >= imageCount || index < 0)
@@ -136,16 +233,30 @@ namespace VideoDedupShared
 
             if (!imageStreams.TryGetValue(index, out var ms))
             {
-                ms = base.GetImage(index, imageCount);
+                var ffMpeg = new FFMpegConverter();
+                ms = new MemoryStream();
+                try
+                {
+                    var stepping = Duration.TotalSeconds /
+                        (imageCount + 1);
+
+                    ffMpeg.GetVideoThumbnail(FilePath,
+                        ms,
+                        (float)stepping * (index + 1));
+                }
+                catch (Exception)
+                {
+                    Debug.Print($"Unable to load image sample index {index} " +
+                        $"for {FilePath}");
+                    return new MemoryStream();
+                }
                 imageStreams.Add(index, ms);
             }
 
-            Debug.Print($"{FileName} GetImage({index})");
-            //ms.Position = 0;
             return ms;
         }
 
-        public bool AreImagesEqual(VideoFilePreview other,
+        public bool AreImagesEqual(VideoFile other,
             IImageComparisonSettings settings,
             CancellationToken cancelToken)
         {
@@ -167,8 +278,9 @@ namespace VideoDedupShared
                     return false;
                 }
 
+                var ms = GetImage(index, settings.MaxCompares);
                 var thisImageSample =
-                    Image.FromStream(GetImage(index, settings.MaxCompares));
+                    Image.FromStream(ms);
                 var otherImageSample =
                     Image.FromStream(other.GetImage(index, settings.MaxCompares));
 
@@ -186,6 +298,20 @@ namespace VideoDedupShared
             }
             return true;
         }
+
+        public override bool Equals(object obj) => Equals(obj as IVideoFile);
+
+        public bool Equals(IVideoFile other) => other != null &&
+                   FilePath == other.FilePath;
+
+        public override int GetHashCode() =>
+            1230029444 + EqualityComparer<string>.Default.GetHashCode(FilePath);
+
+        public static bool operator ==(VideoFile left, IVideoFile right) =>
+            EqualityComparer<IVideoFile>.Default.Equals(left, right);
+
+        public static bool operator !=(VideoFile left, IVideoFile right) =>
+            !(left == right);
 
         // For the IDisposable pattern
         private bool disposedValue;

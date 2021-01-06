@@ -8,13 +8,13 @@ namespace VideoDedupConsole
     {
         public DuplicateData DuplicateData { get; }
         public Guid DuplicateId => DuplicateData.DuplicateId;
-        public VideoFilePreview File1 => DuplicateData.File1;
-        public VideoFilePreview File2 => DuplicateData.File2;
+        public VideoFile File1 => DuplicateData.File1;
+        public VideoFile File2 => DuplicateData.File2;
         public DateTime LastRequest { get; set; }
 
         public DuplicateWrapper(
-            VideoFilePreview file1,
-            VideoFilePreview file2) => DuplicateData = new DuplicateData
+            VideoFile file1,
+            VideoFile file2) => DuplicateData = new DuplicateData
             {
                 DuplicateId = Guid.NewGuid(),
                 File1 = file1,

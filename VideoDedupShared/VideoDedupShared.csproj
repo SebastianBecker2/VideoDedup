@@ -54,11 +54,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\VideoFilePreview.cs" />
+    <Compile Include="Classes\VideoFile.cs" />
     <Compile Include="Classes\DedupEngine.cs" />
     <Compile Include="Classes\LogToken.cs" />
     <Compile Include="Classes\VideoCodecInfo.cs" />
-    <Compile Include="Classes\VideoFileBase.cs" />
     <Compile Include="Enums\ProgressStyle.cs" />
     <Compile Include="Enums\ResolveOperation.cs" />
     <Compile Include="Enums\DurationDifferenceType.cs" />

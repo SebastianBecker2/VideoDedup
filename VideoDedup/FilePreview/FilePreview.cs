@@ -16,7 +16,7 @@ namespace VideoDedup.FilePreview
             set => TxtInfo.BackColor = value;
         }
 
-        public VideoFilePreview VideoFile
+        public VideoFile VideoFile
         {
             get => videoFile;
             set
@@ -28,7 +28,7 @@ namespace VideoDedup.FilePreview
                 }
             }
         }
-        private VideoFilePreview videoFile = null;
+        private VideoFile videoFile = null;
 
         public FilePreviewDlg()
         {

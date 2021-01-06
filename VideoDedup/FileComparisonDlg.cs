@@ -9,8 +9,8 @@ namespace VideoDedup
 
     public partial class FileComparisonDlg : Form
     {
-        public VideoFilePreview LeftFile { get; set; }
-        public VideoFilePreview RightFile { get; set; }
+        public VideoFile LeftFile { get; set; }
+        public VideoFile RightFile { get; set; }
 
         public IThumbnailSettings Configuration { get; set; }
 
