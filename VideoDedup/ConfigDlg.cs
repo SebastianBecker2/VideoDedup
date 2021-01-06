@@ -36,7 +36,7 @@ namespace VideoDedup
             NumMaxDurationDifferencePercent.Value = ServerConfig.MaxDurationDifferencePercent;
             NumMaxDurationDifferenceSeconds.Value = ServerConfig.MaxDurationDifferenceSeconds;
 
-            NumThumbnailViewCount.Value = ClientConfig.ThumbnailViewCount;
+            NumThumbnailViewCount.Value = ServerConfig.ThumbnailCount;
 
             base.OnLoad(e);
         }
@@ -62,7 +62,7 @@ namespace VideoDedup
             ServerConfig.MaxDurationDifferencePercent = (int)NumMaxDurationDifferencePercent.Value;
             ServerConfig.MaxDurationDifferenceSeconds = (int)NumMaxDurationDifferenceSeconds.Value;
 
-            ClientConfig.ThumbnailViewCount = (int)NumThumbnailViewCount.Value;
+            ServerConfig.ThumbnailCount = (int)NumThumbnailViewCount.Value;
 
             DialogResult = DialogResult.OK;
         }

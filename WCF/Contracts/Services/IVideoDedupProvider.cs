@@ -30,7 +30,7 @@ namespace Wcf.Contracts.Services
             ResolveOperation resolveOperation);
 
         [OperationContract]
-        DuplicateData GetDuplicate(int thumbnailCount);
+        DuplicateData GetDuplicate();
 
         [OperationContract]
         void DiscardDuplicates();

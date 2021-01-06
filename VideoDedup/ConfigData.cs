@@ -1,10 +1,6 @@
 namespace VideoDedup
 {
-    using VideoDedupShared;
-
-    public class ConfigData :
-        IResolverSettings
+    public class ConfigData
     {
-        public int ThumbnailViewCount { get; set; }
     }
 }

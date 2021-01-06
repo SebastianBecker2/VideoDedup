@@ -130,5 +130,17 @@ namespace VideoDedupConsole.Properties {
                 this["MaxDurationDifferencePercent"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8")]
+        public int ThumbnailCount {
+            get {
+                return ((int)(this["ThumbnailCount"]));
+            }
+            set {
+                this["ThumbnailCount"] = value;
+            }
+        }
     }
 }

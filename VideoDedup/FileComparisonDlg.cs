@@ -4,16 +4,15 @@ namespace VideoDedup
     using System.Diagnostics;
     using System.Drawing;
     using System.IO;
-    using System.Threading.Tasks;
     using System.Windows.Forms;
     using VideoDedupShared;
 
     public partial class FileComparisonDlg : Form
     {
-        public IVideoFile LeftFile { get; set; }
-        public IVideoFile RightFile { get; set; }
+        public VideoFilePreview LeftFile { get; set; }
+        public VideoFilePreview RightFile { get; set; }
 
-        public IResolverSettings Configuration { get; set; }
+        public IThumbnailSettings Configuration { get; set; }
 
         public ResolveOperation ResolveOperation { get; set; }
 
@@ -23,9 +22,7 @@ namespace VideoDedup
         {
             SplitterContainer.SplitterDistance = SplitterContainer.Width / 2;
 
-            FpvLeft.Configuration = Configuration;
             FpvLeft.VideoFile = LeftFile;
-            FpvRight.Configuration = Configuration;
             FpvRight.VideoFile = RightFile;
 
             var leftSize = LeftFile.FileSize;

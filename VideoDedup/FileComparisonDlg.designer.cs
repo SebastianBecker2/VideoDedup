@@ -85,7 +85,6 @@ namespace VideoDedup
             this.FpvLeft.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.FpvLeft.Configuration = null;
             this.FpvLeft.HighlightColor = System.Drawing.SystemColors.Control;
             this.FpvLeft.Location = new System.Drawing.Point(0, 0);
             this.FpvLeft.Name = "FpvLeft";
@@ -131,7 +130,6 @@ namespace VideoDedup
             this.FpvRight.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.FpvRight.Configuration = null;
             this.FpvRight.HighlightColor = System.Drawing.SystemColors.Control;
             this.FpvRight.Location = new System.Drawing.Point(0, 0);
             this.FpvRight.Name = "FpvRight";

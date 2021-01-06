@@ -3,7 +3,6 @@ namespace VideoDedupConsole
     using Newtonsoft.Json;
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.ServiceModel;
@@ -24,6 +23,8 @@ namespace VideoDedupConsole
 
         private static IList<DuplicateWrapper> Duplicates { get; } =
             new List<DuplicateWrapper>();
+        private static ThumbnailManager ThumbnailManager { get; } =
+            new ThumbnailManager();
         private static readonly object DuplicatesLock = new object();
 
         public static int GetDuplicateCount()
@@ -34,7 +35,7 @@ namespace VideoDedupConsole
             }
         }
 
-        public static DuplicateData GetDuplicate(int thumbnailCount)
+        public static DuplicateData GetDuplicate()
         {
             lock (DuplicatesLock)
             {
@@ -63,15 +64,7 @@ namespace VideoDedupConsole
                     // The most recently requested will be last
                     // next time (when skipped). Or first when canceled.
                     duplicate.LastRequest = DateTime.Now;
-
-                    return new DuplicateData
-                    {
-                        DuplicateId = duplicate.DuplicateId,
-                        File1 = new VideoFileWithThumbnails(
-                            duplicate.File1, thumbnailCount),
-                        File2 = new VideoFileWithThumbnails(
-                            duplicate.File2, thumbnailCount),
-                    };
+                    return duplicate.DuplicateData;
                 }
             }
         }
@@ -82,8 +75,8 @@ namespace VideoDedupConsole
             {
                 foreach (var duplicate in Duplicates)
                 {
-                    duplicate.File1.DisposeThumbnails();
-                    duplicate.File2.DisposeThumbnails();
+                    ThumbnailManager.RemoveVideoFileReference(duplicate.File1);
+                    ThumbnailManager.RemoveVideoFileReference(duplicate.File2);
                 }
                 Duplicates.Clear();
             }
@@ -94,7 +87,10 @@ namespace VideoDedupConsole
         {
             lock (DuplicatesLock)
             {
-                Duplicates.Add(new DuplicateWrapper(e.File1, e.File2));
+                var file1 = ThumbnailManager.AddVideoFileReference(e.File1);
+                var file2 = ThumbnailManager.AddVideoFileReference(e.File2);
+
+                Duplicates.Add(new DuplicateWrapper(file1, file2));
             }
         }
 
@@ -128,14 +124,14 @@ namespace VideoDedupConsole
                 {
                     case ResolveOperation.DeleteFile1:
                         DeleteFile(duplicate.File1.FilePath);
-                        duplicate.File1.DisposeThumbnails();
-                        duplicate.File2.DisposeThumbnails();
+                        ThumbnailManager.RemoveVideoFileReference(duplicate.File1);
+                        ThumbnailManager.RemoveVideoFileReference(duplicate.File2);
                         _ = Duplicates.Remove(duplicate);
                         break;
                     case ResolveOperation.DeleteFile2:
                         DeleteFile(duplicate.File2.FilePath);
-                        duplicate.File1.DisposeThumbnails();
-                        duplicate.File2.DisposeThumbnails();
+                        ThumbnailManager.RemoveVideoFileReference(duplicate.File1);
+                        ThumbnailManager.RemoveVideoFileReference(duplicate.File2);
                         _ = Duplicates.Remove(duplicate);
                         break;
                     case ResolveOperation.Skip:
@@ -143,8 +139,8 @@ namespace VideoDedupConsole
                         // The duplicate is kept in the list for later.
                         break;
                     case ResolveOperation.Discard:
-                        duplicate.File1.DisposeThumbnails();
-                        duplicate.File2.DisposeThumbnails();
+                        ThumbnailManager.RemoveVideoFileReference(duplicate.File1);
+                        ThumbnailManager.RemoveVideoFileReference(duplicate.File2);
                         _ = Duplicates.Remove(duplicate);
                         break;
                     case ResolveOperation.Cancel:
@@ -264,6 +260,7 @@ namespace VideoDedupConsole
                 MaxDurationDifferenceSeconds = Settings.Default.MaxDurationDifferenceSeconds,
                 MaxDurationDifferencePercent = Settings.Default.MaxDurationDifferencePercent,
                 DurationDifferenceType = durationDifferenceType,
+                ThumbnailCount = Settings.Default.ThumbnailCount,
             };
         }
 
@@ -277,18 +274,24 @@ namespace VideoDedupConsole
                 JsonConvert.SerializeObject(configuration.FileExtensions);
 
             Settings.Default.MaxThumbnailComparison = configuration.MaxCompares;
-            Settings.Default.MaxDifferentThumbnails = configuration.MaxDifferentThumbnails;
+            Settings.Default.MaxDifferentThumbnails =
+                configuration.MaxDifferentImages;
             Settings.Default.MaxDifferencePercentage =
-                (configuration as IThumbnailComparisonSettings).MaxDifferencePercent;
-            Settings.Default.MaxDurationDifferenceSeconds = configuration.MaxDifferenceSeconds;
+                (configuration as IImageComparisonSettings).MaxDifferencePercent;
+            Settings.Default.MaxDurationDifferenceSeconds =
+                configuration.MaxDifferenceSeconds;
             Settings.Default.MaxDurationDifferencePercent =
                 (configuration as IDurationComparisonSettings).MaxDifferencePercent;
-            Settings.Default.DurationDifferenceType = configuration.DifferenceType.ToString();
+            Settings.Default.DurationDifferenceType =
+                configuration.DifferenceType.ToString();
+            Settings.Default.ThumbnailCount =
+                configuration.Count;
             Settings.Default.Save();
         }
 
         public static void UpdateConfig(ConfigData config)
         {
+            ThumbnailManager.Configuration = config;
             Dedupper.UpdateConfiguration(config);
             Dedupper.Stop();
 
@@ -318,7 +321,10 @@ namespace VideoDedupConsole
             Dedupper.ProgressUpdate += HandleProgressUpdateEvent;
             Dedupper.DuplicateFound += HandleDuplicateFoundEvent;
             Dedupper.Logged += HandleLoggedEvent;
-            Dedupper.UpdateConfiguration(LoadConfig());
+
+            var config = LoadConfig();
+            Dedupper.UpdateConfiguration(config);
+            ThumbnailManager.Configuration = config;
 
             lock (CurrentStatusLock)
             {
@@ -326,7 +332,7 @@ namespace VideoDedupConsole
                 CurrentStatus.StatusMessage = "Initializing...";
             }
 
-            var baseAddress = new Uri("net.tcp://localhost:41721/hello");
+            var baseAddress = new Uri("net.tcp://localhost:41721/VideoDedup");
             using (var serviceHost = new ServiceHost(typeof(WcfService), baseAddress))
             {
                 serviceHost.Open();

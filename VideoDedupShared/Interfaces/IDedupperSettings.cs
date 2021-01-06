@@ -2,8 +2,9 @@ namespace VideoDedupShared
 {
     public interface IDedupperSettings :
         IDurationComparisonSettings,
-        IThumbnailComparisonSettings,
-        IFolderSettings
+        IImageComparisonSettings,
+        IFolderSettings,
+        IThumbnailSettings
     {
         IDedupperSettings Copy();
     }

@@ -10,13 +10,14 @@ namespace VideoDedupShared
     using System.Threading.Tasks;
     using TimeSpanExtension;
     using Newtonsoft.Json;
+    using VideoDedupShared.IVideoFileExtension;
 
     public class StoppedEventArgs : EventArgs { }
 
     public class DuplicateFoundEventArgs : EventArgs
     {
-        public VideoFile File1 { get; set; }
-        public VideoFile File2 { get; set; }
+        public VideoFilePreview File1 { get; set; }
+        public VideoFilePreview File2 { get; set; }
     }
 
     public class ProgressUpdateEventArgs : EventArgs
@@ -47,19 +48,20 @@ namespace VideoDedupShared
             = new CancellationTokenSource { };
         private FileSystemWatcher FileWatcher { get; set; }
             = new FileSystemWatcher { };
-        private IProducerConsumerCollection<VideoFile> NewFiles { get; set; }
-            = new ConcurrentQueue<VideoFile> { };
-        private IProducerConsumerCollection<VideoFile> DeletedFiles { get; set; }
-            = new ConcurrentQueue<VideoFile> { };
-        private IList<VideoFile> VideoFiles { get; set; }
+        private IProducerConsumerCollection<VideoFilePreview> NewFiles { get; set; }
+            = new ConcurrentQueue<VideoFilePreview> { };
+        private IProducerConsumerCollection<VideoFilePreview> DeletedFiles { get; set; }
+            = new ConcurrentQueue<VideoFilePreview> { };
+        private IList<VideoFilePreview> VideoFiles { get; set; }
 
         public event EventHandler<StoppedEventArgs> Stopped;
         protected virtual void OnStopped() =>
             Stopped?.Invoke(this, new StoppedEventArgs { });
 
         public event EventHandler<DuplicateFoundEventArgs> DuplicateFound;
-        protected virtual void OnDuplicateFound(VideoFile file1,
-            VideoFile file2) =>
+        protected virtual void OnDuplicateFound(
+            VideoFilePreview file1,
+            VideoFilePreview file2) =>
             DuplicateFound?.Invoke(this, new DuplicateFoundEventArgs
             {
                 File1 = file1,
@@ -139,8 +141,22 @@ namespace VideoDedupShared
             FileWatcher.Path = Configuration.BasePath;
             FileWatcher.EnableRaisingEvents = true;
 
-            NewFiles = new ConcurrentQueue<VideoFile> { };
-            DeletedFiles = new ConcurrentQueue<VideoFile> { };
+            if (NewFiles != null)
+            {
+                foreach (var file in NewFiles)
+                {
+                    file.Dispose();
+                }
+            }
+            NewFiles = new ConcurrentQueue<VideoFilePreview> { };
+            if (DeletedFiles != null)
+            {
+                foreach (var file in DeletedFiles)
+                {
+                    file.Dispose();
+                }
+            }
+            DeletedFiles = new ConcurrentQueue<VideoFilePreview> { };
 
             lock (DedupLock)
             {
@@ -241,7 +257,7 @@ namespace VideoDedupShared
                 return;
             }
 
-            _ = DeletedFiles.TryAdd(new VideoFile(filePath));
+            _ = DeletedFiles.TryAdd(new VideoFilePreview(filePath));
             OnLogged(string.Format(LogDeletedFile, filePath));
             StartProcessingChanges();
         }
@@ -253,7 +269,7 @@ namespace VideoDedupShared
                 return;
             }
 
-            _ = NewFiles.TryAdd(new VideoFile(filePath));
+            _ = NewFiles.TryAdd(new VideoFilePreview(filePath));
             OnLogged(string.Format(LogNewFile, filePath));
             StartProcessingChanges();
         }
@@ -294,11 +310,13 @@ namespace VideoDedupShared
             return files;
         }
 
-        private static HashSet<VideoFile> LoadVideoFilesCache(string cachePath)
+        private static HashSet<VideoFilePreview> LoadVideoFilesCache(
+            string cachePath)
         {
             try
             {
-                return JsonConvert.DeserializeObject<HashSet<VideoFile>>(File.ReadAllText(cachePath));
+                return JsonConvert.DeserializeObject<HashSet<VideoFilePreview>>(
+                    File.ReadAllText(cachePath));
             }
             catch
             {
@@ -306,28 +324,29 @@ namespace VideoDedupShared
             }
         }
 
-        private IEnumerable<VideoFile> GetVideoFileList(
-            IFolderSettings settings)
+        private IEnumerable<VideoFilePreview> GetVideoFileList(
+            IFolderSettings folderSettings,
+            IImageComparisonSettings imageSettings)
         {
             var timer = Stopwatch.StartNew();
 
             OnProgressUpdate(StatusType.Searching, ProgressStyle.Marquee);
 
             // Get all video files in source path.
-            var fileExtensions = settings.FileExtensions.ToList();
+            var fileExtensions = folderSettings.FileExtensions.ToList();
             var found_files = GetAllAccessibleFilesIn(
-                settings.BasePath,
-                settings.ExcludedDirectories,
-                settings.Recursive)
+                folderSettings.BasePath,
+                folderSettings.ExcludedDirectories,
+                folderSettings.Recursive)
                 .Where(f => fileExtensions.Contains(
                     Path.GetExtension(f),
                     StringComparer.CurrentCultureIgnoreCase))
-                .Select(f => new VideoFile(f));
+                .Select(f => new VideoFilePreview(f));
 
-            var cached_files = LoadVideoFilesCache(settings.CachePath);
+            var cached_files = LoadVideoFilesCache(folderSettings.CachePath);
             if (cached_files == null || !cached_files.Any())
             {
-                cached_files = new HashSet<VideoFile>(found_files);
+                cached_files = new HashSet<VideoFilePreview>(found_files);
             }
             else
             {
@@ -340,12 +359,13 @@ namespace VideoDedupShared
             timer.Stop();
 
             OnProgressUpdate(StatusType.Loading, 0, cached_files.Count());
-            OnLogged($"Found {cached_files.Count()} video files in {timer.ElapsedMilliseconds} ms");
+            OnLogged($"Found {cached_files.Count()} video files in " +
+                $"{timer.ElapsedMilliseconds} ms");
             return cached_files;
         }
 
         private void PreloadFiles(
-            IEnumerable<VideoFile> videoFiles,
+            IEnumerable<VideoFilePreview> videoFiles,
             CancellationToken cancelToken)
         {
             var counter = 0;
@@ -369,17 +389,18 @@ namespace VideoDedupShared
         }
 
         private static void SaveVideoFilesCache(
-            IEnumerable<VideoFile> videoFiles,
+            IEnumerable<VideoFilePreview> videoFiles,
             string cache_path)
         {
             var timer = Stopwatch.StartNew();
-            File.WriteAllText(cache_path, JsonConvert.SerializeObject(videoFiles, Formatting.Indented));
+            File.WriteAllText(cache_path, JsonConvert.SerializeObject(videoFiles,
+                Formatting.Indented));
             timer.Stop();
             Debug.Print($"Writing cache file took {timer.ElapsedMilliseconds} ms");
         }
 
         private void FindDuplicates(
-            IEnumerable<VideoFile> videoFiles,
+            IEnumerable<VideoFilePreview> videoFiles,
             IDedupperSettings settings,
             CancellationToken cancelToken)
         {
@@ -417,14 +438,14 @@ namespace VideoDedupShared
                         break;
                     }
 
-                    if (file.AreThumbnailsEqual(nextFile, settings, cancelToken))
+                    if (file.AreImagesEqual(nextFile, settings, cancelToken))
                     {
                         OnLogged($"Found duplicate of {file.FilePath} and {nextFile.FilePath}");
                         OnDuplicateFound(file, nextFile);
                     }
                 }
 
-                file.DisposeThumbnails();
+                file.DisposeImages();
             }
 
             OnProgressUpdate(StatusType.Comparing,
@@ -433,8 +454,8 @@ namespace VideoDedupShared
         }
 
         private void FindDuplicatesOf(
-            IEnumerable<VideoFile> videoFiles,
-            VideoFile refFile,
+            IEnumerable<VideoFilePreview> videoFiles,
+            VideoFilePreview refFile,
             CancellationToken cancelToken)
         {
             OnLogged($"Searching duplicates of {refFile.FileName}");
@@ -456,7 +477,7 @@ namespace VideoDedupShared
                     continue;
                 }
 
-                if (file.AreThumbnailsEqual(refFile, Configuration, cancelToken))
+                if (file.AreImagesEqual(refFile, Configuration, cancelToken))
                 {
                     OnLogged($"Found duplicate of {refFile.FilePath} and {file.FilePath}");
                     OnDuplicateFound(refFile, file);
@@ -482,7 +503,7 @@ namespace VideoDedupShared
         {
             var cancelToken = CancelSource.Token;
 
-            var videoFiles = GetVideoFileList(Configuration);
+            var videoFiles = GetVideoFileList(Configuration, Configuration);
             if (cancelToken.IsCancellationRequested)
             {
                 return;
@@ -509,7 +530,7 @@ namespace VideoDedupShared
             // Cleanup in case of cancel
             foreach (var file in VideoFiles)
             {
-                file.DisposeThumbnails();
+                file.DisposeImages();
             }
             if (cancelToken.IsCancellationRequested)
             {
@@ -586,7 +607,7 @@ namespace VideoDedupShared
                 // Cleanup in case of cancel
                 foreach (var file in VideoFiles)
                 {
-                    file.DisposeThumbnails();
+                    file.DisposeImages();
                 }
                 if (cancelToken.IsCancellationRequested)
                 {

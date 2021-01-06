@@ -10,8 +10,8 @@ namespace Wcf.Contracts.Data
         [DataMember]
         public Guid DuplicateId { get; set; }
         [DataMember]
-        public VideoFileWithThumbnails File1 { get; set; }
+        public VideoFilePreview File1 { get; set; }
         [DataMember]
-        public VideoFileWithThumbnails File2 { get; set; }
+        public VideoFilePreview File2 { get; set; }
     }
 }

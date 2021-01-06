@@ -1,6 +1,7 @@
 namespace Wcf.Contracts.Data
 {
     using System.Collections.Generic;
+    using System.Drawing;
     using System.IO;
     using System.Linq;
     using System.Runtime.Serialization;
@@ -44,6 +45,9 @@ namespace Wcf.Contracts.Data
         [DataMember]
         public DurationDifferenceType DurationDifferenceType { get; set; }
 
+        [DataMember]
+        public int ThumbnailCount { get; set; }
+
         public ConfigData Copy() => new ConfigData
         {
             SourcePath = SourcePath,
@@ -56,6 +60,7 @@ namespace Wcf.Contracts.Data
             MaxDurationDifferencePercent = MaxDurationDifferencePercent,
             DurationDifferenceType = DurationDifferenceType,
             Recursive = Recursive,
+            ThumbnailCount = ThumbnailCount,
         };
 
         DurationDifferenceType IDurationComparisonSettings.DifferenceType =>
@@ -67,12 +72,12 @@ namespace Wcf.Contracts.Data
         int IDurationComparisonSettings.MaxDifferencePercent =>
             MaxDurationDifferencePercent;
 
-        int IThumbnailComparisonSettings.MaxDifferencePercent =>
+        int IImageComparisonSettings.MaxDifferencePercent =>
             MaxDifferencePercentage;
 
-        int IThumbnailComparisonSettings.MaxCompares => MaxThumbnailComparison;
+        int IImageComparisonSettings.MaxCompares => MaxThumbnailComparison;
 
-        int IThumbnailComparisonSettings.MaxDifferentThumbnails =>
+        int IImageComparisonSettings.MaxDifferentImages =>
             MaxDifferentThumbnails;
 
         string IFolderSettings.BasePath => SourcePath;
@@ -92,6 +97,8 @@ namespace Wcf.Contracts.Data
 
         IEnumerable<string> IFolderSettings.FileExtensions =>
             FileExtensions;
+
+        int IThumbnailSettings.Count => ThumbnailCount;
 
         IDedupperSettings IDedupperSettings.Copy() => Copy();
     }

@@ -1,16 +1,12 @@
 namespace VideoDedup
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
-    using System.IO;
-    using System.Linq;
     using System.ServiceModel;
     using System.Windows.Forms;
     using VideoDedupShared.ISynchronizeInvokeExtensions;
-    using global::VideoDedup.Properties;
+    using VideoDedup.Properties;
     using Microsoft.WindowsAPICodePack.Taskbar;
-    using Newtonsoft.Json;
     using VideoDedupShared;
 
     public partial class VideoDedupDlg : Form
@@ -38,7 +34,7 @@ namespace VideoDedup
                             MaxBufferSize = int.MaxValue
                         };
 
-                        var baseAddress = new Uri("net.tcp://localhost:41721/hello");
+                        var baseAddress = new Uri("net.tcp://localhost:41721/VideoDedup");
                         var address = new EndpointAddress(baseAddress);
                         wcfProxy = new WcfProxy(binding, address);
                     }
@@ -142,12 +138,12 @@ namespace VideoDedup
 
         private static ConfigData LoadConfig() => new ConfigData
         {
-            ThumbnailViewCount = Settings.Default.ThumbnailViewCount,
+            //Count = Settings.Default.ThumbnailViewCount,
         };
 
         private static void SaveConfig(ConfigData configuration)
         {
-            Settings.Default.ThumbnailViewCount = configuration.ThumbnailViewCount;
+            //Settings.Default.ThumbnailViewCount = configuration.Count;
             Settings.Default.Save();
         }
 
@@ -226,8 +222,7 @@ namespace VideoDedup
             {
                 while (true)
                 {
-                    var duplicate = WcfProxy.GetDuplicate(
-                        Configuration.ThumbnailViewCount);
+                    var duplicate = WcfProxy.GetDuplicate();
                     if (duplicate == null)
                     {
                         return;
@@ -236,7 +231,6 @@ namespace VideoDedup
                     using (var dlg = new FileComparisonDlg())
                     {
                         DialogResult result;
-                        dlg.Configuration = Configuration;
                         dlg.LeftFile = duplicate.File1;
                         dlg.RightFile = duplicate.File2;
                         result = dlg.ShowDialog();
@@ -257,7 +251,9 @@ namespace VideoDedup
             catch (Exception ex) when (
               ex is EndpointNotFoundException
               || ex is CommunicationException)
-            { }
+            {
+                Debug.Print(ex.Message);
+            }
         }
 
         private void CloseToolStripMenuItem_Click(object sender, EventArgs e) => Application.Exit();

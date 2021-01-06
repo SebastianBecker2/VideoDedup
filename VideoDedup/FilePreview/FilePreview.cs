@@ -2,7 +2,6 @@ namespace VideoDedup.FilePreview
 {
     using System;
     using System.Drawing;
-    using System.Linq;
     using System.Windows.Forms;
     using VideoDedupShared;
 
@@ -11,15 +10,13 @@ namespace VideoDedup.FilePreview
         private static readonly Size ThumbnailSize = new Size(256, 256);
         private static readonly ColorDepth ThumbnailColorDepth = ColorDepth.Depth32Bit;
 
-        public IResolverSettings Configuration { get; set; }
-
         public Color HighlightColor
         {
             get => TxtInfo.BackColor;
             set => TxtInfo.BackColor = value;
         }
 
-        public IVideoFile VideoFile
+        public VideoFilePreview VideoFile
         {
             get => videoFile;
             set
@@ -31,7 +28,7 @@ namespace VideoDedup.FilePreview
                 }
             }
         }
-        private IVideoFile videoFile = null;
+        private VideoFilePreview videoFile = null;
 
         public FilePreviewDlg()
         {
@@ -49,12 +46,13 @@ namespace VideoDedup.FilePreview
             var height = VideoFile.VideoCodec.Height;
             SetImageSize(new Size(width, height));
 
-            foreach (var index in Enumerable.Range(0, Configuration.ThumbnailViewCount))
+            foreach (var kvp in VideoFile.Images)
             {
-                var image = VideoFile.GetThumbnail(index, Configuration.ThumbnailViewCount);
-
-                ImlThumbnails.Images.Add(image);
-                _ = LsvThumbnails.Items.Add(new ListViewItem { ImageIndex = index });
+                ImlThumbnails.Images.Add(kvp.Value);
+                _ = LsvThumbnails.Items.Add(new ListViewItem
+                {
+                    ImageIndex = kvp.Key
+                });
             }
         }
 

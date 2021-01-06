@@ -54,22 +54,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\VideoFilePreview.cs" />
     <Compile Include="Classes\DedupEngine.cs" />
     <Compile Include="Classes\LogToken.cs" />
     <Compile Include="Classes\VideoCodecInfo.cs" />
-    <Compile Include="Classes\VideoFile.cs" />
-    <Compile Include="Classes\VideoFileWithThumbnails.cs" />
+    <Compile Include="Classes\VideoFileBase.cs" />
     <Compile Include="Enums\ProgressStyle.cs" />
     <Compile Include="Enums\ResolveOperation.cs" />
     <Compile Include="Enums\DurationDifferenceType.cs" />
     <Compile Include="Enums\StatusType.cs" />
+    <Compile Include="ExtensionMethods\ImageExtension.cs" />
     <Compile Include="ExtensionMethods\ISynchronizeInvokeExtension.cs" />
+    <Compile Include="ExtensionMethods\IVideoFileExtension.cs" />
     <Compile Include="ExtensionMethods\ProgressBarExtension.cs" />
     <Compile Include="ExtensionMethods\TimeSpanExtension.cs" />
     <Compile Include="Interfaces\IDedupperSettings.cs" />
     <Compile Include="Interfaces\IDurationComparisonSettings.cs" />
-    <Compile Include="Interfaces\IResolverSettings.cs" />
-    <Compile Include="Interfaces\IThumbnailComparisonSettings.cs" />
+    <Compile Include="Interfaces\IThumbnailSettings.cs" />
+    <Compile Include="Interfaces\IImageComparisonSettings.cs" />
     <Compile Include="Interfaces\IVideoFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Interfaces\IFolderSettings.cs" />

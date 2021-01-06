@@ -6,7 +6,7 @@ namespace VideoDedupShared
     public class VideoCodecInfo
     {
         public VideoCodecInfo() { }
-        internal VideoCodecInfo(MediaInfo.StreamInfo videoStream) =>
+        protected internal VideoCodecInfo(MediaInfo.StreamInfo videoStream) =>
             this.videoStream = videoStream ?? throw new ArgumentNullException(nameof(videoStream));
 
         public int Width
