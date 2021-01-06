@@ -36,6 +36,7 @@ namespace VideoDedupShared
     public class DedupEngine : IDisposable
     {
         private static readonly string LogCheckingFile = "Checking: {0} - Duration: {1}";
+        private static readonly string LogCompareFile = "  against: {0}";
         private static readonly string LogDeletedFile = "File deleted: {0}";
         private static readonly string LogNewFile = "File created: {0}";
 
@@ -448,6 +449,8 @@ namespace VideoDedupShared
                         break;
                     }
 
+                    OnLogged(string.Format(LogCompareFile, nextFile.FilePath));
+
                     if (file.AreImagesEqual(nextFile, settings, cancelToken))
                     {
                         OnLogged($"Found duplicate of {file.FilePath} and {nextFile.FilePath}");
@@ -468,7 +471,9 @@ namespace VideoDedupShared
             VideoFile refFile,
             CancellationToken cancelToken)
         {
-            OnLogged($"Searching duplicates of {refFile.FileName}");
+            OnLogged(string.Format(LogCheckingFile,
+                    refFile.FilePath,
+                    refFile.Duration.ToPrettyString()));
 
             foreach (var file in videoFiles)
             {
@@ -486,6 +491,8 @@ namespace VideoDedupShared
                 {
                     continue;
                 }
+
+                OnLogged(string.Format(LogCompareFile, file.FilePath));
 
                 if (file.AreImagesEqual(refFile, Configuration, cancelToken))
                 {
