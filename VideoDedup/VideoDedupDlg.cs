@@ -198,11 +198,10 @@ namespace VideoDedup
             }
         }
 
-        private void BtnConfig_Click(object sender, EventArgs e)
+        private void BtnServerConfig_Click(object sender, EventArgs e)
         {
-            using (var dlg = new ConfigDlg())
+            using (var dlg = new ServerConfigDlg())
             {
-                dlg.ClientConfig = Configuration;
                 dlg.ServerConfig = WcfProxy.GetConfig();
 
                 if (dlg.ShowDialog() != DialogResult.OK)
@@ -210,7 +209,6 @@ namespace VideoDedup
                     return;
                 }
 
-                Configuration = dlg.ClientConfig;
                 SaveConfig(Configuration);
                 WcfProxy.SetConfig(dlg.ServerConfig);
             }
@@ -256,7 +254,8 @@ namespace VideoDedup
             }
         }
 
-        private void CloseToolStripMenuItem_Click(object sender, EventArgs e) => Application.Exit();
+        private void CloseToolStripMenuItem_Click(object sender, EventArgs e) =>
+            Application.Exit();
 
         private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -265,6 +264,9 @@ namespace VideoDedup
                 _ = dlg.ShowDialog();
             }
         }
+
+        private void ServerConfigurationToolStripMenuItem_Click(object sender, EventArgs e) =>
+            BtnServerConfig.PerformClick();
 
         private void NotifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {

@@ -64,11 +64,11 @@
     <Compile Include="AboutDlg.Designer.cs">
       <DependentUpon>AboutDlg.cs</DependentUpon>
     </Compile>
-    <Compile Include="ConfigDlg.cs">
+    <Compile Include="ServerConfigDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ConfigDlg.Designer.cs">
-      <DependentUpon>ConfigDlg.cs</DependentUpon>
+    <Compile Include="ServerConfigDlg.Designer.cs">
+      <DependentUpon>ServerConfigDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="ConfigData.cs" />
     <Compile Include="FileComparisonDlg.cs">
@@ -95,8 +95,8 @@
     <EmbeddedResource Include="AboutDlg.resx">
       <DependentUpon>AboutDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ConfigDlg.resx">
-      <DependentUpon>ConfigDlg.cs</DependentUpon>
+    <EmbeddedResource Include="ServerConfigDlg.resx">
+      <DependentUpon>ServerConfigDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FileComparisonDlg.resx">
       <DependentUpon>FileComparisonDlg.cs</DependentUpon>

@@ -103,7 +103,6 @@ namespace VideoDedupShared
             FileWatcher.Error += HandleFileWatcherErrorEvent;
             FileWatcher.Renamed += HandleFileWatcherRenamedEvent;
             FileWatcher.Created += HandleFileWatcherCreatedEvent;
-            FileWatcher.IncludeSubdirectories = true;
         }
 
         public DedupEngine(IDedupperSettings config) : this() =>
@@ -139,6 +138,7 @@ namespace VideoDedupShared
             }
 
             FileWatcher.Path = Configuration.BasePath;
+            FileWatcher.IncludeSubdirectories = Configuration.Recursive;
             FileWatcher.EnableRaisingEvents = true;
 
             if (NewFiles != null)
@@ -280,6 +280,11 @@ namespace VideoDedupShared
             bool recursive = true,
             string searchPattern = "*.*")
         {
+            if (Path.GetFileName(rootDirectory) == "$RECYCLE.BIN")
+            {
+                return new List<string> { };
+            }
+
             IEnumerable<string> files = new List<string> { };
             if (excludedDirectories == null)
             {
@@ -325,8 +330,7 @@ namespace VideoDedupShared
         }
 
         private IEnumerable<VideoFile> GetVideoFileList(
-            IFolderSettings folderSettings,
-            IImageComparisonSettings imageSettings)
+            IFolderSettings folderSettings)
         {
             var timer = Stopwatch.StartNew();
 
@@ -352,7 +356,13 @@ namespace VideoDedupShared
             {
                 // Basically overwrite the found files with cached files
                 // and make sure we don't take cached files that don't exist
-                // anymore.
+                // anymore or files in subfolders when recursive has been
+                // deactivated
+                if (!folderSettings.Recursive)
+                {
+                    _ = cached_files.RemoveWhere(f =>
+                        Path.GetDirectoryName(f.FilePath) != folderSettings.BasePath);
+                }
                 _ = cached_files.RemoveWhere(f => !File.Exists(f.FilePath));
                 cached_files.UnionWith(found_files);
             }
@@ -503,7 +513,7 @@ namespace VideoDedupShared
         {
             var cancelToken = CancelSource.Token;
 
-            var videoFiles = GetVideoFileList(Configuration, Configuration);
+            var videoFiles = GetVideoFileList(Configuration);
             if (cancelToken.IsCancellationRequested)
             {
                 return;

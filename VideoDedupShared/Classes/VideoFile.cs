@@ -278,9 +278,8 @@ namespace VideoDedupShared
                     return false;
                 }
 
-                var ms = GetImage(index, settings.MaxCompares);
                 var thisImageSample =
-                    Image.FromStream(ms);
+                    Image.FromStream(GetImage(index, settings.MaxCompares));
                 var otherImageSample =
                     Image.FromStream(other.GetImage(index, settings.MaxCompares));
 

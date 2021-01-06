@@ -6,16 +6,16 @@ namespace VideoDedup
     using System.Windows.Forms;
     using Microsoft.WindowsAPICodePack.Dialogs;
     using VideoDedupShared;
-    public partial class ConfigDlg : Form
+    public partial class ServerConfigDlg : Form
     {
-        public ConfigData ClientConfig { get; set; }
         public Wcf.Contracts.Data.ConfigData ServerConfig { get; set; }
 
-        public ConfigDlg() => InitializeComponent();
+        public ServerConfigDlg() => InitializeComponent();
 
         protected override void OnLoad(EventArgs e)
         {
             TxtSourcePath.Text = ServerConfig.SourcePath;
+            ChbRecursive.Checked = ServerConfig.Recursive;
 
             if (ServerConfig.ExcludedDirectories != null)
             {
@@ -44,6 +44,8 @@ namespace VideoDedup
         private void BtnOkay_Click(object sender, EventArgs e)
         {
             ServerConfig.SourcePath = TxtSourcePath.Text;
+            ServerConfig.Recursive = ChbRecursive.Checked;
+
             ServerConfig.ExcludedDirectories = LsbExcludedDirectories.Items.Cast<string>().ToList();
             ServerConfig.FileExtensions = LsbFileExtensions.Items.Cast<string>().ToList();
 

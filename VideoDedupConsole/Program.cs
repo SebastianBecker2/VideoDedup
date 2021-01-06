@@ -261,6 +261,7 @@ namespace VideoDedupConsole
                 MaxDurationDifferencePercent = Settings.Default.MaxDurationDifferencePercent,
                 DurationDifferenceType = durationDifferenceType,
                 ThumbnailCount = Settings.Default.ThumbnailCount,
+                Recursive = Settings.Default.Recursive,
             };
         }
 
@@ -286,6 +287,7 @@ namespace VideoDedupConsole
                 configuration.DifferenceType.ToString();
             Settings.Default.ThumbnailCount =
                 configuration.Count;
+            Settings.Default.Recursive = configuration.Recursive;
             Settings.Default.Save();
         }
 

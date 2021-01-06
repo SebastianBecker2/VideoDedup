@@ -33,11 +33,12 @@ namespace VideoDedup
             this.BtnToDoManager = new System.Windows.Forms.Button();
             this.ProgressBar = new System.Windows.Forms.ProgressBar();
             this.LblStatusInfo = new System.Windows.Forms.Label();
-            this.BtnConfig = new System.Windows.Forms.Button();
+            this.BtnServerConfig = new System.Windows.Forms.Button();
             this.LblTimer = new System.Windows.Forms.Label();
             this.BtnResolveDuplicates = new System.Windows.Forms.Button();
             this.MenuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.serverConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -51,7 +52,7 @@ namespace VideoDedup
             // BtnToDoManager
             // 
             this.BtnToDoManager.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.BtnToDoManager.Location = new System.Drawing.Point(93, 344);
+            this.BtnToDoManager.Location = new System.Drawing.Point(133, 344);
             this.BtnToDoManager.Name = "BtnToDoManager";
             this.BtnToDoManager.Size = new System.Drawing.Size(75, 23);
             this.BtnToDoManager.TabIndex = 1;
@@ -78,16 +79,16 @@ namespace VideoDedup
             this.LblStatusInfo.TabIndex = 6;
             this.LblStatusInfo.Text = "Status:...";
             // 
-            // BtnConfig
+            // BtnServerConfig
             // 
-            this.BtnConfig.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.BtnConfig.Location = new System.Drawing.Point(12, 344);
-            this.BtnConfig.Name = "BtnConfig";
-            this.BtnConfig.Size = new System.Drawing.Size(75, 23);
-            this.BtnConfig.TabIndex = 8;
-            this.BtnConfig.Text = "C&onfig";
-            this.BtnConfig.UseVisualStyleBackColor = true;
-            this.BtnConfig.Click += new System.EventHandler(this.BtnConfig_Click);
+            this.BtnServerConfig.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.BtnServerConfig.Location = new System.Drawing.Point(12, 344);
+            this.BtnServerConfig.Name = "BtnServerConfig";
+            this.BtnServerConfig.Size = new System.Drawing.Size(115, 23);
+            this.BtnServerConfig.TabIndex = 8;
+            this.BtnServerConfig.Text = "Server Configuration";
+            this.BtnServerConfig.UseVisualStyleBackColor = true;
+            this.BtnServerConfig.Click += new System.EventHandler(this.BtnServerConfig_Click);
             // 
             // LblTimer
             // 
@@ -125,15 +126,23 @@ namespace VideoDedup
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.serverConfigurationToolStripMenuItem,
             this.closeToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "&File";
             // 
+            // serverConfigurationToolStripMenuItem
+            // 
+            this.serverConfigurationToolStripMenuItem.Name = "serverConfigurationToolStripMenuItem";
+            this.serverConfigurationToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+            this.serverConfigurationToolStripMenuItem.Text = "Server Configuration";
+            this.serverConfigurationToolStripMenuItem.Click += new System.EventHandler(this.ServerConfigurationToolStripMenuItem_Click);
+            // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
             this.closeToolStripMenuItem.Text = "&Close";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.CloseToolStripMenuItem_Click);
             // 
@@ -204,7 +213,7 @@ namespace VideoDedup
             this.Controls.Add(this.LblDuplicateCount);
             this.Controls.Add(this.BtnResolveDuplicates);
             this.Controls.Add(this.LblTimer);
-            this.Controls.Add(this.BtnConfig);
+            this.Controls.Add(this.BtnServerConfig);
             this.Controls.Add(this.LblStatusInfo);
             this.Controls.Add(this.ProgressBar);
             this.Controls.Add(this.BtnToDoManager);
@@ -226,7 +235,7 @@ namespace VideoDedup
         private System.Windows.Forms.Button BtnToDoManager;
         private System.Windows.Forms.ProgressBar ProgressBar;
         private System.Windows.Forms.Label LblStatusInfo;
-        private System.Windows.Forms.Button BtnConfig;
+        private System.Windows.Forms.Button BtnServerConfig;
         private System.Windows.Forms.Label LblTimer;
         private System.Windows.Forms.Button BtnResolveDuplicates;
         private System.Windows.Forms.MenuStrip MenuStrip;
@@ -238,6 +247,7 @@ namespace VideoDedup
         private System.Windows.Forms.NotifyIcon NotifyIcon;
         private System.Windows.Forms.Button BtnDiscardDuplicates;
         private System.Windows.Forms.TextBox TxtLog;
+        private System.Windows.Forms.ToolStripMenuItem serverConfigurationToolStripMenuItem;
     }
 }
 

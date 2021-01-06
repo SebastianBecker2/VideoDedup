@@ -142,5 +142,17 @@ namespace VideoDedupConsole.Properties {
                 this["ThumbnailCount"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Recursive {
+            get {
+                return ((bool)(this["Recursive"]));
+            }
+            set {
+                this["Recursive"] = value;
+            }
+        }
     }
 }
