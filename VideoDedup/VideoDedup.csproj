@@ -64,6 +64,18 @@
     <Compile Include="AboutDlg.Designer.cs">
       <DependentUpon>AboutDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="ClientConfigDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ClientConfigDlg.Designer.cs">
+      <DependentUpon>ClientConfigDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DnsTextBox\DnsTextBoxCtrl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DnsTextBox\ResolveFailedEventArgs.cs" />
+    <Compile Include="DnsTextBox\ResolveStartedEventArgs.cs" />
+    <Compile Include="DnsTextBox\ResolveSuccessfulEventArgs.cs" />
     <Compile Include="ServerConfigDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -77,11 +89,11 @@
     <Compile Include="FileComparisonDlg.designer.cs">
       <DependentUpon>FileComparisonDlg.cs</DependentUpon>
     </Compile>
-    <Compile Include="FilePreview\FilePreview.cs">
+    <Compile Include="FilePreview\FilePreviewDlg.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="FilePreview\FilePreview.Designer.cs">
-      <DependentUpon>FilePreview.cs</DependentUpon>
+    <Compile Include="FilePreview\FilePreviewDlg.Designer.cs">
+      <DependentUpon>FilePreviewDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="VideoDedupDlg.cs">
       <SubType>Form</SubType>
@@ -95,14 +107,17 @@
     <EmbeddedResource Include="AboutDlg.resx">
       <DependentUpon>AboutDlg.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ClientConfigDlg.resx">
+      <DependentUpon>ClientConfigDlg.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ServerConfigDlg.resx">
       <DependentUpon>ServerConfigDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FileComparisonDlg.resx">
       <DependentUpon>FileComparisonDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FilePreview\FilePreview.resx">
-      <DependentUpon>FilePreview.cs</DependentUpon>
+    <EmbeddedResource Include="FilePreview\FilePreviewDlg.resx">
+      <DependentUpon>FilePreviewDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="VideoDedupDlg.resx">
       <DependentUpon>VideoDedupDlg.cs</DependentUpon>
@@ -157,6 +172,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="film_link.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Loading.gif" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

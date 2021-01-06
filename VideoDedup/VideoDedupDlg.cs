@@ -11,30 +11,43 @@ namespace VideoDedup
 
     public partial class VideoDedupDlg : Form
     {
-        private static WcfProxy WcfProxy
+        private static readonly TimeSpan WcfTimeout = TimeSpan.FromSeconds(10);
+
+        private WcfProxy WcfProxy
         {
             get
             {
-                lock (WcfProxyLock)
+                lock (wcfProxyLock)
                 {
-                    // https://stackoverflow.com/questions/2008382/how-to-heal-faulted-wcf-channels
+
+                    // If server address changed
+                    // or connection issue occurred.
                     if (wcfProxy != null
-                        && wcfProxy.InnerChannel.State
-                        == CommunicationState.Faulted)
+                        && (wcfProxy.Endpoint.Address.Uri.Host
+                            != Configuration.ServerAddress
+                        || wcfProxy.InnerChannel.State
+                            == CommunicationState.Faulted))
                     {
+                        // https://stackoverflow.com/questions/2008382/how-to-heal-faulted-wcf-channels
                         wcfProxy.Abort();
                         wcfProxy = null;
                     }
+
 
                     if (wcfProxy == null)
                     {
                         var binding = new NetTcpBinding
                         {
                             MaxReceivedMessageSize = int.MaxValue,
-                            MaxBufferSize = int.MaxValue
+                            MaxBufferSize = int.MaxValue,
+                            OpenTimeout = WcfTimeout,
+                            CloseTimeout = WcfTimeout,
+                            ReceiveTimeout = WcfTimeout,
+                            SendTimeout = WcfTimeout,
                         };
 
-                        var baseAddress = new Uri("net.tcp://localhost:41721/VideoDedup");
+                        var baseAddress = new Uri(
+                            $"net.tcp://{Configuration.ServerAddress}:41721/VideoDedup");
                         var address = new EndpointAddress(baseAddress);
                         wcfProxy = new WcfProxy(binding, address);
                     }
@@ -42,8 +55,8 @@ namespace VideoDedup
                 }
             }
         }
-        private static WcfProxy wcfProxy = null;
-        private static readonly object WcfProxyLock = new object();
+        private WcfProxy wcfProxy = null;
+        private readonly object wcfProxyLock = new object();
 
         private static readonly TimeSpan StatusTimerInterval =
             TimeSpan.FromSeconds(1);
@@ -120,8 +133,10 @@ namespace VideoDedup
             }
             catch (Exception ex) when (
                 ex is EndpointNotFoundException
-                || ex is CommunicationException)
+                || ex is CommunicationException
+                || ex is TimeoutException)
             {
+                Debug.Print("Status request failed with: " + ex.Message);
                 this.InvokeIfRequired(() =>
                 {
                     BtnResolveDuplicates.Enabled = false;
@@ -145,12 +160,12 @@ namespace VideoDedup
 
         private static ConfigData LoadConfig() => new ConfigData
         {
-            //Count = Settings.Default.ThumbnailViewCount,
+            ServerAddress = Settings.Default.ServerAddress,
         };
 
         private static void SaveConfig(ConfigData configuration)
         {
-            //Settings.Default.ThumbnailViewCount = configuration.Count;
+            Settings.Default.ServerAddress = configuration.ServerAddress;
             Settings.Default.Save();
         }
 
@@ -218,6 +233,22 @@ namespace VideoDedup
 
                 SaveConfig(Configuration);
                 WcfProxy.SetConfig(dlg.ServerConfig);
+            }
+        }
+
+        private void BtnClientConfig_Click(object sender, EventArgs e)
+        {
+            using (var dlg = new ClientConfigDlg())
+            {
+                dlg.Configuration = Configuration;
+
+                if (dlg.ShowDialog() != DialogResult.OK)
+                {
+                    return;
+                }
+
+                Configuration = dlg.Configuration;
+                SaveConfig(Configuration);
             }
         }
 

@@ -51,7 +51,6 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
-            this.LsbExcludedDirectories = new System.Windows.Forms.ListBox();
             this.BtnSelectSourcePath = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.TxtSourcePath = new System.Windows.Forms.TextBox();
@@ -64,6 +63,7 @@
             this.TxtFileExtension = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
             this.ChbRecursive = new System.Windows.Forms.CheckBox();
+            this.LsbExcludedDirectories = new System.Windows.Forms.ListBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentPercentage)).BeginInit();
@@ -313,9 +313,9 @@
             // tableLayoutPanel3
             // 
             this.tableLayoutPanel3.ColumnCount = 3;
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 86F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel3.Controls.Add(this.BtnSelectSourcePath, 2, 0);
             this.tableLayoutPanel3.Controls.Add(this.label1, 0, 0);
             this.tableLayoutPanel3.Controls.Add(this.TxtSourcePath, 1, 0);
@@ -326,9 +326,9 @@
             this.tableLayoutPanel3.Controls.Add(this.BtnRemoveFileExtension, 2, 3);
             this.tableLayoutPanel3.Controls.Add(this.BtnAddFileExtension, 2, 2);
             this.tableLayoutPanel3.Controls.Add(this.TxtFileExtension, 1, 2);
-            this.tableLayoutPanel3.Controls.Add(this.label10, 0, 2);
             this.tableLayoutPanel3.Controls.Add(this.ChbRecursive, 1, 1);
             this.tableLayoutPanel3.Controls.Add(this.LsbExcludedDirectories, 1, 4);
+            this.tableLayoutPanel3.Controls.Add(this.label10, 0, 2);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(3, 16);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -336,24 +336,11 @@
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 40F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 52.21519F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 60F));
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 47.78481F));
             this.tableLayoutPanel3.Size = new System.Drawing.Size(340, 426);
             this.tableLayoutPanel3.TabIndex = 28;
-            // 
-            // LsbExcludedDirectories
-            // 
-            this.LsbExcludedDirectories.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.LsbExcludedDirectories.FormattingEnabled = true;
-            this.LsbExcludedDirectories.Location = new System.Drawing.Point(89, 210);
-            this.LsbExcludedDirectories.Name = "LsbExcludedDirectories";
-            this.tableLayoutPanel3.SetRowSpan(this.LsbExcludedDirectories, 2);
-            this.LsbExcludedDirectories.Size = new System.Drawing.Size(221, 212);
-            this.LsbExcludedDirectories.TabIndex = 12;
             // 
             // BtnSelectSourcePath
             // 
@@ -368,8 +355,9 @@
             // 
             // label1
             // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 0);
+            this.label1.Location = new System.Drawing.Point(12, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(69, 13);
             this.label1.TabIndex = 18;
@@ -379,15 +367,15 @@
             // 
             this.TxtSourcePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.TxtSourcePath.Location = new System.Drawing.Point(89, 3);
+            this.TxtSourcePath.Location = new System.Drawing.Point(87, 3);
             this.TxtSourcePath.Name = "TxtSourcePath";
-            this.TxtSourcePath.Size = new System.Drawing.Size(221, 20);
+            this.TxtSourcePath.Size = new System.Drawing.Size(223, 20);
             this.TxtSourcePath.TabIndex = 17;
             // 
             // BtnRemoveExcludedDirectory
             // 
             this.BtnRemoveExcludedDirectory.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnRemoveExcludedDirectory.Location = new System.Drawing.Point(316, 239);
+            this.BtnRemoveExcludedDirectory.Location = new System.Drawing.Point(316, 278);
             this.BtnRemoveExcludedDirectory.Name = "BtnRemoveExcludedDirectory";
             this.BtnRemoveExcludedDirectory.Size = new System.Drawing.Size(21, 23);
             this.BtnRemoveExcludedDirectory.TabIndex = 14;
@@ -398,7 +386,7 @@
             // BtnAddExcludedDirectory
             // 
             this.BtnAddExcludedDirectory.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnAddExcludedDirectory.Location = new System.Drawing.Point(316, 210);
+            this.BtnAddExcludedDirectory.Location = new System.Drawing.Point(316, 249);
             this.BtnAddExcludedDirectory.Name = "BtnAddExcludedDirectory";
             this.BtnAddExcludedDirectory.Size = new System.Drawing.Size(21, 23);
             this.BtnAddExcludedDirectory.TabIndex = 13;
@@ -408,8 +396,9 @@
             // 
             // label4
             // 
+            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(3, 207);
+            this.label4.Location = new System.Drawing.Point(25, 246);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(56, 13);
             this.label4.TabIndex = 15;
@@ -421,9 +410,9 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.LsbFileExtensions.FormattingEnabled = true;
-            this.LsbFileExtensions.Location = new System.Drawing.Point(89, 84);
+            this.LsbFileExtensions.Location = new System.Drawing.Point(87, 84);
             this.LsbFileExtensions.Name = "LsbFileExtensions";
-            this.LsbFileExtensions.Size = new System.Drawing.Size(221, 108);
+            this.LsbFileExtensions.Size = new System.Drawing.Size(223, 147);
             this.LsbFileExtensions.TabIndex = 7;
             // 
             // BtnRemoveFileExtension
@@ -452,13 +441,14 @@
             // 
             this.TxtFileExtension.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.TxtFileExtension.Location = new System.Drawing.Point(89, 55);
+            this.TxtFileExtension.Location = new System.Drawing.Point(87, 55);
             this.TxtFileExtension.Name = "TxtFileExtension";
-            this.TxtFileExtension.Size = new System.Drawing.Size(221, 20);
+            this.TxtFileExtension.Size = new System.Drawing.Size(223, 20);
             this.TxtFileExtension.TabIndex = 10;
             // 
             // label10
             // 
+            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label10.AutoSize = true;
             this.label10.Location = new System.Drawing.Point(3, 52);
             this.label10.Name = "label10";
@@ -471,12 +461,24 @@
             this.ChbRecursive.AutoSize = true;
             this.ChbRecursive.Checked = true;
             this.ChbRecursive.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.ChbRecursive.Location = new System.Drawing.Point(89, 32);
+            this.ChbRecursive.Location = new System.Drawing.Point(87, 32);
             this.ChbRecursive.Name = "ChbRecursive";
             this.ChbRecursive.Size = new System.Drawing.Size(74, 17);
             this.ChbRecursive.TabIndex = 21;
             this.ChbRecursive.Text = "Recursive";
             this.ChbRecursive.UseVisualStyleBackColor = true;
+            // 
+            // LsbExcludedDirectories
+            // 
+            this.LsbExcludedDirectories.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.LsbExcludedDirectories.FormattingEnabled = true;
+            this.LsbExcludedDirectories.Location = new System.Drawing.Point(87, 249);
+            this.LsbExcludedDirectories.Name = "LsbExcludedDirectories";
+            this.tableLayoutPanel3.SetRowSpan(this.LsbExcludedDirectories, 2);
+            this.LsbExcludedDirectories.Size = new System.Drawing.Size(223, 173);
+            this.LsbExcludedDirectories.TabIndex = 12;
             // 
             // tableLayoutPanel2
             // 

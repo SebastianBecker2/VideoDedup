@@ -12,6 +12,18 @@
     "Text": "Add monitoring option in config (to turn off or on)"
   },
   {
+    "Done": false,
+    "Text": "Implement Log as virtual DGV"
+  },
+  {
+    "Done": false,
+    "Text": "Parallelize image comparison"
+  },
+  {
+    "Done": false,
+    "Text": "Add reference to https://icon-library.com/icon/loading-icon-animated-gif-7.html"
+  },
+  {
     "Done": true,
     "Text": "Downscale thumbnails"
   },

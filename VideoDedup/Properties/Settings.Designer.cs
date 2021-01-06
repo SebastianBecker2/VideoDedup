@@ -25,13 +25,13 @@ namespace VideoDedup.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("8")]
-        public int ThumbnailViewCount {
+        [global::System.Configuration.DefaultSettingValueAttribute("localhost")]
+        public string ServerAddress {
             get {
-                return ((int)(this["ThumbnailViewCount"]));
+                return ((string)(this["ServerAddress"]));
             }
             set {
-                this["ThumbnailViewCount"] = value;
+                this["ServerAddress"] = value;
             }
         }
     }

@@ -46,13 +46,14 @@ namespace VideoDedup
             this.NotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.BtnDiscardDuplicates = new System.Windows.Forms.Button();
             this.TxtLog = new System.Windows.Forms.TextBox();
+            this.BtnClientConfig = new System.Windows.Forms.Button();
             this.MenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // BtnToDoManager
             // 
             this.BtnToDoManager.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.BtnToDoManager.Location = new System.Drawing.Point(133, 344);
+            this.BtnToDoManager.Location = new System.Drawing.Point(306, 344);
             this.BtnToDoManager.Name = "BtnToDoManager";
             this.BtnToDoManager.Size = new System.Drawing.Size(75, 23);
             this.BtnToDoManager.TabIndex = 1;
@@ -82,7 +83,7 @@ namespace VideoDedup
             // BtnServerConfig
             // 
             this.BtnServerConfig.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.BtnServerConfig.Location = new System.Drawing.Point(12, 344);
+            this.BtnServerConfig.Location = new System.Drawing.Point(133, 344);
             this.BtnServerConfig.Name = "BtnServerConfig";
             this.BtnServerConfig.Size = new System.Drawing.Size(115, 23);
             this.BtnServerConfig.TabIndex = 8;
@@ -195,19 +196,31 @@ namespace VideoDedup
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.TxtLog.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.TxtLog.Location = new System.Drawing.Point(13, 87);
+            this.TxtLog.Location = new System.Drawing.Point(12, 87);
             this.TxtLog.Multiline = true;
             this.TxtLog.Name = "TxtLog";
             this.TxtLog.ReadOnly = true;
             this.TxtLog.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.TxtLog.Size = new System.Drawing.Size(794, 251);
+            this.TxtLog.Size = new System.Drawing.Size(795, 251);
             this.TxtLog.TabIndex = 15;
+            // 
+            // BtnClientConfig
+            // 
+            this.BtnClientConfig.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.BtnClientConfig.Location = new System.Drawing.Point(12, 344);
+            this.BtnClientConfig.Name = "BtnClientConfig";
+            this.BtnClientConfig.Size = new System.Drawing.Size(115, 23);
+            this.BtnClientConfig.TabIndex = 16;
+            this.BtnClientConfig.Text = "Client Configuration";
+            this.BtnClientConfig.UseVisualStyleBackColor = true;
+            this.BtnClientConfig.Click += new System.EventHandler(this.BtnClientConfig_Click);
             // 
             // VideoDedupDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(819, 379);
+            this.Controls.Add(this.BtnClientConfig);
             this.Controls.Add(this.TxtLog);
             this.Controls.Add(this.BtnDiscardDuplicates);
             this.Controls.Add(this.LblDuplicateCount);
@@ -248,6 +261,7 @@ namespace VideoDedup
         private System.Windows.Forms.Button BtnDiscardDuplicates;
         private System.Windows.Forms.TextBox TxtLog;
         private System.Windows.Forms.ToolStripMenuItem serverConfigurationToolStripMenuItem;
+        private System.Windows.Forms.Button BtnClientConfig;
     }
 }
 
