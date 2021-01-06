@@ -13,6 +13,18 @@
   },
   {
     "Done": true,
+    "Text": "Downscale thumbnails"
+  },
+  {
+    "Done": true,
+    "Text": "Convert thumbnails to jpeg"
+  },
+  {
+    "Done": true,
+    "Text": "VideoFile Interface for regular and serializable thumbnails"
+  },
+  {
+    "Done": true,
     "Text": "Add discard button to main form"
   },
   {
@@ -130,17 +142,5 @@
   {
     "Done": true,
     "Text": "Resolve conflicts while searching for deduplications"
-  },
-  {
-    "Done": false,
-    "Text": "Downscale thumbnails"
-  },
-  {
-    "Done": false,
-    "Text": "Convert thumbnails to jpeg"
-  },
-  {
-    "Done": false,
-    "Text": "VideoFile Interface for regular and serializable thumbnails"
   }
 ]
