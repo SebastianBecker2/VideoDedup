@@ -82,7 +82,7 @@ namespace VideoDedupConsole
             }
         }
 
-        private static void HandleDuplicateFoundEvent(object sender,
+        private static void DuplicateFoundCallback(object sender,
             DuplicateFoundEventArgs e)
         {
             lock (DuplicatesLock)
@@ -158,7 +158,7 @@ namespace VideoDedupConsole
         private static readonly object LogEntriesLock = new object();
         private static Guid logId = Guid.NewGuid();
 
-        private static void HandleLoggedEvent(object sender,
+        private static void LoggedCallback(object sender,
             LoggedEventArgs e) =>
             AddLogEntry(e.Message);
 
@@ -206,7 +206,7 @@ namespace VideoDedupConsole
             }
         }
 
-        private static void HandleProgressUpdateEvent(object sender,
+        private static void ProgressUpdateCallback(object sender,
             ProgressUpdateEventArgs e)
         {
             lock (CurrentStatusLock)
@@ -320,9 +320,9 @@ namespace VideoDedupConsole
 
         private static void Main()
         {
-            Dedupper.ProgressUpdate += HandleProgressUpdateEvent;
-            Dedupper.DuplicateFound += HandleDuplicateFoundEvent;
-            Dedupper.Logged += HandleLoggedEvent;
+            Dedupper.ProgressUpdate += ProgressUpdateCallback;
+            Dedupper.DuplicateFound += DuplicateFoundCallback;
+            Dedupper.Logged += LoggedCallback;
 
             var config = LoadConfig();
             Dedupper.UpdateConfiguration(config);
