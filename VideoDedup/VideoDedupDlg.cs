@@ -107,7 +107,14 @@ namespace VideoDedup
                     logToken = logData.LogToken;
                     foreach (var log in logData.LogItems)
                     {
-                        TxtLog.AppendText(log + Environment.NewLine);
+                        if (!string.IsNullOrWhiteSpace(TxtLog.Text))
+                        {
+                            TxtLog.AppendText(Environment.NewLine + log);
+                        }
+                        else
+                        {
+                            TxtLog.AppendText(log);
+                        }
                     }
                 });
             }
