@@ -34,5 +34,17 @@ namespace VideoDedup.Properties {
                 this["ServerAddress"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1000")]
+        public int StatusRequestInterval {
+            get {
+                return ((int)(this["StatusRequestInterval"]));
+            }
+            set {
+                this["StatusRequestInterval"] = value;
+            }
+        }
     }
 }

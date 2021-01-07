@@ -61,9 +61,9 @@
             this.BtnRemoveFileExtension = new System.Windows.Forms.Button();
             this.BtnAddFileExtension = new System.Windows.Forms.Button();
             this.TxtFileExtension = new System.Windows.Forms.TextBox();
-            this.label10 = new System.Windows.Forms.Label();
             this.ChbRecursive = new System.Windows.Forms.CheckBox();
             this.LsbExcludedDirectories = new System.Windows.Forms.ListBox();
+            this.label10 = new System.Windows.Forms.Label();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentPercentage)).BeginInit();
@@ -446,16 +446,6 @@
             this.TxtFileExtension.Size = new System.Drawing.Size(223, 20);
             this.TxtFileExtension.TabIndex = 10;
             // 
-            // label10
-            // 
-            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(3, 52);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(78, 13);
-            this.label10.TabIndex = 20;
-            this.label10.Text = "File Extentions:";
-            // 
             // ChbRecursive
             // 
             this.ChbRecursive.AutoSize = true;
@@ -479,6 +469,16 @@
             this.tableLayoutPanel3.SetRowSpan(this.LsbExcludedDirectories, 2);
             this.LsbExcludedDirectories.Size = new System.Drawing.Size(223, 173);
             this.LsbExcludedDirectories.TabIndex = 12;
+            // 
+            // label10
+            // 
+            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(3, 52);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(78, 13);
+            this.label10.TabIndex = 20;
+            this.label10.Text = "File Extentions:";
             // 
             // tableLayoutPanel2
             // 

@@ -21,7 +21,7 @@
   },
   {
     "Done": false,
-    "Text": "Add reference to https://icon-library.com/icon/loading-icon-animated-gif-7.html"
+    "Text": "Fix flickering in FileComparisonDlg"
   },
   {
     "Done": true,

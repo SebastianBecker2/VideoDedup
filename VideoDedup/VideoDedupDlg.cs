@@ -146,7 +146,7 @@ namespace VideoDedup
             }
             finally
             {
-                _ = statusTimer.StartSingle(StatusTimerInterval);
+                _ = statusTimer.StartSingle(Configuration.StatusRequestInterval);
             }
         }
 
@@ -161,11 +161,15 @@ namespace VideoDedup
         private static ConfigData LoadConfig() => new ConfigData
         {
             ServerAddress = Settings.Default.ServerAddress,
+            StatusRequestInterval = TimeSpan.FromMilliseconds(
+                Settings.Default.StatusRequestInterval),
         };
 
         private static void SaveConfig(ConfigData configuration)
         {
             Settings.Default.ServerAddress = configuration.ServerAddress;
+            Settings.Default.StatusRequestInterval =
+                (int)configuration.StatusRequestInterval.TotalMilliseconds;
             Settings.Default.Save();
         }
 
@@ -249,6 +253,7 @@ namespace VideoDedup
 
                 Configuration = dlg.Configuration;
                 SaveConfig(Configuration);
+                _ = statusTimer.StartSingle(Configuration.StatusRequestInterval);
             }
         }
 
@@ -303,7 +308,8 @@ namespace VideoDedup
             }
         }
 
-        private void ServerConfigurationToolStripMenuItem_Click(object sender, EventArgs e) =>
+        private void ServerConfigurationToolStripMenuItem_Click(object sender,
+            EventArgs e) =>
             BtnServerConfig.PerformClick();
 
         private void NotifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)

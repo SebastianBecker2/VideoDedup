@@ -13,6 +13,8 @@ namespace VideoDedup
         protected override void OnLoad(EventArgs e)
         {
             TxtServerAddress.Text = Configuration.ServerAddress;
+            NudStatusRequestInterval.Value =
+                (decimal)Configuration.StatusRequestInterval.TotalMilliseconds;
             base.OnLoad(e);
         }
 
@@ -31,11 +33,13 @@ namespace VideoDedup
             }
 
             Configuration.ServerAddress = TxtServerAddress.Text;
+            Configuration.StatusRequestInterval = TimeSpan.FromMilliseconds(
+                (int)NudStatusRequestInterval.Value);
             DialogResult = DialogResult.OK;
         }
 
         private void TxtServerAddress_ResolveStarted(object sender,
-            DnsTextBox.ResolveStartedEventArgs e)
+            ResolveStartedEventArgs e)
         {
             if (PibServerAddressLoading.Image == null)
             {
@@ -44,11 +48,11 @@ namespace VideoDedup
         }
 
         private void TxtServerAddress_ResolveSuccessful(object sender,
-            DnsTextBox.ResolveSuccessfulEventArgs e) =>
+            ResolveSuccessfulEventArgs e) =>
             PibServerAddressLoading.Image = null;
 
         private void TxtServerAddress_ResolveFailed(object sender,
-            DnsTextBox.ResolveFailedEventArgs e) =>
+            ResolveFailedEventArgs e) =>
             PibServerAddressLoading.Image = null;
     }
 }
