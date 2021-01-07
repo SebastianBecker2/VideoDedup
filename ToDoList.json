@@ -20,7 +20,11 @@
     "Text": "Parallelize image comparison"
   },
   {
-    "Done": false,
+    "Done": true,
+    "Text": "Update current status when monitoring and new files have been found (and are being checked)"
+  },
+  {
+    "Done": true,
     "Text": "Fix flickering in FileComparisonDlg"
   },
   {
@@ -154,5 +158,9 @@
   {
     "Done": true,
     "Text": "Resolve conflicts while searching for deduplications"
+  },
+  {
+    "Done": false,
+    "Text": "Remove timer on client or implement progress time counting on server"
   }
 ]

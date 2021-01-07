@@ -577,8 +577,16 @@ namespace VideoDedupShared
                 }
             }
 
+            OnProgressUpdate(StatusType.Comparing, 0, NewFiles.Count());
+            // We need to count for the ProgressUpdate since we shrink
+            // the Queue on every iteration.
+            var filesProcessed = 1;
             while (NewFiles.TryTake(out var newFile))
             {
+                OnProgressUpdate(StatusType.Comparing, filesProcessed,
+                    filesProcessed + NewFiles.Count());
+                filesProcessed++;
+
                 if (!newFile.WaitForFileAccess(cancelToken))
                 {
                     OnLogged($"Unable to access new file: {newFile.FileName}");
