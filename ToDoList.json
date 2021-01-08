@@ -17,7 +17,11 @@
   },
   {
     "Done": false,
-    "Text": "Parallelize image comparison"
+    "Text": "Parallelize image comparison\r\nNeeds different Image-Comparison tool. Can't use winforms images because of GDI"
+  },
+  {
+    "Done": false,
+    "Text": "Remove timer on client or implement progress time counting on server"
   },
   {
     "Done": true,
@@ -161,6 +165,6 @@
   },
   {
     "Done": false,
-    "Text": "Remove timer on client or implement progress time counting on server"
+    "Text": "HashSet for NewFiles in DedupEngine?"
   }
 ]

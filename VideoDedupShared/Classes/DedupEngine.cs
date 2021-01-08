@@ -435,26 +435,21 @@ namespace VideoDedupShared
                     index + 1,
                     videoFileList.Count());
 
-                for (var nextIndex = index + 1; nextIndex < videoFileList.Count; nextIndex++)
+                foreach (var other in videoFileList
+                    .Skip(index + 1)
+                    .TakeWhile(other => file.IsDurationEqual(other, settings)))
                 {
                     if (cancelToken.IsCancellationRequested)
                     {
                         return;
                     }
 
-                    var nextFile = videoFileList[nextIndex];
-
-                    if (!file.IsDurationEqual(nextFile, settings))
+                    OnLogged(string.Format(LogCompareFile, other.FilePath));
+                    if (file.AreImagesEqual(other, settings, cancelToken))
                     {
-                        break;
-                    }
-
-                    OnLogged(string.Format(LogCompareFile, nextFile.FilePath));
-
-                    if (file.AreImagesEqual(nextFile, settings, cancelToken))
-                    {
-                        OnLogged($"Found duplicate of {file.FilePath} and {nextFile.FilePath}");
-                        OnDuplicateFound(file, nextFile);
+                        OnLogged($"Found duplicate of {file.FilePath} and " +
+                            $"{other.FilePath}");
+                        OnDuplicateFound(file, other);
                     }
                 }
 
@@ -475,28 +470,20 @@ namespace VideoDedupShared
                     refFile.FilePath,
                     refFile.Duration.ToPrettyString()));
 
-            foreach (var file in videoFiles)
+            foreach (var file in videoFiles
+                .Where(f => f != refFile)
+                .Where(f => f.IsDurationEqual(refFile, Configuration)))
             {
                 if (cancelToken.IsCancellationRequested)
                 {
                     return;
                 }
 
-                if (file == refFile)
-                {
-                    continue;
-                }
-
-                if (!file.IsDurationEqual(refFile, Configuration))
-                {
-                    continue;
-                }
-
                 OnLogged(string.Format(LogCompareFile, file.FilePath));
-
                 if (file.AreImagesEqual(refFile, Configuration, cancelToken))
                 {
-                    OnLogged($"Found duplicate of {refFile.FilePath} and {file.FilePath}");
+                    OnLogged($"Found duplicate of {refFile.FilePath} and" +
+                        $" {file.FilePath}");
                     OnDuplicateFound(refFile, file);
                 }
             }
