@@ -49,8 +49,9 @@ namespace VideoDedupShared
             = new CancellationTokenSource { };
         private FileSystemWatcher FileWatcher { get; set; }
             = new FileSystemWatcher { };
-        private IProducerConsumerCollection<VideoFile> NewFiles { get; set; }
-            = new ConcurrentQueue<VideoFile> { };
+        // ConcurrentDictionary is used as a hash set
+        private ConcurrentDictionary<VideoFile, byte> NewFiles { get; set; }
+            = new ConcurrentDictionary<VideoFile, byte> { };
         private IProducerConsumerCollection<VideoFile> DeletedFiles { get; set; }
             = new ConcurrentQueue<VideoFile> { };
         private IList<VideoFile> VideoFiles { get; set; }
@@ -144,12 +145,12 @@ namespace VideoDedupShared
 
             if (NewFiles != null)
             {
-                foreach (var file in NewFiles)
+                foreach (var kvp in NewFiles)
                 {
-                    file.Dispose();
+                    kvp.Key.Dispose();
                 }
             }
-            NewFiles = new ConcurrentQueue<VideoFile> { };
+            NewFiles = new ConcurrentDictionary<VideoFile, byte> { };
             if (DeletedFiles != null)
             {
                 foreach (var file in DeletedFiles)
@@ -270,7 +271,7 @@ namespace VideoDedupShared
                 return;
             }
 
-            _ = NewFiles.TryAdd(new VideoFile(filePath));
+            _ = NewFiles.TryAdd(new VideoFile(filePath), 0);
             OnLogged(string.Format(LogNewFile, filePath));
             StartProcessingChanges();
         }
@@ -574,8 +575,10 @@ namespace VideoDedupShared
             // We need to count for the ProgressUpdate since we shrink
             // the Queue on every iteration.
             var filesProcessed = 1;
-            while (NewFiles.TryTake(out var newFile))
+            while (NewFiles.Any())
             {
+                var newFile = NewFiles.First().Key;
+                _ = NewFiles.TryRemove(newFile, out var _);
                 OnProgressUpdate(StatusType.Comparing, filesProcessed,
                     filesProcessed + NewFiles.Count());
                 filesProcessed++;
