@@ -37,8 +37,8 @@ namespace VideoDedup
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.PibServerAddressLoading = new System.Windows.Forms.PictureBox();
-            this.NudStatusRequestInterval = new System.Windows.Forms.NumericUpDown();
             this.TxtServerAddress = new VideoDedup.DnsTextBox.DnsTextBoxCtrl();
+            this.NudStatusRequestInterval = new System.Windows.Forms.NumericUpDown();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.PibServerAddressLoading)).BeginInit();
@@ -133,6 +133,19 @@ namespace VideoDedup
             this.PibServerAddressLoading.TabIndex = 2;
             this.PibServerAddressLoading.TabStop = false;
             // 
+            // TxtServerAddress
+            // 
+            this.TxtServerAddress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.TxtServerAddress.Location = new System.Drawing.Point(91, 11);
+            this.TxtServerAddress.Name = "TxtServerAddress";
+            this.TxtServerAddress.ResolvedSuccessfully = false;
+            this.TxtServerAddress.Resolving = false;
+            this.TxtServerAddress.Size = new System.Drawing.Size(193, 20);
+            this.TxtServerAddress.TabIndex = 3;
+            this.TxtServerAddress.ResolveStarted += new System.EventHandler<VideoDedup.DnsTextBox.ResolveStartedEventArgs>(this.TxtServerAddress_ResolveStarted);
+            this.TxtServerAddress.ResolveSuccessful += new System.EventHandler<VideoDedup.DnsTextBox.ResolveSuccessfulEventArgs>(this.TxtServerAddress_ResolveSuccessful);
+            this.TxtServerAddress.ResolveFailed += new System.EventHandler<VideoDedup.DnsTextBox.ResolveFailedEventArgs>(this.TxtServerAddress_ResolveFailed);
+            // 
             // NudStatusRequestInterval
             // 
             this.NudStatusRequestInterval.Anchor = System.Windows.Forms.AnchorStyles.Left;
@@ -156,19 +169,6 @@ namespace VideoDedup
             0,
             0});
             // 
-            // TxtServerAddress
-            // 
-            this.TxtServerAddress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.TxtServerAddress.Location = new System.Drawing.Point(91, 11);
-            this.TxtServerAddress.Name = "TxtServerAddress";
-            this.TxtServerAddress.ResolvedSuccessfully = false;
-            this.TxtServerAddress.Resolving = false;
-            this.TxtServerAddress.Size = new System.Drawing.Size(193, 20);
-            this.TxtServerAddress.TabIndex = 3;
-            this.TxtServerAddress.ResolveStarted += new System.EventHandler<VideoDedup.DnsTextBox.ResolveStartedEventArgs>(this.TxtServerAddress_ResolveStarted);
-            this.TxtServerAddress.ResolveSuccessful += new System.EventHandler<VideoDedup.DnsTextBox.ResolveSuccessfulEventArgs>(this.TxtServerAddress_ResolveSuccessful);
-            this.TxtServerAddress.ResolveFailed += new System.EventHandler<VideoDedup.DnsTextBox.ResolveFailedEventArgs>(this.TxtServerAddress_ResolveFailed);
-            // 
             // ClientConfigDlg
             // 
             this.AcceptButton = this.BtnOkay;
@@ -181,6 +181,7 @@ namespace VideoDedup
             this.Controls.Add(this.BtnOkay);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "ClientConfigDlg";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Client Configuration";
             this.groupBox1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);

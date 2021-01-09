@@ -8,10 +8,6 @@
     "Text": "Run dedup as service, monitoring the folder for changed of video files."
   },
   {
-    "Done": true,
-    "Text": "Add monitoring option in config (to turn off or on)"
-  },
-  {
     "Done": false,
     "Text": "Implement Log as virtual DGV"
   },
@@ -26,6 +22,18 @@
   {
     "Done": false,
     "Text": "HashSet for NewFiles in DedupEngine?"
+  },
+  {
+    "Done": true,
+    "Text": "Set WindowPosition for ClientConfigDlg"
+  },
+  {
+    "Done": false,
+    "Text": "Try reading all images from a video at once (to get a single ffmpeg call maybe)"
+  },
+  {
+    "Done": true,
+    "Text": "Add monitoring option in config (to turn off or on)"
   },
   {
     "Done": true,
