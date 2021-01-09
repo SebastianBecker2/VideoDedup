@@ -48,6 +48,9 @@ namespace Wcf.Contracts.Data
         [DataMember]
         public int ThumbnailCount { get; set; }
 
+        [DataMember]
+        public bool MonitorFileChanges { get; set; }
+
         public ConfigData Copy() => new ConfigData
         {
             SourcePath = SourcePath,
@@ -61,6 +64,7 @@ namespace Wcf.Contracts.Data
             DurationDifferenceType = DurationDifferenceType,
             Recursive = Recursive,
             ThumbnailCount = ThumbnailCount,
+            MonitorFileChanges = MonitorFileChanges,
         };
 
         DurationDifferenceType IDurationComparisonSettings.DifferenceType =>
@@ -99,6 +103,8 @@ namespace Wcf.Contracts.Data
             FileExtensions;
 
         int IThumbnailSettings.Count => ThumbnailCount;
+
+        bool IFolderSettings.MonitorChanges => MonitorFileChanges;
 
         IDedupperSettings IDedupperSettings.Copy() => Copy();
     }

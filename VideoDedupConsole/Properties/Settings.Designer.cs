@@ -154,5 +154,17 @@ namespace VideoDedupConsole.Properties {
                 this["Recursive"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool MonitorFileChanges {
+            get {
+                return ((bool)(this["MonitorFileChanges"]));
+            }
+            set {
+                this["MonitorFileChanges"] = value;
+            }
+        }
     }
 }

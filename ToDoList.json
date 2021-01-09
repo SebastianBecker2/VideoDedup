@@ -8,7 +8,7 @@
     "Text": "Run dedup as service, monitoring the folder for changed of video files."
   },
   {
-    "Done": false,
+    "Done": true,
     "Text": "Add monitoring option in config (to turn off or on)"
   },
   {
@@ -22,6 +22,10 @@
   {
     "Done": false,
     "Text": "Remove timer on client or implement progress time counting on server"
+  },
+  {
+    "Done": false,
+    "Text": "HashSet for NewFiles in DedupEngine?"
   },
   {
     "Done": true,
@@ -162,9 +166,5 @@
   {
     "Done": true,
     "Text": "Resolve conflicts while searching for deduplications"
-  },
-  {
-    "Done": false,
-    "Text": "HashSet for NewFiles in DedupEngine?"
   }
 ]

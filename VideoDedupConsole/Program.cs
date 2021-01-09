@@ -19,6 +19,7 @@ namespace VideoDedupConsole
             { StatusType.Loading, "Loading media info: {0}/{1}" },
             { StatusType.Searching, "Searching for files..." },
             { StatusType.Monitoring, "Monitoring for file changes..." },
+            { StatusType.Completed, "Finished comparison" },
         };
 
         private static IList<DuplicateWrapper> Duplicates { get; } =
@@ -262,6 +263,7 @@ namespace VideoDedupConsole
                 DurationDifferenceType = durationDifferenceType,
                 ThumbnailCount = Settings.Default.ThumbnailCount,
                 Recursive = Settings.Default.Recursive,
+                MonitorFileChanges = Settings.Default.MonitorFileChanges,
             };
         }
 
@@ -288,6 +290,7 @@ namespace VideoDedupConsole
             Settings.Default.ThumbnailCount =
                 configuration.Count;
             Settings.Default.Recursive = configuration.Recursive;
+            Settings.Default.MonitorFileChanges = configuration.MonitorChanges;
             Settings.Default.Save();
         }
 

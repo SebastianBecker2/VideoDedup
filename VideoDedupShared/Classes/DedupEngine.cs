@@ -140,7 +140,7 @@ namespace VideoDedupShared
 
             FileWatcher.Path = Configuration.BasePath;
             FileWatcher.IncludeSubdirectories = Configuration.Recursive;
-            FileWatcher.EnableRaisingEvents = true;
+            FileWatcher.EnableRaisingEvents = Configuration.MonitorChanges;
 
             if (NewFiles != null)
             {
@@ -493,6 +493,12 @@ namespace VideoDedupShared
         {
             lock (DedupLock)
             {
+                if (!Configuration.MonitorChanges)
+                {
+                    OnProgressUpdate(StatusType.Completed, ProgressStyle.NoProgress);
+                    OnLogged("Finished comparison.");
+                    return;
+                }
                 if (!NewFiles.Any() && !DeletedFiles.Any())
                 {
                     OnProgressUpdate(StatusType.Monitoring, ProgressStyle.Marquee);

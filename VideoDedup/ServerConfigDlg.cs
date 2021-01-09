@@ -16,6 +16,7 @@ namespace VideoDedup
         {
             TxtSourcePath.Text = ServerConfig.SourcePath;
             ChbRecursive.Checked = ServerConfig.Recursive;
+            ChbMonitorFileChanges.Checked = ServerConfig.MonitorFileChanges;
 
             if (ServerConfig.ExcludedDirectories != null)
             {
@@ -45,6 +46,7 @@ namespace VideoDedup
         {
             ServerConfig.SourcePath = TxtSourcePath.Text;
             ServerConfig.Recursive = ChbRecursive.Checked;
+            ServerConfig.MonitorFileChanges = ChbMonitorFileChanges.Checked;
 
             ServerConfig.ExcludedDirectories = LsbExcludedDirectories.Items.Cast<string>().ToList();
             ServerConfig.FileExtensions = LsbFileExtensions.Items.Cast<string>().ToList();
