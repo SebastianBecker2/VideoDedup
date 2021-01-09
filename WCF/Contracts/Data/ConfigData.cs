@@ -1,14 +1,12 @@
 namespace Wcf.Contracts.Data
 {
     using System.Collections.Generic;
-    using System.Drawing;
     using System.IO;
-    using System.Linq;
     using System.Runtime.Serialization;
     using VideoDedupShared;
 
     [DataContract]
-    public class ConfigData : IDedupperSettings
+    public class ConfigData : IDedupEngineSettings
     {
         private static readonly string CacheFolderName = "VideoDedupCache";
         private static readonly string CacheFileName = "video_files.cache";
@@ -51,22 +49,6 @@ namespace Wcf.Contracts.Data
         [DataMember]
         public bool MonitorFileChanges { get; set; }
 
-        public ConfigData Copy() => new ConfigData
-        {
-            SourcePath = SourcePath,
-            ExcludedDirectories = ExcludedDirectories.ToList(),
-            FileExtensions = FileExtensions.ToList(),
-            MaxThumbnailComparison = MaxThumbnailComparison,
-            MaxDifferentThumbnails = MaxDifferentThumbnails,
-            MaxDifferencePercentage = MaxDifferencePercentage,
-            MaxDurationDifferenceSeconds = MaxDurationDifferenceSeconds,
-            MaxDurationDifferencePercent = MaxDurationDifferencePercent,
-            DurationDifferenceType = DurationDifferenceType,
-            Recursive = Recursive,
-            ThumbnailCount = ThumbnailCount,
-            MonitorFileChanges = MonitorFileChanges,
-        };
-
         DurationDifferenceType IDurationComparisonSettings.DifferenceType =>
             DurationDifferenceType;
 
@@ -105,7 +87,5 @@ namespace Wcf.Contracts.Data
         int IThumbnailSettings.Count => ThumbnailCount;
 
         bool IFolderSettings.MonitorChanges => MonitorFileChanges;
-
-        IDedupperSettings IDedupperSettings.Copy() => Copy();
     }
 }

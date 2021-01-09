@@ -267,7 +267,7 @@ namespace VideoDedupConsole
             };
         }
 
-        public static void SaveConfig(IDedupperSettings configuration)
+        public static void SaveConfig(IDedupEngineSettings configuration)
         {
             Settings.Default.SourcePath =
                 configuration.BasePath;

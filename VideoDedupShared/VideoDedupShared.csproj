@@ -67,7 +67,7 @@
     <Compile Include="ExtensionMethods\IVideoFileExtension.cs" />
     <Compile Include="ExtensionMethods\ProgressBarExtension.cs" />
     <Compile Include="ExtensionMethods\TimeSpanExtension.cs" />
-    <Compile Include="Interfaces\IDedupperSettings.cs" />
+    <Compile Include="Interfaces\IDedupEngineSettings.cs" />
     <Compile Include="Interfaces\IDurationComparisonSettings.cs" />
     <Compile Include="Interfaces\IThumbnailSettings.cs" />
     <Compile Include="Interfaces\IImageComparisonSettings.cs" />

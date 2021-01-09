@@ -42,7 +42,7 @@ namespace VideoDedupShared
 
         private bool disposedValue; // For IDisposable
 
-        private IDedupperSettings Configuration { get; set; } = null;
+        private IDedupEngineSettings Configuration { get; set; } = null;
         private Task DedupTask { get; set; } = null;
         private object DedupLock { get; set; } = new object { };
         private CancellationTokenSource CancelSource { get; set; }
@@ -106,17 +106,17 @@ namespace VideoDedupShared
             FileWatcher.Created += HandleFileWatcherCreatedEvent;
         }
 
-        public DedupEngine(IDedupperSettings config) : this() =>
+        public DedupEngine(IDedupEngineSettings config) : this() =>
             UpdateConfiguration(config);
 
-        public void UpdateConfiguration(IDedupperSettings config)
+        public void UpdateConfiguration(IDedupEngineSettings config)
         {
             if (config is null)
             {
                 throw new ArgumentNullException(nameof(config));
             }
 
-            Configuration = config.Copy();
+            Configuration = config;
         }
 
         public void Start()
@@ -412,7 +412,7 @@ namespace VideoDedupShared
 
         private void FindDuplicates(
             IEnumerable<VideoFile> videoFiles,
-            IDedupperSettings settings,
+            IDedupEngineSettings settings,
             CancellationToken cancelToken)
         {
             OnProgressUpdate(StatusType.Comparing, 0, videoFiles.Count());
