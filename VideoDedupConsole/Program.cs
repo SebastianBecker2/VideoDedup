@@ -231,9 +231,11 @@ namespace VideoDedupConsole
                 Settings.Default.FileExtensions);
             if (fileExtensions == null || !fileExtensions.Any())
             {
+                // Default value here, because it's stored as json.
                 fileExtensions = new List<string>
                     {
-                        ".mp4", ".mpg", ".avi", ".wmv", ".flv", ".m4v", ".mov", ".mpeg", ".rm", ".mts", ".3gp"
+                        ".mp4", ".mpg", ".avi", ".wmv", ".flv", ".m4v", ".mov",
+                        ".mpeg", ".rm", ".mts", ".3gp"
                     };
             }
 
@@ -269,8 +271,7 @@ namespace VideoDedupConsole
 
         public static void SaveConfig(IDedupEngineSettings configuration)
         {
-            Settings.Default.SourcePath =
-                configuration.BasePath;
+            Settings.Default.SourcePath = configuration.BasePath;
             Settings.Default.ExcludedDirectories =
                 JsonConvert.SerializeObject(configuration.ExcludedDirectories);
             Settings.Default.FileExtensions =
@@ -287,8 +288,7 @@ namespace VideoDedupConsole
                 (configuration as IDurationComparisonSettings).MaxDifferencePercent;
             Settings.Default.DurationDifferenceType =
                 configuration.DifferenceType.ToString();
-            Settings.Default.ThumbnailCount =
-                configuration.Count;
+            Settings.Default.ThumbnailCount = configuration.Count;
             Settings.Default.Recursive = configuration.Recursive;
             Settings.Default.MonitorFileChanges = configuration.MonitorChanges;
             Settings.Default.Save();
