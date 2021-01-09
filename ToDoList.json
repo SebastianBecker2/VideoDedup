@@ -20,16 +20,16 @@
     "Text": "Remove timer on client or implement progress time counting on server"
   },
   {
-    "Done": false,
-    "Text": "HashSet for NewFiles in DedupEngine?"
-  },
-  {
     "Done": true,
-    "Text": "Set WindowPosition for ClientConfigDlg"
+    "Text": "HashSet for NewFiles in DedupEngine?"
   },
   {
     "Done": false,
     "Text": "Try reading all images from a video at once (to get a single ffmpeg call maybe)"
+  },
+  {
+    "Done": true,
+    "Text": "Set WindowPosition for ClientConfigDlg"
   },
   {
     "Done": true,
