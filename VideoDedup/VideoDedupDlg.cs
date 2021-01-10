@@ -8,9 +8,16 @@ namespace VideoDedup
     using VideoDedup.Properties;
     using Microsoft.WindowsAPICodePack.Taskbar;
     using VideoDedupShared;
+    using System.Threading.Tasks;
+    using System.Collections.Concurrent;
+    using System.Linq;
+    using VideoDedupShared.DataGridViewExtension;
 
     public partial class VideoDedupDlg : Form
     {
+        private static readonly string StatusInfoDuplicateCount =
+            "Duplicates found {0}";
+
         private static readonly TimeSpan WcfTimeout = TimeSpan.FromSeconds(10);
 
         private WcfProxy WcfProxy
@@ -58,12 +65,9 @@ namespace VideoDedup
         private WcfProxy wcfProxy = null;
         private readonly object wcfProxyLock = new object();
 
-        private static readonly TimeSpan StatusTimerInterval =
-            TimeSpan.FromSeconds(1);
-
-        private static readonly string StatusInfoDuplicateCount = "Duplicates found {0}";
-
-        private static LogToken logToken = null;
+        private Guid? logToken;
+        private ConcurrentDictionary<int, LogEntry> LogEntries { get; } =
+            new ConcurrentDictionary<int, LogEntry>();
 
         private TimeSpan ElapsedTime { get; set; } = new TimeSpan();
 
@@ -89,17 +93,49 @@ namespace VideoDedup
             base.OnLoad(e);
         }
 
+        private static ConfigData LoadConfig() => new ConfigData
+        {
+            ServerAddress = Settings.Default.ServerAddress,
+            StatusRequestInterval = TimeSpan.FromMilliseconds(
+                Settings.Default.StatusRequestInterval),
+        };
+
+        private static void SaveConfig(ConfigData configuration)
+        {
+            Settings.Default.ServerAddress = configuration.ServerAddress;
+            Settings.Default.StatusRequestInterval =
+                (int)configuration.StatusRequestInterval.TotalMilliseconds;
+            Settings.Default.Save();
+        }
+
         private void StatusTimerCallback(object param)
         {
             try
             {
                 var status = WcfProxy.GetCurrentStatus();
-                var logData = WcfProxy.GetLogEvents(logToken);
 
                 this.InvokeIfRequired(() =>
                 {
-                    ElapsedTime = ElapsedTime.Add(StatusTimerInterval);
+                    ElapsedTime = ElapsedTime.Add(
+                        Configuration.StatusRequestInterval);
                     LblTimer.Text = ElapsedTime.ToString();
+
+                    if (logToken != status.LogToken)
+                    {
+                        LogEntries.Clear();
+                        DgvLog.RowCount = 0;
+                    }
+                    logToken = status.LogToken;
+
+                    // If we are scrolled down, we auto scroll
+                    var prevRowCount = DgvLog.RowCount;
+                    DgvLog.RowCount = status.LogCount;
+                    if (DgvLog.GetLastDisplayedScrollingRowIndex(false)
+                        == prevRowCount - 1)
+                    {
+                        DgvLog.FirstDisplayedScrollingRowIndex =
+                            DgvLog.RowCount - 1;
+                    }
 
                     UpdateProgress(status.StatusMessage,
                         status.CurrentProgress,
@@ -112,23 +148,6 @@ namespace VideoDedup
                         DuplicateCount);
                     BtnResolveDuplicates.Enabled = DuplicateCount > 0;
                     BtnDiscardDuplicates.Enabled = DuplicateCount > 0;
-
-                    if (logToken != null && logToken.Id != logData.LogToken.Id)
-                    {
-                        TxtLog.Clear();
-                    }
-                    logToken = logData.LogToken;
-                    foreach (var log in logData.LogItems)
-                    {
-                        if (!string.IsNullOrWhiteSpace(TxtLog.Text))
-                        {
-                            TxtLog.AppendText(Environment.NewLine + log);
-                        }
-                        else
-                        {
-                            TxtLog.AppendText(log);
-                        }
-                    }
                 });
             }
             catch (Exception ex) when (
@@ -148,29 +167,6 @@ namespace VideoDedup
             {
                 _ = statusTimer.StartSingle(Configuration.StatusRequestInterval);
             }
-        }
-
-        private void BtnToDoManager_Click(object sender, EventArgs e)
-        {
-            using (var dlg = new ToDoManager.ToDoManager())
-            {
-                _ = dlg.ShowDialog();
-            }
-        }
-
-        private static ConfigData LoadConfig() => new ConfigData
-        {
-            ServerAddress = Settings.Default.ServerAddress,
-            StatusRequestInterval = TimeSpan.FromMilliseconds(
-                Settings.Default.StatusRequestInterval),
-        };
-
-        private static void SaveConfig(ConfigData configuration)
-        {
-            Settings.Default.ServerAddress = configuration.ServerAddress;
-            Settings.Default.StatusRequestInterval =
-                (int)configuration.StatusRequestInterval.TotalMilliseconds;
-            Settings.Default.Save();
         }
 
         private void UpdateProgress(
@@ -222,6 +218,91 @@ namespace VideoDedup
             {
                 Debug.Assert(true);
             }
+        }
+
+        private void DgvLog_CellValueNeeded(object sender,
+            DataGridViewCellValueEventArgs e)
+        {
+            var logIndex = e.RowIndex;
+
+            if (LogEntries.TryGetValue(logIndex, out var logEntry))
+            {
+                if (logEntry.Status == LogEntryStatus.Present)
+                {
+                    e.Value = logEntry.Message;
+                }
+                return;
+            }
+
+            e.Value = "";
+
+            if (!logToken.HasValue)
+            {
+                return;
+            }
+
+            // Find first displayed row that has no log present or requested
+            var start = logIndex;
+            for (; start > DgvLog.FirstDisplayedScrollingRowIndex; start--)
+            {
+                if (LogEntries.TryGetValue(start - 1, out var _))
+                {
+                    break;
+                }
+            }
+
+            // Find last displayed row that has no log present or requested
+            var end = logIndex;
+            for (; end < DgvLog.GetLastDisplayedScrollingRowIndex(true); end++)
+            {
+                if (LogEntries.TryGetValue(end + 1, out var _))
+                {
+                    break;
+                }
+            }
+
+            var count = end - start + 1;
+
+            RequestLogEntries(logToken.Value, start, count);
+        }
+
+        private void RequestLogEntries(Guid logToken, int start, int count)
+        {
+            foreach (var index in Enumerable.Range(start, count))
+            {
+                _ = LogEntries.TryAdd(index, new LogEntry
+                {
+                    Status = LogEntryStatus.Requested,
+                    Message = "",
+                });
+            }
+
+            _ = Task.Factory.StartNew(() =>
+            {
+                var logData = WcfProxy.GetLogEntries(logToken, start, count);
+                if (logData == null)
+                {
+                    return;
+                }
+
+                {
+                    var index = start;
+                    foreach (var logEntry in logData.LogEntries)
+                    {
+                        _ = LogEntries[index++] = new LogEntry
+                        {
+                            Status = LogEntryStatus.Present,
+                            Message = logEntry,
+                        };
+                    }
+                }
+
+                foreach (var index in Enumerable.Range(start, count))
+                {
+                    DgvLog.InvokeIfRequired(() =>
+                        DgvLog.UpdateCellValue(0, index));
+                }
+            });
         }
 
         private void BtnServerConfig_Click(object sender, EventArgs e)
@@ -351,6 +432,14 @@ namespace VideoDedup
                ex is EndpointNotFoundException
                || ex is CommunicationException)
             { }
+        }
+
+        private void BtnToDoManager_Click(object sender, EventArgs e)
+        {
+            using (var dlg = new ToDoManager.ToDoManager())
+            {
+                _ = dlg.ShowDialog();
+            }
         }
     }
 }

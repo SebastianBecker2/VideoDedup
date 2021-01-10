@@ -45,15 +45,17 @@ namespace VideoDedup
             this.LblDuplicateCount = new System.Windows.Forms.Label();
             this.NotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.BtnDiscardDuplicates = new System.Windows.Forms.Button();
-            this.TxtLog = new System.Windows.Forms.TextBox();
             this.BtnClientConfig = new System.Windows.Forms.Button();
+            this.DgvLog = new System.Windows.Forms.DataGridView();
+            this.DgcLogMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.MenuStrip.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.DgvLog)).BeginInit();
             this.SuspendLayout();
             // 
             // BtnToDoManager
             // 
             this.BtnToDoManager.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.BtnToDoManager.Location = new System.Drawing.Point(306, 344);
+            this.BtnToDoManager.Location = new System.Drawing.Point(254, 344);
             this.BtnToDoManager.Name = "BtnToDoManager";
             this.BtnToDoManager.Size = new System.Drawing.Size(75, 23);
             this.BtnToDoManager.TabIndex = 1;
@@ -190,20 +192,6 @@ namespace VideoDedup
             this.BtnDiscardDuplicates.UseVisualStyleBackColor = true;
             this.BtnDiscardDuplicates.Click += new System.EventHandler(this.BtnDiscard_Click);
             // 
-            // TxtLog
-            // 
-            this.TxtLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.TxtLog.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.TxtLog.Location = new System.Drawing.Point(12, 87);
-            this.TxtLog.Multiline = true;
-            this.TxtLog.Name = "TxtLog";
-            this.TxtLog.ReadOnly = true;
-            this.TxtLog.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.TxtLog.Size = new System.Drawing.Size(795, 251);
-            this.TxtLog.TabIndex = 15;
-            // 
             // BtnClientConfig
             // 
             this.BtnClientConfig.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -215,13 +203,43 @@ namespace VideoDedup
             this.BtnClientConfig.UseVisualStyleBackColor = true;
             this.BtnClientConfig.Click += new System.EventHandler(this.BtnClientConfig_Click);
             // 
+            // DgvLog
+            // 
+            this.DgvLog.AllowUserToAddRows = false;
+            this.DgvLog.AllowUserToDeleteRows = false;
+            this.DgvLog.AllowUserToResizeColumns = false;
+            this.DgvLog.AllowUserToResizeRows = false;
+            this.DgvLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.DgvLog.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.DgvLog.ColumnHeadersVisible = false;
+            this.DgvLog.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.DgcLogMessage});
+            this.DgvLog.Location = new System.Drawing.Point(12, 87);
+            this.DgvLog.MultiSelect = false;
+            this.DgvLog.Name = "DgvLog";
+            this.DgvLog.ReadOnly = true;
+            this.DgvLog.RowHeadersVisible = false;
+            this.DgvLog.Size = new System.Drawing.Size(795, 251);
+            this.DgvLog.TabIndex = 17;
+            this.DgvLog.VirtualMode = true;
+            this.DgvLog.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.DgvLog_CellValueNeeded);
+            // 
+            // DgcLogMessage
+            // 
+            this.DgcLogMessage.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.DgcLogMessage.HeaderText = "Message";
+            this.DgcLogMessage.Name = "DgcLogMessage";
+            this.DgcLogMessage.ReadOnly = true;
+            // 
             // VideoDedupDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(819, 379);
+            this.Controls.Add(this.DgvLog);
             this.Controls.Add(this.BtnClientConfig);
-            this.Controls.Add(this.TxtLog);
             this.Controls.Add(this.BtnDiscardDuplicates);
             this.Controls.Add(this.LblDuplicateCount);
             this.Controls.Add(this.BtnResolveDuplicates);
@@ -238,6 +256,7 @@ namespace VideoDedup
             this.Resize += new System.EventHandler(this.Form1_Resize);
             this.MenuStrip.ResumeLayout(false);
             this.MenuStrip.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.DgvLog)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -259,9 +278,10 @@ namespace VideoDedup
         private System.Windows.Forms.Label LblDuplicateCount;
         private System.Windows.Forms.NotifyIcon NotifyIcon;
         private System.Windows.Forms.Button BtnDiscardDuplicates;
-        private System.Windows.Forms.TextBox TxtLog;
         private System.Windows.Forms.ToolStripMenuItem serverConfigurationToolStripMenuItem;
         private System.Windows.Forms.Button BtnClientConfig;
+        private System.Windows.Forms.DataGridView DgvLog;
+        private System.Windows.Forms.DataGridViewTextBoxColumn DgcLogMessage;
     }
 }
 

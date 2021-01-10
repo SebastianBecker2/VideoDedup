@@ -36,6 +36,6 @@ namespace Wcf.Contracts.Services
         void DiscardDuplicates();
 
         [OperationContract]
-        LogData GetLogEvents(LogToken logToken);
+        LogData GetLogEntries(Guid logToken, int start, int count);
     }
 }

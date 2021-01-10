@@ -56,12 +56,12 @@
   <ItemGroup>
     <Compile Include="Classes\VideoFile.cs" />
     <Compile Include="Classes\DedupEngine.cs" />
-    <Compile Include="Classes\LogToken.cs" />
     <Compile Include="Classes\VideoCodecInfo.cs" />
     <Compile Include="Enums\ProgressStyle.cs" />
     <Compile Include="Enums\ResolveOperation.cs" />
     <Compile Include="Enums\DurationDifferenceType.cs" />
     <Compile Include="Enums\StatusType.cs" />
+    <Compile Include="ExtensionMethods\DataGridViewExtension.cs" />
     <Compile Include="ExtensionMethods\ImageExtension.cs" />
     <Compile Include="ExtensionMethods\ISynchronizeInvokeExtension.cs" />
     <Compile Include="ExtensionMethods\IVideoFileExtension.cs" />

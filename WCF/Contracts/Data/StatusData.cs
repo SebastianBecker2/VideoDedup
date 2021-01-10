@@ -21,6 +21,10 @@ namespace Wcf.Contracts.Data
         public TimeSpan Durtion { get; set; }
         [DataMember]
         public int DuplicateCount { get; set; }
+        [DataMember]
+        public int LogCount { get; set; }
+        [DataMember]
+        public Guid LogToken { get; set; }
 
         public StatusData Clone() => (StatusData)MemberwiseClone();
     }

@@ -76,6 +76,8 @@
     <Compile Include="DnsTextBox\ResolveFailedEventArgs.cs" />
     <Compile Include="DnsTextBox\ResolveStartedEventArgs.cs" />
     <Compile Include="DnsTextBox\ResolveSuccessfulEventArgs.cs" />
+    <Compile Include="LogEntry.cs" />
+    <Compile Include="LogEntryStatus.cs" />
     <Compile Include="ServerConfigDlg.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -171,23 +171,24 @@ namespace VideoDedupConsole
             }
         }
 
-        public static LogData GetLogEntries(LogToken logToken)
+        public static LogData GetLogEntries(Guid logToken, int start, int count)
         {
             lock (LogEntriesLock)
             {
-                var logIndex = 0;
-                if (logToken != null && logToken.Id == logId)
+                if (logToken != null && logToken != logId)
                 {
-                    logIndex = logToken.Index;
+                    return new LogData();
+                    ;
                 }
+
+                if (start < 0 || start + count > LogEntries.Count() + 1)
+                {
+                    return new LogData();
+                }
+                
                 return new LogData
                 {
-                    LogToken = new LogToken
-                    {
-                        Id = logId,
-                        Index = LogEntries.Count(),
-                    },
-                    LogItems = LogEntries.Skip(logIndex),
+                    LogEntries = LogEntries.Skip(start).Take(count),
                 };
             }
         }
@@ -202,6 +203,11 @@ namespace VideoDedupConsole
                 lock (DuplicatesLock)
                 {
                     CurrentStatus.DuplicateCount = Duplicates.Count();
+                }
+                lock (LogEntriesLock)
+                {
+                    CurrentStatus.LogCount = LogEntries.Count();
+                    CurrentStatus.LogToken = logId;
                 }
                 return CurrentStatus.Clone();
             }

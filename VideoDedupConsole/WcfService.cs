@@ -14,9 +14,6 @@ namespace VideoDedupConsole
         public DuplicateData GetDuplicate() =>
             Program.GetDuplicate();
 
-        public LogData GetLogEvents(LogToken logToken) =>
-            Program.GetLogEntries(logToken);
-
         public void ResolveDuplicate(Guid duplicateId,
             ResolveOperation resolveOperation) =>
             Program.ResolveDuplicate(duplicateId, resolveOperation);
@@ -27,7 +24,10 @@ namespace VideoDedupConsole
             Program.UpdateConfig(configData);
         }
 
-        void IVideoDedupProvider.DiscardDuplicates() =>
+        public void DiscardDuplicates() =>
             Program.DiscardDuplicates();
+
+        public LogData GetLogEntries(Guid logToken, int start, int count) =>
+            Program.GetLogEntries(logToken, start, count);
     }
 }

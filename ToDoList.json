@@ -20,12 +20,12 @@
     "Text": "Remove timer on client or implement progress time counting on server"
   },
   {
-    "Done": true,
-    "Text": "HashSet for NewFiles in DedupEngine?"
-  },
-  {
     "Done": false,
     "Text": "Try reading all images from a video at once (to get a single ffmpeg call maybe)"
+  },
+  {
+    "Done": true,
+    "Text": "HashSet for NewFiles in DedupEngine?"
   },
   {
     "Done": true,
@@ -174,5 +174,9 @@
   {
     "Done": true,
     "Text": "Resolve conflicts while searching for deduplications"
+  },
+  {
+    "Done": false,
+    "Text": "Make WCF static functions in Console.Program internal instead of public"
   }
 ]
