@@ -36,7 +36,7 @@ namespace VideoDedupConsole
             }
         }
 
-        public static DuplicateData GetDuplicate()
+        internal static DuplicateData GetDuplicate()
         {
             lock (DuplicatesLock)
             {
@@ -70,7 +70,7 @@ namespace VideoDedupConsole
             }
         }
 
-        public static void DiscardDuplicates()
+        internal static void DiscardDuplicates()
         {
             lock (DuplicatesLock)
             {
@@ -95,7 +95,7 @@ namespace VideoDedupConsole
             }
         }
 
-        public static void ResolveDuplicate(Guid duplicateId,
+        internal static void ResolveDuplicate(Guid duplicateId,
             ResolveOperation resolveOperation)
         {
             lock (DuplicatesLock)
@@ -171,7 +171,7 @@ namespace VideoDedupConsole
             }
         }
 
-        public static LogData GetLogEntries(Guid logToken, int start, int count)
+        internal static LogData GetLogEntries(Guid logToken, int start, int count)
         {
             lock (LogEntriesLock)
             {
@@ -196,7 +196,7 @@ namespace VideoDedupConsole
         private static StatusData CurrentStatus { get; } = new StatusData();
         private static readonly object CurrentStatusLock = new object();
 
-        public static StatusData GetCurrentStatus()
+        internal static StatusData GetCurrentStatus()
         {
             lock (CurrentStatusLock)
             {
@@ -228,7 +228,7 @@ namespace VideoDedupConsole
 
         private static readonly DedupEngine Dedupper = new DedupEngine();
 
-        public static ConfigData LoadConfig()
+        internal static ConfigData LoadConfig()
         {
             var excludedDirectories = JsonConvert.DeserializeObject<List<string>>(
                 Settings.Default.ExcludedDirectories);
@@ -275,7 +275,7 @@ namespace VideoDedupConsole
             };
         }
 
-        public static void SaveConfig(IDedupEngineSettings configuration)
+        internal static void SaveConfig(IDedupEngineSettings configuration)
         {
             Settings.Default.SourcePath = configuration.BasePath;
             Settings.Default.ExcludedDirectories =
@@ -300,7 +300,7 @@ namespace VideoDedupConsole
             Settings.Default.Save();
         }
 
-        public static void UpdateConfig(ConfigData config)
+        internal static void UpdateConfig(ConfigData config)
         {
             ThumbnailManager.Configuration = config;
             Dedupper.UpdateConfiguration(config);

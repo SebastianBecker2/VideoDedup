@@ -9,10 +9,6 @@
   },
   {
     "Done": false,
-    "Text": "Implement Log as virtual DGV"
-  },
-  {
-    "Done": false,
     "Text": "Parallelize image comparison\r\nNeeds different Image-Comparison tool. Can't use winforms images because of GDI"
   },
   {
@@ -22,6 +18,14 @@
   {
     "Done": false,
     "Text": "Try reading all images from a video at once (to get a single ffmpeg call maybe)"
+  },
+  {
+    "Done": true,
+    "Text": "Make WCF static functions in Console.Program internal instead of public"
+  },
+  {
+    "Done": true,
+    "Text": "Implement Log as virtual DGV"
   },
   {
     "Done": true,
@@ -174,9 +178,5 @@
   {
     "Done": true,
     "Text": "Resolve conflicts while searching for deduplications"
-  },
-  {
-    "Done": false,
-    "Text": "Make WCF static functions in Console.Program internal instead of public"
   }
 ]
