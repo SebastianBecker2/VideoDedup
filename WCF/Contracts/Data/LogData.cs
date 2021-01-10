@@ -7,6 +7,6 @@ namespace Wcf.Contracts.Data
     public class LogData
     {
         [DataMember]
-        public IEnumerable<string> LogEntries { get; set; }
+        public IEnumerable<string> LogEntries { get; set; } = new List<string>();
     }
 }

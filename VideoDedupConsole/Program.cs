@@ -12,14 +12,14 @@ namespace VideoDedupConsole
 
     internal class Program
     {
-        private static readonly IReadOnlyDictionary<StatusType, string> StatusInfo
-            = new Dictionary<StatusType, string>
+        private static readonly IReadOnlyDictionary<OperationType, string>
+            OperationTypeTexts = new Dictionary<OperationType, string>
         {
-            { StatusType.Comparing, "Comparing: {0}/{1}" },
-            { StatusType.Loading, "Loading media info: {0}/{1}" },
-            { StatusType.Searching, "Searching for files..." },
-            { StatusType.Monitoring, "Monitoring for file changes..." },
-            { StatusType.Completed, "Finished comparison" },
+            { OperationType.Comparing, "Comparing: {0}/{1}" },
+            { OperationType.Loading, "Loading media info: {0}/{1}" },
+            { OperationType.Searching, "Searching for files..." },
+            { OperationType.Monitoring, "Monitoring for file changes..." },
+            { OperationType.Completed, "Finished comparison" },
         };
 
         private static IList<DuplicateWrapper> Duplicates { get; } =
@@ -171,7 +171,9 @@ namespace VideoDedupConsole
             }
         }
 
-        internal static LogData GetLogEntries(Guid logToken, int start, int count)
+        internal static LogData GetLogEntries(Guid logToken,
+            int start,
+            int count)
         {
             lock (LogEntriesLock)
             {
@@ -185,7 +187,7 @@ namespace VideoDedupConsole
                 {
                     return new LogData();
                 }
-                
+
                 return new LogData
                 {
                     LogEntries = LogEntries.Skip(start).Take(count),
@@ -193,37 +195,42 @@ namespace VideoDedupConsole
             }
         }
 
-        private static StatusData CurrentStatus { get; } = new StatusData();
-        private static readonly object CurrentStatusLock = new object();
+        private static OperationInfo OperationInfo { get; set; }
+            = null;
+
+        private static void OperationUpdateCallback(object sender,
+            OperationUpdateEventArgs e) =>
+            OperationInfo = new OperationInfo
+            {
+                Message = string.Format(
+                    OperationTypeTexts[e.Type],
+                    e.Counter,
+                    e.MaxCount),
+                CurrentProgress = e.Counter,
+                MaximumProgress = e.MaxCount,
+                ProgressStyle = e.Style,
+                StartTime = e.StartTime,
+            };
 
         internal static StatusData GetCurrentStatus()
         {
-            lock (CurrentStatusLock)
+            var statudData = new StatusData
             {
-                lock (DuplicatesLock)
-                {
-                    CurrentStatus.DuplicateCount = Duplicates.Count();
-                }
-                lock (LogEntriesLock)
-                {
-                    CurrentStatus.LogCount = LogEntries.Count();
-                    CurrentStatus.LogToken = logId;
-                }
-                return CurrentStatus.Clone();
-            }
-        }
+                Operation = OperationInfo,
+            };
 
-        private static void ProgressUpdateCallback(object sender,
-            ProgressUpdateEventArgs e)
-        {
-            lock (CurrentStatusLock)
+            lock (DuplicatesLock)
             {
-                CurrentStatus.StatusMessage = string.Format(
-                    StatusInfo[e.Type], e.Counter, e.MaxCount);
-                CurrentStatus.CurrentProgress = e.Counter;
-                CurrentStatus.MaximumProgress = e.MaxCount;
-                CurrentStatus.ProgressStyle = e.Style;
+                statudData.DuplicateCount = Duplicates.Count();
             }
+
+            lock (LogEntriesLock)
+            {
+                statudData.LogCount = LogEntries.Count();
+                statudData.LogToken = logId;
+            }
+
+            return statudData;
         }
 
         private static readonly DedupEngine Dedupper = new DedupEngine();
@@ -318,18 +325,18 @@ namespace VideoDedupConsole
             }
             catch (InvalidOperationException exc)
             {
-                lock (CurrentStatusLock)
+                OperationInfo = new OperationInfo
                 {
-                    CurrentStatus.ProgressStyle = ProgressStyle.NoProgress;
-                    CurrentStatus.StatusMessage = exc.Message;
-                }
+                    ProgressStyle = ProgressStyle.NoProgress,
+                    Message = exc.Message,
+                };
                 AddLogEntry(exc.Message);
             }
         }
 
         private static void Main()
         {
-            Dedupper.ProgressUpdate += ProgressUpdateCallback;
+            Dedupper.OperationUpdate += OperationUpdateCallback;
             Dedupper.DuplicateFound += DuplicateFoundCallback;
             Dedupper.Logged += LoggedCallback;
 
@@ -337,11 +344,11 @@ namespace VideoDedupConsole
             Dedupper.UpdateConfiguration(config);
             ThumbnailManager.Configuration = config;
 
-            lock (CurrentStatusLock)
+            OperationInfo = new OperationInfo
             {
-                CurrentStatus.ProgressStyle = ProgressStyle.Marquee;
-                CurrentStatus.StatusMessage = "Initializing...";
-            }
+                ProgressStyle = ProgressStyle.Marquee,
+                Message = "Initializing...",
+            };
 
             var baseAddress = new Uri("net.tcp://localhost:41721/VideoDedup");
             using (var serviceHost = new ServiceHost(typeof(WcfService), baseAddress))
@@ -353,11 +360,11 @@ namespace VideoDedupConsole
                 }
                 catch (InvalidOperationException exc)
                 {
-                    lock (CurrentStatusLock)
+                    OperationInfo = new OperationInfo
                     {
-                        CurrentStatus.ProgressStyle = ProgressStyle.NoProgress;
-                        CurrentStatus.StatusMessage = exc.Message;
-                    }
+                        ProgressStyle = ProgressStyle.NoProgress,
+                        Message = exc.Message,
+                    };
                     AddLogEntry(exc.Message);
                 }
 

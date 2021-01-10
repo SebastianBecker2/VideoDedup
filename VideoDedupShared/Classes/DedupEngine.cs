@@ -20,12 +20,13 @@ namespace VideoDedupShared
         public VideoFile File2 { get; set; }
     }
 
-    public class ProgressUpdateEventArgs : EventArgs
+    public class OperationUpdateEventArgs : EventArgs
     {
-        public StatusType Type { get; set; }
+        public OperationType Type { get; set; }
         public int Counter { get; set; }
         public int MaxCount { get; set; }
         public ProgressStyle Style { get; set; }
+        public DateTime StartTime { get; set; }
     }
 
     public class LoggedEventArgs : EventArgs
@@ -70,25 +71,28 @@ namespace VideoDedupShared
                 File2 = file2,
             });
 
-        public event EventHandler<ProgressUpdateEventArgs> ProgressUpdate;
-        protected virtual void OnProgressUpdate(StatusType type,
+        public event EventHandler<OperationUpdateEventArgs> OperationUpdate;
+        private DateTime operationStartTime = DateTime.MinValue;
+        protected virtual void OnOperationUpdate(OperationType type,
             int counter,
             int maxCount) =>
-            ProgressUpdate?.Invoke(this, new ProgressUpdateEventArgs
+            OperationUpdate?.Invoke(this, new OperationUpdateEventArgs
             {
                 Type = type,
                 Counter = counter,
                 MaxCount = maxCount,
                 Style = ProgressStyle.Continuous,
+                StartTime = operationStartTime,
             });
-        protected virtual void OnProgressUpdate(StatusType type,
+        protected virtual void OnOperationUpdate(OperationType type,
             ProgressStyle style) =>
-            ProgressUpdate?.Invoke(this, new ProgressUpdateEventArgs
+            OperationUpdate?.Invoke(this, new OperationUpdateEventArgs
             {
                 Type = type,
                 Counter = 0,
                 MaxCount = 0,
                 Style = style,
+                StartTime = operationStartTime,
             });
 
         public event EventHandler<LoggedEventArgs> Logged;
@@ -336,7 +340,8 @@ namespace VideoDedupShared
         {
             var timer = Stopwatch.StartNew();
 
-            OnProgressUpdate(StatusType.Searching, ProgressStyle.Marquee);
+            operationStartTime = DateTime.Now;
+            OnOperationUpdate(OperationType.Searching, ProgressStyle.Marquee);
 
             // Get all video files in source path.
             var fileExtensions = folderSettings.FileExtensions.ToList();
@@ -370,7 +375,8 @@ namespace VideoDedupShared
             }
             timer.Stop();
 
-            OnProgressUpdate(StatusType.Loading, 0, cached_files.Count());
+            operationStartTime = DateTime.Now;
+            OnOperationUpdate(OperationType.Loading, 0, cached_files.Count());
             OnLogged($"Found {cached_files.Count()} video files in " +
                 $"{timer.ElapsedMilliseconds} ms");
             return cached_files;
@@ -383,7 +389,7 @@ namespace VideoDedupShared
             var counter = 0;
             foreach (var f in videoFiles)
             {
-                OnProgressUpdate(StatusType.Loading,
+                OnOperationUpdate(OperationType.Loading,
                     ++counter,
                     videoFiles.Count());
 
@@ -416,7 +422,8 @@ namespace VideoDedupShared
             IDedupEngineSettings settings,
             CancellationToken cancelToken)
         {
-            OnProgressUpdate(StatusType.Comparing, 0, videoFiles.Count());
+            operationStartTime = DateTime.Now;
+            OnOperationUpdate(OperationType.Comparing, 0, videoFiles.Count());
 
             var videoFileList = videoFiles.OrderBy(f => f.Duration).ToList();
 
@@ -432,7 +439,7 @@ namespace VideoDedupShared
                 OnLogged(string.Format(LogCheckingFile,
                     file.FilePath,
                     file.Duration.ToPrettyString()));
-                OnProgressUpdate(StatusType.Comparing,
+                OnOperationUpdate(OperationType.Comparing,
                     index + 1,
                     videoFileList.Count());
 
@@ -457,7 +464,7 @@ namespace VideoDedupShared
                 file.DisposeImages();
             }
 
-            OnProgressUpdate(StatusType.Comparing,
+            OnOperationUpdate(OperationType.Comparing,
                 videoFileList.Count(),
                 videoFileList.Count());
         }
@@ -496,13 +503,15 @@ namespace VideoDedupShared
             {
                 if (!Configuration.MonitorChanges)
                 {
-                    OnProgressUpdate(StatusType.Completed, ProgressStyle.NoProgress);
+                    operationStartTime = DateTime.MinValue;
+                    OnOperationUpdate(OperationType.Completed, ProgressStyle.NoProgress);
                     OnLogged("Finished comparison.");
                     return;
                 }
                 if (!NewFiles.Any() && !DeletedFiles.Any())
                 {
-                    OnProgressUpdate(StatusType.Monitoring, ProgressStyle.Marquee);
+                    operationStartTime = DateTime.Now;
+                    OnOperationUpdate(OperationType.Monitoring, ProgressStyle.Marquee);
                     OnLogged("Monitoring for file changes...");
                     return;
                 }
@@ -571,7 +580,8 @@ namespace VideoDedupShared
                 }
             }
 
-            OnProgressUpdate(StatusType.Comparing, 0, NewFiles.Count());
+            operationStartTime = DateTime.Now;
+            OnOperationUpdate(OperationType.Comparing, 0, NewFiles.Count());
             // We need to count for the ProgressUpdate since we shrink
             // the Queue on every iteration.
             var filesProcessed = 1;
@@ -579,7 +589,7 @@ namespace VideoDedupShared
             {
                 var newFile = NewFiles.First().Key;
                 _ = NewFiles.TryRemove(newFile, out var _);
-                OnProgressUpdate(StatusType.Comparing, filesProcessed,
+                OnOperationUpdate(OperationType.Comparing, filesProcessed,
                     filesProcessed + NewFiles.Count());
                 filesProcessed++;
 

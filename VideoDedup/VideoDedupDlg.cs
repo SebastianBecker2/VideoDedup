@@ -12,6 +12,7 @@ namespace VideoDedup
     using System.Collections.Concurrent;
     using System.Linq;
     using VideoDedupShared.DataGridViewExtension;
+    using VideoDedupShared.TimeSpanExtension;
 
     public partial class VideoDedupDlg : Form
     {
@@ -69,8 +70,6 @@ namespace VideoDedup
         private ConcurrentDictionary<int, LogEntry> LogEntries { get; } =
             new ConcurrentDictionary<int, LogEntry>();
 
-        private TimeSpan ElapsedTime { get; set; } = new TimeSpan();
-
         private int DuplicateCount { get; set; } = 0;
 
         private SmartTimer.Timer statusTimer = null;
@@ -87,7 +86,11 @@ namespace VideoDedup
             Configuration = LoadConfig();
 
             statusTimer = new SmartTimer.Timer(StatusTimerCallback);
-            UpdateProgress("Connecting...", 0, 0, ProgressStyle.Marquee);
+            UpdateOperation(new OperationInfo
+            {
+                Message = "Connecting...",
+                ProgressStyle = ProgressStyle.Marquee,
+            });
             statusTimer.StartSingle(0);
 
             base.OnLoad(e);
@@ -116,10 +119,6 @@ namespace VideoDedup
 
                 this.InvokeIfRequired(() =>
                 {
-                    ElapsedTime = ElapsedTime.Add(
-                        Configuration.StatusRequestInterval);
-                    LblTimer.Text = ElapsedTime.ToString();
-
                     if (logToken != status.LogToken)
                     {
                         LogEntries.Clear();
@@ -137,10 +136,7 @@ namespace VideoDedup
                             DgvLog.RowCount - 1;
                     }
 
-                    UpdateProgress(status.StatusMessage,
-                        status.CurrentProgress,
-                        status.MaximumProgress,
-                        status.ProgressStyle);
+                    UpdateOperation(status.Operation);
 
                     DuplicateCount = status.DuplicateCount;
                     LblDuplicateCount.Text = string.Format(
@@ -159,8 +155,11 @@ namespace VideoDedup
                 this.InvokeIfRequired(() =>
                 {
                     BtnResolveDuplicates.Enabled = false;
-                    UpdateProgress("Connecting...",
-                        0, 0, ProgressStyle.Marquee);
+                    UpdateOperation(new OperationInfo
+                    {
+                        Message = "Connecting...",
+                        ProgressStyle = ProgressStyle.Marquee,
+                    });
                 });
             }
             finally
@@ -169,21 +168,27 @@ namespace VideoDedup
             }
         }
 
-        private void UpdateProgress(
-            string statusInfo,
-            int counter,
-            int maxCount,
-            ProgressStyle style)
+        private void UpdateOperation(OperationInfo operation)
         {
             LblStatusInfo.Text = string.Format(
-                statusInfo,
-                counter,
-                maxCount);
+                operation.Message,
+                operation.CurrentProgress,
+                operation.MaximumProgress);
+
+            if (operation.StartTime == DateTime.MinValue)
+            {
+                LblTimer.Text = "";
+            }
+            else
+            {
+                var duration = DateTime.Now - operation.StartTime;
+                LblTimer.Text = duration.ToPrettyString();
+            }
 
             // Regular progress (searching duplicates)
             // Marquee (conecting, monitoring) [style = marquee, max = 1]
             // Off (invalid configuration) [value = 0, max = 0]
-            if (style == ProgressStyle.NoProgress)
+            if (operation.ProgressStyle == ProgressStyle.NoProgress)
             {
                 TaskbarManager.Instance.SetProgressState(
                     TaskbarProgressBarState.NoProgress,
@@ -192,20 +197,20 @@ namespace VideoDedup
                 ProgressBar.Maximum = 0;
                 ProgressBar.Value = 0;
             }
-            else if (style == ProgressStyle.Continuous)
+            else if (operation.ProgressStyle == ProgressStyle.Continuous)
             {
                 TaskbarManager.Instance.SetProgressState(
                     TaskbarProgressBarState.Normal,
                     Handle);
                 TaskbarManager.Instance.SetProgressValue(
-                    counter,
-                    maxCount,
+                    operation.CurrentProgress,
+                    operation.MaximumProgress,
                     Handle);
                 ProgressBar.Style = ProgressBarStyle.Continuous;
-                ProgressBar.Maximum = maxCount;
-                ProgressBar.Value = counter;
+                ProgressBar.Maximum = operation.MaximumProgress;
+                ProgressBar.Value = operation.CurrentProgress;
             }
-            else if (style == ProgressStyle.Marquee)
+            else if (operation.ProgressStyle == ProgressStyle.Marquee)
             {
                 TaskbarManager.Instance.SetProgressState(
                     TaskbarProgressBarState.Indeterminate,

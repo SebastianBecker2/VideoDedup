@@ -1,6 +1,6 @@
 namespace VideoDedupShared
 {
-    public enum StatusType
+    public enum OperationType
     {
         Comparing,
         Loading,
