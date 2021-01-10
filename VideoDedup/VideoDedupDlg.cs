@@ -121,8 +121,13 @@ namespace VideoDedup
                 {
                     if (logToken != status.LogToken)
                     {
-                        LogEntries.Clear();
+                        // Has to be in this order
+                        // Otherwise clearing the DGV causes cell value requests
+                        // in this thread before continuing here.
+                        // Which has a high chance of adding items in the
+                        // LogEntries list.
                         DgvLog.RowCount = 0;
+                        LogEntries.Clear();
                     }
                     logToken = status.LogToken;
 
@@ -282,32 +287,31 @@ namespace VideoDedup
                 });
             }
 
-            _ = Task.Factory.StartNew(() =>
+            var logRequester = Task.Factory.StartNew(() =>
+            WcfProxy.GetLogEntries(logToken, start, count));
+
+            logRequester.ContinueWith(t =>
             {
-                var logData = WcfProxy.GetLogEntries(logToken, start, count);
-                if (logData == null)
+                if (start + count > DgvLog.RowCount)
                 {
                     return;
                 }
 
+                var logIndex = start;
+                foreach (var logEntry in t.Result.LogEntries)
                 {
-                    var index = start;
-                    foreach (var logEntry in logData.LogEntries)
+                    _ = LogEntries[logIndex++] = new LogEntry
                     {
-                        _ = LogEntries[index++] = new LogEntry
-                        {
-                            Status = LogEntryStatus.Present,
-                            Message = logEntry,
-                        };
-                    }
+                        Status = LogEntryStatus.Present,
+                        Message = logEntry,
+                    };
                 }
 
                 foreach (var index in Enumerable.Range(start, count))
                 {
-                    DgvLog.InvokeIfRequired(() =>
-                        DgvLog.UpdateCellValue(0, index));
+                    DgvLog.UpdateCellValue(0, index);
                 }
-            });
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private void BtnServerConfig_Click(object sender, EventArgs e)
