@@ -14,11 +14,20 @@ namespace VideoDedupConsole
 
         public DuplicateWrapper(
             VideoFile file1,
-            VideoFile file2) => DuplicateData = new DuplicateData
+            VideoFile file2)
+        {
+            _ = file1.FileSize;
+            _ = file1.Duration;
+            _ = file1.VideoCodec;
+            _ = file2.FileSize;
+            _ = file2.Duration;
+            _ = file2.VideoCodec;
+            DuplicateData = new DuplicateData
             {
                 DuplicateId = Guid.NewGuid(),
                 File1 = file1,
                 File2 = file2,
             };
+        }
     }
 }

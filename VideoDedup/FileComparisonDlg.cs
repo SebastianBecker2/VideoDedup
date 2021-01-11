@@ -12,7 +12,7 @@ namespace VideoDedup
         public VideoFile LeftFile { get; set; }
         public VideoFile RightFile { get; set; }
 
-        public IThumbnailSettings Configuration { get; set; }
+        public ConfigData Configuration { get; set; }
 
         public ResolveOperation ResolveOperation { get; set; }
 
@@ -54,8 +54,15 @@ namespace VideoDedup
             DialogResult = DialogResult.OK;
         }
 
-        private void OpenFileInExplorer(string filePath)
+        private void OpenFileInExplorer(VideoFile file)
         {
+            var filePath = file.FilePath;
+            if (!string.IsNullOrWhiteSpace(Configuration.ClientSourcePath))
+            {
+                filePath = Path.Combine(
+                    Configuration.ClientSourcePath,
+                    file.RelativeFilePath);
+            }
             if (!File.Exists(filePath))
             {
                 return;
@@ -69,10 +76,10 @@ namespace VideoDedup
         }
 
         private void BtnShowRight_Click(object sender, EventArgs e) =>
-            OpenFileInExplorer(RightFile.FilePath);
+            OpenFileInExplorer(RightFile);
 
         private void BtnShowLeft_Click(object sender, EventArgs e) =>
-            OpenFileInExplorer(LeftFile.FilePath);
+            OpenFileInExplorer(LeftFile);
 
         private void BtnSkip_Click(object sender, EventArgs e)
         {

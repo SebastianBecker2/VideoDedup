@@ -38,6 +38,7 @@ namespace VideoDedupShared
             // We have to do a bit more work here since we can't use
             // the other ctors because we don't want to eagerly load
             // the images when we can copy them from the other file.
+            relativeFilePath = other.relativeFilePath;
             fileSize = other.fileSize;
             duration = other.duration;
             videoCodec = other.videoCodec;
@@ -63,7 +64,7 @@ namespace VideoDedupShared
         public VideoFile(
             IVideoFile other,
             int imageCount = 0)
-            : this(other.FilePath, imageCount)
+            : this(other.FilePath, other.RelativeFilePath, imageCount)
         {
             if (other is null)
             {
@@ -77,6 +78,7 @@ namespace VideoDedupShared
 
         public VideoFile(
             string filePath,
+            string relativeFilePath,
             int imageCount = 0)
         {
             if (string.IsNullOrWhiteSpace(filePath))
@@ -85,7 +87,14 @@ namespace VideoDedupShared
                     $" null or whitespace", nameof(filePath));
             }
 
+            if (string.IsNullOrWhiteSpace(relativeFilePath))
+            {
+                throw new ArgumentException($"'{nameof(relativeFilePath)}'" +
+                    $" cannot be null or whitespace", nameof(relativeFilePath));
+            }
+
             this.filePath = filePath;
+            this.relativeFilePath = relativeFilePath;
             this.imageCount = imageCount;
 
             foreach (var index in Enumerable.Range(0, ImageCount))
@@ -101,6 +110,12 @@ namespace VideoDedupShared
         protected internal string filePath;
 
         [JsonIgnore]
+        public string RelativeFilePath => relativeFilePath;
+        [DataMember]
+        [JsonProperty]
+        protected internal string relativeFilePath;
+
+        [JsonIgnore]
         public string FileName => Path.GetFileName(FilePath);
 
         [JsonIgnore]
@@ -108,16 +123,16 @@ namespace VideoDedupShared
         {
             get
             {
-                if (fileSize == 0)
+                if (!fileSize.HasValue)
                 {
                     fileSize = new FileInfo(FilePath).Length;
                 }
-                return fileSize;
+                return fileSize.Value;
             }
         }
         [JsonProperty]
         [DataMember]
-        protected internal long fileSize = 0;
+        protected internal long? fileSize = null;
 
         [JsonIgnore]
         public TimeSpan Duration
@@ -147,18 +162,23 @@ namespace VideoDedupShared
         {
             get
             {
-                if (MediaInfo == null)
+                if (videoCodec == null)
                 {
-                    return null;
-                }
+                    if (MediaInfo == null)
+                    {
+                        return null;
+                    }
 
-                var stream = MediaInfo.Streams.FirstOrDefault(s => s.CodecType == "video");
-                if (stream == null)
-                {
-                    return null;
-                }
+                    var stream = MediaInfo.Streams
+                        .FirstOrDefault(s => s.CodecType == "video");
+                    if (stream == null)
+                    {
+                        return null;
+                    }
 
-                return new VideoCodecInfo(stream);
+                    videoCodec = new VideoCodecInfo(stream);
+                }
+                return videoCodec;
             }
         }
         [JsonIgnore]
@@ -173,7 +193,15 @@ namespace VideoDedupShared
                 if (mediaInfo == null)
                 {
                     var probe = new FFProbe();
-                    mediaInfo = probe.GetMediaInfo(FilePath);
+
+                    try
+                    {
+                        mediaInfo = probe.GetMediaInfo(FilePath);
+                    }
+                    catch (Exception)
+                    {
+                        return null;
+                    }
                 }
                 return mediaInfo;
             }

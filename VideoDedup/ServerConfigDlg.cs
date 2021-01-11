@@ -76,6 +76,7 @@ namespace VideoDedup
             using (var dlg = new CommonOpenFileDialog())
             {
                 dlg.IsFolderPicker = true;
+                dlg.InitialDirectory = TxtSourcePath.Text;
 
                 if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
                 {

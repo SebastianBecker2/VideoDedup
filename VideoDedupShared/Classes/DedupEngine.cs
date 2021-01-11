@@ -11,6 +11,7 @@ namespace VideoDedupShared
     using TimeSpanExtension;
     using Newtonsoft.Json;
     using VideoDedupShared.IVideoFileExtension;
+    using VideoDedupShared.StringExtension;
 
     public class StoppedEventArgs : EventArgs { }
 
@@ -263,7 +264,9 @@ namespace VideoDedupShared
                 return;
             }
 
-            _ = DeletedFiles.TryAdd(new VideoFile(filePath));
+            _ = DeletedFiles.TryAdd(new VideoFile(
+                filePath,
+                filePath.MakeRelativePath(Configuration.BasePath)));
             OnLogged(string.Format(LogDeletedFile, filePath));
             StartProcessingChanges();
         }
@@ -275,7 +278,11 @@ namespace VideoDedupShared
                 return;
             }
 
-            _ = NewFiles.TryAdd(new VideoFile(filePath), 0);
+            _ = NewFiles.TryAdd(
+                new VideoFile(
+                    filePath,
+                    filePath.MakeRelativePath(Configuration.BasePath)),
+                0);
             OnLogged(string.Format(LogNewFile, filePath));
             StartProcessingChanges();
         }
@@ -352,7 +359,9 @@ namespace VideoDedupShared
                 .Where(f => fileExtensions.Contains(
                     Path.GetExtension(f),
                     StringComparer.CurrentCultureIgnoreCase))
-                .Select(f => new VideoFile(f));
+                .Select(f => new VideoFile(
+                    f,
+                    f.MakeRelativePath(folderSettings.BasePath)));
 
             var cached_files = LoadVideoFilesCache(folderSettings.CachePath);
             if (cached_files == null || !cached_files.Any())

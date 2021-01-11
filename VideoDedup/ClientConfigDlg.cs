@@ -2,6 +2,7 @@ namespace VideoDedup
 {
     using System;
     using System.Windows.Forms;
+    using Microsoft.WindowsAPICodePack.Dialogs;
     using VideoDedup.DnsTextBox;
 
     public partial class ClientConfigDlg : Form
@@ -15,6 +16,7 @@ namespace VideoDedup
             TxtServerAddress.Text = Configuration.ServerAddress;
             NudStatusRequestInterval.Value =
                 (decimal)Configuration.StatusRequestInterval.TotalMilliseconds;
+            TxtClientSourcePath.Text = Configuration.ClientSourcePath;
             base.OnLoad(e);
         }
 
@@ -35,6 +37,7 @@ namespace VideoDedup
             Configuration.ServerAddress = TxtServerAddress.Text;
             Configuration.StatusRequestInterval = TimeSpan.FromMilliseconds(
                 (int)NudStatusRequestInterval.Value);
+            Configuration.ClientSourcePath = TxtClientSourcePath.Text;
             DialogResult = DialogResult.OK;
         }
 
@@ -54,5 +57,21 @@ namespace VideoDedup
         private void TxtServerAddress_ResolveFailed(object sender,
             ResolveFailedEventArgs e) =>
             PibServerAddressLoading.Image = null;
+
+        private void BtnSelectClientSourcePath_Click(object sender, EventArgs e)
+        {
+            using (var dlg = new CommonOpenFileDialog())
+            {
+                dlg.IsFolderPicker = true;
+                dlg.InitialDirectory = TxtClientSourcePath.Text;
+
+                if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
+                {
+                    return;
+                }
+
+                TxtClientSourcePath.Text = dlg.FileName;
+            }
+        }
     }
 }

@@ -6,6 +6,7 @@ namespace VideoDedupShared
     public interface IVideoFile : IEquatable<IVideoFile>
     {
         string FilePath { get; }
+        string RelativeFilePath { get; }
         long FileSize { get; }
         TimeSpan Duration { get; }
         VideoCodecInfo VideoCodec { get; }

@@ -101,6 +101,7 @@ namespace VideoDedup
             ServerAddress = Settings.Default.ServerAddress,
             StatusRequestInterval = TimeSpan.FromMilliseconds(
                 Settings.Default.StatusRequestInterval),
+            ClientSourcePath = Settings.Default.ClientSourcePath,
         };
 
         private static void SaveConfig(ConfigData configuration)
@@ -108,6 +109,7 @@ namespace VideoDedup
             Settings.Default.ServerAddress = configuration.ServerAddress;
             Settings.Default.StatusRequestInterval =
                 (int)configuration.StatusRequestInterval.TotalMilliseconds;
+            Settings.Default.ClientSourcePath = configuration.ClientSourcePath;
             Settings.Default.Save();
         }
 
@@ -290,28 +292,28 @@ namespace VideoDedup
             var logRequester = Task.Factory.StartNew(() =>
             WcfProxy.GetLogEntries(logToken, start, count));
 
-            logRequester.ContinueWith(t =>
-            {
-                if (start + count > DgvLog.RowCount)
-                {
-                    return;
-                }
+            _ = logRequester.ContinueWith(t =>
+              {
+                  if (start + count > DgvLog.RowCount)
+                  {
+                      return;
+                  }
 
-                var logIndex = start;
-                foreach (var logEntry in t.Result.LogEntries)
-                {
-                    _ = LogEntries[logIndex++] = new LogEntry
-                    {
-                        Status = LogEntryStatus.Present,
-                        Message = logEntry,
-                    };
-                }
+                  var logIndex = start;
+                  foreach (var logEntry in t.Result.LogEntries)
+                  {
+                      _ = LogEntries[logIndex++] = new LogEntry
+                      {
+                          Status = LogEntryStatus.Present,
+                          Message = logEntry,
+                      };
+                  }
 
-                foreach (var index in Enumerable.Range(start, count))
-                {
-                    DgvLog.UpdateCellValue(0, index);
-                }
-            }, TaskScheduler.FromCurrentSynchronizationContext());
+                  foreach (var index in Enumerable.Range(start, count))
+                  {
+                      DgvLog.UpdateCellValue(0, index);
+                  }
+              }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private void BtnServerConfig_Click(object sender, EventArgs e)
@@ -364,6 +366,7 @@ namespace VideoDedup
                         DialogResult result;
                         dlg.LeftFile = duplicate.File1;
                         dlg.RightFile = duplicate.File2;
+                        dlg.Configuration = Configuration;
                         result = dlg.ShowDialog();
 
                         if (result == DialogResult.Cancel)

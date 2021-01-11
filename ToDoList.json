@@ -13,11 +13,15 @@
   },
   {
     "Done": false,
-    "Text": "Remove timer on client or implement progress time counting on server"
+    "Text": "Try reading all images from a video at once (to get a single ffmpeg call maybe)\r\nhttps://stackoverflow.com/a/28321986/2347040"
   },
   {
     "Done": false,
-    "Text": "Try reading all images from a video at once (to get a single ffmpeg call maybe)"
+    "Text": "Getting exception when opening server configuration while server is not running"
+  },
+  {
+    "Done": true,
+    "Text": "Remove timer on client or implement progress time counting on server"
   },
   {
     "Done": true,
@@ -178,5 +182,9 @@
   {
     "Done": true,
     "Text": "Resolve conflicts while searching for deduplications"
+  },
+  {
+    "Done": false,
+    "Text": "Make duplicate list a hashset or something"
   }
 ]

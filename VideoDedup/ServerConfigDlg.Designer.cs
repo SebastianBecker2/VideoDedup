@@ -64,8 +64,8 @@
             this.ChbRecursive = new System.Windows.Forms.CheckBox();
             this.LsbExcludedDirectories = new System.Windows.Forms.ListBox();
             this.label10 = new System.Windows.Forms.Label();
-            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.ChbMonitorFileChanges = new System.Windows.Forms.CheckBox();
+            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentPercentage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentThumbnails)).BeginInit();
@@ -360,18 +360,18 @@
             // 
             this.label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 8);
+            this.label1.Location = new System.Drawing.Point(3, 8);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(69, 13);
+            this.label1.Size = new System.Drawing.Size(89, 13);
             this.label1.TabIndex = 18;
-            this.label1.Text = "Source Path:";
+            this.label1.Text = "Source Directory:";
             // 
             // TxtSourcePath
             // 
             this.TxtSourcePath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.TxtSourcePath.Location = new System.Drawing.Point(87, 4);
+            this.TxtSourcePath.Location = new System.Drawing.Point(98, 4);
             this.TxtSourcePath.Name = "TxtSourcePath";
-            this.TxtSourcePath.Size = new System.Drawing.Size(223, 20);
+            this.TxtSourcePath.Size = new System.Drawing.Size(212, 20);
             this.TxtSourcePath.TabIndex = 17;
             // 
             // BtnRemoveExcludedDirectory
@@ -400,7 +400,7 @@
             // 
             this.label4.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(25, 264);
+            this.label4.Location = new System.Drawing.Point(36, 264);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(56, 13);
             this.label4.TabIndex = 15;
@@ -412,9 +412,9 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.LsbFileExtensions.FormattingEnabled = true;
-            this.LsbFileExtensions.Location = new System.Drawing.Point(87, 107);
+            this.LsbFileExtensions.Location = new System.Drawing.Point(98, 107);
             this.LsbFileExtensions.Name = "LsbFileExtensions";
-            this.LsbFileExtensions.Size = new System.Drawing.Size(223, 134);
+            this.LsbFileExtensions.Size = new System.Drawing.Size(212, 134);
             this.LsbFileExtensions.TabIndex = 7;
             // 
             // BtnRemoveFileExtension
@@ -442,9 +442,9 @@
             // TxtFileExtension
             // 
             this.TxtFileExtension.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.TxtFileExtension.Location = new System.Drawing.Point(87, 79);
+            this.TxtFileExtension.Location = new System.Drawing.Point(98, 79);
             this.TxtFileExtension.Name = "TxtFileExtension";
-            this.TxtFileExtension.Size = new System.Drawing.Size(223, 20);
+            this.TxtFileExtension.Size = new System.Drawing.Size(212, 20);
             this.TxtFileExtension.TabIndex = 10;
             // 
             // ChbRecursive
@@ -453,7 +453,7 @@
             this.ChbRecursive.AutoSize = true;
             this.ChbRecursive.Checked = true;
             this.ChbRecursive.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.ChbRecursive.Location = new System.Drawing.Point(87, 32);
+            this.ChbRecursive.Location = new System.Drawing.Point(98, 32);
             this.ChbRecursive.Name = "ChbRecursive";
             this.ChbRecursive.Size = new System.Drawing.Size(74, 17);
             this.ChbRecursive.TabIndex = 21;
@@ -466,21 +466,34 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.LsbExcludedDirectories.FormattingEnabled = true;
-            this.LsbExcludedDirectories.Location = new System.Drawing.Point(87, 259);
+            this.LsbExcludedDirectories.Location = new System.Drawing.Point(98, 259);
             this.LsbExcludedDirectories.Name = "LsbExcludedDirectories";
             this.tableLayoutPanel3.SetRowSpan(this.LsbExcludedDirectories, 2);
-            this.LsbExcludedDirectories.Size = new System.Drawing.Size(223, 160);
+            this.LsbExcludedDirectories.Size = new System.Drawing.Size(212, 160);
             this.LsbExcludedDirectories.TabIndex = 12;
             // 
             // label10
             // 
             this.label10.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(3, 83);
+            this.label10.Location = new System.Drawing.Point(14, 83);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(78, 13);
             this.label10.TabIndex = 20;
             this.label10.Text = "File Extentions:";
+            // 
+            // ChbMonitorFileChanges
+            // 
+            this.ChbMonitorFileChanges.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.ChbMonitorFileChanges.AutoSize = true;
+            this.ChbMonitorFileChanges.Checked = true;
+            this.ChbMonitorFileChanges.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.ChbMonitorFileChanges.Location = new System.Drawing.Point(98, 55);
+            this.ChbMonitorFileChanges.Name = "ChbMonitorFileChanges";
+            this.ChbMonitorFileChanges.Size = new System.Drawing.Size(121, 17);
+            this.ChbMonitorFileChanges.TabIndex = 21;
+            this.ChbMonitorFileChanges.Text = "Monitor file changes";
+            this.ChbMonitorFileChanges.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanel2
             // 
@@ -499,19 +512,6 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 94F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(303, 445);
             this.tableLayoutPanel2.TabIndex = 0;
-            // 
-            // ChbMonitorFileChanges
-            // 
-            this.ChbMonitorFileChanges.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.ChbMonitorFileChanges.AutoSize = true;
-            this.ChbMonitorFileChanges.Checked = true;
-            this.ChbMonitorFileChanges.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.ChbMonitorFileChanges.Location = new System.Drawing.Point(87, 55);
-            this.ChbMonitorFileChanges.Name = "ChbMonitorFileChanges";
-            this.ChbMonitorFileChanges.Size = new System.Drawing.Size(121, 17);
-            this.ChbMonitorFileChanges.TabIndex = 21;
-            this.ChbMonitorFileChanges.Text = "Monitor file changes";
-            this.ChbMonitorFileChanges.UseVisualStyleBackColor = true;
             // 
             // ServerConfigDlg
             // 
