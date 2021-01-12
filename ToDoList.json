@@ -25,6 +25,10 @@
   },
   {
     "Done": true,
+    "Text": "Remove relativeFilePath from VideoFile and load server config instead when resolving duplicates"
+  },
+  {
+    "Done": true,
     "Text": "Remove timer on client or implement progress time counting on server"
   },
   {
@@ -189,6 +193,6 @@
   },
   {
     "Done": false,
-    "Text": "Remove relativeFilePath from VideoFile and load server config instead when resolving duplicates"
+    "Text": "Auto scroll doesn't work on start"
   }
 ]

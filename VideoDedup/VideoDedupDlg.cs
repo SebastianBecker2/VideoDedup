@@ -127,7 +127,8 @@ namespace VideoDedup
                         // Otherwise clearing the DGV causes cell value requests
                         // in this thread before continuing here.
                         // Which has a high chance of adding items in the
-                        // LogEntries list.
+                        // LogEntries list, which are subsequently cleared,
+                        // leaving empty cells in the DGV that won't be filled.
                         DgvLog.RowCount = 0;
                         LogEntries.Clear();
                     }
@@ -278,7 +279,7 @@ namespace VideoDedup
             RequestLogEntries(logToken.Value, start, count);
         }
 
-        private void RequestLogEntries(Guid logToken, int start, int count)
+        private async void RequestLogEntries(Guid logToken, int start, int count)
         {
             foreach (var index in Enumerable.Range(start, count))
             {
@@ -289,46 +290,90 @@ namespace VideoDedup
                 });
             }
 
-            var logRequester = Task.Factory.StartNew(() =>
-            WcfProxy.GetLogEntries(logToken, start, count));
+            try
+            {
+                var logData = await Task.Factory.StartNew(() =>
+                    WcfProxy.GetLogEntries(logToken, start, count));
 
-            _ = logRequester.ContinueWith(t =>
-              {
-                  if (start + count > DgvLog.RowCount)
-                  {
-                      return;
-                  }
+                if (start + count > DgvLog.RowCount)
+                {
+                    return;
+                }
 
-                  var logIndex = start;
-                  foreach (var logEntry in t.Result.LogEntries)
-                  {
-                      _ = LogEntries[logIndex++] = new LogEntry
-                      {
-                          Status = LogEntryStatus.Present,
-                          Message = logEntry,
-                      };
-                  }
+                var logIndex = start;
+                foreach (var logEntry in logData.LogEntries)
+                {
+                    _ = LogEntries[logIndex++] = new LogEntry
+                    {
+                        Status = LogEntryStatus.Present,
+                        Message = logEntry,
+                    };
+                }
 
-                  foreach (var index in Enumerable.Range(start, count))
-                  {
-                      DgvLog.UpdateCellValue(0, index);
-                  }
-              }, TaskScheduler.FromCurrentSynchronizationContext());
+                foreach (var index in Enumerable.Range(start, count))
+                {
+                    DgvLog.UpdateCellValue(0, index);
+                }
+            }
+            catch (Exception ex) when (
+                ex is EndpointNotFoundException
+                || ex is CommunicationException)
+            {
+                foreach (var index in Enumerable.Range(start, count))
+                {
+                    LogEntries.TryRemove(index, out var _);
+                }
+            }
         }
 
         private void BtnServerConfig_Click(object sender, EventArgs e)
         {
             using (var dlg = new ServerConfigDlg())
             {
-                dlg.ServerConfig = WcfProxy.GetConfig();
+                try
+                {
+                    dlg.ServerConfig = WcfProxy.GetConfig();
+                }
+                catch (Exception ex) when (
+                    ex is EndpointNotFoundException
+                    || ex is CommunicationException)
+                {
+                    MessageBox.Show(
+                        "Unable to retrieve configuration from server.",
+                        "Connection Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                    return;
+                }
 
                 if (dlg.ShowDialog() != DialogResult.OK)
                 {
                     return;
                 }
 
-                SaveConfig(Configuration);
-                WcfProxy.SetConfig(dlg.ServerConfig);
+                while (true)
+                {
+                    try
+                    {
+                        WcfProxy.SetConfig(dlg.ServerConfig);
+                        return;
+                    }
+                    catch (Exception ex) when (
+                        ex is EndpointNotFoundException
+                        || ex is CommunicationException)
+                    {
+                        if (MessageBox.Show(
+                            $"Unable to send configuration to the server." +
+                                $"{Environment.NewLine}Do you want to try again?",
+                            "Connection Error",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Error)
+                            == DialogResult.No)
+                        {
+                            return;
+                        }
+                    }
+                }
             }
         }
 
@@ -384,10 +429,15 @@ namespace VideoDedup
                 }
             }
             catch (Exception ex) when (
-              ex is EndpointNotFoundException
-              || ex is CommunicationException)
+                ex is EndpointNotFoundException
+                || ex is CommunicationException)
             {
-                Debug.Print(ex.Message);
+                MessageBox.Show(
+                    $"Unable to process duplicate.{Environment.NewLine}" +
+                        $"Connection to server failed.",
+                    "Connection Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
             }
         }
 
@@ -427,7 +477,7 @@ namespace VideoDedup
         {
             var selection = MessageBox.Show(
                 $"There are {DuplicateCount} duplicates to resolve." +
-                $"{Environment.NewLine}Are you sure you want to discard them?",
+                    $"{Environment.NewLine}Are you sure you want to discard them?",
                 "Discard duplicates?",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning);
