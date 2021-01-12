@@ -16,12 +16,16 @@
     "Text": "Try reading all images from a video at once (to get a single ffmpeg call maybe)\r\nhttps://stackoverflow.com/a/28321986/2347040"
   },
   {
-    "Done": false,
+    "Done": true,
     "Text": "Getting exception when opening server configuration while server is not running"
   },
   {
     "Done": false,
     "Text": "Make duplicate list a hashset or something"
+  },
+  {
+    "Done": false,
+    "Text": "Auto scroll doesn't work on start"
   },
   {
     "Done": true,
@@ -190,9 +194,5 @@
   {
     "Done": true,
     "Text": "Resolve conflicts while searching for deduplications"
-  },
-  {
-    "Done": false,
-    "Text": "Auto scroll doesn't work on start"
   }
 ]
