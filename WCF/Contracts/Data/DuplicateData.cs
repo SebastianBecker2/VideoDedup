@@ -13,5 +13,7 @@ namespace Wcf.Contracts.Data
         public VideoFile File1 { get; set; }
         [DataMember]
         public VideoFile File2 { get; set; }
+        [DataMember]
+        public string BasePath { get; set; }
     }
 }

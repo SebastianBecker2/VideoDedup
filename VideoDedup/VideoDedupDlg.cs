@@ -192,9 +192,9 @@ namespace VideoDedup
                 LblTimer.Text = duration.ToPrettyString();
             }
 
-            // Regular progress (searching duplicates)
-            // Marquee (conecting, monitoring) [style = marquee, max = 1]
             // Off (invalid configuration) [value = 0, max = 0]
+            // Continuous (searching duplicates)
+            // Marquee (conecting, monitoring) [style = marquee, max = 1]
             if (operation.ProgressStyle == ProgressStyle.NoProgress)
             {
                 TaskbarManager.Instance.SetProgressState(
@@ -366,6 +366,7 @@ namespace VideoDedup
                         DialogResult result;
                         dlg.LeftFile = duplicate.File1;
                         dlg.RightFile = duplicate.File2;
+                        dlg.ServerSourcePath = duplicate.BasePath;
                         dlg.Configuration = Configuration;
                         result = dlg.ShowDialog();
 

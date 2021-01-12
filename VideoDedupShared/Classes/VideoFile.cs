@@ -38,7 +38,6 @@ namespace VideoDedupShared
             // We have to do a bit more work here since we can't use
             // the other ctors because we don't want to eagerly load
             // the images when we can copy them from the other file.
-            relativeFilePath = other.relativeFilePath;
             fileSize = other.fileSize;
             duration = other.duration;
             videoCodec = other.videoCodec;
@@ -64,7 +63,7 @@ namespace VideoDedupShared
         public VideoFile(
             IVideoFile other,
             int imageCount = 0)
-            : this(other.FilePath, other.RelativeFilePath, imageCount)
+            : this(other.FilePath, imageCount)
         {
             if (other is null)
             {
@@ -78,7 +77,6 @@ namespace VideoDedupShared
 
         public VideoFile(
             string filePath,
-            string relativeFilePath,
             int imageCount = 0)
         {
             if (string.IsNullOrWhiteSpace(filePath))
@@ -87,14 +85,7 @@ namespace VideoDedupShared
                     $" null or whitespace", nameof(filePath));
             }
 
-            if (string.IsNullOrWhiteSpace(relativeFilePath))
-            {
-                throw new ArgumentException($"'{nameof(relativeFilePath)}'" +
-                    $" cannot be null or whitespace", nameof(relativeFilePath));
-            }
-
             this.filePath = filePath;
-            this.relativeFilePath = relativeFilePath;
             this.imageCount = imageCount;
 
             foreach (var index in Enumerable.Range(0, ImageCount))
@@ -108,12 +99,6 @@ namespace VideoDedupShared
         [DataMember]
         [JsonProperty]
         protected internal string filePath;
-
-        [JsonIgnore]
-        public string RelativeFilePath => relativeFilePath;
-        [DataMember]
-        [JsonProperty]
-        protected internal string relativeFilePath;
 
         [JsonIgnore]
         public string FileName => Path.GetFileName(FilePath);

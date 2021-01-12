@@ -6,11 +6,13 @@ namespace VideoDedup
     using System.IO;
     using System.Windows.Forms;
     using VideoDedupShared;
+    using VideoDedupShared.StringExtension;
 
     public partial class FileComparisonDlg : Form
     {
         public VideoFile LeftFile { get; set; }
         public VideoFile RightFile { get; set; }
+        public string ServerSourcePath { get; set; }
 
         public ConfigData Configuration { get; set; }
 
@@ -59,9 +61,11 @@ namespace VideoDedup
             var filePath = file.FilePath;
             if (!string.IsNullOrWhiteSpace(Configuration.ClientSourcePath))
             {
+                var relFilePath = filePath.MakeRelativePath(ServerSourcePath);
+
                 filePath = Path.Combine(
                     Configuration.ClientSourcePath,
-                    file.RelativeFilePath);
+                    relFilePath);
             }
             if (!File.Exists(filePath))
             {

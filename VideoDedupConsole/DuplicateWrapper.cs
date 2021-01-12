@@ -14,7 +14,8 @@ namespace VideoDedupConsole
 
         public DuplicateWrapper(
             VideoFile file1,
-            VideoFile file2)
+            VideoFile file2,
+            string basePath)
         {
             _ = file1.FileSize;
             _ = file1.Duration;
@@ -27,6 +28,7 @@ namespace VideoDedupConsole
                 DuplicateId = Guid.NewGuid(),
                 File1 = file1,
                 File2 = file2,
+                BasePath = basePath,
             };
         }
     }

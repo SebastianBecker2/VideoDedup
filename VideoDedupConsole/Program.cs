@@ -91,7 +91,7 @@ namespace VideoDedupConsole
                 var file1 = ThumbnailManager.AddVideoFileReference(e.File1);
                 var file2 = ThumbnailManager.AddVideoFileReference(e.File2);
 
-                Duplicates.Add(new DuplicateWrapper(file1, file2));
+                Duplicates.Add(new DuplicateWrapper(file1, file2, e.BasePath));
             }
         }
 

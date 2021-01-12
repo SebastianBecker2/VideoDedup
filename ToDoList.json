@@ -20,6 +20,10 @@
     "Text": "Getting exception when opening server configuration while server is not running"
   },
   {
+    "Done": false,
+    "Text": "Make duplicate list a hashset or something"
+  },
+  {
     "Done": true,
     "Text": "Remove timer on client or implement progress time counting on server"
   },
@@ -185,6 +189,6 @@
   },
   {
     "Done": false,
-    "Text": "Make duplicate list a hashset or something"
+    "Text": "Remove relativeFilePath from VideoFile and load server config instead when resolving duplicates"
   }
 ]

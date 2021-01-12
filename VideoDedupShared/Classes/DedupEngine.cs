@@ -11,7 +11,6 @@ namespace VideoDedupShared
     using TimeSpanExtension;
     using Newtonsoft.Json;
     using VideoDedupShared.IVideoFileExtension;
-    using VideoDedupShared.StringExtension;
 
     public class StoppedEventArgs : EventArgs { }
 
@@ -19,6 +18,7 @@ namespace VideoDedupShared
     {
         public VideoFile File1 { get; set; }
         public VideoFile File2 { get; set; }
+        public string BasePath { get; set; }
     }
 
     public class OperationUpdateEventArgs : EventArgs
@@ -70,6 +70,7 @@ namespace VideoDedupShared
             {
                 File1 = file1,
                 File2 = file2,
+                BasePath = Configuration.BasePath,
             });
 
         public event EventHandler<OperationUpdateEventArgs> OperationUpdate;
@@ -264,9 +265,7 @@ namespace VideoDedupShared
                 return;
             }
 
-            _ = DeletedFiles.TryAdd(new VideoFile(
-                filePath,
-                filePath.MakeRelativePath(Configuration.BasePath)));
+            _ = DeletedFiles.TryAdd(new VideoFile(filePath));
             OnLogged(string.Format(LogDeletedFile, filePath));
             StartProcessingChanges();
         }
@@ -278,11 +277,7 @@ namespace VideoDedupShared
                 return;
             }
 
-            _ = NewFiles.TryAdd(
-                new VideoFile(
-                    filePath,
-                    filePath.MakeRelativePath(Configuration.BasePath)),
-                0);
+            _ = NewFiles.TryAdd(new VideoFile(filePath), 0);
             OnLogged(string.Format(LogNewFile, filePath));
             StartProcessingChanges();
         }
@@ -359,9 +354,7 @@ namespace VideoDedupShared
                 .Where(f => fileExtensions.Contains(
                     Path.GetExtension(f),
                     StringComparer.CurrentCultureIgnoreCase))
-                .Select(f => new VideoFile(
-                    f,
-                    f.MakeRelativePath(folderSettings.BasePath)));
+                .Select(f => new VideoFile(f));
 
             var cached_files = LoadVideoFilesCache(folderSettings.CachePath);
             if (cached_files == null || !cached_files.Any())
