@@ -321,7 +321,7 @@ namespace VideoDedup
             {
                 foreach (var index in Enumerable.Range(start, count))
                 {
-                    LogEntries.TryRemove(index, out var _);
+                    _ = LogEntries.TryRemove(index, out _);
                 }
             }
         }
@@ -338,7 +338,7 @@ namespace VideoDedup
                     ex is EndpointNotFoundException
                     || ex is CommunicationException)
                 {
-                    MessageBox.Show(
+                    _ = MessageBox.Show(
                         "Unable to retrieve configuration from server.",
                         "Connection Error",
                         MessageBoxButtons.OK,
@@ -432,7 +432,7 @@ namespace VideoDedup
                 ex is EndpointNotFoundException
                 || ex is CommunicationException)
             {
-                MessageBox.Show(
+                _ = MessageBox.Show(
                     $"Unable to process duplicate.{Environment.NewLine}" +
                         $"Connection to server failed.",
                     "Connection Error",
