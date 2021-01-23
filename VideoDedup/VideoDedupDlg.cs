@@ -496,13 +496,5 @@ namespace VideoDedup
                || ex is CommunicationException)
             { }
         }
-
-        private void BtnToDoManager_Click(object sender, EventArgs e)
-        {
-            using (var dlg = new ToDoManager.ToDoManager())
-            {
-                _ = dlg.ShowDialog();
-            }
-        }
     }
 }

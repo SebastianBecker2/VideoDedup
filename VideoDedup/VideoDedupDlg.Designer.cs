@@ -30,7 +30,6 @@ namespace VideoDedup
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VideoDedupDlg));
-            this.BtnToDoManager = new System.Windows.Forms.Button();
             this.ProgressBar = new System.Windows.Forms.ProgressBar();
             this.LblStatusInfo = new System.Windows.Forms.Label();
             this.BtnServerConfig = new System.Windows.Forms.Button();
@@ -51,17 +50,6 @@ namespace VideoDedup
             this.MenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DgvLog)).BeginInit();
             this.SuspendLayout();
-            // 
-            // BtnToDoManager
-            // 
-            this.BtnToDoManager.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.BtnToDoManager.Location = new System.Drawing.Point(254, 344);
-            this.BtnToDoManager.Name = "BtnToDoManager";
-            this.BtnToDoManager.Size = new System.Drawing.Size(75, 23);
-            this.BtnToDoManager.TabIndex = 1;
-            this.BtnToDoManager.Text = "&ToDo List";
-            this.BtnToDoManager.UseVisualStyleBackColor = true;
-            this.BtnToDoManager.Click += new System.EventHandler(this.BtnToDoManager_Click);
             // 
             // ProgressBar
             // 
@@ -247,7 +235,6 @@ namespace VideoDedup
             this.Controls.Add(this.BtnServerConfig);
             this.Controls.Add(this.LblStatusInfo);
             this.Controls.Add(this.ProgressBar);
-            this.Controls.Add(this.BtnToDoManager);
             this.Controls.Add(this.MenuStrip);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.MenuStrip;
@@ -263,8 +250,6 @@ namespace VideoDedup
         }
 
         #endregion
-
-        private System.Windows.Forms.Button BtnToDoManager;
         private System.Windows.Forms.ProgressBar ProgressBar;
         private System.Windows.Forms.Label LblStatusInfo;
         private System.Windows.Forms.Button BtnServerConfig;
