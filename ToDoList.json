@@ -4,8 +4,92 @@
     "Text": "Rerunning dedup while there are still duplicates can cause double duplicates.\r\n(Though, not sure if that isn't actually  the right way to go)"
   },
   {
-    "Done": false,
+    "Done": true,
     "Text": "Run dedup as service, monitoring the folder for changed of video files."
+  },
+  {
+    "Done": false,
+    "Text": "Parallelize image comparison\r\nNeeds different Image-Comparison tool. Can't use winforms images because of GDI"
+  },
+  {
+    "Done": false,
+    "Text": "Make duplicate list a hashset or something"
+  },
+  {
+    "Done": false,
+    "Text": "Auto scroll doesn't work on start"
+  },
+  {
+    "Done": false,
+    "Text": "Save state when deduplicating so we can continue (load) after restart"
+  },
+  {
+    "Done": false,
+    "Text": "Rename VidepDedup to VideoDedupClient"
+  },
+  {
+    "Done": false,
+    "Text": "Switch to .net 5.0"
+  },
+  {
+    "Done": false,
+    "Text": "Fix VS Configurations für x64 und x86"
+  },
+  {
+    "Done": true,
+    "Text": "Try reading all images from a video at once (to get a single ffmpeg call maybe)\r\nhttps://stackoverflow.com/a/28321986/2347040"
+  },
+  {
+    "Done": true,
+    "Text": "Getting exception when opening server configuration while server is not running"
+  },
+  {
+    "Done": true,
+    "Text": "Remove relativeFilePath from VideoFile and load server config instead when resolving duplicates"
+  },
+  {
+    "Done": true,
+    "Text": "Remove timer on client or implement progress time counting on server"
+  },
+  {
+    "Done": true,
+    "Text": "Make WCF static functions in Console.Program internal instead of public"
+  },
+  {
+    "Done": true,
+    "Text": "Implement Log as virtual DGV"
+  },
+  {
+    "Done": true,
+    "Text": "HashSet for NewFiles in DedupEngine?"
+  },
+  {
+    "Done": true,
+    "Text": "Set WindowPosition for ClientConfigDlg"
+  },
+  {
+    "Done": true,
+    "Text": "Add monitoring option in config (to turn off or on)"
+  },
+  {
+    "Done": true,
+    "Text": "Update current status when monitoring and new files have been found (and are being checked)"
+  },
+  {
+    "Done": true,
+    "Text": "Fix flickering in FileComparisonDlg"
+  },
+  {
+    "Done": true,
+    "Text": "Downscale thumbnails"
+  },
+  {
+    "Done": true,
+    "Text": "Convert thumbnails to jpeg"
+  },
+  {
+    "Done": true,
+    "Text": "VideoFile Interface for regular and serializable thumbnails"
   },
   {
     "Done": true,
@@ -126,5 +210,9 @@
   {
     "Done": true,
     "Text": "Resolve conflicts while searching for deduplications"
+  },
+  {
+    "Done": false,
+    "Text": "Implement CI"
   }
 ]

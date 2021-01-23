@@ -12,7 +12,7 @@ namespace VideoDedup.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.7.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.8.1.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -25,121 +25,37 @@ namespace VideoDedup.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string SourcePath {
+        [global::System.Configuration.DefaultSettingValueAttribute("localhost")]
+        public string ServerAddress {
             get {
-                return ((string)(this["SourcePath"]));
+                return ((string)(this["ServerAddress"]));
             }
             set {
-                this["SourcePath"] = value;
+                this["ServerAddress"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1000")]
+        public int StatusRequestInterval {
+            get {
+                return ((int)(this["StatusRequestInterval"]));
+            }
+            set {
+                this["StatusRequestInterval"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string ExcludedDirectories {
+        public string ClientSourcePath {
             get {
-                return ((string)(this["ExcludedDirectories"]));
+                return ((string)(this["ClientSourcePath"]));
             }
             set {
-                this["ExcludedDirectories"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string FileExtensions {
-            get {
-                return ((string)(this["FileExtensions"]));
-            }
-            set {
-                this["FileExtensions"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("8")]
-        public int ThumbnailViewCount {
-            get {
-                return ((int)(this["ThumbnailViewCount"]));
-            }
-            set {
-                this["ThumbnailViewCount"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("20")]
-        public int MaxThumbnailComparison {
-            get {
-                return ((int)(this["MaxThumbnailComparison"]));
-            }
-            set {
-                this["MaxThumbnailComparison"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("3")]
-        public int MaxDifferentThumbnails {
-            get {
-                return ((int)(this["MaxDifferentThumbnails"]));
-            }
-            set {
-                this["MaxDifferentThumbnails"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("35")]
-        public int MaxDifferencePercentage {
-            get {
-                return ((int)(this["MaxDifferencePercentage"]));
-            }
-            set {
-                this["MaxDifferencePercentage"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("10")]
-        public int MaxDurationDifferernceSeconds {
-            get {
-                return ((int)(this["MaxDurationDifferernceSeconds"]));
-            }
-            set {
-                this["MaxDurationDifferernceSeconds"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Seconds")]
-        public string DurationDifferenceType {
-            get {
-                return ((string)(this["DurationDifferenceType"]));
-            }
-            set {
-                this["DurationDifferenceType"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("10")]
-        public int MaxDurationDifferencePercent {
-            get {
-                return ((int)(this["MaxDurationDifferencePercent"]));
-            }
-            set {
-                this["MaxDurationDifferencePercent"] = value;
+                this["ClientSourcePath"] = value;
             }
         }
     }

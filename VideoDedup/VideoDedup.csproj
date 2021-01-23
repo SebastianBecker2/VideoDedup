@@ -14,7 +14,7 @@
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -42,16 +43,11 @@
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="NReco.VideoConverter, Version=1.1.4.0, Culture=neutral, PublicKeyToken=395ccb334978a0cd, processorArchitecture=MSIL">
-      <HintPath>..\packages\NReco.VideoConverter.1.1.4\lib\net40\NReco.VideoConverter.dll</HintPath>
-    </Reference>
-    <Reference Include="NReco.VideoInfo, Version=1.1.1.0, Culture=neutral, PublicKeyToken=8f59ee36d2987295, processorArchitecture=MSIL">
-      <HintPath>..\packages\NReco.VideoInfo.1.1.1\lib\net35\NReco.VideoInfo.dll</HintPath>
-    </Reference>
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -63,68 +59,71 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="About.cs">
+    <Compile Include="AboutDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="About.Designer.cs">
-      <DependentUpon>About.cs</DependentUpon>
+    <Compile Include="AboutDlg.Designer.cs">
+      <DependentUpon>AboutDlg.cs</DependentUpon>
     </Compile>
-    <Compile Include="Config.cs">
+    <Compile Include="ClientConfigDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Config.Designer.cs">
-      <DependentUpon>Config.cs</DependentUpon>
+    <Compile Include="ClientConfigDlg.Designer.cs">
+      <DependentUpon>ClientConfigDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DnsTextBox\DnsTextBoxCtrl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DnsTextBox\ResolveFailedEventArgs.cs" />
+    <Compile Include="DnsTextBox\ResolveStartedEventArgs.cs" />
+    <Compile Include="DnsTextBox\ResolveSuccessfulEventArgs.cs" />
+    <Compile Include="LogEntry.cs" />
+    <Compile Include="LogEntryStatus.cs" />
+    <Compile Include="ServerConfigDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ServerConfigDlg.Designer.cs">
+      <DependentUpon>ServerConfigDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="ConfigData.cs" />
-    <Compile Include="DurationDifferenceType.cs" />
-    <Compile Include="DurationSelection.cs">
+    <Compile Include="FileComparisonDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DurationSelection.Designer.cs">
-      <DependentUpon>DurationSelection.cs</DependentUpon>
+    <Compile Include="FileComparisonDlg.designer.cs">
+      <DependentUpon>FileComparisonDlg.cs</DependentUpon>
     </Compile>
-    <Compile Include="FileComparison.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FileComparison.designer.cs">
-      <DependentUpon>FileComparison.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FilePreview\FilePreview.cs">
+    <Compile Include="FilePreview\FilePreviewDlg.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="FilePreview\FilePreview.Designer.cs">
-      <DependentUpon>FilePreview.cs</DependentUpon>
+    <Compile Include="FilePreview\FilePreviewDlg.Designer.cs">
+      <DependentUpon>FilePreviewDlg.cs</DependentUpon>
     </Compile>
-    <Compile Include="FilePreview\ThumbnailLoadedEventArgs.cs" />
-    <Compile Include="VideoDedup.cs">
+    <Compile Include="VideoDedupDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="VideoDedup.Designer.cs">
-      <DependentUpon>VideoDedup.cs</DependentUpon>
+    <Compile Include="VideoDedupDlg.Designer.cs">
+      <DependentUpon>VideoDedupDlg.cs</DependentUpon>
     </Compile>
-    <Compile Include="ExtensionMethods\ISynchronizeInvokeExtension.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="ExtensionMethods\ProgressBarExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ExtensionMethods\TimeSpanExtension.cs" />
-    <Compile Include="VideoFile.cs" />
-    <EmbeddedResource Include="About.resx">
-      <DependentUpon>About.cs</DependentUpon>
+    <Compile Include="WcfProxy.cs" />
+    <EmbeddedResource Include="AboutDlg.resx">
+      <DependentUpon>AboutDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Config.resx">
-      <DependentUpon>Config.cs</DependentUpon>
+    <EmbeddedResource Include="ClientConfigDlg.resx">
+      <DependentUpon>ClientConfigDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DurationSelection.resx">
-      <DependentUpon>DurationSelection.cs</DependentUpon>
+    <EmbeddedResource Include="ServerConfigDlg.resx">
+      <DependentUpon>ServerConfigDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FileComparison.resx">
-      <DependentUpon>FileComparison.cs</DependentUpon>
+    <EmbeddedResource Include="FileComparisonDlg.resx">
+      <DependentUpon>FileComparisonDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FilePreview\FilePreview.resx">
-      <DependentUpon>FilePreview.cs</DependentUpon>
+    <EmbeddedResource Include="FilePreview\FilePreviewDlg.resx">
+      <DependentUpon>FilePreviewDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="VideoDedup.resx">
-      <DependentUpon>VideoDedup.cs</DependentUpon>
+    <EmbeddedResource Include="VideoDedupDlg.resx">
+      <DependentUpon>VideoDedupDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -151,13 +150,21 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ImageComparison\ImageComparison.csproj">
-      <Project>{9317de4a-213d-4afc-b58f-ed401204534a}</Project>
-      <Name>ImageComparison</Name>
+    <ProjectReference Include="..\HandyTimer\SmartTimer.csproj">
+      <Project>{ba276bca-e923-4e5c-a483-ac04ddf0eb61}</Project>
+      <Name>SmartTimer</Name>
     </ProjectReference>
     <ProjectReference Include="..\ToDoManager\ToDoManager.csproj">
       <Project>{678EBC3A-44FE-4325-85AA-866001164074}</Project>
       <Name>ToDoManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VideoDedupShared\VideoDedupShared.csproj">
+      <Project>{c16eae42-0c5c-405f-9916-4dfab332171a}</Project>
+      <Name>VideoDedupShared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WCF\Contracts\Contracts.csproj">
+      <Project>{ea2984a1-4236-4d88-857b-2fe24385b0c3}</Project>
+      <Name>Contracts</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -168,6 +175,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="film_link.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Loading.gif" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
