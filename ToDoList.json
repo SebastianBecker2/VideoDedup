@@ -36,6 +36,14 @@
     "Text": "Implement CI"
   },
   {
+    "Done": false,
+    "Text": "Replace this ToDo list with github project"
+  },
+  {
+    "Done": false,
+    "Text": "Fix style guide for internal protected members"
+  },
+  {
     "Done": true,
     "Text": "Run dedup as service, monitoring the folder for changed of video files."
   },
@@ -217,10 +225,6 @@
   },
   {
     "Done": false,
-    "Text": "Replace this ToDo list with github project"
-  },
-  {
-    "Done": false,
-    "Text": "Fix style guide for internal protected members"
+    "Text": "Update readme"
   }
 ]
