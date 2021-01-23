@@ -80,9 +80,6 @@ namespace VideoDedup
 
         protected override void OnLoad(EventArgs e)
         {
-#if !DEBUG
-            BtnToDoManager.Visible = false;
-#endif
             Configuration = LoadConfig();
 
             statusTimer = new SmartTimer.Timer(StatusTimerCallback);
