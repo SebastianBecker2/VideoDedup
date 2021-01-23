@@ -4,10 +4,6 @@
     "Text": "Rerunning dedup while there are still duplicates can cause double duplicates.\r\n(Though, not sure if that isn't actually  the right way to go)"
   },
   {
-    "Done": true,
-    "Text": "Run dedup as service, monitoring the folder for changed of video files."
-  },
-  {
     "Done": false,
     "Text": "Parallelize image comparison\r\nNeeds different Image-Comparison tool. Can't use winforms images because of GDI"
   },
@@ -34,6 +30,14 @@
   {
     "Done": false,
     "Text": "Fix VS Configurations für x64 und x86"
+  },
+  {
+    "Done": false,
+    "Text": "Implement CI"
+  },
+  {
+    "Done": true,
+    "Text": "Run dedup as service, monitoring the folder for changed of video files."
   },
   {
     "Done": true,
@@ -213,6 +217,10 @@
   },
   {
     "Done": false,
-    "Text": "Implement CI"
+    "Text": "Replace this ToDo list with github project"
+  },
+  {
+    "Done": false,
+    "Text": "Fix style guide for internal protected members"
   }
 ]
