@@ -4,20 +4,12 @@
     "Text": "Rerunning dedup while there are still duplicates can cause double duplicates.\r\n(Though, not sure if that isn't actually  the right way to go)"
   },
   {
-    "Done": false,
+    "Done": true,
     "Text": "Run dedup as service, monitoring the folder for changed of video files."
   },
   {
     "Done": false,
     "Text": "Parallelize image comparison\r\nNeeds different Image-Comparison tool. Can't use winforms images because of GDI"
-  },
-  {
-    "Done": false,
-    "Text": "Try reading all images from a video at once (to get a single ffmpeg call maybe)\r\nhttps://stackoverflow.com/a/28321986/2347040"
-  },
-  {
-    "Done": true,
-    "Text": "Getting exception when opening server configuration while server is not running"
   },
   {
     "Done": false,
@@ -34,6 +26,22 @@
   {
     "Done": false,
     "Text": "Rename VidepDedup to VideoDedupClient"
+  },
+  {
+    "Done": false,
+    "Text": "Switch to .net 5.0"
+  },
+  {
+    "Done": false,
+    "Text": "Fix VS Configurations für x64 und x86"
+  },
+  {
+    "Done": true,
+    "Text": "Try reading all images from a video at once (to get a single ffmpeg call maybe)\r\nhttps://stackoverflow.com/a/28321986/2347040"
+  },
+  {
+    "Done": true,
+    "Text": "Getting exception when opening server configuration while server is not running"
   },
   {
     "Done": true,
@@ -205,10 +213,6 @@
   },
   {
     "Done": false,
-    "Text": "Switch to .net 5.0"
-  },
-  {
-    "Done": false,
-    "Text": "Fix VS Configurations für x64 und x86"
+    "Text": "Implement CI"
   }
 ]
