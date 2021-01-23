@@ -28,6 +28,14 @@
     "Text": "Auto scroll doesn't work on start"
   },
   {
+    "Done": false,
+    "Text": "Save state when deduplicating so we can continue (load) after restart"
+  },
+  {
+    "Done": false,
+    "Text": "Rename VidepDedup to VideoDedupClient"
+  },
+  {
     "Done": true,
     "Text": "Remove relativeFilePath from VideoFile and load server config instead when resolving duplicates"
   },
@@ -194,5 +202,13 @@
   {
     "Done": true,
     "Text": "Resolve conflicts while searching for deduplications"
+  },
+  {
+    "Done": false,
+    "Text": "Switch to .net 5.0"
+  },
+  {
+    "Done": false,
+    "Text": "Fix VS Configurations für x64 und x86"
   }
 ]

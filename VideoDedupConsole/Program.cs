@@ -91,7 +91,19 @@ namespace VideoDedupConsole
                 var file1 = ThumbnailManager.AddVideoFileReference(e.File1);
                 var file2 = ThumbnailManager.AddVideoFileReference(e.File2);
 
-                Duplicates.Add(new DuplicateWrapper(file1, file2, e.BasePath));
+                try
+                {
+                    Duplicates.Add(new DuplicateWrapper(file1, file2, e.BasePath));
+                }
+                catch (AggregateException exc)
+                when (exc.InnerException is VideoDedupShared.MpvLib.MpvException)
+                {
+                    lock (LogEntriesLock)
+                    {
+                        AddLogEntry(exc.Message);
+                        AddLogEntry(exc.InnerException.Message);
+                    }
+                }
             }
         }
 
@@ -167,7 +179,7 @@ namespace VideoDedupConsole
         {
             lock (LogEntriesLock)
             {
-                LogEntries.Add(message);
+                LogEntries.Add(DateTime.Now.ToString("s") + " " + message);
             }
         }
 

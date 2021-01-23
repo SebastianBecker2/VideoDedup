@@ -14,8 +14,7 @@ namespace VideoDedupShared
     using System.Runtime.Serialization;
     using System.Threading;
     using Newtonsoft.Json;
-    using NReco.VideoConverter;
-    using NReco.VideoInfo;
+    using VideoDedupShared.MpvLib;
     using XnaFan.ImageComparison;
 
     [DataContract]
@@ -32,31 +31,38 @@ namespace VideoDedupShared
                 throw new ArgumentNullException(nameof(other));
             }
 
-            filePath = other.filePath;
-            this.imageCount = imageCount;
+            ImageCount = imageCount;
 
             // We have to do a bit more work here since we can't use
             // the other ctors because we don't want to eagerly load
             // the images when we can copy them from the other file.
+            filePath = other.filePath;
             fileSize = other.fileSize;
             duration = other.duration;
-            videoCodec = other.videoCodec;
-            mediaInfo = other.mediaInfo;
+            codecInfo = other.codecInfo;
 
-            if (imageCount == other.imageCount)
+            if (ImageCount == 0)
             {
-                foreach (var kvp in other.imageStreams)
-                {
-                    var ms = new MemoryStream();
-                    kvp.Value.Position = 0;
-                    kvp.Value.CopyTo(ms);
-                    imageStreams.Add(kvp.Key, ms);
-                }
+                return;
             }
 
-            foreach (var index in Enumerable.Range(0, ImageCount))
+            if (other.ImageCount == ImageCount)
             {
-                _ = GetImage(index, this.imageCount);
+                imageStreams = other.imageStreams
+                    .Select(image =>
+                    {
+                        var ms = new MemoryStream();
+                        image.Position = 0;
+                        image.CopyTo(ms);
+                        return ms;
+                    })
+                    .ToList();
+                return;
+            }
+
+            using (var mpv = new MpvWrapper(FilePath, imageCount, Duration))
+            {
+                imageStreams = mpv.GetImages(0, imageCount).ToList();
             }
         }
 
@@ -72,7 +78,7 @@ namespace VideoDedupShared
 
             fileSize = other.FileSize;
             duration = other.Duration;
-            videoCodec = other.VideoCodec;
+            codecInfo = other.CodecInfo;
         }
 
         public VideoFile(
@@ -86,11 +92,16 @@ namespace VideoDedupShared
             }
 
             this.filePath = filePath;
-            this.imageCount = imageCount;
+            ImageCount = imageCount;
 
-            foreach (var index in Enumerable.Range(0, ImageCount))
+            if (ImageCount == 0)
             {
-                _ = GetImage(index, this.imageCount);
+                return;
+            }
+
+            using (var mpv = new MpvWrapper(FilePath, ImageCount, Duration))
+            {
+                imageStreams = mpv.GetImages(0, ImageCount).ToList();
             }
         }
 
@@ -128,7 +139,7 @@ namespace VideoDedupShared
                 {
                     try
                     {
-                        duration = MediaInfo.Duration;
+                        duration = MpvWrapper.GetDuration(filePath);
                     }
                     catch (Exception)
                     {
@@ -143,73 +154,40 @@ namespace VideoDedupShared
         protected internal TimeSpan duration = TimeSpan.Zero;
 
         [JsonIgnore]
-        public VideoCodecInfo VideoCodec
+        public CodecInfo CodecInfo
         {
             get
             {
-                if (videoCodec == null)
+                if (codecInfo == null)
                 {
-                    if (MediaInfo == null)
-                    {
-                        return null;
-                    }
-
-                    var stream = MediaInfo.Streams
-                        .FirstOrDefault(s => s.CodecType == "video");
-                    if (stream == null)
-                    {
-                        return null;
-                    }
-
-                    videoCodec = new VideoCodecInfo(stream);
+                    codecInfo = MpvWrapper.GetCodecInfo(filePath);
                 }
-                return videoCodec;
+                return codecInfo;
             }
         }
         [JsonIgnore]
         [DataMember]
-        protected internal VideoCodecInfo videoCodec = null;
+        protected internal CodecInfo codecInfo = null;
 
         [JsonIgnore]
-        protected MediaInfo MediaInfo
+        public IEnumerable<Image> Images
         {
             get
             {
-                if (mediaInfo == null)
+                if (imageStreams == null)
                 {
-                    var probe = new FFProbe();
-
-                    try
-                    {
-                        mediaInfo = probe.GetMediaInfo(FilePath);
-                    }
-                    catch (Exception)
-                    {
-                        return null;
-                    }
+                    return Enumerable.Empty<Image>();
                 }
-                return mediaInfo;
+                return imageStreams.Select(image => Image.FromStream(image));
             }
         }
         [JsonIgnore]
-        protected internal MediaInfo mediaInfo = null;
-
-        [JsonIgnore]
         [DataMember]
-        protected internal readonly IDictionary<int, MemoryStream> imageStreams =
-            new Dictionary<int, MemoryStream>();
+        protected internal IList<MemoryStream> imageStreams =
+            new List<MemoryStream>();
 
         [JsonIgnore]
-        public int ImageCount => imageCount;
-        [DataMember]
-        [JsonIgnore]
-        protected internal int imageCount = 0;
-
-        [JsonIgnore]
-        public IEnumerable<KeyValuePair<int, Image>> Images =>
-            imageStreams.Select(kvp => new KeyValuePair<int, Image>(
-                kvp.Key,
-                Image.FromStream(kvp.Value)));
+        private int ImageCount { get; set; }
 
         public bool IsDurationEqual(IVideoFile other,
             IDurationComparisonSettings settings)
@@ -230,7 +208,7 @@ namespace VideoDedupShared
         }
 
         protected MemoryStream GetImage(int index,
-            int imageCount)
+            int imageCount, IImageComparisonSettings settings)
         {
             if (index >= imageCount || index < 0)
             {
@@ -238,35 +216,37 @@ namespace VideoDedupShared
                     "Index out of range.");
             }
 
-            if (imageCount != ImageCount)
+            if (ImageCount != 0 && ImageCount != imageCount)
             {
                 DisposeImages();
-                this.imageCount = imageCount;
             }
+            ImageCount = imageCount;
 
-            if (!imageStreams.TryGetValue(index, out var ms))
+            if (index < imageStreams.Count())
             {
-                var ffMpeg = new FFMpegConverter();
-                ms = new MemoryStream();
-                try
-                {
-                    var stepping = Duration.TotalSeconds /
-                        (imageCount + 1);
-
-                    ffMpeg.GetVideoThumbnail(FilePath,
-                        ms,
-                        (float)stepping * (index + 1));
-                }
-                catch (Exception)
-                {
-                    Debug.Print($"Unable to load image sample index {index} " +
-                        $"for {FilePath}");
-                    return new MemoryStream();
-                }
-                imageStreams.Add(index, ms);
+                return imageStreams[index];
             }
 
-            return ms;
+            using (var mpv = new MpvWrapper(
+                filePath,
+                imageCount,
+                Duration))
+            {
+                // If its the first image we load, we already load
+                // the minimum number of images we need to compare.
+                // If it's not the first one, then we load all of them
+                // because we most likely need them.
+                var imagesToLoad = imageCount - index;
+                if (index == 0 && imageCount >= settings.MaxDifferentImages + 1)
+                {
+                    imagesToLoad = settings.MaxDifferentImages + 1;
+                }
+                foreach (var image in mpv.GetImages(index, imagesToLoad))
+                {
+                    imageStreams.Add(image);
+                }
+                return imageStreams[index];
+            }
         }
 
         public bool AreImagesEqual(VideoFile other,
@@ -292,9 +272,9 @@ namespace VideoDedupShared
                 }
 
                 var thisImageSample =
-                    Image.FromStream(GetImage(index, settings.MaxCompares));
+                    Image.FromStream(GetImage(index, settings.MaxCompares, settings));
                 var otherImageSample =
-                    Image.FromStream(other.GetImage(index, settings.MaxCompares));
+                    Image.FromStream(other.GetImage(index, settings.MaxCompares, settings));
 
                 var diff = thisImageSample.PercentageDifference(otherImageSample);
 
@@ -330,9 +310,9 @@ namespace VideoDedupShared
 
         public void DisposeImages()
         {
-            foreach (var kvp in imageStreams)
+            foreach (var image in imageStreams)
             {
-                kvp.Value.Dispose();
+                image.Dispose();
             }
             imageStreams.Clear();
         }

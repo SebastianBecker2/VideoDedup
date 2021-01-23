@@ -101,7 +101,7 @@ namespace VideoDedupShared
         protected virtual void OnLogged(string message) =>
             Logged?.Invoke(this, new LoggedEventArgs
             {
-                Message = DateTime.Now.ToString("s") + " " + message,
+                Message = message,
             });
 
         public DedupEngine()
@@ -353,7 +353,7 @@ namespace VideoDedupShared
                 folderSettings.Recursive)
                 .Where(f => fileExtensions.Contains(
                     Path.GetExtension(f),
-                    StringComparer.CurrentCultureIgnoreCase))
+                    StringComparer.InvariantCultureIgnoreCase))
                 .Select(f => new VideoFile(f));
 
             var cached_files = LoadVideoFilesCache(folderSettings.CachePath);
@@ -427,6 +427,8 @@ namespace VideoDedupShared
             operationStartTime = DateTime.Now;
             OnOperationUpdate(OperationType.Comparing, 0, videoFiles.Count());
 
+            var timer = Stopwatch.StartNew();
+
             var videoFileList = videoFiles.OrderBy(f => f.Duration).ToList();
 
             for (var index = 0; index < videoFileList.Count() - 1; index++)
@@ -455,16 +457,27 @@ namespace VideoDedupShared
                     }
 
                     OnLogged(string.Format(LogCompareFile, other.FilePath));
-                    if (file.AreImagesEqual(other, settings, cancelToken))
+                    try
                     {
-                        OnLogged($"Found duplicate of {file.FilePath} and " +
-                            $"{other.FilePath}");
-                        OnDuplicateFound(file, other);
+                        if (file.AreImagesEqual(other, settings, cancelToken))
+                        {
+                            OnLogged($"Found duplicate of {file.FilePath} and " +
+                                $"{other.FilePath}");
+                            OnDuplicateFound(file, other);
+                        }
+                    }
+                    catch (AggregateException exc)
+                    when (exc.InnerException is MpvLib.MpvException)
+                    {
+                        OnLogged(exc.InnerException.Message);
                     }
                 }
 
                 file.DisposeImages();
             }
+
+            timer.Stop();
+            Debug.Print($"Dedup took {timer.ElapsedMilliseconds} ms");
 
             OnOperationUpdate(OperationType.Comparing,
                 videoFileList.Count(),
@@ -490,11 +503,19 @@ namespace VideoDedupShared
                 }
 
                 OnLogged(string.Format(LogCompareFile, file.FilePath));
-                if (file.AreImagesEqual(refFile, Configuration, cancelToken))
+                try
                 {
-                    OnLogged($"Found duplicate of {refFile.FilePath} and" +
-                        $" {file.FilePath}");
-                    OnDuplicateFound(refFile, file);
+                    if (file.AreImagesEqual(refFile, Configuration, cancelToken))
+                    {
+                        OnLogged($"Found duplicate of {refFile.FilePath} and" +
+                            $" {file.FilePath}");
+                        OnDuplicateFound(refFile, file);
+                    }
+                }
+                catch (AggregateException exc)
+                when (exc.InnerException is MpvLib.MpvException)
+                {
+                    OnLogged(exc.InnerException.Message);
                 }
             }
         }

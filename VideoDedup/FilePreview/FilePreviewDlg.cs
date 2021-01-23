@@ -42,16 +42,17 @@ namespace VideoDedup.FilePreview
         {
             DisplayInfo();
 
-            var width = VideoFile.VideoCodec.Width;
-            var height = VideoFile.VideoCodec.Height;
+            var width = VideoFile.CodecInfo.Width;
+            var height = VideoFile.CodecInfo.Height;
             SetImageSize(new Size(width, height));
 
-            foreach (var kvp in VideoFile.Images)
+            var index = 0;
+            foreach (var image in VideoFile.Images)
             {
-                ImlThumbnails.Images.Add(kvp.Value);
+                ImlThumbnails.Images.Add(image);
                 _ = LsvThumbnails.Items.Add(new ListViewItem
                 {
-                    ImageIndex = kvp.Key
+                    ImageIndex = index++,
                 });
             }
         }
@@ -82,21 +83,21 @@ namespace VideoDedup.FilePreview
         {
             var fileSize = VideoFile.FileSize;
             var duration = VideoFile.Duration;
-            var videoCodec = VideoFile.VideoCodec;
+            var codecInfo = VideoFile.CodecInfo;
 
             TxtInfo.Text = VideoFile.FilePath + Environment.NewLine;
             TxtInfo.Text += (fileSize / (1024 * 1024)).ToString() + " MB" + Environment.NewLine;
             var duration_format = duration.Hours >= 1 ? @"hh\:mm\:ss" : @"mm\:ss";
             TxtInfo.Text += duration.ToString(duration_format) + Environment.NewLine;
 
-            if (videoCodec == null)
+            if (codecInfo == null)
             {
                 return;
             }
-            TxtInfo.Text += videoCodec.Width.ToString() +
-                " x " + videoCodec.Height.ToString() +
-                " @ " + videoCodec.FrameRate + " Frames" + Environment.NewLine +
-                videoCodec.CodecLongName;
+            TxtInfo.Text += codecInfo.Width.ToString() +
+                " x " + codecInfo.Height.ToString() +
+                " @ " + codecInfo.FrameRate + " Frames" + Environment.NewLine +
+                codecInfo.Name;
         }
     }
 }

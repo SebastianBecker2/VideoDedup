@@ -19,10 +19,10 @@ namespace VideoDedupConsole
         {
             _ = file1.FileSize;
             _ = file1.Duration;
-            _ = file1.VideoCodec;
+            _ = file1.CodecInfo;
             _ = file2.FileSize;
             _ = file2.Duration;
-            _ = file2.VideoCodec;
+            _ = file2.CodecInfo;
             DuplicateData = new DuplicateData
             {
                 DuplicateId = Guid.NewGuid(),
