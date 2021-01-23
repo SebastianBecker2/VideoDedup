@@ -32,7 +32,7 @@
     "Text": "Fix VS Configurations für x64 und x86"
   },
   {
-    "Done": false,
+    "Done": true,
     "Text": "Implement CI"
   },
   {
@@ -42,6 +42,10 @@
   {
     "Done": false,
     "Text": "Fix style guide for internal protected members"
+  },
+  {
+    "Done": false,
+    "Text": "Update readme"
   },
   {
     "Done": true,
@@ -222,9 +226,5 @@
   {
     "Done": true,
     "Text": "Resolve conflicts while searching for deduplications"
-  },
-  {
-    "Done": false,
-    "Text": "Update readme"
   }
 ]
