@@ -1,6 +1,10 @@
 # VideoDedup
 Tool to deduplicate video files
 
+Branch|[![AppVeyor logo](pics/AppVeyor.png)](https://appveyor.com)
+---|---
+master|[![Build status](https://ci.appveyor.com/api/projects/status/ld6w3vd6m49spu27/branch/master?svg=true)](https://ci.appveyor.com/project/SebastianBecker2/videodedup/branch/master)
+
 Using the following libraries:
 - libmpv (https://github.com/mpv-player/mpv)
 - Newtonsoft.Json
