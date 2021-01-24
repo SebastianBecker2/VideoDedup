@@ -13,7 +13,7 @@ namespace VideoDedup
             labelVersion.Text = string.Format("Version {0}", AssemblyVersion);
             labelCopyright.Text = AssemblyCopyright;
             labelCompanyName.Text = AssemblyCompany;
-            textBoxDescription.Text = AssemblyDescription;
+            //textBoxDescription.Text = AssemblyDescription;
         }
 
         #region Assembly Attribute Accessors
