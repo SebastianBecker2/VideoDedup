@@ -18,7 +18,7 @@ namespace VideoDedupConsole
         public IThumbnailSettings Configuration { get; set; }
 
         public VideoFile AddVideoFileReference(
-            VideoFile videoFile)
+            DedupEngine.VideoFile videoFile)
         {
             if (UniqueVideoFiles.TryGetValue(videoFile, out var refCounter))
             {
@@ -26,15 +26,28 @@ namespace VideoDedupConsole
                 return refCounter.VideoFile;
             }
 
-            var videoFilePreview = new VideoFile(
-                    videoFile, Configuration.Count);
-            UniqueVideoFiles.Add(videoFile, new VideoFileRefCounter
+            if (videoFile.ImageCount == Configuration.Count)
             {
-                VideoFile = videoFilePreview,
-                RefCount = 1,
-            });
+                var videoFilePreview = new VideoFile(videoFile);
+                UniqueVideoFiles.Add(videoFile, new VideoFileRefCounter
+                {
+                    VideoFile = videoFilePreview,
+                    RefCount = 1,
+                });
+                return videoFilePreview;
+            }
 
-            return videoFilePreview;
+            using (var videoFileWithImages = new DedupEngine.VideoFile(
+                    videoFile, Configuration.Count))
+            {
+                var videoFilePreview = new VideoFile(videoFileWithImages);
+                UniqueVideoFiles.Add(videoFile, new VideoFileRefCounter
+                {
+                    VideoFile = videoFilePreview,
+                    RefCount = 1,
+                });
+                return videoFilePreview;
+            }
         }
 
         public void RemoveVideoFileReference(IVideoFile videoFile)

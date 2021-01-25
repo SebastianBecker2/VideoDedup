@@ -1,5 +1,6 @@
 namespace VideoDedupConsole
 {
+    using DedupEngine;
     using Newtonsoft.Json;
     using System;
     using System.Collections.Generic;
@@ -9,6 +10,8 @@ namespace VideoDedupConsole
     using VideoDedupConsole.Properties;
     using VideoDedupShared;
     using Wcf.Contracts.Data;
+    using MpvException = DedupEngine.MpvLib.MpvException;
+    using OperationUpdateEventArgs = DedupEngine.OperationUpdateEventArgs;
 
     internal class Program
     {
@@ -96,7 +99,7 @@ namespace VideoDedupConsole
                     Duplicates.Add(new DuplicateWrapper(file1, file2, e.BasePath));
                 }
                 catch (AggregateException exc)
-                when (exc.InnerException is VideoDedupShared.MpvLib.MpvException)
+                when (exc.InnerException is MpvException)
                 {
                     lock (LogEntriesLock)
                     {

@@ -1,6 +1,9 @@
 namespace VideoDedupShared
 {
     using System;
+    using System.Collections.Generic;
+    using System.Drawing;
+    using System.IO;
 
     public interface IVideoFile : IEquatable<IVideoFile>
     {
@@ -8,5 +11,7 @@ namespace VideoDedupShared
         long FileSize { get; }
         TimeSpan Duration { get; }
         CodecInfo CodecInfo{ get; }
+        IEnumerable<Image> Images { get; }
+        IEnumerable<MemoryStream> ImageStreams { get; }
     }
 }

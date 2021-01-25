@@ -68,6 +68,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DedupEngine\DedupEngine.csproj">
+      <Project>{6931a4e9-4586-44eb-92fc-8dc0dcdf0ca8}</Project>
+      <Name>DedupEngine</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VideoDedupShared\VideoDedupShared.csproj">
       <Project>{c16eae42-0c5c-405f-9916-4dfab332171a}</Project>
       <Name>VideoDedupShared</Name>
