@@ -19,7 +19,7 @@ namespace VideoDedup
         private static readonly string StatusInfoDuplicateCount =
             "Duplicates found {0}";
 
-        private static readonly TimeSpan WcfTimeout = TimeSpan.FromSeconds(10);
+        private static readonly TimeSpan WcfTimeout = TimeSpan.FromSeconds(30);
 
         private WcfProxy WcfProxy
         {
@@ -88,7 +88,7 @@ namespace VideoDedup
                 Message = "Connecting...",
                 ProgressStyle = ProgressStyle.Marquee,
             });
-            statusTimer.StartSingle(0);
+            _ = statusTimer.StartSingle(0);
 
             base.OnLoad(e);
         }
