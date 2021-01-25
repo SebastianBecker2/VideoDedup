@@ -134,8 +134,8 @@ namespace VideoDedup
                     // If we are scrolled down, we auto scroll
                     var prevRowCount = DgvLog.RowCount;
                     DgvLog.RowCount = status.LogCount;
-                    if (DgvLog.GetLastDisplayedScrollingRowIndex(false)
-                        == prevRowCount - 1)
+                    if (DgvLog.GetLastDisplayedScrollingRowIndex(false) + 1
+                        == prevRowCount)
                     {
                         DgvLog.FirstDisplayedScrollingRowIndex =
                             DgvLog.RowCount - 1;
