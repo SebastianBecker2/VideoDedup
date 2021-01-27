@@ -5,15 +5,13 @@ namespace VideoDedupShared
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Drawing;
     using System.IO;
     using System.Linq;
     using System.Runtime.Serialization;
-    using System.Threading;
 
     [DataContract]
-    public class VideoFile : IVideoFile, IDisposable
+    public class VideoFile : IVideoFile, IDisposable, IEquatable<IVideoFile>
     {
         internal VideoFile() { }
 
