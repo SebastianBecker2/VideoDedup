@@ -25,150 +25,40 @@ namespace VideoDedupConsole
             { OperationType.Completed, "Finished comparison" },
         };
 
-        private static IList<DuplicateWrapper> Duplicates { get; } =
-            new List<DuplicateWrapper>();
-        private static ThumbnailManager ThumbnailManager { get; } =
-            new ThumbnailManager();
-        private static readonly object DuplicatesLock = new object();
+        private static readonly DuplicateManager DuplicateManager =
+            new DuplicateManager();
 
-        public static int GetDuplicateCount()
-        {
-            lock (DuplicatesLock)
-            {
-                return Duplicates.Count();
-            }
-        }
+        public static int GetDuplicateCount() => DuplicateManager.Count;
 
-        internal static DuplicateData GetDuplicate()
-        {
-            lock (DuplicatesLock)
-            {
-                while (true)
-                {
-                    if (!Duplicates.Any())
-                    {
-                        return null;
-                    }
+        internal static DuplicateData GetDuplicate() =>
+            DuplicateManager.GetDuplicate();
 
-                    // OrderBy is stable, so we get the first if multiple
-                    // don't have a real LastRequest time-stamp
-                    var duplicate = Duplicates
-                        .OrderBy(d => d.LastRequest)
-                        .First();
+        internal static void DiscardDuplicates() =>
+            DuplicateManager.DiscardAll();
 
-                    if (!File.Exists(duplicate.File1.FilePath)
-                        || !File.Exists(duplicate.File2.FilePath))
-                    {
-                        _ = Duplicates.Remove(duplicate);
-                        continue;
-                    }
-
-                    // To preserve specific order
-                    // even when using multiple clients.
-                    // The most recently requested will be last
-                    // next time (when skipped). Or first when canceled.
-                    duplicate.LastRequest = DateTime.Now;
-                    return duplicate.DuplicateData;
-                }
-            }
-        }
-
-        internal static void DiscardDuplicates()
-        {
-            lock (DuplicatesLock)
-            {
-                foreach (var duplicate in Duplicates)
-                {
-                    ThumbnailManager.RemoveVideoFileReference(duplicate.File1);
-                    ThumbnailManager.RemoveVideoFileReference(duplicate.File2);
-                }
-                Duplicates.Clear();
-            }
-        }
-
-        private static void DuplicateFoundCallback(object sender,
+        private static void DuplicateFoundCallback(
+            object sender,
             DuplicateFoundEventArgs e)
         {
-            lock (DuplicatesLock)
+            try
             {
-                var file1 = ThumbnailManager.AddVideoFileReference(e.File1);
-                var file2 = ThumbnailManager.AddVideoFileReference(e.File2);
-
-                try
+                DuplicateManager.AddDuplicate(e.File1, e.File2, e.BasePath);
+            }
+            catch (AggregateException exc)
+            when (exc.InnerException is MpvException)
+            {
+                lock (LogEntriesLock)
                 {
-                    Duplicates.Add(new DuplicateWrapper(file1, file2, e.BasePath));
-                }
-                catch (AggregateException exc)
-                when (exc.InnerException is MpvException)
-                {
-                    lock (LogEntriesLock)
-                    {
-                        AddLogEntry(exc.Message);
-                        AddLogEntry(exc.InnerException.Message);
-                    }
+                    AddLogEntry(exc.Message);
+                    AddLogEntry(exc.InnerException.Message);
                 }
             }
         }
 
-        internal static void ResolveDuplicate(Guid duplicateId,
-            ResolveOperation resolveOperation)
-        {
-            lock (DuplicatesLock)
-            {
-                var duplicate = Duplicates
-                    .FirstOrDefault(d =>
-                        d.DuplicateId == duplicateId);
-
-                if (duplicate == null)
-                {
-                    return;
-                }
-
-                void DeleteFile(string path)
-                {
-                    try
-                    {
-                        File.Delete(path);
-                    }
-                    catch (Exception exc)
-                    {
-                        AddLogEntry(exc.Message);
-                    }
-                }
-
-                switch (resolveOperation)
-                {
-                    case ResolveOperation.DeleteFile1:
-                        DeleteFile(duplicate.File1.FilePath);
-                        ThumbnailManager.RemoveVideoFileReference(duplicate.File1);
-                        ThumbnailManager.RemoveVideoFileReference(duplicate.File2);
-                        _ = Duplicates.Remove(duplicate);
-                        break;
-                    case ResolveOperation.DeleteFile2:
-                        DeleteFile(duplicate.File2.FilePath);
-                        ThumbnailManager.RemoveVideoFileReference(duplicate.File1);
-                        ThumbnailManager.RemoveVideoFileReference(duplicate.File2);
-                        _ = Duplicates.Remove(duplicate);
-                        break;
-                    case ResolveOperation.Skip:
-                        // Do nothing.
-                        // The duplicate is kept in the list for later.
-                        break;
-                    case ResolveOperation.Discard:
-                        ThumbnailManager.RemoveVideoFileReference(duplicate.File1);
-                        ThumbnailManager.RemoveVideoFileReference(duplicate.File2);
-                        _ = Duplicates.Remove(duplicate);
-                        break;
-                    case ResolveOperation.Cancel:
-                        duplicate.LastRequest = DateTime.MinValue;
-                        break;
-                    default:
-                        throw new InvalidOperationException(
-                            $"\"{resolveOperation}\" is invalid"
-                            + $"for enum {nameof(ResolveOperation)}");
-                }
-            }
-        }
+        internal static void ResolveDuplicate(
+            Guid duplicateId,
+            ResolveOperation resolveOperation) =>
+            DuplicateManager.ResolveDuplicate(duplicateId, resolveOperation);
 
         private static List<string> LogEntries { get; } = new List<string>();
         private static readonly object LogEntriesLock = new object();
@@ -234,10 +124,7 @@ namespace VideoDedupConsole
                 Operation = OperationInfo,
             };
 
-            lock (DuplicatesLock)
-            {
-                statudData.DuplicateCount = Duplicates.Count();
-            }
+            statudData.DuplicateCount = DuplicateManager.Count;
 
             lock (LogEntriesLock)
             {
@@ -324,7 +211,7 @@ namespace VideoDedupConsole
 
         internal static void UpdateConfig(ConfigData config)
         {
-            ThumbnailManager.Configuration = config;
+            DuplicateManager.Settings = config;
             Dedupper.UpdateConfiguration(config);
             Dedupper.Stop();
 
@@ -357,7 +244,7 @@ namespace VideoDedupConsole
 
             var config = LoadConfig();
             Dedupper.UpdateConfiguration(config);
-            ThumbnailManager.Configuration = config;
+            DuplicateManager.Settings = config;
 
             OperationInfo = new OperationInfo
             {
