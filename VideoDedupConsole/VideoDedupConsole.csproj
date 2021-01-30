@@ -102,4 +102,11 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>if $(PlatformName) == x64 (
+  xcopy "$(SolutionDir)DedupEngine\Libs\libmpv\x64\mpv-1.dll" "$(TargetDir)" /y
+) ELSE (
+  xcopy "$(SolutionDir)DedupEngine\Libs\libmpv\x86\mpv-1.dll" "$(TargetDir)" /y
+)</PostBuildEvent>
+  </PropertyGroup>
 </Project>

@@ -75,12 +75,8 @@
     <Compile Include="VideoFile.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Libs\libmpv\x64\mpv-1.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Libs\libmpv\x86\mpv-1.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="Libs\libmpv\x64\mpv-1.dll" />
+    <Content Include="Libs\libmpv\x86\mpv-1.dll" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

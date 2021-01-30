@@ -12,7 +12,7 @@ namespace DedupEngine.MpvLib
 
     public class MpvWrapper : IDisposable
     {
-        private const string LibPath = @"Libs\libmpv\x64\mpv-1.dll";
+        private const string LibPath = @"mpv-1.dll";
 
         public static CodecInfo GetCodecInfo(string filePath)
         {
