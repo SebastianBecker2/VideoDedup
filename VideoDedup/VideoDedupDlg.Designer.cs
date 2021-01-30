@@ -239,7 +239,7 @@ namespace VideoDedup
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.MenuStrip;
             this.Name = "VideoDedupDlg";
-            this.Text = "VideoDedup";
+            this.Text = "Video Dedup Client";
             this.Resize += new System.EventHandler(this.Form1_Resize);
             this.MenuStrip.ResumeLayout(false);
             this.MenuStrip.PerformLayout();
