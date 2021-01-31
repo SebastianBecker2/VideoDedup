@@ -314,7 +314,7 @@ namespace DedupEngine.MpvLib
                 {
                     Marshal.FreeHGlobal(ptr);
                 }
-                Marshal.FreeHGlobal(mainPtr);
+                Marshal.FreeCoTaskMem(mainPtr);
             }
         }
 
@@ -327,7 +327,6 @@ namespace DedupEngine.MpvLib
                     GetUtf8Bytes(name),
                     GetUtf8Bytes(value)),
                 $"Unable to set property '{name}' to '{value}'");
-
 
         public static long GetLong(IntPtr handle, string name)
         {
