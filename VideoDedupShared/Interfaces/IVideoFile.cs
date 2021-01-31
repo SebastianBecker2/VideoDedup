@@ -10,8 +10,8 @@ namespace VideoDedupShared
         string FilePath { get; }
         long FileSize { get; }
         TimeSpan Duration { get; }
-        CodecInfo CodecInfo{ get; }
+        CodecInfo CodecInfo { get; }
         IEnumerable<Image> Images { get; }
-        IEnumerable<MemoryStream> ImageStreams { get; }
+        IList<MemoryStream> ImageStreams { get; }
     }
 }

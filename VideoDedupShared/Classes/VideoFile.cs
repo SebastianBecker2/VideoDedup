@@ -22,12 +22,12 @@ namespace VideoDedupShared
                 throw new ArgumentNullException(nameof(other));
             }
 
-            filePath = other.FilePath;
-            fileSize = other.FileSize;
-            duration = other.Duration;
-            codecInfo = other.CodecInfo;
+            FilePath = other.FilePath;
+            FileSize = other.FileSize;
+            Duration = other.Duration;
+            CodecInfo = other.CodecInfo;
 
-            imageStreams = other.ImageStreams.Select(ms =>
+            ImageStreams = other.ImageStreams.Select(ms =>
             {
                 ms.Position = 0;
                 var @new = new MemoryStream();
@@ -36,39 +36,33 @@ namespace VideoDedupShared
             }).ToList();
         }
 
-        public string FilePath => filePath;
         [DataMember]
-        protected internal string filePath;
+        public string FilePath { get; set; }
 
         public string FileName => Path.GetFileName(FilePath);
 
-        public long FileSize => fileSize;
         [DataMember]
-        protected internal long fileSize;
+        public long FileSize { get; set; }
 
-        public TimeSpan Duration => duration;
         [DataMember]
-        protected internal TimeSpan duration;
+        public TimeSpan Duration { get; set; }
 
-        public CodecInfo CodecInfo => codecInfo;
         [DataMember]
-        protected internal CodecInfo codecInfo;
+        public CodecInfo CodecInfo { get; set; }
 
         public IEnumerable<Image> Images
         {
             get
             {
-                if (imageStreams == null)
+                if (ImageStreams == null)
                 {
                     return Enumerable.Empty<Image>();
                 }
-                return imageStreams.Select(image => Image.FromStream(image));
+                return ImageStreams.Select(image => Image.FromStream(image));
             }
         }
-        public IEnumerable<MemoryStream> ImageStreams => imageStreams;
         [DataMember]
-        protected internal IList<MemoryStream> imageStreams =
-            new List<MemoryStream>();
+        public IList<MemoryStream> ImageStreams { get; set; }
 
         public override bool Equals(object obj) => Equals(obj as IVideoFile);
 
@@ -89,11 +83,11 @@ namespace VideoDedupShared
 
         public void DisposeImages()
         {
-            foreach (var image in imageStreams)
+            foreach (var image in ImageStreams)
             {
                 image.Dispose();
             }
-            imageStreams.Clear();
+            ImageStreams.Clear();
         }
 
         protected virtual void Dispose(bool disposing)

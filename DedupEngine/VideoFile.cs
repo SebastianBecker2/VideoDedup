@@ -105,7 +105,7 @@ namespace DedupEngine
         [JsonIgnore]
         public string FilePath => filePath;
         [JsonProperty]
-        protected internal string filePath;
+        private readonly string filePath;
 
         [JsonIgnore]
         public string FileName => Path.GetFileName(FilePath);
@@ -123,7 +123,7 @@ namespace DedupEngine
             }
         }
         [JsonProperty]
-        protected internal long? fileSize = null;
+        private long? fileSize = null;
 
         [JsonIgnore]
         public TimeSpan Duration
@@ -145,7 +145,7 @@ namespace DedupEngine
             }
         }
         [JsonProperty]
-        protected internal TimeSpan duration = TimeSpan.Zero;
+        private TimeSpan duration = TimeSpan.Zero;
 
         [JsonIgnore]
         public CodecInfo CodecInfo
@@ -160,7 +160,7 @@ namespace DedupEngine
             }
         }
         [JsonIgnore]
-        protected internal CodecInfo codecInfo = null;
+        private CodecInfo codecInfo = null;
 
         [JsonIgnore]
         public IEnumerable<Image> Images
@@ -175,9 +175,9 @@ namespace DedupEngine
             }
         }
         [JsonIgnore]
-        public IEnumerable<MemoryStream> ImageStreams => imageStreams;
+        public IList<MemoryStream> ImageStreams => imageStreams;
         [JsonIgnore]
-        internal IList<MemoryStream> imageStreams =
+        private readonly IList<MemoryStream> imageStreams =
             new List<MemoryStream>();
 
         [JsonIgnore]
