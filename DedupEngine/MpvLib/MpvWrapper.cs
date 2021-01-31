@@ -174,8 +174,9 @@ namespace DedupEngine.MpvLib
             {
                 PrepareImageHandle();
 
-                var stepping =
-                    Duration.Value.TotalSeconds / (PartitionCount + 1);
+                var stepping = Math.Max(
+                    (long)(Duration.Value.TotalSeconds / (PartitionCount + 1)),
+                    1);
                 Set(MpvHandle, "sstep",
                     stepping.ToString(CultureInfo.InvariantCulture));
                 var start = stepping * (index + 1);
