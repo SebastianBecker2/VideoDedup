@@ -6,9 +6,9 @@ namespace DedupEngine.MpvLib
     [StructLayout(LayoutKind.Sequential)]
     internal class Event
     {
-        public int Id;
-        public int Error;
-        public ulong UserData;
-        public IntPtr Data;
+        public int Id { get; set; }
+        public int Error { get; set; }
+        public ulong UserData { get; set; }
+        public IntPtr Data { get; set; }
     }
 }
