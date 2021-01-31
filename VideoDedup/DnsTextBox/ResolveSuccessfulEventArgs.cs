@@ -1,8 +1,8 @@
-using System.Collections.Generic;
-using System.Net;
-
 namespace VideoDedup.DnsTextBox
 {
+    using System.Collections.Generic;
+    using System.Net;
+
     public class ResolveSuccessfulEventArgs
     {
         public string DnsName { get; set; }

@@ -363,41 +363,6 @@ namespace DedupEngine.MpvLib
             }
         }
 
-        private static long GetPropertyLong(IntPtr handle, string name)
-        {
-            Check(mpv_get_property(
-                    handle,
-                    GetUtf8Bytes(name),
-                    (int)DataFormat.Int64,
-                    out var valuePtr),
-                $"Unable to get property {name}");
-            return (long)valuePtr;
-        }
-
-        private static string GetPropertyString(IntPtr handle, string name)
-        {
-            Check(mpv_get_property(
-                    handle,
-                    GetUtf8Bytes(name),
-                    (int)DataFormat.String,
-                    out var valuePtr),
-                $"Unable to get property {name}");
-            try
-            {
-                // Replace with:
-                // Marshal.PtrToStringUTF8(lpBuffer);
-                // When converting to .NET 5.0
-                return Marshal.PtrToStringAnsi(valuePtr);
-            }
-            finally
-            {
-                if (valuePtr != IntPtr.Zero)
-                {
-                    mpv_free(valuePtr);
-                }
-            }
-        }
-
         private static EventId GetEventId(
             IntPtr handle,
             double timeout = Timeout.Infinite)
