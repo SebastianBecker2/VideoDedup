@@ -277,9 +277,19 @@ namespace DedupEngine
                     ++differernceCount;
                 }
 
+                // Early return when we already exceeded the number of
+                // MaxDifferentImages
                 if (differernceCount > settings.MaxDifferentImages)
                 {
                     return false;
+                }
+
+                // Early return when there are not enough to compare left
+                // to exceed the MaxDifferentImages
+                if ((settings.MaxCompares - (index + 1))
+                    <= (settings.MaxDifferentImages - differernceCount))
+                {
+                    return true;
                 }
             }
             return true;
