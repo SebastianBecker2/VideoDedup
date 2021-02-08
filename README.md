@@ -6,15 +6,16 @@ Branch|[![AppVeyor logo](pics/AppVeyor.png)](https://appveyor.com)
 master|[![Build status](https://ci.appveyor.com/api/projects/status/ld6w3vd6m49spu27/branch/master?svg=true)](https://ci.appveyor.com/project/SebastianBecker2/videodedup/branch/master)
 
 This tool includes a server and client module. By default, the client looks for the server on localhost. Communication is achieved using [Microsofts WCF](https://docs.microsoft.com/en-us/dotnet/framework/wcf/whats-wcf).
-Server searches for duplicates of video files. Duplicates are determined by the following configurable settings:
+The server searches for duplicates of video files. Duplicates are determined by the following configurable settings:
 - Number of Images to compare => Defines how many images will be compared to determine a duplicate.
 - Accepted number of different Images => Defines how many of the compared images can be different to still qualify as a duplicate.
-- Accepted percentage of difference => Defines how different two images have to be to be counted as different images. This solaly depends on the [ImageComparison by Jaok Farian Krarup](https://www.codeproject.com/Articles/374386/Simple-image-comparison-in-NET). 35% seems to be a good value.
-To avoid comparing videos that differ too much in length, a maximum difference in length can be defined. Either as an absolut value in seconds or in percent.
+- Accepted percentage of difference => Defines how different two images have to be to be considered as different images. This solely depends on the [ImageComparison by Jaok Farian Krarup](https://www.codeproject.com/Articles/374386/Simple-image-comparison-in-NET). 35% seems to be a good value.
+
+To avoid comparing videos that differ too much in length, a maximum difference in length can be defined. Either as an absolute value in seconds or in percent.
 
 The server will search for all video files (determined by the filename extension) in a specified folder. And provides the option to monitor the folder for file changes.
 
-The duplicates can be resolved on the client. It will view details as well as a preview of both videos. The user can decide how the duplicate shall be resolved.
+The duplicates can be resolved using the client. It will view details as well as a preview of both videos. The user can decide how the duplicate shall be resolved.
 
 VidepDedup is using the following libraries:
 - [libmpv](https://github.com/mpv-player/mpv)
