@@ -4,8 +4,13 @@ namespace VideoDedupConsole
     using Newtonsoft.Json;
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.IO;
     using System.Linq;
     using System.ServiceModel;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using VideoDedupConsole.DuplicateManagement;
     using VideoDedupConsole.Properties;
     using VideoDedupShared;
     using Wcf.Contracts.Data;
@@ -14,20 +19,54 @@ namespace VideoDedupConsole
 
     internal class Program
     {
+        // The folder name settings are stored in.
+        // Which is actually the company name.
+        // Though company name is empty and he still somehow gets this name:"
+        private static readonly string ApplicationName = "VideoDedupConsole";
+
+        private static string GetLocalAppPath()
+        {
+            var path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            path = Path.Combine(path, ApplicationName);
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            return path;
+        }
+
         private static readonly IReadOnlyDictionary<OperationType, string>
             OperationTypeTexts = new Dictionary<OperationType, string>
         {
             { OperationType.Comparing, "Comparing: {0}/{1}" },
-            { OperationType.Loading, "Loading media info: {0}/{1}" },
+            { OperationType.LoadingMedia, "Loading media info: {0}/{1}" },
             { OperationType.Searching, "Searching for files..." },
             { OperationType.Monitoring, "Monitoring for file changes..." },
             { OperationType.Completed, "Finished comparison" },
+            { OperationType.LoadingDuplicates, "Loading duplicates: {0}/{1}" },
         };
 
-        private static readonly DuplicateManager DuplicateManager =
-            new DuplicateManager();
+        private static DuplicateManager DuplicateManager { get; set; }
+         = new DuplicateManager(GetLocalAppPath());
 
-        public static int GetDuplicateCount() => DuplicateManager.Count;
+        private static void DuplicateFileLoadedProgressCallback(
+            object sender,
+            FileLoadedProgressEventArgs e) =>
+            OperationInfo = new OperationInfo
+            {
+                Message = string.Format(
+                    OperationTypeTexts[OperationType.LoadingDuplicates],
+                    e.Count,
+                    e.MaxCount),
+                CurrentProgress = e.Count,
+                MaximumProgress = e.MaxCount,
+                ProgressStyle = ProgressStyle.Continuous,
+                StartTime = e.StartTime,
+            };
 
         internal static DuplicateData GetDuplicate() =>
             DuplicateManager.GetDuplicate();
@@ -102,7 +141,8 @@ namespace VideoDedupConsole
         private static OperationInfo OperationInfo { get; set; }
             = null;
 
-        private static void OperationUpdateCallback(object sender,
+        private static void OperationUpdateCallback(
+            object sender,
             OperationUpdateEventArgs e) =>
             OperationInfo = new OperationInfo
             {
@@ -134,7 +174,8 @@ namespace VideoDedupConsole
             return statudData;
         }
 
-        private static readonly DedupEngine Dedupper = new DedupEngine();
+        private static readonly DedupEngine Dedupper =
+            new DedupEngine(GetLocalAppPath());
 
         internal static ConfigData LoadConfig()
         {
@@ -168,22 +209,22 @@ namespace VideoDedupConsole
 
             return new ConfigData
             {
-                SourcePath = Settings.Default.SourcePath,
+                BasePath = Settings.Default.SourcePath,
                 ExcludedDirectories = excludedDirectories,
                 FileExtensions = fileExtensions,
-                MaxThumbnailComparison = Settings.Default.MaxThumbnailComparison,
-                MaxDifferentThumbnails = Settings.Default.MaxDifferentThumbnails,
-                MaxDifferencePercentage = Settings.Default.MaxDifferencePercentage,
+                MaxImageCompares = Settings.Default.MaxThumbnailComparison,
+                MaxDifferentImages = Settings.Default.MaxDifferentThumbnails,
+                MaxImageDifferencePercent = Settings.Default.MaxDifferencePercentage,
                 MaxDurationDifferenceSeconds = Settings.Default.MaxDurationDifferenceSeconds,
                 MaxDurationDifferencePercent = Settings.Default.MaxDurationDifferencePercent,
-                DurationDifferenceType = durationDifferenceType,
+                DifferenceType = durationDifferenceType,
                 ThumbnailCount = Settings.Default.ThumbnailCount,
                 Recursive = Settings.Default.Recursive,
-                MonitorFileChanges = Settings.Default.MonitorFileChanges,
+                MonitorChanges = Settings.Default.MonitorFileChanges,
             };
         }
 
-        internal static void SaveConfig(IDedupEngineSettings configuration)
+        internal static void SaveConfig(ConfigData configuration)
         {
             Settings.Default.SourcePath = configuration.BasePath;
             Settings.Default.ExcludedDirectories =
@@ -191,18 +232,18 @@ namespace VideoDedupConsole
             Settings.Default.FileExtensions =
                 JsonConvert.SerializeObject(configuration.FileExtensions);
 
-            Settings.Default.MaxThumbnailComparison = configuration.MaxCompares;
+            Settings.Default.MaxThumbnailComparison = configuration.MaxImageCompares;
             Settings.Default.MaxDifferentThumbnails =
                 configuration.MaxDifferentImages;
             Settings.Default.MaxDifferencePercentage =
                 (configuration as IImageComparisonSettings).MaxDifferencePercent;
             Settings.Default.MaxDurationDifferenceSeconds =
-                configuration.MaxDifferenceSeconds;
+                configuration.MaxDurationDifferenceSeconds;
             Settings.Default.MaxDurationDifferencePercent =
                 (configuration as IDurationComparisonSettings).MaxDifferencePercent;
             Settings.Default.DurationDifferenceType =
                 configuration.DifferenceType.ToString();
-            Settings.Default.ThumbnailCount = configuration.Count;
+            Settings.Default.ThumbnailCount = configuration.ThumbnailCount;
             Settings.Default.Recursive = configuration.Recursive;
             Settings.Default.MonitorFileChanges = configuration.MonitorChanges;
             Settings.Default.Save();
@@ -211,8 +252,8 @@ namespace VideoDedupConsole
         internal static void UpdateConfig(ConfigData config)
         {
             DuplicateManager.Settings = config;
-            Dedupper.UpdateConfiguration(config);
             Dedupper.Stop();
+            Dedupper.UpdateConfiguration(config);
 
             lock (LogEntriesLock)
             {
@@ -241,6 +282,9 @@ namespace VideoDedupConsole
             Dedupper.DuplicateFound += DuplicateFoundCallback;
             Dedupper.Logged += LoggedCallback;
 
+            DuplicateManager.FileLoadedProgress +=
+                DuplicateFileLoadedProgressCallback;
+
             var config = LoadConfig();
             Dedupper.UpdateConfiguration(config);
             DuplicateManager.Settings = config;
@@ -253,24 +297,42 @@ namespace VideoDedupConsole
 
             var baseAddress = new Uri("net.tcp://localhost:41721/VideoDedup");
             using (var serviceHost = new ServiceHost(typeof(WcfService), baseAddress))
+            using (var cancelTokenSource = new CancellationTokenSource())
             {
                 serviceHost.Open();
-                try
+
+                var startTask = Task.Factory.StartNew(
+                    () => DuplicateManager.LoadFromFile(cancelTokenSource.Token),
+                    cancelTokenSource.Token)
+                    .ContinueWith(t =>
                 {
-                    Dedupper.Start();
-                }
-                catch (InvalidOperationException exc)
-                {
-                    OperationInfo = new OperationInfo
+                    try
                     {
-                        ProgressStyle = ProgressStyle.NoProgress,
-                        Message = exc.Message,
-                    };
-                    AddLogEntry(exc.Message);
-                }
+                        Dedupper.Start();
+                    }
+                    catch (InvalidOperationException exc)
+                    {
+                        OperationInfo = new OperationInfo
+                        {
+                            ProgressStyle = ProgressStyle.NoProgress,
+                            Message = exc.Message,
+                        };
+                        AddLogEntry(exc.Message);
+                    }
+                }, TaskContinuationOptions.NotOnCanceled);
 
                 Console.WriteLine("Service running.  Please 'Enter' to exit...");
                 _ = Console.ReadLine();
+
+                cancelTokenSource.Cancel();
+                try
+                {
+                    startTask.Wait();
+                }
+                catch (AggregateException exc)
+                {
+                    exc.Handle(x => x is OperationCanceledException);
+                }
             }
         }
     }
