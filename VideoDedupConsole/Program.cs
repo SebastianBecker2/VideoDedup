@@ -328,11 +328,15 @@ namespace VideoDedupConsole
                 try
                 {
                     startTask.Wait();
+                    Dedupper.Stop();
                 }
                 catch (AggregateException exc)
                 {
                     exc.Handle(x => x is OperationCanceledException);
                 }
+
+                serviceHost.Abort();
+                serviceHost.Close();
             }
         }
     }
