@@ -1,91 +1,56 @@
 namespace Wcf.Contracts.Data
 {
     using System.Collections.Generic;
-    using System.IO;
     using System.Runtime.Serialization;
     using VideoDedupShared;
 
     [DataContract]
-    public class ConfigData : IDedupEngineSettings
+    public class ConfigData : IDedupEngineSettings, IThumbnailSettings
     {
-        private static readonly string CacheFolderName = "VideoDedupCache";
-        private static readonly string CacheFileName = "video_files.cache";
-
         [DataMember]
-        public string SourcePath { get; set; }
+        public string BasePath { get; set; }
 
         // Make IReadOnlyList?
         [DataMember]
-        public IList<string> ExcludedDirectories { get; set; }
+        public IEnumerable<string> ExcludedDirectories { get; set; }
 
         // Make IReadOnlyList?
         [DataMember]
-        public IList<string> FileExtensions { get; set; }
+        public IEnumerable<string> FileExtensions { get; set; }
 
         [DataMember]
         public bool Recursive { get; set; }
 
         [DataMember]
-        public int MaxThumbnailComparison { get; set; }
+        public bool MonitorChanges { get; set; }
 
         [DataMember]
-        public int MaxDifferentThumbnails { get; set; }
+        public int MaxImageCompares { get; set; }
+        int IImageComparisonSettings.MaxCompares => MaxImageCompares;
 
         [DataMember]
-        public int MaxDifferencePercentage { get; set; }
+        public int MaxDifferentImages { get; set; }
+
+        [DataMember]
+        public int MaxImageDifferencePercent { get; set; }
+        int IImageComparisonSettings.MaxDifferencePercent =>
+            MaxImageDifferencePercent;
 
         [DataMember]
         public int MaxDurationDifferenceSeconds { get; set; }
-
-        [DataMember]
-        public int MaxDurationDifferencePercent { get; set; }
-
-        [DataMember]
-        public DurationDifferenceType DurationDifferenceType { get; set; }
-
-        [DataMember]
-        public int ThumbnailCount { get; set; }
-
-        [DataMember]
-        public bool MonitorFileChanges { get; set; }
-
-        DurationDifferenceType IDurationComparisonSettings.DifferenceType =>
-            DurationDifferenceType;
-
         int IDurationComparisonSettings.MaxDifferenceSeconds =>
             MaxDurationDifferenceSeconds;
 
+        [DataMember]
+        public int MaxDurationDifferencePercent { get; set; }
         int IDurationComparisonSettings.MaxDifferencePercent =>
             MaxDurationDifferencePercent;
 
-        int IImageComparisonSettings.MaxDifferencePercent =>
-            MaxDifferencePercentage;
+        [DataMember]
+        public DurationDifferenceType DifferenceType { get; set; }
 
-        int IImageComparisonSettings.MaxCompares => MaxThumbnailComparison;
-
-        int IImageComparisonSettings.MaxDifferentImages =>
-            MaxDifferentThumbnails;
-
-        string IFolderSettings.BasePath => SourcePath;
-
-        string IFolderSettings.CachePath
-        {
-            get
-            {
-                var cache_folder = Path.Combine(SourcePath, CacheFolderName);
-                _ = Directory.CreateDirectory(cache_folder);
-                return Path.Combine(cache_folder, CacheFileName);
-            }
-        }
-
-        IEnumerable<string> IFolderSettings.ExcludedDirectories =>
-            ExcludedDirectories;
-
-        IEnumerable<string> IFolderSettings.FileExtensions =>
-            FileExtensions;
-
+        [DataMember]
+        public int ThumbnailCount { get; set; }
         int IThumbnailSettings.Count => ThumbnailCount;
-
-        bool IFolderSettings.MonitorChanges => MonitorFileChanges;
     }
 }

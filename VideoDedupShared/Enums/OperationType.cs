@@ -3,9 +3,10 @@ namespace VideoDedupShared
     public enum OperationType
     {
         Comparing,
-        Loading,
+        LoadingMedia,
         Searching,
         Monitoring,
         Completed,
+        LoadingDuplicates,
     }
 }

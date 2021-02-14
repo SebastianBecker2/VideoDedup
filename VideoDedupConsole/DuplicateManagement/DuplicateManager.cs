@@ -1,9 +1,11 @@
-namespace VideoDedupConsole
+namespace VideoDedupConsole.DuplicateManagement
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Threading;
+    using Newtonsoft.Json;
     using VideoDedupShared;
     using Wcf.Contracts.Data;
 
@@ -128,33 +130,95 @@ namespace VideoDedupConsole
 
                 refCounter.RefCount--;
             }
-
         }
+
+        private static readonly string DuplicateFilename = "Duplicate.list";
+        private string DuplicateFilePath =>
+            Path.Combine(AppDataFolder, DuplicateFilename);
+        private string AppDataFolder { get; }
 
         private readonly ThumbnailManager thumbnailManager =
             new ThumbnailManager();
-        private readonly ISet<DuplicateWrapper> duplicateList =
-            new HashSet<DuplicateWrapper>();
+        private readonly ISet<DuplicateWrapper> duplicateList
+            = new HashSet<DuplicateWrapper>();
         private readonly object duplicateLock = new object();
+        private volatile int count;
 
         public IThumbnailSettings Settings
         {
             get => thumbnailManager.Configuration;
             set => thumbnailManager.Configuration = value;
         }
+        public int Count => count;
 
-        public int Count
-        {
-            get
+        public bool AutoSave { get; set; }
+
+        public event EventHandler<DuplicateAddedEventArgs> DuplicateAdded;
+        protected virtual void OnDuplicateAdded(DuplicateData duplicate) =>
+            DuplicateAdded?.Invoke(this, new DuplicateAddedEventArgs
             {
-                lock (duplicateLock)
-                {
-                    return duplicateList.Count();
-                }
+                Duplicate = duplicate,
+                DuplicateCount = Count,
+            });
+
+        public event EventHandler<DuplicateRemovedEventArgs> DuplicateRemoved;
+        protected virtual void OnDuplicateRemoved(DuplicateData duplicate) =>
+            DuplicateRemoved?.Invoke(this, new DuplicateRemovedEventArgs
+            {
+                Duplicate = duplicate,
+                DuplicateCount = Count,
+            });
+
+        public event EventHandler<DuplicateResolvedEventArgs> DuplicateResolved;
+        protected virtual void OnDuplicateResolved(
+            DuplicateData duplicate,
+            ResolveOperation operation) =>
+            DuplicateResolved?.Invoke(this, new DuplicateResolvedEventArgs
+            {
+                Duplicate = duplicate,
+                Operation = operation,
+            });
+
+        public event EventHandler<FileLoadedProgressEventArgs> FileLoadedProgress;
+        protected virtual void OnFileLoadedProgress(
+            Func<FileLoadedProgressEventArgs> eventArgsCreator) =>
+            FileLoadedProgress?.Invoke(this, eventArgsCreator.Invoke());
+
+        public event EventHandler<FileLoadedEventArgs> FileLoaded;
+        protected virtual void OnFileLoaded(int duplicateCount) =>
+            FileLoaded?.Invoke(this, new FileLoadedEventArgs
+            {
+                DuplicateCount = duplicateCount,
+                FilePath = DuplicateFilePath,
+            });
+
+        public event EventHandler<FileSavedEventArgs> FileSaved;
+        protected virtual void OnFileSaved(int duplicateCount) =>
+            FileSaved?.Invoke(this, new FileSavedEventArgs
+            {
+                DuplicateCount = duplicateCount,
+                FilePath = DuplicateFilePath,
+            });
+
+        public DuplicateManager(string appDataFolder,
+            bool autoSave = true)
+        {
+            if (string.IsNullOrWhiteSpace(appDataFolder))
+            {
+                throw new ArgumentException($"'{nameof(appDataFolder)}' cannot" +
+                    $"be null or whitespace", nameof(appDataFolder));
             }
+            AppDataFolder = appDataFolder;
+            AutoSave = autoSave;
         }
 
-        public DuplicateManager() { }
+        public DuplicateManager(
+            IThumbnailSettings settings,
+            string appDataFolder,
+            bool autoSave = true)
+            : this(appDataFolder, autoSave) =>
+            Settings = settings
+                ?? throw new ArgumentNullException(nameof(settings));
 
         public DuplicateData GetDuplicate()
         {
@@ -177,6 +241,10 @@ namespace VideoDedupConsole
                         || !File.Exists(duplicate.File2.FilePath))
                     {
                         _ = duplicateList.Remove(duplicate);
+                        if (AutoSave)
+                        {
+                            SaveToFile();
+                        }
                         continue;
                     }
 
@@ -200,6 +268,8 @@ namespace VideoDedupConsole
                     thumbnailManager.RemoveVideoFileReference(duplicate.File2);
                 }
                 duplicateList.Clear();
+                count = 0;
+                SaveToFile();
             }
         }
 
@@ -210,11 +280,66 @@ namespace VideoDedupConsole
         {
             lock (duplicateLock)
             {
-                _ = duplicateList.Add(new DuplicateWrapper(
+                AddDuplicate(new DuplicateWrapper(
                     thumbnailManager.AddVideoFileReference(file1),
                     thumbnailManager.AddVideoFileReference(file2),
                     basePath));
             }
+        }
+
+        private void AddDuplicate(
+            DuplicateWrapper duplicate,
+            bool preventSave = false)
+        {
+            lock (duplicateLock)
+            {
+                _ = duplicateList.Add(duplicate);
+            }
+            count++;
+
+            if (!preventSave && AutoSave)
+            {
+                SaveToFile();
+            }
+
+            OnDuplicateAdded(duplicate.DuplicateData);
+        }
+
+        public void RemoveDuplicate(Guid duplicateId)
+        {
+            lock (duplicateLock)
+            {
+                var duplicate = duplicateList
+                .FirstOrDefault(d =>
+                    d.DuplicateId == duplicateId);
+
+                if (duplicate == null)
+                {
+                    return;
+                }
+
+                RemoveDuplicate(duplicate);
+            }
+        }
+
+        private void RemoveDuplicate(
+            DuplicateWrapper duplicate,
+            bool preventSave = false)
+        {
+            lock (duplicateLock)
+            {
+                thumbnailManager.RemoveVideoFileReference(duplicate.File1);
+                thumbnailManager.RemoveVideoFileReference(duplicate.File2);
+                _ = duplicateList.Remove(duplicate);
+            }
+            count--;
+
+            if (!preventSave && AutoSave)
+            {
+                SaveToFile();
+            }
+
+            OnDuplicateRemoved(duplicate.DuplicateData);
         }
 
         public void ResolveDuplicate(
@@ -241,7 +366,7 @@ namespace VideoDedupConsole
                     catch (Exception)
                     {
                         // Would be nice to make a log entry here.
-                        // But since it would get lost int he ocean
+                        // But since it would get lost in the ocean
                         // of logs, it's almost pointless.
                     }
                 }
@@ -250,24 +375,18 @@ namespace VideoDedupConsole
                 {
                     case ResolveOperation.DeleteFile1:
                         DeleteFile(duplicate.File1.FilePath);
-                        thumbnailManager.RemoveVideoFileReference(duplicate.File1);
-                        thumbnailManager.RemoveVideoFileReference(duplicate.File2);
-                        _ = duplicateList.Remove(duplicate);
+                        RemoveDuplicate(duplicate);
                         break;
                     case ResolveOperation.DeleteFile2:
                         DeleteFile(duplicate.File2.FilePath);
-                        thumbnailManager.RemoveVideoFileReference(duplicate.File1);
-                        thumbnailManager.RemoveVideoFileReference(duplicate.File2);
-                        _ = duplicateList.Remove(duplicate);
+                        RemoveDuplicate(duplicate);
                         break;
                     case ResolveOperation.Skip:
                         // Do nothing.
                         // The duplicate is kept in the list for later.
                         break;
                     case ResolveOperation.Discard:
-                        thumbnailManager.RemoveVideoFileReference(duplicate.File1);
-                        thumbnailManager.RemoveVideoFileReference(duplicate.File2);
-                        _ = duplicateList.Remove(duplicate);
+                        RemoveDuplicate(duplicate);
                         break;
                     case ResolveOperation.Cancel:
                         duplicate.LastRequest = DateTime.MinValue;
@@ -277,6 +396,66 @@ namespace VideoDedupConsole
                             $"\"{resolveOperation}\" is invalid"
                             + $"for enum {nameof(ResolveOperation)}");
                 }
+
+                OnDuplicateResolved(duplicate.DuplicateData, resolveOperation);
+            }
+        }
+
+        public void LoadFromFile(CancellationToken? cancellationToken = null)
+        {
+            var startTime = DateTime.Now;
+
+            var duplicateFilePairs = JsonConvert.DeserializeObject<List<Tuple<
+                    DedupEngine.VideoFile,
+                    DedupEngine.VideoFile,
+                    string>>>(
+                File.ReadAllText(DuplicateFilePath));
+
+            var duplciateLoaded = 0;
+            foreach (var tuple in duplicateFilePairs)
+            {
+                cancellationToken?.ThrowIfCancellationRequested();
+
+                lock (duplicateLock)
+                {
+                    var duplicate = new DuplicateWrapper(
+                        thumbnailManager.AddVideoFileReference(tuple.Item1),
+                        thumbnailManager.AddVideoFileReference(tuple.Item2),
+                        tuple.Item3);
+
+                    AddDuplicate(duplicate, true);
+
+                    duplciateLoaded++;
+                    OnFileLoadedProgress(() =>
+                        new FileLoadedProgressEventArgs
+                        {
+                            Duplicate = duplicate.DuplicateData,
+                            Count = duplciateLoaded,
+                            MaxCount = duplicateFilePairs.Count(),
+                            FilePath = DuplicateFilePath,
+                            StartTime = startTime,
+                        });
+                }
+            }
+
+            OnFileLoaded(duplicateFilePairs.Count());
+        }
+
+        public void SaveToFile()
+        {
+            lock (duplicateLock)
+            {
+                var duplicateFilePairs = duplicateList
+                    .Select(d => (
+                        File1: new DedupEngine.VideoFile(d.File1),
+                        File2: new DedupEngine.VideoFile(d.File2),
+                        d.DuplicateData.BasePath));
+
+                File.WriteAllText(DuplicateFilePath, JsonConvert.SerializeObject(
+                    duplicateFilePairs,
+                    Formatting.Indented));
+
+                OnFileSaved(duplicateFilePairs.Count());
             }
         }
     }
