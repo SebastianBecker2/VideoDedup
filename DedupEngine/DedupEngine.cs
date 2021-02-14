@@ -332,7 +332,8 @@ namespace DedupEngine
                 .Where(f => folderSettings.FileExtensions.Contains(
                     Path.GetExtension(f),
                     StringComparer.InvariantCultureIgnoreCase))
-                .Select(f => new VideoFile(f));
+                .Select(f => new VideoFile(f))
+                .ToList();
 
             if (CurrentState.VideoFiles == null)
             {
@@ -545,6 +546,8 @@ namespace DedupEngine
             PreloadFiles(files, cancelToken);
             if (cancelToken.IsCancellationRequested)
             {
+                CurrentState.VideoFiles = files.ToList();
+                CurrentState.SaveState();
                 return;
             }
 
