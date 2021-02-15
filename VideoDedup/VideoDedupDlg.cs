@@ -135,7 +135,7 @@ namespace VideoDedup
                     var prevRowCount = DgvLog.RowCount;
                     DgvLog.RowCount = status.LogCount;
                     if (DgvLog.GetLastDisplayedScrollingRowIndex(false) + 1
-                        == prevRowCount)
+                        >= prevRowCount)
                     {
                         DgvLog.FirstDisplayedScrollingRowIndex =
                             DgvLog.RowCount - 1;
