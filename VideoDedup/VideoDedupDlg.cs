@@ -453,23 +453,6 @@ namespace VideoDedup
             EventArgs e) =>
             BtnServerConfig.PerformClick();
 
-        private void NotifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            Visible = true;
-            WindowState = FormWindowState.Normal;
-            ShowInTaskbar = true;
-            NotifyIcon.Visible = false;
-        }
-
-        private void Form1_Resize(object sender, EventArgs e)
-        {
-            if (WindowState == FormWindowState.Minimized)
-            {
-                Visible = false;
-                NotifyIcon.Visible = true;
-            }
-        }
-
         private void BtnDiscard_Click(object sender, EventArgs e)
         {
             var selection = MessageBox.Show(

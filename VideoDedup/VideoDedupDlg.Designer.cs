@@ -28,7 +28,6 @@ namespace VideoDedup
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VideoDedupDlg));
             this.ProgressBar = new System.Windows.Forms.ProgressBar();
             this.LblStatusInfo = new System.Windows.Forms.Label();
@@ -42,7 +41,6 @@ namespace VideoDedup
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.LblDuplicateCount = new System.Windows.Forms.Label();
-            this.NotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.BtnDiscardDuplicates = new System.Windows.Forms.Button();
             this.BtnClientConfig = new System.Windows.Forms.Button();
             this.DgvLog = new System.Windows.Forms.DataGridView();
@@ -161,12 +159,6 @@ namespace VideoDedup
             this.LblDuplicateCount.TabIndex = 12;
             this.LblDuplicateCount.Text = "Duplicates found: 0";
             // 
-            // NotifyIcon
-            // 
-            this.NotifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("NotifyIcon.Icon")));
-            this.NotifyIcon.Text = "VideoDedup";
-            this.NotifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.NotifyIcon1_MouseDoubleClick);
-            // 
             // BtnDiscardDuplicates
             // 
             this.BtnDiscardDuplicates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -240,7 +232,6 @@ namespace VideoDedup
             this.MainMenuStrip = this.MenuStrip;
             this.Name = "VideoDedupDlg";
             this.Text = "Video Dedup Client";
-            this.Resize += new System.EventHandler(this.Form1_Resize);
             this.MenuStrip.ResumeLayout(false);
             this.MenuStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DgvLog)).EndInit();
@@ -261,7 +252,6 @@ namespace VideoDedup
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.Label LblDuplicateCount;
-        private System.Windows.Forms.NotifyIcon NotifyIcon;
         private System.Windows.Forms.Button BtnDiscardDuplicates;
         private System.Windows.Forms.ToolStripMenuItem serverConfigurationToolStripMenuItem;
         private System.Windows.Forms.Button BtnClientConfig;
