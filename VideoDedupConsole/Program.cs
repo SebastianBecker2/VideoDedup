@@ -4,7 +4,6 @@ namespace VideoDedupConsole
     using Newtonsoft.Json;
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.ServiceModel;
@@ -19,7 +18,7 @@ namespace VideoDedupConsole
 
     internal class Program
     {
-        // The folder name settings are stored in.
+        // The folder name, settings are stored in.
         // Which is actually the company name.
         // Though company name is empty and he still somehow gets this name:"
         private static readonly string ApplicationName = "VideoDedupConsole";
@@ -38,6 +37,9 @@ namespace VideoDedupConsole
             }
             return path;
         }
+
+        private static readonly Uri WcfBaseAddress =
+            new Uri("net.tcp://localhost:41721/VideoDedup");
 
         private static readonly IReadOnlyDictionary<OperationType, string>
             OperationTypeTexts = new Dictionary<OperationType, string>
@@ -295,8 +297,7 @@ namespace VideoDedupConsole
                 Message = "Initializing...",
             };
 
-            var baseAddress = new Uri("net.tcp://localhost:41721/VideoDedup");
-            using (var serviceHost = new ServiceHost(typeof(WcfService), baseAddress))
+            using (var serviceHost = new ServiceHost(typeof(WcfService), WcfBaseAddress))
             using (var cancelTokenSource = new CancellationTokenSource())
             {
                 serviceHost.Open();
