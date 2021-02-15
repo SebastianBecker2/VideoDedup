@@ -69,6 +69,11 @@ namespace VideoDedup
             }
             if (!File.Exists(filePath))
             {
+                _ = MessageBox.Show($"Can't find the file.{Environment.NewLine}" +
+                    $"Did you set the Client-Side Source Directory properly?",
+                    "File not found",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
                 return;
             }
 
