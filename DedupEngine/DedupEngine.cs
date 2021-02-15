@@ -14,6 +14,7 @@ namespace DedupEngine
     using ProgressStyle = VideoDedupShared.ProgressStyle;
     using IFolderSettings = VideoDedupShared.IFolderSettings;
     using IDedupEngineSettings = VideoDedupShared.IDedupEngineSettings;
+    using System.Collections;
 
     public class DedupEngine : IDisposable
     {
@@ -303,7 +304,8 @@ namespace DedupEngine
                 {
                     foreach (var directory in Directory
                         .GetDirectories(rootDirectory)
-                        .Where(d => !excludedDirectories.Contains(d)))
+                        .Where(d => !excludedDirectories.Contains(d,
+                            StringComparer.InvariantCultureIgnoreCase)))
                     {
                         files = files.Concat(GetAllAccessibleFilesIn(directory,
                             excludedDirectories, recursive, searchPattern));
