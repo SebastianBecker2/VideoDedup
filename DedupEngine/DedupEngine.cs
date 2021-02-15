@@ -165,7 +165,9 @@ namespace DedupEngine
             {
                 DedupTask?.Dispose();
                 CancelSource = new CancellationTokenSource();
-                DedupTask = Task.Factory.StartNew(ProcessFolder);
+                DedupTask = Task.Factory.StartNew(
+                    ProcessFolder,
+                    CancelSource.Token);
             }
         }
 
@@ -179,7 +181,14 @@ namespace DedupEngine
             }
 
             CancelSource.Cancel();
-            DedupTask?.Wait();
+            try
+            {
+                DedupTask?.Wait();
+            }
+            catch (AggregateException exc)
+            {
+                exc.Handle(x => x is OperationCanceledException);
+            }
             CancelSource?.Dispose();
             OnStopped();
         }
@@ -195,7 +204,9 @@ namespace DedupEngine
                     return;
                 }
 
-                DedupTask = Task.Factory.StartNew(ProcessChanges);
+                DedupTask = Task.Factory.StartNew(
+                    ProcessChanges,
+                    CancelSource.Token);
             }
         }
 
@@ -511,7 +522,9 @@ namespace DedupEngine
             {
                 if (NewFiles.Any() || DeletedFiles.Any())
                 {
-                    DedupTask = Task.Factory.StartNew(ProcessChanges);
+                    DedupTask = Task.Factory.StartNew(
+                        ProcessChanges,
+                        CancelSource.Token);
                     return;
                 }
 
@@ -539,10 +552,7 @@ namespace DedupEngine
             var cancelToken = CancelSource.Token;
 
             var files = GetVideoFileList(CurrentState.Settings);
-            if (cancelToken.IsCancellationRequested)
-            {
-                return;
-            }
+            cancelToken.ThrowIfCancellationRequested();
 
             // Cancellable preload of files
             PreloadFiles(files, cancelToken);
@@ -550,7 +560,7 @@ namespace DedupEngine
             {
                 CurrentState.VideoFiles = files.ToList();
                 CurrentState.SaveState();
-                return;
+                cancelToken.ThrowIfCancellationRequested();
             }
 
             // Remove invalid files
@@ -558,10 +568,7 @@ namespace DedupEngine
                 .Where(f => f.Duration != TimeSpan.Zero)
                 .ToList();
             CurrentState.SaveState();
-            if (cancelToken.IsCancellationRequested)
-            {
-                return;
-            }
+            cancelToken.ThrowIfCancellationRequested();
 
             FindDuplicates(CurrentState, cancelToken);
             // Cleanup in case of cancel
@@ -569,10 +576,7 @@ namespace DedupEngine
             {
                 file.DisposeImages();
             }
-            if (cancelToken.IsCancellationRequested)
-            {
-                return;
-            }
+            cancelToken.ThrowIfCancellationRequested();
 
             ProcessChangesIfAny();
         }
@@ -593,10 +597,7 @@ namespace DedupEngine
                     OnLogged($"Deleted file not in VideoFile-List: " +
                         $"{deletedFile.FilePath}");
                 }
-                if (cancelToken.IsCancellationRequested)
-                {
-                    return;
-                }
+                cancelToken.ThrowIfCancellationRequested();
             }
 
             operationStartTime = DateTime.Now;
@@ -615,26 +616,17 @@ namespace DedupEngine
                 if (!newFile.WaitForFileAccess(cancelToken))
                 {
                     OnLogged($"Unable to access new file: {newFile.FileName}");
-                    if (cancelToken.IsCancellationRequested)
-                    {
-                        return;
-                    }
+                    cancelToken.ThrowIfCancellationRequested();
                     continue;
                 }
-                if (cancelToken.IsCancellationRequested)
-                {
-                    return;
-                }
+                cancelToken.ThrowIfCancellationRequested();
 
                 if (newFile.Duration == TimeSpan.Zero)
                 {
                     OnLogged($"New file has no duration: {newFile.FilePath}");
                     continue;
                 }
-                if (cancelToken.IsCancellationRequested)
-                {
-                    return;
-                }
+                cancelToken.ThrowIfCancellationRequested();
 
                 if (!CurrentState.VideoFiles.Contains(newFile))
                 {
@@ -646,10 +638,7 @@ namespace DedupEngine
                     OnLogged($"New file already in VideoFile-List: {newFile.FilePath}");
                     continue;
                 }
-                if (cancelToken.IsCancellationRequested)
-                {
-                    return;
-                }
+                cancelToken.ThrowIfCancellationRequested();
 
                 FindDuplicatesOf(CurrentState.VideoFiles, newFile, cancelToken);
                 CurrentState.SaveState();
@@ -658,10 +647,7 @@ namespace DedupEngine
                 {
                     file.DisposeImages();
                 }
-                if (cancelToken.IsCancellationRequested)
-                {
-                    return;
-                }
+                cancelToken.ThrowIfCancellationRequested();
             }
 
             ProcessChangesIfAny();
@@ -674,7 +660,14 @@ namespace DedupEngine
                 if (disposing)
                 {
                     CancelSource.Cancel();
-                    DedupTask?.Wait();
+                    try
+                    {
+                        DedupTask?.Wait();
+                    }
+                    catch (AggregateException exc)
+                    {
+                        exc.Handle(x => x is OperationCanceledException);
+                    }
                     CancelSource?.Dispose();
                     DedupTask?.Dispose();
                     FileWatcher?.Dispose();
