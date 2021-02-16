@@ -269,6 +269,7 @@ namespace DedupEngine.MpvLib
                 throw new MpvException("Unable to initialize handle");
             }
 
+            Set(MpvHandle, "hr-seek", "absolute");
             Set(MpvHandle, "aid", "no");
             Set(MpvHandle, "sid", "no");
             Set(MpvHandle, "vo", "image");
