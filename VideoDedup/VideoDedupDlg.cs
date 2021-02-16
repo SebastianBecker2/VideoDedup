@@ -1,16 +1,16 @@
 namespace VideoDedup
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Diagnostics;
+    using System.Linq;
     using System.ServiceModel;
+    using System.Threading.Tasks;
     using System.Windows.Forms;
-    using VideoDedupShared.ISynchronizeInvokeExtensions;
     using Microsoft.WindowsAPICodePack.Taskbar;
     using VideoDedupShared;
-    using System.Threading.Tasks;
-    using System.Collections.Concurrent;
-    using System.Linq;
     using VideoDedupShared.DataGridViewExtension;
+    using VideoDedupShared.ISynchronizeInvokeExtensions;
     using VideoDedupShared.TimeSpanExtension;
 
     public partial class VideoDedupDlg : Form

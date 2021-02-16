@@ -10,10 +10,10 @@ namespace DedupEngine
     using System.Threading.Tasks;
     using VideoDedupShared.IVideoFileExtension;
     using VideoDedupShared.TimeSpanExtension;
+    using IDedupEngineSettings = VideoDedupShared.IDedupEngineSettings;
+    using IFolderSettings = VideoDedupShared.IFolderSettings;
     using OperationType = VideoDedupShared.OperationType;
     using ProgressStyle = VideoDedupShared.ProgressStyle;
-    using IFolderSettings = VideoDedupShared.IFolderSettings;
-    using IDedupEngineSettings = VideoDedupShared.IDedupEngineSettings;
 
     public class DedupEngine : IDisposable
     {

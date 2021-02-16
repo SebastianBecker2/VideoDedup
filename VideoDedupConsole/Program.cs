@@ -1,7 +1,5 @@
 namespace VideoDedupConsole
 {
-    using DedupEngine;
-    using Newtonsoft.Json;
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -9,6 +7,8 @@ namespace VideoDedupConsole
     using System.ServiceModel;
     using System.Threading;
     using System.Threading.Tasks;
+    using DedupEngine;
+    using Newtonsoft.Json;
     using VideoDedupConsole.DuplicateManagement;
     using VideoDedupConsole.Properties;
     using VideoDedupShared;
