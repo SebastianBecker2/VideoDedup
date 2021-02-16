@@ -13,6 +13,7 @@ namespace DedupEngine.MpvLib
     public class MpvWrapper : IDisposable
     {
         private const string LibPath = @"mpv-1.dll";
+        private static readonly int GetEventIdTimeout = 30; // In seconds
 
         public static CodecInfo GetCodecInfo(string filePath)
         {
@@ -30,7 +31,7 @@ namespace DedupEngine.MpvLib
 
                 while (true)
                 {
-                    var eventId = GetEventId(mpvHandle);
+                    var eventId = GetEventId(mpvHandle, GetEventIdTimeout);
                     if (eventId == EventId.FileLoaded)
                     {
                         try
@@ -50,6 +51,10 @@ namespace DedupEngine.MpvLib
                     }
 
                     if (eventId == EventId.Shutdown)
+                    {
+                        return null;
+                    }
+                    if (eventId == EventId.None)
                     {
                         return null;
                     }
@@ -86,7 +91,7 @@ namespace DedupEngine.MpvLib
 
                 while (true)
                 {
-                    var eventId = GetEventId(mpvHandle);
+                    var eventId = GetEventId(mpvHandle, GetEventIdTimeout);
 
                     if (eventId == EventId.FileLoaded)
                     {
@@ -95,6 +100,10 @@ namespace DedupEngine.MpvLib
                     }
 
                     if (eventId == EventId.Shutdown)
+                    {
+                        return TimeSpan.Zero;
+                    }
+                    if (eventId == EventId.None)
                     {
                         return TimeSpan.Zero;
                     }
@@ -197,7 +206,7 @@ namespace DedupEngine.MpvLib
             var counter = 0;
             while (true)
             {
-                var eventId = GetEventId(MpvHandle);
+                var eventId = GetEventId(MpvHandle, GetEventIdTimeout);
                 if (eventId == EventId.Seek)
                 {
                     foreach (var filePath in Directory.GetFiles(OutputPath))
@@ -211,12 +220,16 @@ namespace DedupEngine.MpvLib
                         }
                     }
                 }
+
                 if (eventId == EventId.EndFile)
                 {
                     break;
                 }
-
                 if (eventId == EventId.Shutdown)
+                {
+                    break;
+                }
+                if (eventId == EventId.None)
                 {
                     break;
                 }
@@ -306,7 +319,6 @@ namespace DedupEngine.MpvLib
             {
                 Check(mpv_command(handle, mainPtr),
                     $"Unable to execute command '{string.Join(" ", args)}'");
-
             }
             finally
             {
