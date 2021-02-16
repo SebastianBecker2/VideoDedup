@@ -82,7 +82,7 @@ namespace VideoDedupConsole.DuplicateManagement
             private Dictionary<IVideoFile, VideoFileRefCounter> UniqueVideoFiles { get; } =
                 new Dictionary<IVideoFile, VideoFileRefCounter>();
 
-            public IThumbnailSettings Configuration { get; set; }
+            public IThumbnailSettings Settings { get; set; }
 
             public VideoFile AddVideoFileReference(
                 DedupEngine.VideoFile videoFile)
@@ -93,7 +93,7 @@ namespace VideoDedupConsole.DuplicateManagement
                     return refCounter.VideoFile;
                 }
 
-                if (videoFile.ImageCount == Configuration.Count)
+                if (videoFile.ImageCount == Settings.Count)
                 {
                     var videoFilePreview = new VideoFile(videoFile);
                     UniqueVideoFiles.Add(videoFile, new VideoFileRefCounter
@@ -105,7 +105,7 @@ namespace VideoDedupConsole.DuplicateManagement
                 }
 
                 using (var videoFileWithImages = new DedupEngine.VideoFile(
-                        videoFile, Configuration.Count))
+                        videoFile, Settings.Count))
                 {
                     var videoFilePreview = new VideoFile(videoFileWithImages);
                     UniqueVideoFiles.Add(videoFile, new VideoFileRefCounter
@@ -146,8 +146,8 @@ namespace VideoDedupConsole.DuplicateManagement
 
         public IThumbnailSettings Settings
         {
-            get => thumbnailManager.Configuration;
-            set => thumbnailManager.Configuration = value;
+            get => thumbnailManager.Settings;
+            set => thumbnailManager.Settings = value;
         }
         public int Count => count;
 

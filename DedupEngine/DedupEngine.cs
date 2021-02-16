@@ -105,19 +105,19 @@ namespace DedupEngine
             FileWatcher.Created += HandleFileWatcherCreatedEvent;
         }
 
-        public DedupEngine(string appDataFolder, IDedupEngineSettings config)
+        public DedupEngine(string appDataFolder, IDedupEngineSettings settings)
             : this(appDataFolder) =>
-            UpdateConfiguration(config);
+            UpdateConfiguration(settings);
 
-        public void UpdateConfiguration(IDedupEngineSettings config)
+        public void UpdateConfiguration(IDedupEngineSettings settings)
         {
-            if (config is null)
+            if (settings is null)
             {
-                throw new ArgumentNullException(nameof(config));
+                throw new ArgumentNullException(nameof(settings));
             }
 
             Stop();
-            CurrentState = new EngineState(config, StateFilePath);
+            CurrentState = new EngineState(settings, StateFilePath);
         }
 
         public void Start()

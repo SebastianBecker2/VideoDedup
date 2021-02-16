@@ -226,36 +226,38 @@ namespace VideoDedupConsole
             };
         }
 
-        internal static void SaveConfig(ConfigData configuration)
+        internal static void SaveConfig(ConfigData settings)
         {
-            Settings.Default.SourcePath = configuration.BasePath;
+            Settings.Default.SourcePath = settings.BasePath;
             Settings.Default.ExcludedDirectories =
-                JsonConvert.SerializeObject(configuration.ExcludedDirectories);
+                JsonConvert.SerializeObject(settings.ExcludedDirectories);
             Settings.Default.FileExtensions =
-                JsonConvert.SerializeObject(configuration.FileExtensions);
+                JsonConvert.SerializeObject(settings.FileExtensions);
 
-            Settings.Default.MaxThumbnailComparison = configuration.MaxImageCompares;
+            Settings.Default.MaxThumbnailComparison =
+                settings.MaxImageCompares;
             Settings.Default.MaxDifferentThumbnails =
-                configuration.MaxDifferentImages;
+                settings.MaxDifferentImages;
             Settings.Default.MaxDifferencePercentage =
-                (configuration as IImageComparisonSettings).MaxDifferencePercent;
+                (settings as IImageComparisonSettings).MaxDifferencePercent;
             Settings.Default.MaxDurationDifferenceSeconds =
-                configuration.MaxDurationDifferenceSeconds;
+                settings.MaxDurationDifferenceSeconds;
             Settings.Default.MaxDurationDifferencePercent =
-                (configuration as IDurationComparisonSettings).MaxDifferencePercent;
+                (settings as IDurationComparisonSettings).MaxDifferencePercent;
             Settings.Default.DurationDifferenceType =
-                configuration.DifferenceType.ToString();
-            Settings.Default.ThumbnailCount = configuration.ThumbnailCount;
-            Settings.Default.Recursive = configuration.Recursive;
-            Settings.Default.MonitorFileChanges = configuration.MonitorChanges;
+                settings.DifferenceType.ToString();
+            Settings.Default.ThumbnailCount = settings.ThumbnailCount;
+            Settings.Default.Recursive = settings.Recursive;
+            Settings.Default.MonitorFileChanges =
+                settings.MonitorChanges;
             Settings.Default.Save();
         }
 
-        internal static void UpdateConfig(ConfigData config)
+        internal static void UpdateConfig(ConfigData settings)
         {
-            DuplicateManager.Settings = config;
+            DuplicateManager.Settings = settings;
             Dedupper.Stop();
-            Dedupper.UpdateConfiguration(config);
+            Dedupper.UpdateConfiguration(settings);
 
             lock (LogEntriesLock)
             {
@@ -297,7 +299,9 @@ namespace VideoDedupConsole
                 Message = "Initializing...",
             };
 
-            using (var serviceHost = new ServiceHost(typeof(WcfService), WcfBaseAddress))
+            using (var serviceHost = new ServiceHost(
+                typeof(WcfService),
+                WcfBaseAddress))
             using (var cancelTokenSource = new CancellationTokenSource())
             {
                 serviceHost.Open();

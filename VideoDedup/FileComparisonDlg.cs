@@ -14,7 +14,7 @@ namespace VideoDedup
         public VideoFile RightFile { get; set; }
         public string ServerSourcePath { get; set; }
 
-        public ConfigData Configuration { get; set; }
+        public ConfigData Settings { get; set; }
 
         public ResolveOperation ResolveOperation { get; set; }
 
@@ -59,12 +59,12 @@ namespace VideoDedup
         private void OpenFileInExplorer(VideoFile file)
         {
             var filePath = file.FilePath;
-            if (!string.IsNullOrWhiteSpace(Configuration.ClientSourcePath))
+            if (!string.IsNullOrWhiteSpace(Settings.ClientSourcePath))
             {
                 var relFilePath = filePath.MakeRelativePath(ServerSourcePath);
 
                 filePath = Path.Combine(
-                    Configuration.ClientSourcePath,
+                    Settings.ClientSourcePath,
                     relFilePath);
             }
             if (!File.Exists(filePath))

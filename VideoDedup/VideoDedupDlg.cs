@@ -5,7 +5,6 @@ namespace VideoDedup
     using System.ServiceModel;
     using System.Windows.Forms;
     using VideoDedupShared.ISynchronizeInvokeExtensions;
-    using VideoDedup.Properties;
     using Microsoft.WindowsAPICodePack.Taskbar;
     using VideoDedupShared;
     using System.Threading.Tasks;
@@ -32,7 +31,7 @@ namespace VideoDedup
                     // or connection issue occurred.
                     if (wcfProxy != null
                         && (wcfProxy.Endpoint.Address.Uri.Host
-                            != Configuration.ServerAddress
+                            != Settings.ServerAddress
                         || wcfProxy.InnerChannel.State
                             == CommunicationState.Faulted))
                     {
@@ -55,7 +54,7 @@ namespace VideoDedup
                         };
 
                         var baseAddress = new Uri(
-                            $"net.tcp://{Configuration.ServerAddress}:41721/VideoDedup");
+                            $"net.tcp://{Settings.ServerAddress}:41721/VideoDedup");
                         var address = new EndpointAddress(baseAddress);
                         wcfProxy = new WcfProxy(binding, address);
                     }
@@ -74,13 +73,13 @@ namespace VideoDedup
 
         private SmartTimer.Timer statusTimer = null;
 
-        private ConfigData Configuration { get; set; }
+        private ConfigData Settings { get; set; }
 
         public VideoDedupDlg() => InitializeComponent();
 
         protected override void OnLoad(EventArgs e)
         {
-            Configuration = LoadConfig();
+            Settings = LoadConfig();
 
             statusTimer = new SmartTimer.Timer(StatusTimerCallback);
             UpdateOperation(new OperationInfo
@@ -95,19 +94,20 @@ namespace VideoDedup
 
         private static ConfigData LoadConfig() => new ConfigData
         {
-            ServerAddress = Settings.Default.ServerAddress,
+            ServerAddress = Properties.Settings.Default.ServerAddress,
             StatusRequestInterval = TimeSpan.FromMilliseconds(
-                Settings.Default.StatusRequestInterval),
-            ClientSourcePath = Settings.Default.ClientSourcePath,
+                Properties.Settings.Default.StatusRequestInterval),
+            ClientSourcePath = Properties.Settings.Default.ClientSourcePath,
         };
 
-        private static void SaveConfig(ConfigData configuration)
+        private static void SaveConfig(ConfigData settings)
         {
-            Settings.Default.ServerAddress = configuration.ServerAddress;
-            Settings.Default.StatusRequestInterval =
-                (int)configuration.StatusRequestInterval.TotalMilliseconds;
-            Settings.Default.ClientSourcePath = configuration.ClientSourcePath;
-            Settings.Default.Save();
+            Properties.Settings.Default.ServerAddress = settings.ServerAddress;
+            Properties.Settings.Default.StatusRequestInterval =
+                (int)settings.StatusRequestInterval.TotalMilliseconds;
+            Properties.Settings.Default.ClientSourcePath =
+                settings.ClientSourcePath;
+            Properties.Settings.Default.Save();
         }
 
         private void StatusTimerCallback(object param)
@@ -169,7 +169,7 @@ namespace VideoDedup
             }
             finally
             {
-                _ = statusTimer.StartSingle(Configuration.StatusRequestInterval);
+                _ = statusTimer.StartSingle(Settings.StatusRequestInterval);
             }
         }
 
@@ -378,16 +378,16 @@ namespace VideoDedup
         {
             using (var dlg = new ClientConfigDlg())
             {
-                dlg.Configuration = Configuration;
+                dlg.Settings = Settings;
 
                 if (dlg.ShowDialog() != DialogResult.OK)
                 {
                     return;
                 }
 
-                Configuration = dlg.Configuration;
-                SaveConfig(Configuration);
-                _ = statusTimer.StartSingle(Configuration.StatusRequestInterval);
+                Settings = dlg.Settings;
+                SaveConfig(Settings);
+                _ = statusTimer.StartSingle(Settings.StatusRequestInterval);
             }
         }
 
@@ -409,7 +409,7 @@ namespace VideoDedup
                         dlg.LeftFile = duplicate.File1;
                         dlg.RightFile = duplicate.File2;
                         dlg.ServerSourcePath = duplicate.BasePath;
-                        dlg.Configuration = Configuration;
+                        dlg.Settings = Settings;
                         result = dlg.ShowDialog();
 
                         if (result == DialogResult.Cancel)
