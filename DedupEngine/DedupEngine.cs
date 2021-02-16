@@ -14,7 +14,6 @@ namespace DedupEngine
     using ProgressStyle = VideoDedupShared.ProgressStyle;
     using IFolderSettings = VideoDedupShared.IFolderSettings;
     using IDedupEngineSettings = VideoDedupShared.IDedupEngineSettings;
-    using System.Collections;
 
     public class DedupEngine : IDisposable
     {
