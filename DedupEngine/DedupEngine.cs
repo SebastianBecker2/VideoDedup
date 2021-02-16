@@ -39,7 +39,7 @@ namespace DedupEngine
 
         // ConcurrentDictionary is used as a hash set
         private ConcurrentDictionary<VideoFile, byte> NewFiles { get; set; }
-        private IProducerConsumerCollection<VideoFile> DeletedFiles { get; set; }
+        private ConcurrentDictionary<VideoFile, byte> DeletedFiles { get; set; }
         private EngineState CurrentState { get; set; }
 
         public event EventHandler<StoppedEventArgs> Stopped;
@@ -153,12 +153,12 @@ namespace DedupEngine
             NewFiles = new ConcurrentDictionary<VideoFile, byte> { };
             if (DeletedFiles != null)
             {
-                foreach (var file in DeletedFiles)
+                foreach (var kvp in DeletedFiles)
                 {
-                    file.Dispose();
+                    kvp.Key.Dispose();
                 }
             }
-            DeletedFiles = new ConcurrentQueue<VideoFile> { };
+            DeletedFiles = new ConcurrentDictionary<VideoFile, byte> { };
 
             lock (DedupLock)
             {
@@ -271,7 +271,7 @@ namespace DedupEngine
                 return;
             }
 
-            _ = DeletedFiles.TryAdd(new VideoFile(filePath));
+            _ = DeletedFiles.TryAdd(new VideoFile(filePath), 0);
             OnLogged(string.Format(LogDeletedFile, filePath));
             StartProcessingChanges();
         }
@@ -359,7 +359,7 @@ namespace DedupEngine
 
             foreach (var file in CurrentState.VideoFiles.Except(foundFiles))
             {
-                DeletedFiles.TryAdd(file);
+                DeletedFiles.TryAdd(file, 0);
             }
 
             return CurrentState.VideoFiles;
@@ -584,8 +584,11 @@ namespace DedupEngine
         {
             var cancelToken = CancelSource.Token;
 
-            while (DeletedFiles.TryTake(out var deletedFile))
+            while (DeletedFiles.Any())
             {
+                var deletedFile = DeletedFiles.First().Key;
+                _ = DeletedFiles.TryRemove(deletedFile, out var _);
+
                 if (CurrentState.VideoFiles.Remove(deletedFile))
                 {
                     CurrentState.SaveState();
