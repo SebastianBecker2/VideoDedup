@@ -5,6 +5,7 @@ namespace DedupEngine.MpvLib
     using System.Diagnostics;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading;
@@ -163,6 +164,19 @@ namespace DedupEngine.MpvLib
             int index,
             int count)
         {
+            var images = GetImages(index, count, SeekMode.KeyFramesOnly);
+            if (images.Count() == count)
+            {
+                return images;
+            }
+            return GetImages(index, count, SeekMode.Precise);
+        }
+
+        public IEnumerable<MemoryStream> GetImages(
+            int index,
+            int count,
+            SeekMode seekMode)
+        {
             if (count <= 0)
             {
                 yield break;
@@ -183,6 +197,8 @@ namespace DedupEngine.MpvLib
             {
                 PrepareImageHandle();
 
+                Set(MpvHandle, "hr-seek",
+                    seekMode == SeekMode.Precise ? "yes" : "no");
                 var stepping = Math.Max(
                     (long)(Duration.Value.TotalSeconds / (PartitionCount + 1)),
                     1);
