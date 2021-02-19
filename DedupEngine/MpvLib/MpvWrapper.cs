@@ -11,7 +11,7 @@ namespace DedupEngine.MpvLib
     using System.Threading;
     using VideoDedupShared;
 
-    public class MpvWrapper : IDisposable
+    internal class MpvWrapper : IDisposable
     {
         private const string LibPath = @"mpv-1.dll";
         private static readonly int GetEventIdTimeout = 30; // In seconds
@@ -172,7 +172,7 @@ namespace DedupEngine.MpvLib
             return GetImages(index, count, SeekMode.Precise);
         }
 
-        public IEnumerable<MemoryStream> GetImages(
+        private IEnumerable<MemoryStream> GetImages(
             int index,
             int count,
             SeekMode seekMode)

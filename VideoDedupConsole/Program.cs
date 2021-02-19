@@ -13,7 +13,6 @@ namespace VideoDedupConsole
     using VideoDedupConsole.Properties;
     using VideoDedupShared;
     using Wcf.Contracts.Data;
-    using MpvException = DedupEngine.MpvLib.MpvException;
     using OperationUpdateEventArgs = DedupEngine.OperationUpdateEventArgs;
 
     internal class Program
@@ -85,7 +84,6 @@ namespace VideoDedupConsole
                 DuplicateManager.AddDuplicate(e.File1, e.File2, e.BasePath);
             }
             catch (AggregateException exc)
-            when (exc.InnerException is MpvException)
             {
                 lock (LogEntriesLock)
                 {
