@@ -9,41 +9,62 @@ namespace DedupEngine
 
     internal class EngineState
     {
+        private static readonly string IndexFilename = "DedupEngine.index";
+        private static readonly string StatePostfix = ".state";
+
+        private string IndexFilePath =>
+            Path.Combine(StateFolderPath, IndexFilename);
+        private string GetStateFilePath(string stateId) =>
+            Path.Combine(StateFolderPath, stateId + StatePostfix);
+
+        private string StateFolderPath { get; }
+
         [JsonProperty]
         public IList<VideoFile> VideoFiles { get; set; }
         [JsonProperty]
         public int CurrentIndex { get; set; } = 0;
-        [JsonProperty]
-        public EngineSettings Settings { get; set; }
         [JsonIgnore]
-        private string FilePath { get; set; }
+        public EngineSettings Settings { get; set; }
 
         [JsonConstructor]
         private EngineState()
         {
         }
 
-        public EngineState(IDedupEngineSettings settings, string filePath)
+        public EngineState(IDedupEngineSettings settings, string stateFolderPath)
         {
             Settings = new EngineSettings(settings);
-            FilePath = filePath;
+            StateFolderPath = stateFolderPath;
             LoadState();
         }
 
         private void LoadState()
         {
-            EngineState savedState;
+            Dictionary<EngineSettings, string> engineStateIndex;
             try
             {
-                savedState = JsonConvert.DeserializeObject<EngineState>(
-                    File.ReadAllText(FilePath));
+                engineStateIndex = JsonConvert.DeserializeObject
+                    <List<KeyValuePair<EngineSettings, string>>>
+                    (File.ReadAllText(IndexFilePath))
+                    .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             }
             catch (Exception)
             {
                 return;
             }
 
-            if (!AreSettingsCompatible(Settings, savedState.Settings))
+            if (!engineStateIndex.TryGetValue(Settings, out var stateId))
+            {
+                return;
+            }
+
+            EngineState savedState;
+            try
+            {
+                savedState = JsonConvert.DeserializeObject<EngineState>(
+                    File.ReadAllText(GetStateFilePath(stateId)));
+            }
+            catch (Exception)
             {
                 return;
             }
@@ -52,78 +73,54 @@ namespace DedupEngine
             CurrentIndex = savedState.CurrentIndex;
         }
 
-        public void SaveState() =>
-            File.WriteAllText(FilePath, JsonConvert.SerializeObject(
-                this,
-                Formatting.Indented,
-                new JsonSerializerSettings
-                {
-                    TypeNameHandling = TypeNameHandling.All,
-                }));
-
-        private static bool AreSettingsCompatible(
-            IDedupEngineSettings lhs,
-            IDedupEngineSettings rhs)
+        public void SaveState()
         {
-            // Folder Settings
-            if (lhs.BasePath != rhs.BasePath)
+            Dictionary<EngineSettings, string> engineStateIndex;
+            try
             {
-                return false;
+                engineStateIndex = JsonConvert.DeserializeObject
+                    <List<KeyValuePair<EngineSettings, string>>>
+                    (File.ReadAllText(IndexFilePath))
+                    .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             }
-            if (!lhs.ExcludedDirectories.SequenceEqual(rhs.ExcludedDirectories))
+            catch (Exception)
             {
-                return false;
-            }
-            if (!lhs.FileExtensions.SequenceEqual(rhs.FileExtensions))
-            {
-                return false;
-            }
-            if (lhs.Recursive != rhs.Recursive)
-            {
-                return false;
+                engineStateIndex = new Dictionary<EngineSettings, string>();
             }
 
-            // Image Comparison Settings
-            if (lhs.MaxCompares != rhs.MaxCompares)
+            if (!engineStateIndex.TryGetValue(Settings, out var stateId))
             {
-                return false;
-            }
-            if (lhs.MaxDifferentImages != rhs.MaxDifferentImages)
-            {
-                return false;
-            }
-            var lhsImageComparison = lhs as IImageComparisonSettings;
-            var rhsImageComparison = rhs as IImageComparisonSettings;
-            if (lhsImageComparison.MaxDifferencePercent
-                != rhsImageComparison.MaxDifferencePercent)
-            {
-                return false;
-            }
+                stateId = Guid.NewGuid().ToString();
+                engineStateIndex.Add(Settings, stateId);
 
-            // Duration Comparison Settings
-            if (lhs.DifferenceType != rhs.DifferenceType)
-            {
-                return false;
-            }
-            if (lhs.DifferenceType == DurationDifferenceType.Percent)
-            {
-                var lhsDurationComparison = lhs as IDurationComparisonSettings;
-                var rhsDurationComparison = rhs as IDurationComparisonSettings;
-                if (lhsDurationComparison.MaxDifferencePercent
-                    != rhsDurationComparison.MaxDifferencePercent)
+                try
                 {
-                    return false;
+                    File.WriteAllText(
+                        IndexFilePath,
+                        JsonConvert.SerializeObject(
+                            engineStateIndex.ToList(),
+                            Formatting.Indented,
+                            new JsonSerializerSettings
+                            {
+                                TypeNameHandling = TypeNameHandling.All,
+                            }));
                 }
-            }
-            else
-            {
-                if (lhs.MaxDifferenceSeconds != rhs.MaxDifferenceSeconds)
-                {
-                    return false;
-                }
+                catch (Exception) { }
             }
 
-            return true;
+            try
+            {
+                File.WriteAllText(
+                    GetStateFilePath(stateId),
+                    JsonConvert.SerializeObject(
+                        this,
+                        Formatting.Indented,
+                        new JsonSerializerSettings
+                        {
+                            TypeNameHandling = TypeNameHandling.All,
+                        }));
+            }
+            catch (Exception) { }
         }
     }
 }

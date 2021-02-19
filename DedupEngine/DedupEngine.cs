@@ -22,9 +22,6 @@ namespace DedupEngine
         private static readonly string LogDeletedFile = "File deleted: {0}";
         private static readonly string LogNewFile = "File created: {0}";
 
-        private static readonly string StateFilename = "DedupEngine.state";
-        private string StateFilePath =>
-            Path.Combine(AppDataFolder, StateFilename);
         private string AppDataFolder { get; }
 
         private bool disposedValue; // For IDisposable
@@ -117,7 +114,7 @@ namespace DedupEngine
             }
 
             Stop();
-            CurrentState = new EngineState(settings, StateFilePath);
+            CurrentState = new EngineState(settings, AppDataFolder);
         }
 
         public void Start()
