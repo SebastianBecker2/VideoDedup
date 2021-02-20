@@ -164,12 +164,13 @@ namespace DedupEngine.MpvLib
             int index,
             int count)
         {
-            var images = GetImages(index, count, SeekMode.KeyFramesOnly);
+            var images = GetImages(index, count, SeekMode.KeyFramesOnly)
+                .ToList();
             if (images.Count() == count)
             {
                 return images;
             }
-            return GetImages(index, count, SeekMode.Precise);
+            return GetImages(index, count, SeekMode.Precise).ToList();
         }
 
         private IEnumerable<MemoryStream> GetImages(
