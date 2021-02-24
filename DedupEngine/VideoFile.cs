@@ -183,7 +183,8 @@ namespace DedupEngine
         [JsonIgnore]
         public int ImageCount { get; set; }
 
-        public bool IsDurationEqual(IVideoFile other,
+        public bool IsDurationEqual(
+            IVideoFile other,
             IDurationComparisonSettings settings)
         {
             var diff = Math.Abs((Duration - other.Duration).TotalSeconds);
@@ -201,8 +202,10 @@ namespace DedupEngine
             }
         }
 
-        protected MemoryStream GetImage(int index,
-            int imageCount, IImageComparisonSettings settings)
+        public MemoryStream GetImage(
+            int index,
+            int imageCount,
+            IImageComparisonSettings settings)
         {
             if (index >= imageCount || index < 0)
             {
@@ -226,15 +229,21 @@ namespace DedupEngine
                 imageCount,
                 Duration))
             {
-                // If its the first image we load, we already load
-                // the minimum number of images we need to compare.
-                // If it's not the first one, then we load all of them
-                // because we most likely need them.
-                var imagesToLoad = imageCount - index;
-                if (index == 0 && imageCount >= settings.MaxDifferentImages + 1)
+                // First loading step, only the minimum (when index == 0)
+                var imagesToLoad = settings.MaxDifferentImages + 1;
+                // Second loading step
+                if (index == settings.MaxDifferentImages + 1)
                 {
-                    imagesToLoad = settings.MaxDifferentImages + 1;
+                    imagesToLoad =
+                        imageCount - index - settings.MaxDifferentImages;
                 }
+                // Third loading step
+                else if (index == imageCount - settings.MaxDifferentImages)
+                {
+                    imagesToLoad = settings.MaxDifferentImages;
+                }
+                // To make sure we never load more than we initially wanted.
+                imagesToLoad = Math.Min(imagesToLoad, imageCount - index);
                 foreach (var image in mpv.GetImages(index, imagesToLoad))
                 {
                     imageStreams.Add(image);
@@ -243,7 +252,8 @@ namespace DedupEngine
             }
         }
 
-        public bool AreImagesEqual(VideoFile other,
+        public bool AreImagesEqual(
+            VideoFile other,
             IImageComparisonSettings settings,
             CancellationToken cancelToken)
         {
