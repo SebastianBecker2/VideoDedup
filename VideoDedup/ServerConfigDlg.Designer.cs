@@ -36,8 +36,8 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.NumMaxDifferentPercentage = new System.Windows.Forms.NumericUpDown();
-            this.NumMaxDifferentThumbnails = new System.Windows.Forms.NumericUpDown();
-            this.NumMaxThumbnailComparison = new System.Windows.Forms.NumericUpDown();
+            this.NumMaxDifferentImages = new System.Windows.Forms.NumericUpDown();
+            this.NumMaxImageComparison = new System.Windows.Forms.NumericUpDown();
             this.RdbDurationDifferenceSeconds = new System.Windows.Forms.RadioButton();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.label8 = new System.Windows.Forms.Label();
@@ -66,10 +66,11 @@
             this.label10 = new System.Windows.Forms.Label();
             this.ChbMonitorFileChanges = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.BtnVideoComparisonPreview = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentPercentage)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentThumbnails)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxThumbnailComparison)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentImages)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumMaxImageComparison)).BeginInit();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDurationDifferencePercent)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDurationDifferenceSeconds)).BeginInit();
@@ -109,8 +110,8 @@
             this.groupBox1.Controls.Add(this.label5);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.NumMaxDifferentPercentage);
-            this.groupBox1.Controls.Add(this.NumMaxDifferentThumbnails);
-            this.groupBox1.Controls.Add(this.NumMaxThumbnailComparison);
+            this.groupBox1.Controls.Add(this.NumMaxDifferentImages);
+            this.groupBox1.Controls.Add(this.NumMaxImageComparison);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(0);
@@ -158,21 +159,21 @@
             this.NumMaxDifferentPercentage.Size = new System.Drawing.Size(63, 20);
             this.NumMaxDifferentPercentage.TabIndex = 2;
             // 
-            // NumMaxDifferentThumbnails
+            // NumMaxDifferentImages
             // 
-            this.NumMaxDifferentThumbnails.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.NumMaxDifferentThumbnails.Location = new System.Drawing.Point(229, 69);
-            this.NumMaxDifferentThumbnails.Name = "NumMaxDifferentThumbnails";
-            this.NumMaxDifferentThumbnails.Size = new System.Drawing.Size(63, 20);
-            this.NumMaxDifferentThumbnails.TabIndex = 1;
+            this.NumMaxDifferentImages.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.NumMaxDifferentImages.Location = new System.Drawing.Point(229, 69);
+            this.NumMaxDifferentImages.Name = "NumMaxDifferentImages";
+            this.NumMaxDifferentImages.Size = new System.Drawing.Size(63, 20);
+            this.NumMaxDifferentImages.TabIndex = 1;
             // 
-            // NumMaxThumbnailComparison
+            // NumMaxImageComparison
             // 
-            this.NumMaxThumbnailComparison.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.NumMaxThumbnailComparison.Location = new System.Drawing.Point(229, 42);
-            this.NumMaxThumbnailComparison.Name = "NumMaxThumbnailComparison";
-            this.NumMaxThumbnailComparison.Size = new System.Drawing.Size(63, 20);
-            this.NumMaxThumbnailComparison.TabIndex = 0;
+            this.NumMaxImageComparison.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.NumMaxImageComparison.Location = new System.Drawing.Point(229, 42);
+            this.NumMaxImageComparison.Name = "NumMaxImageComparison";
+            this.NumMaxImageComparison.Size = new System.Drawing.Size(63, 20);
+            this.NumMaxImageComparison.TabIndex = 0;
             // 
             // RdbDurationDifferenceSeconds
             // 
@@ -513,6 +514,17 @@
             this.tableLayoutPanel2.Size = new System.Drawing.Size(303, 445);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
+            // BtnVideoComparisonPreview
+            // 
+            this.BtnVideoComparisonPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnVideoComparisonPreview.Location = new System.Drawing.Point(324, 463);
+            this.BtnVideoComparisonPreview.Name = "BtnVideoComparisonPreview";
+            this.BtnVideoComparisonPreview.Size = new System.Drawing.Size(175, 23);
+            this.BtnVideoComparisonPreview.TabIndex = 28;
+            this.BtnVideoComparisonPreview.Text = "Show Video Comparison Preview";
+            this.BtnVideoComparisonPreview.UseVisualStyleBackColor = true;
+            this.BtnVideoComparisonPreview.Click += new System.EventHandler(this.BtnVideoComparisonPreview_Click);
+            // 
             // ServerConfigDlg
             // 
             this.AcceptButton = this.BtnOkay;
@@ -520,6 +532,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.BtnCancel;
             this.ClientSize = new System.Drawing.Size(673, 498);
+            this.Controls.Add(this.BtnVideoComparisonPreview);
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.BtnOkay);
             this.Controls.Add(this.tableLayoutPanel1);
@@ -530,8 +543,8 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentPercentage)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentThumbnails)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxThumbnailComparison)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentImages)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumMaxImageComparison)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDurationDifferencePercent)).EndInit();
@@ -557,8 +570,8 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.RadioButton RdbDurationDifferenceSeconds;
         private System.Windows.Forms.NumericUpDown NumMaxDifferentPercentage;
-        private System.Windows.Forms.NumericUpDown NumMaxDifferentThumbnails;
-        private System.Windows.Forms.NumericUpDown NumMaxThumbnailComparison;
+        private System.Windows.Forms.NumericUpDown NumMaxDifferentImages;
+        private System.Windows.Forms.NumericUpDown NumMaxImageComparison;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.NumericUpDown NumMaxDurationDifferencePercent;
@@ -586,5 +599,6 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.CheckBox ChbRecursive;
         private System.Windows.Forms.CheckBox ChbMonitorFileChanges;
+        private System.Windows.Forms.Button BtnVideoComparisonPreview;
     }
 }
