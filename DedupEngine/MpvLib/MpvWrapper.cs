@@ -3,6 +3,7 @@ namespace DedupEngine.MpvLib
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Drawing;
     using System.Globalization;
     using System.IO;
     using System.Linq;
@@ -164,12 +165,13 @@ namespace DedupEngine.MpvLib
             int index,
             int count)
         {
-            var images = GetImages(index, count, SeekMode.KeyFramesOnly);
+            var images = GetImages(index, count, SeekMode.KeyFramesOnly)
+                .ToList();
             if (images.Count() == count)
             {
                 return images;
             }
-            return GetImages(index, count, SeekMode.Precise);
+            return GetImages(index, count, SeekMode.Precise).ToList();
         }
 
         private IEnumerable<MemoryStream> GetImages(
@@ -413,8 +415,9 @@ namespace DedupEngine.MpvLib
         private static CodecInfo ReadCodecInfo(IntPtr mpvHandle) =>
             new CodecInfo()
             {
-                Height = (int)GetLong(mpvHandle, "height"),
-                Width = (int)GetLong(mpvHandle, "width"),
+                Size = new Size(
+                    (int)GetLong(mpvHandle, "width"),
+                    (int)GetLong(mpvHandle, "height")),
                 Name = GetString(mpvHandle, "video-codec"),
                 FrameRate = GetLong(mpvHandle, "container-fps"),
             };
