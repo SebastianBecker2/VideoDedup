@@ -190,11 +190,10 @@ namespace VideoDedup
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.PnlResult.AutoScroll = true;
-            this.PnlResult.AutoSize = true;
             this.PnlResult.Controls.Add(this.GrbResult);
             this.PnlResult.Location = new System.Drawing.Point(12, 158);
             this.PnlResult.Name = "PnlResult";
-            this.PnlResult.Size = new System.Drawing.Size(862, 123);
+            this.PnlResult.Size = new System.Drawing.Size(862, 420);
             this.PnlResult.TabIndex = 2;
             // 
             // GrbResult
@@ -287,11 +286,10 @@ namespace VideoDedup
             // BtnStartComparison
             // 
             this.BtnStartComparison.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnStartComparison.AutoSize = true;
             this.TlpSettings.SetColumnSpan(this.BtnStartComparison, 2);
-            this.BtnStartComparison.Location = new System.Drawing.Point(763, 115);
+            this.BtnStartComparison.Location = new System.Drawing.Point(736, 115);
             this.BtnStartComparison.Name = "BtnStartComparison";
-            this.BtnStartComparison.Size = new System.Drawing.Size(96, 22);
+            this.BtnStartComparison.Size = new System.Drawing.Size(123, 22);
             this.BtnStartComparison.TabIndex = 22;
             this.BtnStartComparison.Text = "Start comparison";
             this.BtnStartComparison.UseVisualStyleBackColor = true;
@@ -431,7 +429,6 @@ namespace VideoDedup
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentImages)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentPercentage)).EndInit();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
