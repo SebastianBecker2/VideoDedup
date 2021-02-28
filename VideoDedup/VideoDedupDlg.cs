@@ -20,13 +20,12 @@ namespace VideoDedup
 
         private static readonly TimeSpan WcfTimeout = TimeSpan.FromSeconds(30);
 
-        private WcfProxy WcfProxy
+        internal static WcfProxy WcfProxy
         {
             get
             {
-                lock (wcfProxyLock)
+                lock (WcfProxyLock)
                 {
-
                     // If server address changed
                     // or connection issue occurred.
                     if (wcfProxy != null
@@ -39,7 +38,6 @@ namespace VideoDedup
                         wcfProxy.Abort();
                         wcfProxy = null;
                     }
-
 
                     if (wcfProxy == null)
                     {
@@ -62,8 +60,8 @@ namespace VideoDedup
                 }
             }
         }
-        private WcfProxy wcfProxy = null;
-        private readonly object wcfProxyLock = new object();
+        private static WcfProxy wcfProxy = null;
+        private static readonly object WcfProxyLock = new object();
 
         private Guid? logToken;
         private ConcurrentDictionary<int, LogEntry> LogEntries { get; } =
@@ -71,9 +69,9 @@ namespace VideoDedup
 
         private int DuplicateCount { get; set; } = 0;
 
-        private SmartTimer.Timer statusTimer = null;
+        private SmartTimer.Timer StatusTimer { get; set; } = null;
 
-        private ConfigData Settings { get; set; }
+        private static ConfigData Settings { get; set; }
 
         public VideoDedupDlg() => InitializeComponent();
 
@@ -81,13 +79,13 @@ namespace VideoDedup
         {
             Settings = LoadConfig();
 
-            statusTimer = new SmartTimer.Timer(StatusTimerCallback);
+            StatusTimer = new SmartTimer.Timer(StatusTimerCallback);
             UpdateOperation(new OperationInfo
             {
                 Message = "Connecting...",
                 ProgressStyle = ProgressStyle.Marquee,
             });
-            _ = statusTimer.StartSingle(0);
+            _ = StatusTimer.StartSingle(0);
 
             base.OnLoad(e);
         }
@@ -169,7 +167,7 @@ namespace VideoDedup
             }
             finally
             {
-                _ = statusTimer.StartSingle(Settings.StatusRequestInterval);
+                _ = StatusTimer.StartSingle(Settings.StatusRequestInterval);
             }
         }
 
@@ -387,7 +385,7 @@ namespace VideoDedup
 
                 Settings = dlg.Settings;
                 SaveConfig(Settings);
-                _ = statusTimer.StartSingle(Settings.StatusRequestInterval);
+                _ = StatusTimer.StartSingle(Settings.StatusRequestInterval);
             }
         }
 

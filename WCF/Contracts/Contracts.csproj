@@ -64,6 +64,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\ConfigData.cs" />
+    <Compile Include="Data\CustomVideoComparisonData.cs" />
+    <Compile Include="Data\CustomVideoComparisonStartData.cs" />
+    <Compile Include="Data\CustomVideoComparisonStatusData.cs" />
     <Compile Include="Data\DuplicateData.cs" />
     <Compile Include="Data\LogData.cs" />
     <Compile Include="Data\StatusData.cs" />

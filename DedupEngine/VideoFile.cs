@@ -9,11 +9,9 @@ namespace DedupEngine
     using System.Drawing;
     using System.IO;
     using System.Linq;
-    using System.Threading;
     using global::DedupEngine.MpvLib;
     using Newtonsoft.Json;
     using VideoDedupShared;
-    using XnaFan.ImageComparison;
 
     public class VideoFile : IVideoFile, IDisposable
     {
@@ -200,109 +198,6 @@ namespace DedupEngine
                     throw new ConfigurationErrorsException(
                         "DurationDifferenceType has not valid value");
             }
-        }
-
-        public MemoryStream GetImage(
-            int index,
-            int imageCount,
-            IImageComparisonSettings settings)
-        {
-            if (index >= imageCount || index < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(index),
-                    "Index out of range.");
-            }
-
-            if (ImageCount != 0 && ImageCount != imageCount)
-            {
-                DisposeImages();
-            }
-            ImageCount = imageCount;
-
-            if (index < imageStreams.Count())
-            {
-                return imageStreams[index];
-            }
-
-            using (var mpv = new MpvWrapper(
-                filePath,
-                imageCount,
-                Duration))
-            {
-                // First loading step, only the minimum (when index == 0)
-                var imagesToLoad = settings.MaxDifferentImages + 1;
-                // Second loading step
-                if (index == settings.MaxDifferentImages + 1)
-                {
-                    imagesToLoad =
-                        imageCount - index - settings.MaxDifferentImages;
-                }
-                // Third loading step
-                else if (index == imageCount - settings.MaxDifferentImages)
-                {
-                    imagesToLoad = settings.MaxDifferentImages;
-                }
-                // To make sure we never load more than we initially wanted.
-                imagesToLoad = Math.Min(imagesToLoad, imageCount - index);
-                foreach (var image in mpv.GetImages(index, imagesToLoad))
-                {
-                    imageStreams.Add(image);
-                }
-                return imageStreams[index];
-            }
-        }
-
-        public bool AreImagesEqual(
-            VideoFile other,
-            IImageComparisonSettings settings,
-            CancellationToken cancelToken)
-        {
-            if (other is null)
-            {
-                throw new ArgumentNullException(nameof(other));
-            }
-
-            if (settings is null)
-            {
-                throw new ArgumentNullException(nameof(settings));
-            }
-
-            var differernceCount = 0;
-            foreach (var index in Enumerable.Range(0, settings.MaxCompares))
-            {
-                if (cancelToken.IsCancellationRequested)
-                {
-                    return false;
-                }
-
-                var thisImageSample =
-                    Image.FromStream(GetImage(index, settings.MaxCompares, settings));
-                var otherImageSample =
-                    Image.FromStream(other.GetImage(index, settings.MaxCompares, settings));
-
-                var diff = thisImageSample.PercentageDifference(otherImageSample);
-
-                if (diff > (double)settings.MaxDifferencePercent / 100)
-                {
-                    ++differernceCount;
-                }
-
-                // Early return when we already exceeded the number of
-                // MaxDifferentImages
-                if (differernceCount > settings.MaxDifferentImages)
-                {
-                    return false;
-                }
-
-                // Early return when there are not enough to compare left
-                // to exceed the MaxDifferentImages
-                if ((settings.MaxCompares - (index + 1))
-                    <= (settings.MaxDifferentImages - differernceCount))
-                {
-                    return true;
-                }
-            }
-            return true;
         }
 
         public override bool Equals(object obj) => Equals(obj as IVideoFile);

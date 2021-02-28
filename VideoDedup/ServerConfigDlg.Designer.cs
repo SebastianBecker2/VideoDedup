@@ -67,6 +67,7 @@
             this.ChbMonitorFileChanges = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.BtnVideoComparisonPreview = new System.Windows.Forms.Button();
+            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentPercentage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentImages)).BeginInit();
@@ -80,6 +81,7 @@
             this.groupBox3.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
+            this.tableLayoutPanel4.SuspendLayout();
             this.SuspendLayout();
             // 
             // BtnCancel
@@ -106,12 +108,7 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.label6);
-            this.groupBox1.Controls.Add(this.label5);
-            this.groupBox1.Controls.Add(this.label3);
-            this.groupBox1.Controls.Add(this.NumMaxDifferentPercentage);
-            this.groupBox1.Controls.Add(this.NumMaxDifferentImages);
-            this.groupBox1.Controls.Add(this.NumMaxImageComparison);
+            this.groupBox1.Controls.Add(this.tableLayoutPanel4);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(0);
@@ -123,9 +120,9 @@
             // 
             // label6
             // 
-            this.label6.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.label6.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(48, 97);
+            this.label6.Location = new System.Drawing.Point(50, 78);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(175, 13);
             this.label6.TabIndex = 13;
@@ -133,9 +130,9 @@
             // 
             // label5
             // 
-            this.label5.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.label5.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(39, 71);
+            this.label5.Location = new System.Drawing.Point(41, 44);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(184, 13);
             this.label5.TabIndex = 12;
@@ -143,9 +140,9 @@
             // 
             // label3
             // 
-            this.label3.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.label3.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(71, 44);
+            this.label3.Location = new System.Drawing.Point(73, 10);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(152, 13);
             this.label3.TabIndex = 11;
@@ -154,7 +151,7 @@
             // NumMaxDifferentPercentage
             // 
             this.NumMaxDifferentPercentage.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.NumMaxDifferentPercentage.Location = new System.Drawing.Point(229, 95);
+            this.NumMaxDifferentPercentage.Location = new System.Drawing.Point(231, 75);
             this.NumMaxDifferentPercentage.Name = "NumMaxDifferentPercentage";
             this.NumMaxDifferentPercentage.Size = new System.Drawing.Size(63, 20);
             this.NumMaxDifferentPercentage.TabIndex = 2;
@@ -162,7 +159,7 @@
             // NumMaxDifferentImages
             // 
             this.NumMaxDifferentImages.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.NumMaxDifferentImages.Location = new System.Drawing.Point(229, 69);
+            this.NumMaxDifferentImages.Location = new System.Drawing.Point(231, 41);
             this.NumMaxDifferentImages.Name = "NumMaxDifferentImages";
             this.NumMaxDifferentImages.Size = new System.Drawing.Size(63, 20);
             this.NumMaxDifferentImages.TabIndex = 1;
@@ -170,7 +167,7 @@
             // NumMaxImageComparison
             // 
             this.NumMaxImageComparison.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.NumMaxImageComparison.Location = new System.Drawing.Point(229, 42);
+            this.NumMaxImageComparison.Location = new System.Drawing.Point(231, 7);
             this.NumMaxImageComparison.Name = "NumMaxImageComparison";
             this.NumMaxImageComparison.Size = new System.Drawing.Size(63, 20);
             this.NumMaxImageComparison.TabIndex = 0;
@@ -516,14 +513,38 @@
             // 
             // BtnVideoComparisonPreview
             // 
-            this.BtnVideoComparisonPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnVideoComparisonPreview.Location = new System.Drawing.Point(324, 463);
+            this.BtnVideoComparisonPreview.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.tableLayoutPanel4.SetColumnSpan(this.BtnVideoComparisonPreview, 2);
+            this.BtnVideoComparisonPreview.Location = new System.Drawing.Point(171, 108);
             this.BtnVideoComparisonPreview.Name = "BtnVideoComparisonPreview";
-            this.BtnVideoComparisonPreview.Size = new System.Drawing.Size(175, 23);
+            this.BtnVideoComparisonPreview.Size = new System.Drawing.Size(123, 23);
             this.BtnVideoComparisonPreview.TabIndex = 28;
-            this.BtnVideoComparisonPreview.Text = "Show Video Comparison Preview";
+            this.BtnVideoComparisonPreview.Text = "Try these settings...";
             this.BtnVideoComparisonPreview.UseVisualStyleBackColor = true;
             this.BtnVideoComparisonPreview.Click += new System.EventHandler(this.BtnVideoComparisonPreview_Click);
+            // 
+            // tableLayoutPanel4
+            // 
+            this.tableLayoutPanel4.ColumnCount = 2;
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel4.Controls.Add(this.BtnVideoComparisonPreview, 0, 3);
+            this.tableLayoutPanel4.Controls.Add(this.NumMaxImageComparison, 1, 0);
+            this.tableLayoutPanel4.Controls.Add(this.label6, 0, 2);
+            this.tableLayoutPanel4.Controls.Add(this.NumMaxDifferentImages, 1, 1);
+            this.tableLayoutPanel4.Controls.Add(this.label5, 0, 1);
+            this.tableLayoutPanel4.Controls.Add(this.NumMaxDifferentPercentage, 1, 2);
+            this.tableLayoutPanel4.Controls.Add(this.label3, 0, 0);
+            this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel4.Location = new System.Drawing.Point(3, 16);
+            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
+            this.tableLayoutPanel4.RowCount = 4;
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(297, 137);
+            this.tableLayoutPanel4.TabIndex = 14;
             // 
             // ServerConfigDlg
             // 
@@ -532,7 +553,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.BtnCancel;
             this.ClientSize = new System.Drawing.Size(673, 498);
-            this.Controls.Add(this.BtnVideoComparisonPreview);
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.BtnOkay);
             this.Controls.Add(this.tableLayoutPanel1);
@@ -541,7 +561,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Server Configuration";
             this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentPercentage)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentImages)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxImageComparison)).EndInit();
@@ -557,6 +576,8 @@
             this.tableLayoutPanel3.ResumeLayout(false);
             this.tableLayoutPanel3.PerformLayout();
             this.tableLayoutPanel2.ResumeLayout(false);
+            this.tableLayoutPanel4.ResumeLayout(false);
+            this.tableLayoutPanel4.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -600,5 +621,6 @@
         private System.Windows.Forms.CheckBox ChbRecursive;
         private System.Windows.Forms.CheckBox ChbMonitorFileChanges;
         private System.Windows.Forms.Button BtnVideoComparisonPreview;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
     }
 }

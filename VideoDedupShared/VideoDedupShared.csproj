@@ -64,9 +64,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\ImageComparisonResult.cs" />
     <Compile Include="Classes\OperationInfo.cs" />
+    <Compile Include="Classes\VideoComparisonResult.cs" />
     <Compile Include="Classes\VideoFile.cs" />
     <Compile Include="Classes\CodecInfo.cs" />
+    <Compile Include="Enums\ComparisonResult.cs" />
     <Compile Include="Enums\ProgressStyle.cs" />
     <Compile Include="Enums\ResolveOperation.cs" />
     <Compile Include="Enums\DurationDifferenceType.cs" />

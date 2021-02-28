@@ -14,6 +14,7 @@ namespace DedupEngine
     using IFolderSettings = VideoDedupShared.IFolderSettings;
     using OperationType = VideoDedupShared.OperationType;
     using ProgressStyle = VideoDedupShared.ProgressStyle;
+    using ComparisonResult = VideoDedupShared.ComparisonResult;
 
     public class DedupEngine : IDisposable
     {
@@ -439,10 +440,14 @@ namespace DedupEngine
                     OnLogged(string.Format(LogCompareFile, other.FilePath));
                     try
                     {
-                        if (file.AreImagesEqual(
-                            other,
-                            state.Settings,
-                            cancelToken))
+                        var comparer = new VideoComparer
+                        {
+                            LeftVideoFile = file,
+                            RightVideoFile = other,
+                            Settings = state.Settings,
+                        };
+                        if (comparer.Compare(cancelToken)
+                            == ComparisonResult.Duplicate)
                         {
                             OnLogged($"Found duplicate of {file.FilePath} and " +
                                 $"{other.FilePath}");
@@ -494,10 +499,14 @@ namespace DedupEngine
                 OnLogged(string.Format(LogCompareFile, file.FilePath));
                 try
                 {
-                    if (file.AreImagesEqual(
-                        refFile,
-                        CurrentState.Settings,
-                        cancelToken))
+                    var comparer = new VideoComparer
+                    {
+                        LeftVideoFile = file,
+                        RightVideoFile = refFile,
+                        Settings = CurrentState.Settings,
+                    };
+                    if (comparer.Compare(cancelToken)
+                        == ComparisonResult.Duplicate)
                     {
                         OnLogged($"Found duplicate of {refFile.FilePath} and" +
                             $" {file.FilePath}");

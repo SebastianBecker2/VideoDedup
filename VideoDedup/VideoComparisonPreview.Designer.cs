@@ -29,6 +29,7 @@ namespace VideoDedup
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.TlpResult = new System.Windows.Forms.TableLayoutPanel();
             this.GrbThirdLevelLoad = new System.Windows.Forms.GroupBox();
             this.TlpThirdLevelLoad = new System.Windows.Forms.TableLayoutPanel();
@@ -43,17 +44,19 @@ namespace VideoDedup
             this.BtnOkay = new System.Windows.Forms.Button();
             this.TlpSettings = new System.Windows.Forms.TableLayoutPanel();
             this.NumMaxImageComparison = new System.Windows.Forms.NumericUpDown();
-            this.BtnSelectLeftFilePath = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
+            this.BtnStartComparison = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.TxtLeftFilePath = new System.Windows.Forms.TextBox();
             this.TxtRightFilePath = new System.Windows.Forms.TextBox();
-            this.BtnSelectRightFilePath = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.NumMaxDifferentImages = new System.Windows.Forms.NumericUpDown();
             this.NumMaxDifferentPercentage = new System.Windows.Forms.NumericUpDown();
+            this.BtnSelectLeftFilePath = new System.Windows.Forms.Button();
+            this.BtnSelectRightFilePath = new System.Windows.Forms.Button();
+            this.StatusTimer = new System.Windows.Forms.Timer(this.components);
             this.TlpResult.SuspendLayout();
             this.GrbThirdLevelLoad.SuspendLayout();
             this.GrbFirstLevelLoad.SuspendLayout();
@@ -232,23 +235,25 @@ namespace VideoDedup
             // 
             this.TlpSettings.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.TlpSettings.ColumnCount = 4;
+            this.TlpSettings.ColumnCount = 5;
             this.TlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.TlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.TlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.TlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.TlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.TlpSettings.Controls.Add(this.NumMaxImageComparison, 2, 2);
-            this.TlpSettings.Controls.Add(this.BtnSelectLeftFilePath, 3, 0);
             this.TlpSettings.Controls.Add(this.label1, 0, 0);
+            this.TlpSettings.Controls.Add(this.BtnStartComparison, 3, 4);
             this.TlpSettings.Controls.Add(this.label2, 0, 1);
             this.TlpSettings.Controls.Add(this.TxtLeftFilePath, 1, 0);
             this.TlpSettings.Controls.Add(this.TxtRightFilePath, 1, 1);
-            this.TlpSettings.Controls.Add(this.BtnSelectRightFilePath, 3, 1);
             this.TlpSettings.Controls.Add(this.label3, 0, 2);
             this.TlpSettings.Controls.Add(this.label4, 0, 3);
             this.TlpSettings.Controls.Add(this.label5, 0, 4);
             this.TlpSettings.Controls.Add(this.NumMaxDifferentImages, 2, 3);
             this.TlpSettings.Controls.Add(this.NumMaxDifferentPercentage, 2, 4);
+            this.TlpSettings.Controls.Add(this.BtnSelectLeftFilePath, 4, 0);
+            this.TlpSettings.Controls.Add(this.BtnSelectRightFilePath, 4, 1);
             this.TlpSettings.Location = new System.Drawing.Point(12, 12);
             this.TlpSettings.Name = "TlpSettings";
             this.TlpSettings.RowCount = 5;
@@ -267,18 +272,6 @@ namespace VideoDedup
             this.NumMaxImageComparison.Name = "NumMaxImageComparison";
             this.NumMaxImageComparison.Size = new System.Drawing.Size(63, 20);
             this.NumMaxImageComparison.TabIndex = 23;
-            this.NumMaxImageComparison.ValueChanged += new System.EventHandler(this.HandleSettingChange);
-            // 
-            // BtnSelectLeftFilePath
-            // 
-            this.BtnSelectLeftFilePath.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.BtnSelectLeftFilePath.Location = new System.Drawing.Point(835, 3);
-            this.BtnSelectLeftFilePath.Name = "BtnSelectLeftFilePath";
-            this.BtnSelectLeftFilePath.Size = new System.Drawing.Size(24, 22);
-            this.BtnSelectLeftFilePath.TabIndex = 20;
-            this.BtnSelectLeftFilePath.Text = "...";
-            this.BtnSelectLeftFilePath.UseVisualStyleBackColor = true;
-            this.BtnSelectLeftFilePath.Click += new System.EventHandler(this.BtnSelectLeftFilePath_Click);
             // 
             // label1
             // 
@@ -289,6 +282,19 @@ namespace VideoDedup
             this.label1.Size = new System.Drawing.Size(47, 13);
             this.label1.TabIndex = 0;
             this.label1.Text = "Left File:";
+            // 
+            // BtnStartComparison
+            // 
+            this.BtnStartComparison.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnStartComparison.AutoSize = true;
+            this.TlpSettings.SetColumnSpan(this.BtnStartComparison, 2);
+            this.BtnStartComparison.Location = new System.Drawing.Point(763, 115);
+            this.BtnStartComparison.Name = "BtnStartComparison";
+            this.BtnStartComparison.Size = new System.Drawing.Size(96, 22);
+            this.BtnStartComparison.TabIndex = 22;
+            this.BtnStartComparison.Text = "Start comparison";
+            this.BtnStartComparison.UseVisualStyleBackColor = true;
+            this.BtnStartComparison.Click += new System.EventHandler(this.BtnStartComparison_Click);
             // 
             // label2
             // 
@@ -303,33 +309,20 @@ namespace VideoDedup
             // TxtLeftFilePath
             // 
             this.TxtLeftFilePath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.TlpSettings.SetColumnSpan(this.TxtLeftFilePath, 2);
+            this.TlpSettings.SetColumnSpan(this.TxtLeftFilePath, 3);
             this.TxtLeftFilePath.Location = new System.Drawing.Point(63, 4);
             this.TxtLeftFilePath.Name = "TxtLeftFilePath";
             this.TxtLeftFilePath.Size = new System.Drawing.Size(766, 20);
             this.TxtLeftFilePath.TabIndex = 2;
-            this.TxtLeftFilePath.TextChanged += new System.EventHandler(this.HandleSettingChange);
             // 
             // TxtRightFilePath
             // 
             this.TxtRightFilePath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.TlpSettings.SetColumnSpan(this.TxtRightFilePath, 2);
+            this.TlpSettings.SetColumnSpan(this.TxtRightFilePath, 3);
             this.TxtRightFilePath.Location = new System.Drawing.Point(63, 32);
             this.TxtRightFilePath.Name = "TxtRightFilePath";
             this.TxtRightFilePath.Size = new System.Drawing.Size(766, 20);
             this.TxtRightFilePath.TabIndex = 2;
-            this.TxtRightFilePath.TextChanged += new System.EventHandler(this.HandleSettingChange);
-            // 
-            // BtnSelectRightFilePath
-            // 
-            this.BtnSelectRightFilePath.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.BtnSelectRightFilePath.Location = new System.Drawing.Point(835, 31);
-            this.BtnSelectRightFilePath.Name = "BtnSelectRightFilePath";
-            this.BtnSelectRightFilePath.Size = new System.Drawing.Size(24, 22);
-            this.BtnSelectRightFilePath.TabIndex = 20;
-            this.BtnSelectRightFilePath.Text = "...";
-            this.BtnSelectRightFilePath.UseVisualStyleBackColor = true;
-            this.BtnSelectRightFilePath.Click += new System.EventHandler(this.BtnSelectRightFilePath_Click);
             // 
             // label3
             // 
@@ -371,7 +364,6 @@ namespace VideoDedup
             this.NumMaxDifferentImages.Name = "NumMaxDifferentImages";
             this.NumMaxDifferentImages.Size = new System.Drawing.Size(63, 20);
             this.NumMaxDifferentImages.TabIndex = 24;
-            this.NumMaxDifferentImages.ValueChanged += new System.EventHandler(this.HandleSettingChange);
             // 
             // NumMaxDifferentPercentage
             // 
@@ -380,7 +372,32 @@ namespace VideoDedup
             this.NumMaxDifferentPercentage.Name = "NumMaxDifferentPercentage";
             this.NumMaxDifferentPercentage.Size = new System.Drawing.Size(63, 20);
             this.NumMaxDifferentPercentage.TabIndex = 25;
-            this.NumMaxDifferentPercentage.ValueChanged += new System.EventHandler(this.HandleSettingChange);
+            // 
+            // BtnSelectLeftFilePath
+            // 
+            this.BtnSelectLeftFilePath.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.BtnSelectLeftFilePath.Location = new System.Drawing.Point(835, 3);
+            this.BtnSelectLeftFilePath.Name = "BtnSelectLeftFilePath";
+            this.BtnSelectLeftFilePath.Size = new System.Drawing.Size(24, 22);
+            this.BtnSelectLeftFilePath.TabIndex = 20;
+            this.BtnSelectLeftFilePath.Text = "...";
+            this.BtnSelectLeftFilePath.UseVisualStyleBackColor = true;
+            this.BtnSelectLeftFilePath.Click += new System.EventHandler(this.BtnSelectLeftFilePath_Click);
+            // 
+            // BtnSelectRightFilePath
+            // 
+            this.BtnSelectRightFilePath.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.BtnSelectRightFilePath.Location = new System.Drawing.Point(835, 31);
+            this.BtnSelectRightFilePath.Name = "BtnSelectRightFilePath";
+            this.BtnSelectRightFilePath.Size = new System.Drawing.Size(24, 22);
+            this.BtnSelectRightFilePath.TabIndex = 20;
+            this.BtnSelectRightFilePath.Text = "...";
+            this.BtnSelectRightFilePath.UseVisualStyleBackColor = true;
+            this.BtnSelectRightFilePath.Click += new System.EventHandler(this.BtnSelectRightFilePath_Click);
+            // 
+            // StatusTimer
+            // 
+            this.StatusTimer.Tick += new System.EventHandler(this.HandleStatusTimerTick);
             // 
             // VideoComparisonPreview
             // 
@@ -443,5 +460,7 @@ namespace VideoDedup
         private System.Windows.Forms.Label LblResult;
         private System.Windows.Forms.GroupBox GrbThirdLevelLoad;
         private System.Windows.Forms.TableLayoutPanel TlpThirdLevelLoad;
+        private System.Windows.Forms.Timer StatusTimer;
+        private System.Windows.Forms.Button BtnStartComparison;
     }
 }

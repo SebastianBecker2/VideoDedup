@@ -26,14 +26,14 @@ namespace Wcf.Contracts.Data
 
         [DataMember]
         public int MaxImageCompares { get; set; }
-        int IImageComparisonSettings.MaxCompares => MaxImageCompares;
+        int IImageComparisonSettings.MaxImageCompares => MaxImageCompares;
 
         [DataMember]
         public int MaxDifferentImages { get; set; }
 
         [DataMember]
         public int MaxImageDifferencePercent { get; set; }
-        int IImageComparisonSettings.MaxDifferencePercent =>
+        int IImageComparisonSettings.MaxImageDifferencePercent =>
             MaxImageDifferencePercent;
 
         [DataMember]

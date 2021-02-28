@@ -65,10 +65,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ComparisonFinishedEventArgs.cs" />
     <Compile Include="EngineSettings.cs" />
     <Compile Include="DedupEngine.cs" />
     <Compile Include="DuplicateFoundEventArgs.cs" />
     <Compile Include="EngineState.cs" />
+    <Compile Include="ImageComparedEventArgs.cs" />
     <Compile Include="LoggedEventArgs.cs" />
     <Compile Include="MpvLib\DataFormat.cs" />
     <Compile Include="MpvLib\Event.cs" />
@@ -79,6 +81,7 @@
     <Compile Include="OperationUpdateEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StoppedEventArgs.cs" />
+    <Compile Include="VideoComparer.cs" />
     <Compile Include="VideoFile.cs" />
   </ItemGroup>
   <ItemGroup>
