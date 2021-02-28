@@ -184,16 +184,17 @@ namespace VideoDedup
             this.LblResult.Text = "Result text";
             this.LblResult.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // PnlComparisonPreview
+            // PnlResult
             // 
             this.PnlResult.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.PnlResult.AutoScroll = true;
+            this.PnlResult.AutoSize = true;
             this.PnlResult.Controls.Add(this.GrbResult);
             this.PnlResult.Location = new System.Drawing.Point(12, 158);
-            this.PnlResult.Name = "PnlComparisonPreview";
-            this.PnlResult.Size = new System.Drawing.Size(862, 420);
+            this.PnlResult.Name = "PnlResult";
+            this.PnlResult.Size = new System.Drawing.Size(862, 123);
             this.PnlResult.TabIndex = 2;
             // 
             // GrbResult
@@ -430,6 +431,7 @@ namespace VideoDedup
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentImages)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentPercentage)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
