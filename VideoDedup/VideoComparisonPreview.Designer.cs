@@ -38,7 +38,7 @@ namespace VideoDedup
             this.GrbSecondLevelLoad = new System.Windows.Forms.GroupBox();
             this.TlpSecondLevelLoad = new System.Windows.Forms.TableLayoutPanel();
             this.LblResult = new System.Windows.Forms.Label();
-            this.PnlComparisonPreview = new System.Windows.Forms.Panel();
+            this.PnlResult = new System.Windows.Forms.Panel();
             this.GrbResult = new System.Windows.Forms.GroupBox();
             this.BtnCancel = new System.Windows.Forms.Button();
             this.BtnOkay = new System.Windows.Forms.Button();
@@ -61,7 +61,7 @@ namespace VideoDedup
             this.GrbThirdLevelLoad.SuspendLayout();
             this.GrbFirstLevelLoad.SuspendLayout();
             this.GrbSecondLevelLoad.SuspendLayout();
-            this.PnlComparisonPreview.SuspendLayout();
+            this.PnlResult.SuspendLayout();
             this.GrbResult.SuspendLayout();
             this.TlpSettings.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxImageComparison)).BeginInit();
@@ -186,15 +186,15 @@ namespace VideoDedup
             // 
             // PnlComparisonPreview
             // 
-            this.PnlComparisonPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.PnlResult.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.PnlComparisonPreview.AutoScroll = true;
-            this.PnlComparisonPreview.Controls.Add(this.GrbResult);
-            this.PnlComparisonPreview.Location = new System.Drawing.Point(12, 158);
-            this.PnlComparisonPreview.Name = "PnlComparisonPreview";
-            this.PnlComparisonPreview.Size = new System.Drawing.Size(862, 420);
-            this.PnlComparisonPreview.TabIndex = 2;
+            this.PnlResult.AutoScroll = true;
+            this.PnlResult.Controls.Add(this.GrbResult);
+            this.PnlResult.Location = new System.Drawing.Point(12, 158);
+            this.PnlResult.Name = "PnlComparisonPreview";
+            this.PnlResult.Size = new System.Drawing.Size(862, 420);
+            this.PnlResult.TabIndex = 2;
             // 
             // GrbResult
             // 
@@ -409,7 +409,7 @@ namespace VideoDedup
             this.Controls.Add(this.TlpSettings);
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.BtnOkay);
-            this.Controls.Add(this.PnlComparisonPreview);
+            this.Controls.Add(this.PnlResult);
             this.Name = "VideoComparisonPreview";
             this.Text = "VideoComparisonPreview";
             this.TlpResult.ResumeLayout(false);
@@ -420,8 +420,8 @@ namespace VideoDedup
             this.GrbFirstLevelLoad.PerformLayout();
             this.GrbSecondLevelLoad.ResumeLayout(false);
             this.GrbSecondLevelLoad.PerformLayout();
-            this.PnlComparisonPreview.ResumeLayout(false);
-            this.PnlComparisonPreview.PerformLayout();
+            this.PnlResult.ResumeLayout(false);
+            this.PnlResult.PerformLayout();
             this.GrbResult.ResumeLayout(false);
             this.GrbResult.PerformLayout();
             this.TlpSettings.ResumeLayout(false);
@@ -436,7 +436,7 @@ namespace VideoDedup
         #endregion
 
         private System.Windows.Forms.TableLayoutPanel TlpResult;
-        private System.Windows.Forms.Panel PnlComparisonPreview;
+        private System.Windows.Forms.Panel PnlResult;
         private System.Windows.Forms.GroupBox GrbFirstLevelLoad;
         private System.Windows.Forms.TableLayoutPanel TlpFirstLevelLoad;
         private System.Windows.Forms.GroupBox GrbSecondLevelLoad;

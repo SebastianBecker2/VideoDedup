@@ -39,6 +39,8 @@ namespace VideoDedup
             NumMaxDifferentImages.Value = ServerConfig.MaxDifferentImages;
             NumMaxImageComparison.Value = ServerConfig.MaxImageCompares;
 
+            CleanUpResult();
+
             base.OnLoad(e);
         }
 
@@ -48,7 +50,7 @@ namespace VideoDedup
                 ComparisonToken.Value,
                 ImageComparisonIndex);
 
-            GrbResult.Visible = true;
+            PnlResult.Visible = true;
 
             if (status.VideoCompareResult != null)
             {
@@ -139,12 +141,12 @@ namespace VideoDedup
             }
         }
 
-        private void CleanUpPreview()
+        private void CleanUpResult()
         {
             ImageComparisonIndex = 0;
             CurrentTableLayoutPanel = TlpFirstLevelLoad;
 
-            GrbResult.Visible = false;
+            PnlResult.Visible = false;
 
             var localRef = TlpFirstLevelLoad.Controls;
             TlpFirstLevelLoad.Controls.Clear();
@@ -265,7 +267,7 @@ namespace VideoDedup
 
             }
 
-            CleanUpPreview();
+            CleanUpResult();
 
             if ((int)NumMaxImageComparison.Value <= 0)
             {
