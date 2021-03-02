@@ -69,6 +69,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CustomComparisonManagement\CustomComparison.cs" />
     <Compile Include="CustomComparisonManagement\CustomComparisonManager.cs" />
     <Compile Include="DuplicateManagement\DuplicateResolvedEventArgs.cs" />
     <Compile Include="DuplicateManagement\DuplicateAddedEventArgs.cs" />
