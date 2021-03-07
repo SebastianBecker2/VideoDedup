@@ -15,7 +15,8 @@ namespace DedupEngine.MpvLib
     internal class MpvWrapper : IDisposable
     {
         private const string LibPath = @"mpv-1.dll";
-        private static readonly int GetEventIdTimeout = 30; // In seconds
+        private static readonly TimeSpan GetEventIdTimeout =
+            TimeSpan.FromSeconds(10);
 
         public static CodecInfo GetCodecInfo(string filePath)
         {
@@ -393,6 +394,11 @@ namespace DedupEngine.MpvLib
                 }
             }
         }
+
+        private static EventId GetEventId(
+            IntPtr handle,
+            TimeSpan timeout) =>
+            GetEventId(handle, timeout.TotalSeconds);
 
         private static EventId GetEventId(
             IntPtr handle,
