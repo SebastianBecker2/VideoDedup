@@ -7,7 +7,7 @@ namespace VideoDedupConsole.CustomComparisonManagement
     internal class CustomComparisonManager
     {
         private IDictionary<Guid, CustomComparison> CustomComparisons { get; set; }
-            = new Dictionary<Guid, CustomComparison>(); 
+            = new Dictionary<Guid, CustomComparison>();
 
         public CustomVideoComparisonStartData StartCustomComparison(
             CustomVideoComparisonData customVideoComparisonData)

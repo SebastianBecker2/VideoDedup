@@ -83,6 +83,12 @@ namespace DedupEngine
                 {
                     videoFile.ImageStreams.Add(image);
                 }
+
+                if (index >= videoFile.ImageStreams.Count())
+                {
+                    return (null, loadLevel);
+                }
+
                 return (videoFile.ImageStreams[index], loadLevel);
             }
         }
@@ -110,19 +116,28 @@ namespace DedupEngine
                     break;
                 }
 
+                Image StreamToImage(MemoryStream stream)
+                {
+                    if (stream != null)
+                    {
+                        return Image.FromStream(stream);
+                    }
+                    return new Bitmap(0, 0);
+                }
+
                 var (leftImageStream, lll) = LoadImage(
                     LeftVideoFile,
                     index,
                     Settings);
                 leftLoadLevel = Math.Max(lll, leftLoadLevel);
-                var leftImage = Image.FromStream(leftImageStream);
+                var leftImage = StreamToImage(leftImageStream);
 
                 var (rightImageStream, rll) = LoadImage(
                     RightVideoFile,
                     index,
                     Settings);
                 rightLoadLevel = Math.Max(rll, rightLoadLevel);
-                var rightImage = Image.FromStream(rightImageStream);
+                var rightImage = StreamToImage(rightImageStream);
 
                 var diff = leftImage.PercentageDifference(rightImage);
 

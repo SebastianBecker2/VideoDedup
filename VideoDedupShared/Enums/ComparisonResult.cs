@@ -6,5 +6,6 @@ namespace VideoDedupShared
         Duplicate,
         Different,
         Cancelled,
+        Aborted,
     }
 }

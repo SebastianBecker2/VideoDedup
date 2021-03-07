@@ -115,7 +115,14 @@ namespace DedupEngine
             {
                 if (!fileSize.HasValue)
                 {
-                    fileSize = new FileInfo(FilePath).Length;
+                    try
+                    {
+                        fileSize = new FileInfo(FilePath).Length;
+                    }
+                    catch (Exception)
+                    {
+                        fileSize = 0;
+                    }
                 }
                 return fileSize.Value;
             }

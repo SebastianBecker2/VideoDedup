@@ -24,6 +24,8 @@ namespace VideoDedup
             Color.FromKnownColor(KnownColor.LightCoral);
         private static readonly Color DuplicateColor =
             Color.FromKnownColor(KnownColor.DarkSeaGreen);
+        private static readonly Color DefaultColor =
+            Color.FromKnownColor(KnownColor.Control);
 
         public Wcf.Contracts.Data.ConfigData ServerConfig { get; set; }
 
@@ -50,23 +52,42 @@ namespace VideoDedup
                 ComparisonToken.Value,
                 ImageComparisonIndex);
 
-            PnlResult.Visible = true;
-
-            if (status.VideoCompareResult != null)
+            if (status.VideoCompareResult != null && !LblResult.Visible)
             {
+                PnlResult.Visible = true;
+                LblResult.Visible = true;
                 if (status.VideoCompareResult.ComparisonResult
                     == ComparisonResult.Different)
                 {
                     LblResult.Text = "Videos are considered to be different.";
                     LblResult.BackColor = DifferenceColor;
                 }
-                else
+                else if (status.VideoCompareResult.ComparisonResult
+                    == ComparisonResult.Duplicate)
                 {
                     LblResult.Text = "Videos are considered to be duplicates.";
                     LblResult.BackColor = DuplicateColor;
                 }
+                else if (status.VideoCompareResult.ComparisonResult
+                  == ComparisonResult.Cancelled)
+                {
+                    LblResult.Text = "Cancelled";
+                    LblResult.BackColor = DefaultColor;
+                }
+                else if (status.VideoCompareResult.ComparisonResult
+                  == ComparisonResult.Aborted)
+                {
+                    LblResult.Text = "Aborted: " +
+                        status.VideoCompareResult.Reason;
+                    LblResult.BackColor = DefaultColor;
+                }
             }
 
+            if (status.LeftVideoFile.CodecInfo == null
+                || status.RightVideoFile.CodecInfo == null)
+            {
+                return;
+            }
             var leftThumbnailSize = GetThumbnailSize(
                 status.LeftVideoFile.CodecInfo.Size);
             var rightThumbnailSize = GetThumbnailSize(
@@ -75,6 +96,8 @@ namespace VideoDedup
             var imagesLoaded = true;
             foreach (var (index, imageComparison) in status.ImageComparisons)
             {
+                PnlResult.Visible = true;
+
                 var comparisonFinished = status.VideoCompareResult != null
                     && index > status.VideoCompareResult.LastComparisonIndex;
 
@@ -147,6 +170,8 @@ namespace VideoDedup
             CurrentTableLayoutPanel = TlpFirstLevelLoad;
 
             PnlResult.Visible = false;
+
+            LblResult.Visible = false;
 
             var localRef = TlpFirstLevelLoad.Controls;
             TlpFirstLevelLoad.Controls.Clear();

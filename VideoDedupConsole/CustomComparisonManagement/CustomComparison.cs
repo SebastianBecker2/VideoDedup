@@ -34,9 +34,35 @@ namespace VideoDedupConsole.CustomComparisonManagement
         {
             Token = Guid.NewGuid();
             Data = data;
-            LeftVideoFile = new VideoFile(data.LeftFilePath);
-            RightVideoFile = new VideoFile(data.RightFilePath);
             Status.ImageComparisons = ImageComparisons;
+
+            try
+            {
+                LeftVideoFile = new VideoFile(data.LeftFilePath);
+            }
+            catch (ArgumentException)
+            {
+                Status.VideoCompareResult = new VideoComparisonResult
+                {
+                    Reason = "Left video file path invalid.",
+                    ComparisonResult = ComparisonResult.Aborted,
+                    LastComparisonIndex = 0,
+                };
+            }
+
+            try
+            {
+                RightVideoFile = new VideoFile(data.RightFilePath);
+            }
+            catch (ArgumentException)
+            {
+                Status.VideoCompareResult = new VideoComparisonResult
+                {
+                    Reason = "Right video file path invalid.",
+                    ComparisonResult = ComparisonResult.Aborted,
+                    LastComparisonIndex = 0,
+                };
+            }
 
             Comparer = new VideoComparer
             {
@@ -49,8 +75,7 @@ namespace VideoDedupConsole.CustomComparisonManagement
             Comparer.ImageCompared += HandleImageCompared;
             Comparer.ComparisonFinished += HandleComparisonFinished;
 
-            ComparerTask = Task.Factory.StartNew(
-                () => Comparer.Compare(CancelTokenSource.Token));
+            ComparerTask = Task.Factory.StartNew(Compare);
         }
 
         public void CancelComparison() => CancelTokenSource.Cancel();
@@ -76,6 +101,27 @@ namespace VideoDedupConsole.CustomComparisonManagement
             }
         }
 
+        private void Compare()
+        {
+            try
+            {
+                Comparer.Compare(CancelTokenSource.Token);
+            }
+            catch (Exception exc)
+            {
+                lock (StatusLock)
+                {
+                    var last = ImageComparisons.LastOrDefault();
+                    Status.VideoCompareResult = new VideoComparisonResult
+                    {
+                        Reason = exc.Message,
+                        ComparisonResult = ComparisonResult.Aborted,
+                        LastComparisonIndex = last != null ? last.Item1 : 0,
+                    };
+                }
+            }
+        }
+
         private void HandleComparisonFinished(
             object sender,
             ComparisonFinishedEventArgs e)
@@ -96,6 +142,7 @@ namespace VideoDedupConsole.CustomComparisonManagement
                 var last = ImageComparisons.LastOrDefault()?.Item2;
                 Status.VideoCompareResult = new VideoComparisonResult
                 {
+                    Reason = "Comparison cancelled",
                     ComparisonResult = ComparisonResult.Cancelled,
                     LastComparisonIndex =
                         last != null ? last.ImageLoadLevel : 0,
@@ -114,6 +161,7 @@ namespace VideoDedupConsole.CustomComparisonManagement
                 {
                     Status.VideoCompareResult = new VideoComparisonResult
                     {
+                        Reason = "Comparison ran to completion",
                         ComparisonResult = e.VideoComparisonResult,
                         LastComparisonIndex = e.ImageComparisonIndex - 1,
                     };
