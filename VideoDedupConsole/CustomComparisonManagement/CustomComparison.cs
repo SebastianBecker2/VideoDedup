@@ -105,7 +105,7 @@ namespace VideoDedupConsole.CustomComparisonManagement
         {
             try
             {
-                Comparer.Compare(CancelTokenSource.Token);
+                _ = Comparer.Compare(CancelTokenSource.Token);
             }
             catch (Exception exc)
             {

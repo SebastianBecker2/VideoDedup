@@ -1,11 +1,15 @@
 namespace VideoDedup
 {
     using System;
+    using System.Collections.Generic;
     using System.Drawing;
+    using System.Linq;
+    using System.Threading.Tasks;
     using System.Windows.Forms;
     using Microsoft.WindowsAPICodePack.Dialogs;
     using VideoDedupShared;
     using VideoDedupShared.ImageExtension;
+    using Wcf.Contracts.Data;
 
     public partial class VideoComparisonPreview : Form
     {
@@ -31,7 +35,7 @@ namespace VideoDedup
 
         private Guid? ComparisonToken { get; set; } = null;
         private int ImageComparisonIndex { get; set; } = 0;
-        private TableLayoutPanel CurrentTableLayoutPanel { get; set; }
+        private int? FinishedInLoadLevel { get; set; }
 
         public VideoComparisonPreview() => InitializeComponent();
 
@@ -46,104 +50,55 @@ namespace VideoDedup
             base.OnLoad(e);
         }
 
-        private void HandleStatusTimerTick(object sender, EventArgs e)
+        private void UpdateVideoComparisonResult(VideoComparisonResult result)
         {
-            var status = VideoDedupDlg.WcfProxy.GetVideoComparisonStatus(
-                ComparisonToken.Value,
-                ImageComparisonIndex);
-
-            if (status.VideoCompareResult != null && !LblResult.Visible)
+            if (result != null && !LblResult.Visible)
             {
                 PnlResult.Visible = true;
                 LblResult.Visible = true;
-                if (status.VideoCompareResult.ComparisonResult
-                    == ComparisonResult.Different)
+                if (result.ComparisonResult == ComparisonResult.Different)
                 {
                     LblResult.Text = "Videos are considered to be different.";
                     LblResult.BackColor = DifferenceColor;
                 }
-                else if (status.VideoCompareResult.ComparisonResult
-                    == ComparisonResult.Duplicate)
+                else if (result.ComparisonResult == ComparisonResult.Duplicate)
                 {
                     LblResult.Text = "Videos are considered to be duplicates.";
                     LblResult.BackColor = DuplicateColor;
                 }
-                else if (status.VideoCompareResult.ComparisonResult
-                  == ComparisonResult.Cancelled)
+                else if (result.ComparisonResult == ComparisonResult.Cancelled)
                 {
                     LblResult.Text = "Cancelled";
                     LblResult.BackColor = DefaultColor;
                 }
-                else if (status.VideoCompareResult.ComparisonResult
-                  == ComparisonResult.Aborted)
+                else if (result.ComparisonResult == ComparisonResult.Aborted)
                 {
-                    LblResult.Text = "Aborted: " +
-                        status.VideoCompareResult.Reason;
+                    LblResult.Text = "Aborted: " + result.Reason;
                     LblResult.BackColor = DefaultColor;
                 }
             }
+        }
 
-            if (status.LeftVideoFile.CodecInfo == null
-                || status.RightVideoFile.CodecInfo == null)
+        private async void HandleStatusTimerTick(object sender, EventArgs e)
+        {
+            var status = await Task.Run(() =>
+                VideoDedupDlg.WcfProxy.GetVideoComparisonStatus(
+                    ComparisonToken.Value,
+                    ImageComparisonIndex));
+
+            UpdateVideoComparisonResult(status.VideoCompareResult);
+            UpdateImageComparisonResult(status);
+
+            if (!status.ImageComparisons.Any())
             {
                 return;
             }
-            var leftThumbnailSize = GetThumbnailSize(
-                status.LeftVideoFile.CodecInfo.Size);
-            var rightThumbnailSize = GetThumbnailSize(
-                status.RightVideoFile.CodecInfo.Size);
 
-            var imagesLoaded = true;
-            foreach (var (index, imageComparison) in status.ImageComparisons)
+            ImageComparisonIndex = status.ImageComparisons.Max(kvp => kvp.Item1) + 1;
+            var maxImages = (int)NumMaxImageComparison.Value;
+            if (ImageComparisonIndex == maxImages)
             {
-                PnlResult.Visible = true;
-
-                var comparisonFinished = status.VideoCompareResult != null
-                    && index > status.VideoCompareResult.LastComparisonIndex;
-
-                if (imageComparison.ImageLoadLevel == 2)
-                {
-                    if (CurrentTableLayoutPanel != TlpSecondLevelLoad
-                        && comparisonFinished)
-                    {
-                        imagesLoaded = false;
-                    }
-                    CurrentTableLayoutPanel = TlpSecondLevelLoad;
-                }
-                if (imageComparison.ImageLoadLevel == 3)
-                {
-                    if (CurrentTableLayoutPanel != TlpThirdLevelLoad
-                        && comparisonFinished)
-                    {
-                        imagesLoaded = false;
-                    }
-                    CurrentTableLayoutPanel = TlpThirdLevelLoad;
-                }
-
-                var comparison = new ImageComparison
-                {
-                    ComparisonFinished = comparisonFinished,
-                    Difference = imageComparison.Difference,
-                    ComparisonResult = imageComparison.ComparisonResult,
-                    ImagesLoaded = imagesLoaded,
-                    LeftImage = Image.FromStream(imageComparison.LeftImage)
-                        .Resize(leftThumbnailSize),
-                    RightImage = Image.FromStream(imageComparison.RightImage)
-                        .Resize(rightThumbnailSize),
-                };
-                var maxDifference = (int)NumMaxDifferentPercentage.Value;
-                AddImageComparison(
-                    CurrentTableLayoutPanel,
-                    index,
-                    comparison,
-                    maxDifference);
-
-                var maxImages = (int)NumMaxImageComparison.Value;
-                if (index == maxImages - 1)
-                {
-                    StatusTimer.Stop();
-                }
-                ImageComparisonIndex = index + 1;
+                StatusTimer.Stop();
             }
         }
 
@@ -167,7 +122,7 @@ namespace VideoDedup
         private void CleanUpResult()
         {
             ImageComparisonIndex = 0;
-            CurrentTableLayoutPanel = TlpFirstLevelLoad;
+            FinishedInLoadLevel = null;
 
             PnlResult.Visible = false;
 
@@ -208,25 +163,31 @@ namespace VideoDedup
             GrbThirdLevelLoad.Visible = false;
         }
 
-        private static void AddImageComparison(
-            TableLayoutPanel tableLayoutPanel,
-            int index,
-            ImageComparison imageComparison,
-            int maxDifference)
+        private Dictionary<int, Tuple<GroupBox, TableLayoutPanel>> loadLevelControls;
+        private Tuple<GroupBox, TableLayoutPanel> GetLoadLevelControls(
+            int loadLevel)
         {
-            tableLayoutPanel.Parent.Visible = true;
-            _ = tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-
-            var leftPictureBox = new PictureBox
+            if (loadLevelControls == null)
             {
-                Image = imageComparison.LeftImage,
-                SizeMode = PictureBoxSizeMode.AutoSize,
-                Anchor = AnchorStyles.None,
-            };
-            tableLayoutPanel.Controls.Add(leftPictureBox, 0, index);
+                loadLevelControls =
+                    new Dictionary<int, Tuple<GroupBox, TableLayoutPanel>>
+                    {
+                        { 1, Tuple.Create(GrbFirstLevelLoad, TlpFirstLevelLoad) },
+                        { 2, Tuple.Create(GrbSecondLevelLoad, TlpSecondLevelLoad) },
+                        { 3, Tuple.Create(GrbThirdLevelLoad, TlpThirdLevelLoad) },
+                    };
+            }
+            return loadLevelControls[loadLevel];
+        }
 
+        private string GetTextFromImageComparison(
+            int index,
+            ImageComparisonResult imageComparison,
+            bool finished,
+            bool loaded)
+        {
             var text = $"{index + 1}. Comparison:{Environment.NewLine}";
-            if (!imageComparison.ComparisonFinished)
+            if (!finished)
             {
                 text += $"Images loaded and compared{Environment.NewLine}"
                     + $"Difference {imageComparison.Difference * 100} is ";
@@ -239,12 +200,12 @@ namespace VideoDedup
                 {
                     text += "lower";
                 }
-                text += $" than {maxDifference}";
+                text += $" than {NumMaxDifferentPercentage.Value}";
             }
             else
             {
                 text += $"Result already determined.{Environment.NewLine}";
-                if (imageComparison.ImagesLoaded)
+                if (loaded)
                 {
                     text += "Images loaded but comparison was skipped.";
                 }
@@ -253,33 +214,102 @@ namespace VideoDedup
                     text += "Images have not been loaded.";
                 }
             }
-            var diffLabel = new Label
-            {
-                Text = text,
-                Dock = DockStyle.Fill,
-                TextAlign = ContentAlignment.MiddleCenter,
-            };
-            if (!imageComparison.ComparisonFinished)
+            return text;
+        }
+
+        private static Color GetColorFromImageComparison(
+            ImageComparisonResult imageComparison,
+            bool finished)
+        {
+            if (!finished)
             {
                 if (imageComparison.ComparisonResult
                     == ComparisonResult.Different)
                 {
-                    diffLabel.BackColor = DifferenceColor;
+                    return DifferenceColor;
                 }
                 else
                 {
-                    diffLabel.BackColor = DuplicateColor;
+                    return DuplicateColor;
                 }
             }
-            tableLayoutPanel.Controls.Add(diffLabel, 1, index);
+            return DefaultBackColor;
+        }
 
-            var rightPictureBox = new PictureBox
+        private void UpdateImageComparisonResult(
+            CustomVideoComparisonStatusData status)
+        {
+            if (!status.ImageComparisons.Any())
             {
-                Image = imageComparison.RightImage,
-                SizeMode = PictureBoxSizeMode.AutoSize,
-                Anchor = AnchorStyles.None,
-            };
-            tableLayoutPanel.Controls.Add(rightPictureBox, 2, index);
+                return;
+            }
+
+            if (status.LeftVideoFile.CodecInfo == null
+                || status.RightVideoFile.CodecInfo == null)
+            {
+                return;
+            }
+
+            var leftThumbnailSize = GetThumbnailSize(
+                status.LeftVideoFile.CodecInfo.Size);
+            var rightThumbnailSize = GetThumbnailSize(
+                status.RightVideoFile.CodecInfo.Size);
+
+            PnlResult.Visible = true;
+
+            foreach (var loadLevel in status.ImageComparisons
+                .GroupBy(kvp => kvp.Item2.ImageLoadLevel))
+            {
+                var (grb, tlp) = GetLoadLevelControls(loadLevel.Key);
+                grb.Visible = true;
+
+                var lastCompared = status.VideoCompareResult?.LastComparisonIndex;
+                if (lastCompared != null
+                    && loadLevel.Any(k => k.Item1 == lastCompared.Value))
+                {
+                    FinishedInLoadLevel = loadLevel.Key;
+                }
+
+                tlp.Controls.AddRange(loadLevel.SelectMany(kvp =>
+                {
+                    var leftPib = new PictureBox
+                    {
+                        Image = Image.FromStream(kvp.Item2.LeftImage)
+                        .Resize(leftThumbnailSize),
+                        SizeMode = PictureBoxSizeMode.AutoSize,
+                        Anchor = AnchorStyles.None,
+                    };
+
+                    var finished = lastCompared != null
+                        && kvp.Item1 > lastCompared;
+                    var loaded = FinishedInLoadLevel == null
+                        || loadLevel.Key <= FinishedInLoadLevel;
+                    var text = GetTextFromImageComparison(
+                        kvp.Item1,
+                        kvp.Item2,
+                        finished,
+                        loaded);
+                    var backColor = GetColorFromImageComparison(
+                        kvp.Item2,
+                        finished);
+                    var result = new Label
+                    {
+                        Text = text,
+                        Dock = DockStyle.Fill,
+                        TextAlign = ContentAlignment.MiddleCenter,
+                        BackColor = backColor,
+                    };
+
+                    var rightPib = new PictureBox
+                    {
+                        Image = Image.FromStream(kvp.Item2.RightImage)
+                        .Resize(rightThumbnailSize),
+                        SizeMode = PictureBoxSizeMode.AutoSize,
+                        Anchor = AnchorStyles.None,
+                    };
+                    return new Control[] { leftPib, result, rightPib };
+                }).ToArray());
+            }
         }
 
         private void BtnStartComparison_Click(object sender, EventArgs e)
@@ -300,7 +330,7 @@ namespace VideoDedup
             }
 
             var startData = VideoDedupDlg.WcfProxy.StartCustomVideoComparison(
-                 new Wcf.Contracts.Data.CustomVideoComparisonData
+                 new CustomVideoComparisonData
                  {
                      AlwaysLoadAllImages = true,
                      LeftFilePath = TxtLeftFilePath.Text,
