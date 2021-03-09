@@ -86,7 +86,7 @@ namespace VideoDedup
             this.TlpResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TlpResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TlpResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpResult.Size = new System.Drawing.Size(850, 98);
+            this.TlpResult.Size = new System.Drawing.Size(850, 113);
             this.TlpResult.TabIndex = 0;
             // 
             // GrbThirdLevelLoad
@@ -94,7 +94,7 @@ namespace VideoDedup
             this.GrbThirdLevelLoad.AutoSize = true;
             this.GrbThirdLevelLoad.Controls.Add(this.TlpThirdLevelLoad);
             this.GrbThirdLevelLoad.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.GrbThirdLevelLoad.Location = new System.Drawing.Point(3, 76);
+            this.GrbThirdLevelLoad.Location = new System.Drawing.Point(3, 91);
             this.GrbThirdLevelLoad.Name = "GrbThirdLevelLoad";
             this.GrbThirdLevelLoad.Size = new System.Drawing.Size(844, 19);
             this.GrbThirdLevelLoad.TabIndex = 3;
@@ -122,7 +122,7 @@ namespace VideoDedup
             this.GrbFirstLevelLoad.AutoSize = true;
             this.GrbFirstLevelLoad.Controls.Add(this.TlpFirstLevelLoad);
             this.GrbFirstLevelLoad.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.GrbFirstLevelLoad.Location = new System.Drawing.Point(3, 26);
+            this.GrbFirstLevelLoad.Location = new System.Drawing.Point(3, 41);
             this.GrbFirstLevelLoad.Name = "GrbFirstLevelLoad";
             this.GrbFirstLevelLoad.Size = new System.Drawing.Size(844, 19);
             this.GrbFirstLevelLoad.TabIndex = 0;
@@ -149,7 +149,7 @@ namespace VideoDedup
             this.GrbSecondLevelLoad.AutoSize = true;
             this.GrbSecondLevelLoad.Controls.Add(this.TlpSecondLevelLoad);
             this.GrbSecondLevelLoad.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.GrbSecondLevelLoad.Location = new System.Drawing.Point(3, 51);
+            this.GrbSecondLevelLoad.Location = new System.Drawing.Point(3, 66);
             this.GrbSecondLevelLoad.Name = "GrbSecondLevelLoad";
             this.GrbSecondLevelLoad.Size = new System.Drawing.Size(844, 19);
             this.GrbSecondLevelLoad.TabIndex = 1;
@@ -175,11 +175,13 @@ namespace VideoDedup
             // 
             // LblResult
             // 
+            this.LblResult.AutoSize = true;
             this.LblResult.Dock = System.Windows.Forms.DockStyle.Fill;
             this.LblResult.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.LblResult.Location = new System.Drawing.Point(3, 0);
             this.LblResult.Name = "LblResult";
-            this.LblResult.Size = new System.Drawing.Size(844, 23);
+            this.LblResult.Padding = new System.Windows.Forms.Padding(0, 10, 0, 10);
+            this.LblResult.Size = new System.Drawing.Size(844, 38);
             this.LblResult.TabIndex = 2;
             this.LblResult.Text = "Result text";
             this.LblResult.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -204,7 +206,7 @@ namespace VideoDedup
             this.GrbResult.Controls.Add(this.TlpResult);
             this.GrbResult.Location = new System.Drawing.Point(3, 3);
             this.GrbResult.Name = "GrbResult";
-            this.GrbResult.Size = new System.Drawing.Size(856, 117);
+            this.GrbResult.Size = new System.Drawing.Size(856, 132);
             this.GrbResult.TabIndex = 1;
             this.GrbResult.TabStop = false;
             this.GrbResult.Text = "Result";

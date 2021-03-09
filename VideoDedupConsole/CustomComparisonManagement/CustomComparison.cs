@@ -85,7 +85,7 @@ namespace VideoDedupConsole.CustomComparisonManagement
         {
             lock (StatusLock)
             {
-                return new CustomVideoComparisonStatusData
+                var statusData = new CustomVideoComparisonStatusData
                 {
                     ImageComparisons =
                         Status.ImageComparisons
@@ -93,11 +93,18 @@ namespace VideoDedupConsole.CustomComparisonManagement
                             .ToList(),
                     Token = Token,
                     VideoCompareResult = Status.VideoCompareResult,
-                    LeftVideoFile =
-                        new VideoDedupShared.VideoFile(LeftVideoFile),
-                    RightVideoFile =
-                        new VideoDedupShared.VideoFile(RightVideoFile),
                 };
+                if (LeftVideoFile != null)
+                {
+                    statusData.LeftVideoFile =
+                        new VideoDedupShared.VideoFile(LeftVideoFile);
+                }
+                if (RightVideoFile != null)
+                {
+                    statusData.RightVideoFile =
+                        new VideoDedupShared.VideoFile(RightVideoFile);
+                }
+                return statusData;
             }
         }
 
@@ -163,7 +170,7 @@ namespace VideoDedupConsole.CustomComparisonManagement
                     {
                         Reason = "Comparison ran to completion",
                         ComparisonResult = e.VideoComparisonResult,
-                        LastComparisonIndex = e.ImageComparisonIndex - 1,
+                        LastComparisonIndex = e.ImageComparisonIndex,
                     };
                 }
 

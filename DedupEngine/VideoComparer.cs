@@ -155,27 +155,20 @@ namespace DedupEngine
                         ImageComparisonIndex = index,
                     };
 
-                if (diff > (double)Settings.MaxImageDifferencePercent / 100)
-                {
-                    ++differenceCount;
-                    OnImageCompared(
-                        () => eventArgsCreator(ComparisonResult.Different));
-                }
-                else
+                if (diff <= (double)Settings.MaxImageDifferencePercent / 100)
                 {
                     OnImageCompared(
                         () => eventArgsCreator(ComparisonResult.Duplicate));
+                    continue;
                 }
+
+                ++differenceCount;
 
                 // Early return when we already exceeded the number of
                 // MaxDifferentImages
                 if (differenceCount > Settings.MaxDifferentImages)
                 {
                     comparisonResult = ComparisonResult.Different;
-                    if (!AlwaysLoadAllImages)
-                    {
-                        break;
-                    }
                 }
 
                 // Early return when there are not enough to compare left
@@ -184,10 +177,15 @@ namespace DedupEngine
                     <= (Settings.MaxDifferentImages - differenceCount))
                 {
                     comparisonResult = ComparisonResult.Duplicate;
-                    if (!AlwaysLoadAllImages)
-                    {
-                        break;
-                    }
+                }
+
+                OnImageCompared(
+                    () => eventArgsCreator(ComparisonResult.Different));
+
+                if (comparisonResult != ComparisonResult.NoResult
+                    && !AlwaysLoadAllImages)
+                {
+                    break;
                 }
             }
 
