@@ -2,6 +2,7 @@ namespace VideoDedup
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Drawing;
     using System.Linq;
     using System.Threading.Tasks;
@@ -130,13 +131,12 @@ namespace VideoDedup
             }
         }
 
-        private async void HandleStatusTimerTick(object sender, EventArgs e)
+        private void HandleStatusTimerTick(object sender, EventArgs e)
         {
             StatusTimer.Stop();
-            var status = await Task.Run(() =>
-                VideoDedupDlg.WcfProxy.GetVideoComparisonStatus(
+            var status = VideoDedupDlg.WcfProxy.GetVideoComparisonStatus(
                     ComparisonToken.Value,
-                    ImageComparisonIndex));
+                    ImageComparisonIndex);
 
             UpdateVideoComparisonResult(status.VideoCompareResult);
             UpdateImageComparisonResult(status);
