@@ -53,7 +53,8 @@ namespace VideoDedupConsole.CustomComparisonManagement
             }
 
             customComparison.CancelComparison();
-            return true;
+
+            return CustomComparisons.Remove(token);
         }
     }
 }
