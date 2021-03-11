@@ -2,12 +2,31 @@ namespace VideoDedupConsole.CustomComparisonManagement
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Wcf.Contracts.Data;
 
-    internal class CustomComparisonManager
+    internal class CustomComparisonManager : IDisposable
     {
+        private static readonly TimeSpan TimeoutTimerInterval =
+            TimeSpan.FromMinutes(1);
+        private static readonly TimeSpan TimeoutTime = TimeSpan.FromMinutes(5);
+
+        private bool disposedValue;
+
+        private SmartTimer.Timer TimeoutTimer { get; set; }
+
         private IDictionary<Guid, CustomComparison> CustomComparisons { get; set; }
             = new Dictionary<Guid, CustomComparison>();
+        private IDictionary<Guid, DateTime> LastRequests { get; set; } =
+            new Dictionary<Guid, DateTime>();
+
+        private object ComparisonsLock { get; } = new object();
+
+        public CustomComparisonManager() =>
+            TimeoutTimer = new SmartTimer.Timer(
+                HandleTimeoutTimerTick,
+                null,
+                TimeoutTimerInterval);
 
         public CustomVideoComparisonStartData StartCustomComparison(
             CustomVideoComparisonData customVideoComparisonData)
@@ -17,7 +36,13 @@ namespace VideoDedupConsole.CustomComparisonManagement
                 var customComparison = new CustomComparison(
                     customVideoComparisonData);
 
-                CustomComparisons.Add(customComparison.Token, customComparison);
+                lock (ComparisonsLock)
+                {
+                    CustomComparisons.Add(
+                        customComparison.Token,
+                        customComparison);
+                    LastRequests[customComparison.Token] = DateTime.Now;
+                }
 
                 return new CustomVideoComparisonStartData
                 {
@@ -37,24 +62,82 @@ namespace VideoDedupConsole.CustomComparisonManagement
             Guid token,
             int imageComparisonIndex = 0)
         {
-            if (!CustomComparisons.TryGetValue(token, out var customComparison))
+            lock (ComparisonsLock)
             {
-                return null;
-            }
+                if (!CustomComparisons.TryGetValue(
+                    token,
+                    out var customComparison))
+                {
+                    return null;
+                }
 
-            return customComparison.GetStatus(imageComparisonIndex);
+                LastRequests[token] = DateTime.Now;
+                return customComparison.GetStatus(imageComparisonIndex);
+            }
         }
 
         public bool CancelCustomComparison(Guid token)
         {
-            if (!CustomComparisons.TryGetValue(token, out var customComparison))
+            lock (ComparisonsLock)
             {
-                return false;
+                if (!CustomComparisons.TryGetValue(
+                    token,
+                    out var customComparison))
+                {
+                    return false;
+                }
+
+                customComparison.CancelComparison();
+                customComparison.Dispose();
+
+                _ = LastRequests.Remove(token);
+                return CustomComparisons.Remove(token);
             }
+        }
 
-            customComparison.CancelComparison();
+        private void HandleTimeoutTimerTick(object _)
+        {
+            var now = DateTime.Now;
+            lock (ComparisonsLock)
+            {
+                foreach (var token in LastRequests
+                    .Where(kvp => (now - kvp.Value) > TimeoutTime)
+                    .Select(kvp => kvp.Key)
+                    .ToList())
+                {
+                    CancelCustomComparison(token);
+                }
+            }
+        }
 
-            return CustomComparisons.Remove(token);
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    TimeoutTimer?.Dispose();
+                    lock (ComparisonsLock)
+                    {
+                        foreach (var comparison in CustomComparisons
+                            .Select(kvp => kvp.Value))
+                        {
+                            comparison.CancelComparison();
+                            comparison.Dispose();
+                        }
+                        CustomComparisons.Clear();
+                        LastRequests.Clear();
+                    }
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

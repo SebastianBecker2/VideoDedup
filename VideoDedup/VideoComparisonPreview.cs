@@ -51,6 +51,17 @@ namespace VideoDedup
             base.OnLoad(e);
         }
 
+        protected override void OnClosed(EventArgs e)
+        {
+            if (ComparisonToken.HasValue)
+            {
+                StatusTimer.Stop();
+                VideoDedupDlg.WcfProxy.CancelCustomVideoComparison(
+                    ComparisonToken.Value);
+            }
+            base.OnClosed(e);
+        }
+
         private void BtnStartComparison_Click(object sender, EventArgs e)
         {
             if (ComparisonToken.HasValue)
@@ -58,7 +69,6 @@ namespace VideoDedup
                 StatusTimer.Stop();
                 VideoDedupDlg.WcfProxy.CancelCustomVideoComparison(
                     ComparisonToken.Value);
-
             }
 
             CleanUpResult();
@@ -151,10 +161,14 @@ namespace VideoDedup
                 .Max(kvp => kvp.Item1);
             ImageComparisonIndex += 1;
             var maxImages = (int)NumMaxImageComparison.Value;
-            if (ImageComparisonIndex < maxImages)
+            if (ImageComparisonIndex >= maxImages)
             {
-                StatusTimer.Start();
+                VideoDedupDlg.WcfProxy.CancelCustomVideoComparison(
+                    ComparisonToken.Value);
+                return;
             }
+
+            StatusTimer.Start();
         }
 
         private void CleanUpResult()
