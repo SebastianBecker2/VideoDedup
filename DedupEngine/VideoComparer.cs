@@ -122,7 +122,7 @@ namespace DedupEngine
                     {
                         return Image.FromStream(stream);
                     }
-                    return new Bitmap(0, 0);
+                    return new Bitmap(1, 1);
                 }
 
                 var (leftImageStream, lll) = LoadImage(
@@ -171,7 +171,7 @@ namespace DedupEngine
                     comparisonResult = ComparisonResult.Different;
                 }
 
-                // Early return when there are not enough to compare left
+                // Early return when there are not enough images left to compare
                 // to exceed the MaxDifferentImages
                 if ((Settings.MaxImageCompares - (index + 1))
                     <= (Settings.MaxDifferentImages - differenceCount))
