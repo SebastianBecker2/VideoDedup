@@ -10,6 +10,7 @@ namespace VideoDedupConsole.CustomComparisonManagement
     using VideoComparisonResult = VideoDedupShared.VideoComparisonResult;
     using ImageComparisonResult = VideoDedupShared.ImageComparisonResult;
     using ComparisonResult = VideoDedupShared.ComparisonResult;
+    using System.IO;
 
     internal class CustomComparison : IDisposable
     {
@@ -36,33 +37,17 @@ namespace VideoDedupConsole.CustomComparisonManagement
             Data = data;
             Status.ImageComparisons = ImageComparisons;
 
-            try
+            if (!File.Exists(data.LeftFilePath))
             {
-                LeftVideoFile = new VideoFile(data.LeftFilePath);
+                throw new InvalidDataException("Left video file path invalid.");
             }
-            catch (ArgumentException)
-            {
-                Status.VideoCompareResult = new VideoComparisonResult
-                {
-                    Reason = "Left video file path invalid.",
-                    ComparisonResult = ComparisonResult.Aborted,
-                    LastComparisonIndex = 0,
-                };
-            }
+            LeftVideoFile = new VideoFile(data.LeftFilePath);
 
-            try
+            if (!File.Exists(data.RightFilePath))
             {
-                RightVideoFile = new VideoFile(data.RightFilePath);
+                throw new InvalidDataException("Right video file path invalid.");
             }
-            catch (ArgumentException)
-            {
-                Status.VideoCompareResult = new VideoComparisonResult
-                {
-                    Reason = "Right video file path invalid.",
-                    ComparisonResult = ComparisonResult.Aborted,
-                    LastComparisonIndex = 0,
-                };
-            }
+            RightVideoFile = new VideoFile(data.RightFilePath);
 
             Comparer = new VideoComparer
             {
