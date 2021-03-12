@@ -4,6 +4,7 @@ namespace VideoDedup
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Drawing;
+    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
     using System.Windows.Forms;
@@ -217,6 +218,15 @@ namespace VideoDedup
             GrbThirdLevelLoad.Visible = false;
         }
 
+        private static Size GetThumbnailSize(CodecInfo codecInfo)
+        {
+            if (codecInfo == null)
+            {
+                return ThumbnailSize;
+            }
+            return GetThumbnailSize(codecInfo.Size);
+        }
+
         private static Size GetThumbnailSize(Size originalSize)
         {
             var width = originalSize.Width;
@@ -344,18 +354,21 @@ namespace VideoDedup
                 return;
             }
 
-            if (status.LeftVideoFile.CodecInfo == null
-                || status.RightVideoFile.CodecInfo == null)
-            {
-                return;
-            }
-
             var leftThumbnailSize = GetThumbnailSize(
-                status.LeftVideoFile.CodecInfo.Size);
+                status.LeftVideoFile.CodecInfo);
             var rightThumbnailSize = GetThumbnailSize(
-                status.RightVideoFile.CodecInfo.Size);
+                status.RightVideoFile.CodecInfo);
 
             PnlResult.Visible = true;
+
+            Image StreamToImage(MemoryStream stream)
+            {
+                if (stream != null)
+                {
+                    return Image.FromStream(stream);
+                }
+                return new Bitmap(1, 1);
+            }
 
             foreach (var loadLevel in status.ImageComparisons
                 .GroupBy(kvp => kvp.Item2.ImageLoadLevel))
@@ -376,8 +389,8 @@ namespace VideoDedup
                 {
                     var leftPib = new PictureBox
                     {
-                        Image = Image.FromStream(kvp.Item2.LeftImage)
-                        .Resize(leftThumbnailSize),
+                        Image = StreamToImage(kvp.Item2.LeftImage)
+                            .Resize(leftThumbnailSize),
                         SizeMode = PictureBoxSizeMode.AutoSize,
                         Anchor = AnchorStyles.None,
                     };
@@ -402,8 +415,8 @@ namespace VideoDedup
 
                     var rightPib = new PictureBox
                     {
-                        Image = Image.FromStream(kvp.Item2.RightImage)
-                        .Resize(rightThumbnailSize),
+                        Image = StreamToImage(kvp.Item2.RightImage)
+                            .Resize(rightThumbnailSize),
                         SizeMode = PictureBoxSizeMode.AutoSize,
                         Anchor = AnchorStyles.None,
                     };
