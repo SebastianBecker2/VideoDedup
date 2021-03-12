@@ -157,30 +157,31 @@ namespace DedupEngine
 
                 if (diff <= (double)Settings.MaxImageDifferencePercent / 100)
                 {
+                    // Early return when there are not enough images left to
+                    // compare to exceed the MaxDifferentImages
+                    if ((Settings.MaxImageCompares - (index + 1))
+                        <= (Settings.MaxDifferentImages - differenceCount))
+                    {
+                        comparisonResult = ComparisonResult.Duplicate;
+                    }
+
                     OnImageCompared(
                         () => eventArgsCreator(ComparisonResult.Duplicate));
-                    continue;
                 }
-
-                ++differenceCount;
-
-                // Early return when we already exceeded the number of
-                // MaxDifferentImages
-                if (differenceCount > Settings.MaxDifferentImages)
+                else
                 {
-                    comparisonResult = ComparisonResult.Different;
-                }
+                    ++differenceCount;
 
-                // Early return when there are not enough images left to compare
-                // to exceed the MaxDifferentImages
-                if ((Settings.MaxImageCompares - (index + 1))
-                    <= (Settings.MaxDifferentImages - differenceCount))
-                {
-                    comparisonResult = ComparisonResult.Duplicate;
-                }
+                    // Early return when we already exceeded the number of
+                    // MaxDifferentImages
+                    if (differenceCount > Settings.MaxDifferentImages)
+                    {
+                        comparisonResult = ComparisonResult.Different;
+                    }
 
-                OnImageCompared(
-                    () => eventArgsCreator(ComparisonResult.Different));
+                    OnImageCompared(
+                        () => eventArgsCreator(ComparisonResult.Different));
+                }
 
                 if (comparisonResult != ComparisonResult.NoResult
                     && !AlwaysLoadAllImages)
