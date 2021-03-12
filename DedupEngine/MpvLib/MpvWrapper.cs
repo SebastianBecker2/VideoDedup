@@ -35,6 +35,7 @@ namespace DedupEngine.MpvLib
                 while (true)
                 {
                     var eventId = GetEventId(mpvHandle, GetEventIdTimeout);
+
                     if (eventId == EventId.FileLoaded)
                     {
                         try
@@ -53,6 +54,10 @@ namespace DedupEngine.MpvLib
                         }
                     }
 
+                    if (eventId == EventId.EndFile)
+                    {
+                        return null;
+                    }
                     if (eventId == EventId.Shutdown)
                     {
                         return null;
@@ -102,6 +107,10 @@ namespace DedupEngine.MpvLib
                             GetLong(mpvHandle, "duration"));
                     }
 
+                    if (eventId == EventId.EndFile)
+                    {
+                        return TimeSpan.Zero;
+                    }
                     if (eventId == EventId.Shutdown)
                     {
                         return TimeSpan.Zero;
@@ -226,6 +235,7 @@ namespace DedupEngine.MpvLib
             while (true)
             {
                 var eventId = GetEventId(MpvHandle, GetEventIdTimeout);
+
                 if (eventId == EventId.Seek)
                 {
                     foreach (var filePath in Directory.GetFiles(OutputPath))
