@@ -13,7 +13,7 @@ namespace VideoDedup
     using VideoDedupShared.ImageExtension;
     using Wcf.Contracts.Data;
 
-    public partial class VideoComparisonPreview : Form
+    public partial class VideoComparisonPreviewDlg : Form
     {
         private struct ImageComparison
         {
@@ -39,7 +39,7 @@ namespace VideoDedup
         private int ImageComparisonIndex { get; set; } = 0;
         private int? FinishedInLoadLevel { get; set; }
 
-        public VideoComparisonPreview() => InitializeComponent();
+        public VideoComparisonPreviewDlg() => InitializeComponent();
 
         protected override void OnLoad(EventArgs e)
         {

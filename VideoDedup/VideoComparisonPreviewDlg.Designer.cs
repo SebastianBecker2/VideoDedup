@@ -1,7 +1,7 @@
 namespace VideoDedup
 {
 
-    partial class VideoComparisonPreview
+    partial class VideoComparisonPreviewDlg
     {
         /// <summary>
         /// Required designer variable.

@@ -130,7 +130,7 @@ namespace VideoDedup
 
         private void BtnVideoComparisonPreview_Click(object sender, EventArgs e)
         {
-            using (var dlg = new VideoComparisonPreview())
+            using (var dlg = new VideoComparisonPreviewDlg())
             {
                 dlg.ServerConfig = new Wcf.Contracts.Data.ConfigData()
                 {
