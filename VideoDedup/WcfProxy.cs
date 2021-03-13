@@ -27,5 +27,15 @@ namespace VideoDedup
         public void DiscardDuplicates() => Channel.DiscardDuplicates();
         public LogData GetLogEntries(Guid logToken, int start, int count) =>
             Channel.GetLogEntries(logToken, start, count);
+        public CustomVideoComparisonStartData StartCustomVideoComparison(
+            CustomVideoComparisonData customVideoCompareData) =>
+            Channel.StartCustomVideoComparison(customVideoCompareData);
+        public CustomVideoComparisonStatusData GetVideoComparisonStatus(
+            Guid videoCompareToken, int imageComparisonIndex = 0) =>
+            Channel.GetVideoComparisonStatus(
+                videoCompareToken,
+                imageComparisonIndex);
+        public void CancelCustomVideoComparison(Guid videoCompareToken) =>
+            Channel.CancelCustomVideoComparison(videoCompareToken);
     }
 }

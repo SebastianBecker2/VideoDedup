@@ -28,8 +28,8 @@ namespace VideoDedup
                 LsbFileExtensions.Items.AddRange(ServerConfig.FileExtensions.ToArray());
             }
 
-            NumMaxThumbnailComparison.Value = ServerConfig.MaxImageCompares;
-            NumMaxDifferentThumbnails.Value = ServerConfig.MaxDifferentImages;
+            NumMaxImageComparison.Value = ServerConfig.MaxImageCompares;
+            NumMaxDifferentImages.Value = ServerConfig.MaxDifferentImages;
             NumMaxDifferentPercentage.Value = ServerConfig.MaxImageDifferencePercent;
 
             RdbDurationDifferencePercent.Checked = ServerConfig.DifferenceType == DurationDifferenceType.Percent;
@@ -51,8 +51,8 @@ namespace VideoDedup
             ServerConfig.ExcludedDirectories = LsbExcludedDirectories.Items.Cast<string>().ToList();
             ServerConfig.FileExtensions = LsbFileExtensions.Items.Cast<string>().ToList();
 
-            ServerConfig.MaxImageCompares = (int)NumMaxThumbnailComparison.Value;
-            ServerConfig.MaxDifferentImages = (int)NumMaxDifferentThumbnails.Value;
+            ServerConfig.MaxImageCompares = (int)NumMaxImageComparison.Value;
+            ServerConfig.MaxDifferentImages = (int)NumMaxDifferentImages.Value;
             ServerConfig.MaxImageDifferencePercent = (int)NumMaxDifferentPercentage.Value;
 
             if (RdbDurationDifferencePercent.Checked)
@@ -125,6 +125,31 @@ namespace VideoDedup
             foreach (var s in LsbFileExtensions.SelectedItems.OfType<string>().ToList())
             {
                 LsbFileExtensions.Items.Remove(s);
+            }
+        }
+
+        private void BtnVideoComparisonPreview_Click(object sender, EventArgs e)
+        {
+            using (var dlg = new VideoComparisonPreviewDlg())
+            {
+                dlg.ServerConfig = new Wcf.Contracts.Data.ConfigData()
+                {
+                    MaxImageCompares = (int)NumMaxImageComparison.Value,
+                    MaxDifferentImages = (int)NumMaxDifferentImages.Value,
+                    MaxImageDifferencePercent =
+                        (int)NumMaxDifferentPercentage.Value,
+                };
+
+                if (dlg.ShowDialog() != DialogResult.OK)
+                {
+                    return;
+                }
+
+                NumMaxImageComparison.Value = dlg.ServerConfig.MaxImageCompares;
+                NumMaxDifferentImages.Value =
+                    dlg.ServerConfig.MaxDifferentImages;
+                NumMaxDifferentPercentage.Value =
+                    dlg.ServerConfig.MaxImageDifferencePercent;
             }
         }
     }

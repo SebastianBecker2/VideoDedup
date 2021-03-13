@@ -2,8 +2,8 @@ namespace VideoDedupShared
 {
     public interface IImageComparisonSettings
     {
-        int MaxCompares { get; }
-        int MaxDifferencePercent { get; }
+        int MaxImageCompares { get; }
+        int MaxImageDifferencePercent { get; }
         int MaxDifferentImages { get; }
     }
 }

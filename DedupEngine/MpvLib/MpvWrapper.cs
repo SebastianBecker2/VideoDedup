@@ -3,6 +3,7 @@ namespace DedupEngine.MpvLib
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Drawing;
     using System.Globalization;
     using System.IO;
     using System.Linq;
@@ -14,7 +15,8 @@ namespace DedupEngine.MpvLib
     internal class MpvWrapper : IDisposable
     {
         private const string LibPath = @"mpv-1.dll";
-        private static readonly int GetEventIdTimeout = 30; // In seconds
+        private static readonly TimeSpan GetEventIdTimeout =
+            TimeSpan.FromSeconds(10);
 
         public static CodecInfo GetCodecInfo(string filePath)
         {
@@ -33,6 +35,7 @@ namespace DedupEngine.MpvLib
                 while (true)
                 {
                     var eventId = GetEventId(mpvHandle, GetEventIdTimeout);
+
                     if (eventId == EventId.FileLoaded)
                     {
                         try
@@ -51,6 +54,10 @@ namespace DedupEngine.MpvLib
                         }
                     }
 
+                    if (eventId == EventId.EndFile)
+                    {
+                        return null;
+                    }
                     if (eventId == EventId.Shutdown)
                     {
                         return null;
@@ -100,6 +107,10 @@ namespace DedupEngine.MpvLib
                             GetLong(mpvHandle, "duration"));
                     }
 
+                    if (eventId == EventId.EndFile)
+                    {
+                        return TimeSpan.Zero;
+                    }
                     if (eventId == EventId.Shutdown)
                     {
                         return TimeSpan.Zero;
@@ -224,6 +235,7 @@ namespace DedupEngine.MpvLib
             while (true)
             {
                 var eventId = GetEventId(MpvHandle, GetEventIdTimeout);
+
                 if (eventId == EventId.Seek)
                 {
                     foreach (var filePath in Directory.GetFiles(OutputPath))
@@ -395,6 +407,11 @@ namespace DedupEngine.MpvLib
 
         private static EventId GetEventId(
             IntPtr handle,
+            TimeSpan timeout) =>
+            GetEventId(handle, timeout.TotalSeconds);
+
+        private static EventId GetEventId(
+            IntPtr handle,
             double timeout = Timeout.Infinite)
         {
             while (true)
@@ -414,8 +431,9 @@ namespace DedupEngine.MpvLib
         private static CodecInfo ReadCodecInfo(IntPtr mpvHandle) =>
             new CodecInfo()
             {
-                Height = (int)GetLong(mpvHandle, "height"),
-                Width = (int)GetLong(mpvHandle, "width"),
+                Size = new Size(
+                    (int)GetLong(mpvHandle, "width"),
+                    (int)GetLong(mpvHandle, "height")),
                 Name = GetString(mpvHandle, "video-codec"),
                 FrameRate = GetLong(mpvHandle, "container-fps"),
             };

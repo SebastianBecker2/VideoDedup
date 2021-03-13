@@ -9,6 +9,7 @@ namespace VideoDedupConsole
     using System.Threading.Tasks;
     using DedupEngine;
     using Newtonsoft.Json;
+    using VideoDedupConsole.CustomComparisonManagement;
     using VideoDedupConsole.DuplicateManagement;
     using VideoDedupConsole.Properties;
     using VideoDedupShared;
@@ -27,12 +28,12 @@ namespace VideoDedupConsole
             var path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             if (!Directory.Exists(path))
             {
-                Directory.CreateDirectory(path);
+                _ = Directory.CreateDirectory(path);
             }
             path = Path.Combine(path, ApplicationName);
             if (!Directory.Exists(path))
             {
-                Directory.CreateDirectory(path);
+                _ = Directory.CreateDirectory(path);
             }
             return path;
         }
@@ -51,7 +52,7 @@ namespace VideoDedupConsole
             { OperationType.LoadingDuplicates, "Loading duplicates: {0}/{1}" },
         };
 
-        private static DuplicateManager DuplicateManager { get; set; }
+        private static DuplicateManager DuplicateManager { get; }
          = new DuplicateManager(GetLocalAppPath());
 
         private static void DuplicateFileLoadedProgressCallback(
@@ -137,6 +138,24 @@ namespace VideoDedupConsole
                 };
             }
         }
+
+        private static CustomComparisonManager ComparisonManager { get; }
+            = new CustomComparisonManager();
+
+        internal static CustomVideoComparisonStartData StartCustomVideoComparison(
+            CustomVideoComparisonData customVideoComparisonData) =>
+            ComparisonManager.StartCustomComparison(customVideoComparisonData);
+
+        internal static CustomVideoComparisonStatusData GetVideoComparisonStatus(
+            Guid videoComparisonToken,
+            int imageComparisonIndex = 0) =>
+            ComparisonManager.GetStatus(
+                videoComparisonToken,
+                imageComparisonIndex);
+
+        internal static void CancelCustomVideoComparison(
+            Guid videoComparisonToken) =>
+            _ = ComparisonManager.CancelCustomComparison(videoComparisonToken);
 
         private static OperationInfo OperationInfo { get; set; }
             = null;
@@ -237,7 +256,7 @@ namespace VideoDedupConsole
             Settings.Default.MaxDifferentThumbnails =
                 settings.MaxDifferentImages;
             Settings.Default.MaxDifferencePercentage =
-                (settings as IImageComparisonSettings).MaxDifferencePercent;
+                (settings as IImageComparisonSettings).MaxImageDifferencePercent;
             Settings.Default.MaxDurationDifferenceSeconds =
                 settings.MaxDurationDifferenceSeconds;
             Settings.Default.MaxDurationDifferencePercent =

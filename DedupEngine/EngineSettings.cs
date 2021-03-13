@@ -24,10 +24,10 @@ namespace DedupEngine
             MaxDurationDifferenceSeconds = settings.MaxDifferenceSeconds;
             MaxDurationDifferencePercent =
                 (settings as IDurationComparisonSettings).MaxDifferencePercent;
-            MaxImageCompares = settings.MaxCompares;
+            MaxImageCompares = settings.MaxImageCompares;
             MaxDifferentImages = settings.MaxDifferentImages;
             MaxImageDifferencePercent =
-                (settings as IImageComparisonSettings).MaxDifferencePercent;
+                (settings as IImageComparisonSettings).MaxImageDifferencePercent;
         }
 
         public string BasePath { get; set; }
@@ -51,12 +51,12 @@ namespace DedupEngine
             MaxDurationDifferencePercent;
 
         public int MaxImageCompares { get; set; }
-        int IImageComparisonSettings.MaxCompares => MaxImageCompares;
+        int IImageComparisonSettings.MaxImageCompares => MaxImageCompares;
 
         public int MaxDifferentImages { get; set; }
 
         public int MaxImageDifferencePercent { get; set; }
-        int IImageComparisonSettings.MaxDifferencePercent =>
+        int IImageComparisonSettings.MaxImageDifferencePercent =>
             MaxImageDifferencePercent;
 
         public override bool Equals(object obj) => Equals(obj as EngineSettings);

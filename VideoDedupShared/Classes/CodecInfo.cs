@@ -1,12 +1,12 @@
 namespace VideoDedupShared
 {
+    using System.Drawing;
+
     public class CodecInfo
     {
         public CodecInfo() { }
 
-        public int Width { get; set; }
-
-        public int Height { get; set; }
+        public Size Size { get; set; }
 
         public float FrameRate { get; set; }
 
