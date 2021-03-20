@@ -11,8 +11,6 @@ namespace Wcf.Contracts.Services
     // ILogProvider?
     // IDuplicateProvider?
 
-    //[ServiceContract(Name = "VideoDedupProvider",
-    //                 Namespace = "http://VideoDedupper/SomethingSomething")]
     [ServiceContract]
     public interface IVideoDedupProvider
     {
@@ -37,5 +35,18 @@ namespace Wcf.Contracts.Services
 
         [OperationContract]
         LogData GetLogEntries(Guid logToken, int start, int count);
+
+        [OperationContract]
+        CustomVideoComparisonStartData StartCustomVideoComparison(
+            CustomVideoComparisonData customVideoCompareData);
+
+        [OperationContract]
+        CustomVideoComparisonStatusData GetVideoComparisonStatus(
+            Guid videoCompareToken,
+            int imageComparisonIndex = 0);
+
+        [OperationContract]
+        void CancelCustomVideoComparison(
+            Guid videoCompareToken);
     }
 }

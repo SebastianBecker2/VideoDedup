@@ -7,16 +7,16 @@ namespace VideoDedup
 
     public partial class ClientConfigDlg : Form
     {
-        public ConfigData Configuration { get; set; }
+        public ConfigData Settings { get; set; }
 
         public ClientConfigDlg() => InitializeComponent();
 
         protected override void OnLoad(EventArgs e)
         {
-            TxtServerAddress.Text = Configuration.ServerAddress;
+            TxtServerAddress.Text = Settings.ServerAddress;
             NudStatusRequestInterval.Value =
-                (decimal)Configuration.StatusRequestInterval.TotalMilliseconds;
-            TxtClientSourcePath.Text = Configuration.ClientSourcePath;
+                (decimal)Settings.StatusRequestInterval.TotalMilliseconds;
+            TxtClientSourcePath.Text = Settings.ClientSourcePath;
             base.OnLoad(e);
         }
 
@@ -34,10 +34,10 @@ namespace VideoDedup
                 return;
             }
 
-            Configuration.ServerAddress = TxtServerAddress.Text;
-            Configuration.StatusRequestInterval = TimeSpan.FromMilliseconds(
+            Settings.ServerAddress = TxtServerAddress.Text;
+            Settings.StatusRequestInterval = TimeSpan.FromMilliseconds(
                 (int)NudStatusRequestInterval.Value);
-            Configuration.ClientSourcePath = TxtClientSourcePath.Text;
+            Settings.ClientSourcePath = TxtClientSourcePath.Text;
             DialogResult = DialogResult.OK;
         }
 

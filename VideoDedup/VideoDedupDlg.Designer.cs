@@ -28,9 +28,7 @@ namespace VideoDedup
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VideoDedupDlg));
-            this.BtnToDoManager = new System.Windows.Forms.Button();
             this.ProgressBar = new System.Windows.Forms.ProgressBar();
             this.LblStatusInfo = new System.Windows.Forms.Label();
             this.BtnServerConfig = new System.Windows.Forms.Button();
@@ -43,7 +41,6 @@ namespace VideoDedup
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.LblDuplicateCount = new System.Windows.Forms.Label();
-            this.NotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.BtnDiscardDuplicates = new System.Windows.Forms.Button();
             this.BtnClientConfig = new System.Windows.Forms.Button();
             this.DgvLog = new System.Windows.Forms.DataGridView();
@@ -51,17 +48,6 @@ namespace VideoDedup
             this.MenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DgvLog)).BeginInit();
             this.SuspendLayout();
-            // 
-            // BtnToDoManager
-            // 
-            this.BtnToDoManager.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.BtnToDoManager.Location = new System.Drawing.Point(254, 344);
-            this.BtnToDoManager.Name = "BtnToDoManager";
-            this.BtnToDoManager.Size = new System.Drawing.Size(75, 23);
-            this.BtnToDoManager.TabIndex = 1;
-            this.BtnToDoManager.Text = "&ToDo List";
-            this.BtnToDoManager.UseVisualStyleBackColor = true;
-            this.BtnToDoManager.Click += new System.EventHandler(this.BtnToDoManager_Click);
             // 
             // ProgressBar
             // 
@@ -173,12 +159,6 @@ namespace VideoDedup
             this.LblDuplicateCount.TabIndex = 12;
             this.LblDuplicateCount.Text = "Duplicates found: 0";
             // 
-            // NotifyIcon
-            // 
-            this.NotifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("NotifyIcon.Icon")));
-            this.NotifyIcon.Text = "VideoDedup";
-            this.NotifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.NotifyIcon1_MouseDoubleClick);
-            // 
             // BtnDiscardDuplicates
             // 
             this.BtnDiscardDuplicates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -247,13 +227,11 @@ namespace VideoDedup
             this.Controls.Add(this.BtnServerConfig);
             this.Controls.Add(this.LblStatusInfo);
             this.Controls.Add(this.ProgressBar);
-            this.Controls.Add(this.BtnToDoManager);
             this.Controls.Add(this.MenuStrip);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.MenuStrip;
             this.Name = "VideoDedupDlg";
-            this.Text = "VideoDedup";
-            this.Resize += new System.EventHandler(this.Form1_Resize);
+            this.Text = "Video Dedup Client";
             this.MenuStrip.ResumeLayout(false);
             this.MenuStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DgvLog)).EndInit();
@@ -263,8 +241,6 @@ namespace VideoDedup
         }
 
         #endregion
-
-        private System.Windows.Forms.Button BtnToDoManager;
         private System.Windows.Forms.ProgressBar ProgressBar;
         private System.Windows.Forms.Label LblStatusInfo;
         private System.Windows.Forms.Button BtnServerConfig;
@@ -276,7 +252,6 @@ namespace VideoDedup
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.Label LblDuplicateCount;
-        private System.Windows.Forms.NotifyIcon NotifyIcon;
         private System.Windows.Forms.Button BtnDiscardDuplicates;
         private System.Windows.Forms.ToolStripMenuItem serverConfigurationToolStripMenuItem;
         private System.Windows.Forms.Button BtnClientConfig;

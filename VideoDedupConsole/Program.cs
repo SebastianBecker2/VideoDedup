@@ -1,171 +1,103 @@
 namespace VideoDedupConsole
 {
-    using Newtonsoft.Json;
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.ServiceModel;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using DedupEngine;
+    using Newtonsoft.Json;
+    using VideoDedupConsole.CustomComparisonManagement;
+    using VideoDedupConsole.DuplicateManagement;
     using VideoDedupConsole.Properties;
     using VideoDedupShared;
     using Wcf.Contracts.Data;
+    using OperationUpdateEventArgs = DedupEngine.OperationUpdateEventArgs;
 
     internal class Program
     {
+        // The folder name, settings are stored in.
+        // Which is actually the company name.
+        // Though company name is empty and he still somehow gets this name:"
+        private static readonly string ApplicationName = "VideoDedupConsole";
+
+        private static string GetLocalAppPath()
+        {
+            var path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            if (!Directory.Exists(path))
+            {
+                _ = Directory.CreateDirectory(path);
+            }
+            path = Path.Combine(path, ApplicationName);
+            if (!Directory.Exists(path))
+            {
+                _ = Directory.CreateDirectory(path);
+            }
+            return path;
+        }
+
+        private static readonly Uri WcfBaseAddress =
+            new Uri("net.tcp://localhost:41721/VideoDedup");
+
         private static readonly IReadOnlyDictionary<OperationType, string>
             OperationTypeTexts = new Dictionary<OperationType, string>
         {
             { OperationType.Comparing, "Comparing: {0}/{1}" },
-            { OperationType.Loading, "Loading media info: {0}/{1}" },
+            { OperationType.LoadingMedia, "Loading media info: {0}/{1}" },
             { OperationType.Searching, "Searching for files..." },
             { OperationType.Monitoring, "Monitoring for file changes..." },
             { OperationType.Completed, "Finished comparison" },
+            { OperationType.LoadingDuplicates, "Loading duplicates: {0}/{1}" },
         };
 
-        private static IList<DuplicateWrapper> Duplicates { get; } =
-            new List<DuplicateWrapper>();
-        private static ThumbnailManager ThumbnailManager { get; } =
-            new ThumbnailManager();
-        private static readonly object DuplicatesLock = new object();
+        private static DuplicateManager DuplicateManager { get; }
+         = new DuplicateManager(GetLocalAppPath());
 
-        public static int GetDuplicateCount()
-        {
-            lock (DuplicatesLock)
+        private static void DuplicateFileLoadedProgressCallback(
+            object sender,
+            FileLoadedProgressEventArgs e) =>
+            OperationInfo = new OperationInfo
             {
-                return Duplicates.Count();
-            }
-        }
+                Message = string.Format(
+                    OperationTypeTexts[OperationType.LoadingDuplicates],
+                    e.Count,
+                    e.MaxCount),
+                CurrentProgress = e.Count,
+                MaximumProgress = e.MaxCount,
+                ProgressStyle = ProgressStyle.Continuous,
+                StartTime = e.StartTime,
+            };
 
-        internal static DuplicateData GetDuplicate()
-        {
-            lock (DuplicatesLock)
-            {
-                while (true)
-                {
-                    if (!Duplicates.Any())
-                    {
-                        return null;
-                    }
+        internal static DuplicateData GetDuplicate() =>
+            DuplicateManager.GetDuplicate();
 
-                    // OrderBy is stable, so we get the first if multiple
-                    // don't have a real LastRequest time-stamp
-                    var duplicate = Duplicates
-                        .OrderBy(d => d.LastRequest)
-                        .First();
+        internal static void DiscardDuplicates() =>
+            DuplicateManager.DiscardAll();
 
-                    if (!File.Exists(duplicate.File1.FilePath)
-                        || !File.Exists(duplicate.File2.FilePath))
-                    {
-                        _ = Duplicates.Remove(duplicate);
-                        continue;
-                    }
-
-                    // To preserve specific order
-                    // even when using multiple clients.
-                    // The most recently requested will be last
-                    // next time (when skipped). Or first when canceled.
-                    duplicate.LastRequest = DateTime.Now;
-                    return duplicate.DuplicateData;
-                }
-            }
-        }
-
-        internal static void DiscardDuplicates()
-        {
-            lock (DuplicatesLock)
-            {
-                foreach (var duplicate in Duplicates)
-                {
-                    ThumbnailManager.RemoveVideoFileReference(duplicate.File1);
-                    ThumbnailManager.RemoveVideoFileReference(duplicate.File2);
-                }
-                Duplicates.Clear();
-            }
-        }
-
-        private static void DuplicateFoundCallback(object sender,
+        private static void DuplicateFoundCallback(
+            object sender,
             DuplicateFoundEventArgs e)
         {
-            lock (DuplicatesLock)
+            try
             {
-                var file1 = ThumbnailManager.AddVideoFileReference(e.File1);
-                var file2 = ThumbnailManager.AddVideoFileReference(e.File2);
-
-                try
+                DuplicateManager.AddDuplicate(e.File1, e.File2, e.BasePath);
+            }
+            catch (AggregateException exc)
+            {
+                lock (LogEntriesLock)
                 {
-                    Duplicates.Add(new DuplicateWrapper(file1, file2, e.BasePath));
-                }
-                catch (AggregateException exc)
-                when (exc.InnerException is VideoDedupShared.MpvLib.MpvException)
-                {
-                    lock (LogEntriesLock)
-                    {
-                        AddLogEntry(exc.Message);
-                        AddLogEntry(exc.InnerException.Message);
-                    }
+                    AddLogEntry(exc.Message);
+                    AddLogEntry(exc.InnerException.Message);
                 }
             }
         }
 
-        internal static void ResolveDuplicate(Guid duplicateId,
-            ResolveOperation resolveOperation)
-        {
-            lock (DuplicatesLock)
-            {
-                var duplicate = Duplicates
-                    .FirstOrDefault(d =>
-                        d.DuplicateId == duplicateId);
-
-                if (duplicate == null)
-                {
-                    return;
-                }
-
-                void DeleteFile(string path)
-                {
-                    try
-                    {
-                        File.Delete(path);
-                    }
-                    catch (Exception exc)
-                    {
-                        AddLogEntry(exc.Message);
-                    }
-                }
-
-                switch (resolveOperation)
-                {
-                    case ResolveOperation.DeleteFile1:
-                        DeleteFile(duplicate.File1.FilePath);
-                        ThumbnailManager.RemoveVideoFileReference(duplicate.File1);
-                        ThumbnailManager.RemoveVideoFileReference(duplicate.File2);
-                        _ = Duplicates.Remove(duplicate);
-                        break;
-                    case ResolveOperation.DeleteFile2:
-                        DeleteFile(duplicate.File2.FilePath);
-                        ThumbnailManager.RemoveVideoFileReference(duplicate.File1);
-                        ThumbnailManager.RemoveVideoFileReference(duplicate.File2);
-                        _ = Duplicates.Remove(duplicate);
-                        break;
-                    case ResolveOperation.Skip:
-                        // Do nothing.
-                        // The duplicate is kept in the list for later.
-                        break;
-                    case ResolveOperation.Discard:
-                        ThumbnailManager.RemoveVideoFileReference(duplicate.File1);
-                        ThumbnailManager.RemoveVideoFileReference(duplicate.File2);
-                        _ = Duplicates.Remove(duplicate);
-                        break;
-                    case ResolveOperation.Cancel:
-                        duplicate.LastRequest = DateTime.MinValue;
-                        break;
-                    default:
-                        throw new InvalidOperationException(
-                            $"\"{resolveOperation}\" is invalid"
-                            + $"for enum {nameof(ResolveOperation)}");
-                }
-            }
-        }
+        internal static void ResolveDuplicate(
+            Guid duplicateId,
+            ResolveOperation resolveOperation) =>
+            DuplicateManager.ResolveDuplicate(duplicateId, resolveOperation);
 
         private static List<string> LogEntries { get; } = new List<string>();
         private static readonly object LogEntriesLock = new object();
@@ -207,10 +139,29 @@ namespace VideoDedupConsole
             }
         }
 
+        private static CustomComparisonManager ComparisonManager { get; }
+            = new CustomComparisonManager();
+
+        internal static CustomVideoComparisonStartData StartCustomVideoComparison(
+            CustomVideoComparisonData customVideoComparisonData) =>
+            ComparisonManager.StartCustomComparison(customVideoComparisonData);
+
+        internal static CustomVideoComparisonStatusData GetVideoComparisonStatus(
+            Guid videoComparisonToken,
+            int imageComparisonIndex = 0) =>
+            ComparisonManager.GetStatus(
+                videoComparisonToken,
+                imageComparisonIndex);
+
+        internal static void CancelCustomVideoComparison(
+            Guid videoComparisonToken) =>
+            _ = ComparisonManager.CancelCustomComparison(videoComparisonToken);
+
         private static OperationInfo OperationInfo { get; set; }
             = null;
 
-        private static void OperationUpdateCallback(object sender,
+        private static void OperationUpdateCallback(
+            object sender,
             OperationUpdateEventArgs e) =>
             OperationInfo = new OperationInfo
             {
@@ -231,10 +182,7 @@ namespace VideoDedupConsole
                 Operation = OperationInfo,
             };
 
-            lock (DuplicatesLock)
-            {
-                statudData.DuplicateCount = Duplicates.Count();
-            }
+            statudData.DuplicateCount = DuplicateManager.Count;
 
             lock (LogEntriesLock)
             {
@@ -245,7 +193,8 @@ namespace VideoDedupConsole
             return statudData;
         }
 
-        private static readonly DedupEngine Dedupper = new DedupEngine();
+        private static readonly DedupEngine Dedupper =
+            new DedupEngine(GetLocalAppPath());
 
         internal static ConfigData LoadConfig()
         {
@@ -279,51 +228,53 @@ namespace VideoDedupConsole
 
             return new ConfigData
             {
-                SourcePath = Settings.Default.SourcePath,
+                BasePath = Settings.Default.SourcePath,
                 ExcludedDirectories = excludedDirectories,
                 FileExtensions = fileExtensions,
-                MaxThumbnailComparison = Settings.Default.MaxThumbnailComparison,
-                MaxDifferentThumbnails = Settings.Default.MaxDifferentThumbnails,
-                MaxDifferencePercentage = Settings.Default.MaxDifferencePercentage,
+                MaxImageCompares = Settings.Default.MaxThumbnailComparison,
+                MaxDifferentImages = Settings.Default.MaxDifferentThumbnails,
+                MaxImageDifferencePercent = Settings.Default.MaxDifferencePercentage,
                 MaxDurationDifferenceSeconds = Settings.Default.MaxDurationDifferenceSeconds,
                 MaxDurationDifferencePercent = Settings.Default.MaxDurationDifferencePercent,
-                DurationDifferenceType = durationDifferenceType,
+                DifferenceType = durationDifferenceType,
                 ThumbnailCount = Settings.Default.ThumbnailCount,
                 Recursive = Settings.Default.Recursive,
-                MonitorFileChanges = Settings.Default.MonitorFileChanges,
+                MonitorChanges = Settings.Default.MonitorFileChanges,
             };
         }
 
-        internal static void SaveConfig(IDedupEngineSettings configuration)
+        internal static void SaveConfig(ConfigData settings)
         {
-            Settings.Default.SourcePath = configuration.BasePath;
+            Settings.Default.SourcePath = settings.BasePath;
             Settings.Default.ExcludedDirectories =
-                JsonConvert.SerializeObject(configuration.ExcludedDirectories);
+                JsonConvert.SerializeObject(settings.ExcludedDirectories);
             Settings.Default.FileExtensions =
-                JsonConvert.SerializeObject(configuration.FileExtensions);
+                JsonConvert.SerializeObject(settings.FileExtensions);
 
-            Settings.Default.MaxThumbnailComparison = configuration.MaxCompares;
+            Settings.Default.MaxThumbnailComparison =
+                settings.MaxImageCompares;
             Settings.Default.MaxDifferentThumbnails =
-                configuration.MaxDifferentImages;
+                settings.MaxDifferentImages;
             Settings.Default.MaxDifferencePercentage =
-                (configuration as IImageComparisonSettings).MaxDifferencePercent;
+                (settings as IImageComparisonSettings).MaxImageDifferencePercent;
             Settings.Default.MaxDurationDifferenceSeconds =
-                configuration.MaxDifferenceSeconds;
+                settings.MaxDurationDifferenceSeconds;
             Settings.Default.MaxDurationDifferencePercent =
-                (configuration as IDurationComparisonSettings).MaxDifferencePercent;
+                (settings as IDurationComparisonSettings).MaxDifferencePercent;
             Settings.Default.DurationDifferenceType =
-                configuration.DifferenceType.ToString();
-            Settings.Default.ThumbnailCount = configuration.Count;
-            Settings.Default.Recursive = configuration.Recursive;
-            Settings.Default.MonitorFileChanges = configuration.MonitorChanges;
+                settings.DifferenceType.ToString();
+            Settings.Default.ThumbnailCount = settings.ThumbnailCount;
+            Settings.Default.Recursive = settings.Recursive;
+            Settings.Default.MonitorFileChanges =
+                settings.MonitorChanges;
             Settings.Default.Save();
         }
 
-        internal static void UpdateConfig(ConfigData config)
+        internal static void UpdateConfig(ConfigData settings)
         {
-            ThumbnailManager.Configuration = config;
-            Dedupper.UpdateConfiguration(config);
+            DuplicateManager.Settings = settings;
             Dedupper.Stop();
+            Dedupper.UpdateConfiguration(settings);
 
             lock (LogEntriesLock)
             {
@@ -352,9 +303,12 @@ namespace VideoDedupConsole
             Dedupper.DuplicateFound += DuplicateFoundCallback;
             Dedupper.Logged += LoggedCallback;
 
+            DuplicateManager.FileLoadedProgress +=
+                DuplicateFileLoadedProgressCallback;
+
             var config = LoadConfig();
             Dedupper.UpdateConfiguration(config);
-            ThumbnailManager.Configuration = config;
+            DuplicateManager.Settings = config;
 
             OperationInfo = new OperationInfo
             {
@@ -362,26 +316,49 @@ namespace VideoDedupConsole
                 Message = "Initializing...",
             };
 
-            var baseAddress = new Uri("net.tcp://localhost:41721/VideoDedup");
-            using (var serviceHost = new ServiceHost(typeof(WcfService), baseAddress))
+            using (var serviceHost = new ServiceHost(
+                typeof(WcfService),
+                WcfBaseAddress))
+            using (var cancelTokenSource = new CancellationTokenSource())
             {
                 serviceHost.Open();
-                try
+
+                var startTask = Task.Factory.StartNew(
+                    () => DuplicateManager.LoadFromFile(cancelTokenSource.Token),
+                    cancelTokenSource.Token)
+                    .ContinueWith(t =>
                 {
-                    Dedupper.Start();
-                }
-                catch (InvalidOperationException exc)
-                {
-                    OperationInfo = new OperationInfo
+                    try
                     {
-                        ProgressStyle = ProgressStyle.NoProgress,
-                        Message = exc.Message,
-                    };
-                    AddLogEntry(exc.Message);
-                }
+                        Dedupper.Start();
+                    }
+                    catch (InvalidOperationException exc)
+                    {
+                        OperationInfo = new OperationInfo
+                        {
+                            ProgressStyle = ProgressStyle.NoProgress,
+                            Message = exc.Message,
+                        };
+                        AddLogEntry(exc.Message);
+                    }
+                }, TaskContinuationOptions.NotOnCanceled);
 
                 Console.WriteLine("Service running.  Please 'Enter' to exit...");
                 _ = Console.ReadLine();
+
+                cancelTokenSource.Cancel();
+                try
+                {
+                    startTask.Wait();
+                    Dedupper.Stop();
+                }
+                catch (AggregateException exc)
+                {
+                    exc.Handle(x => x is OperationCanceledException);
+                }
+
+                serviceHost.Abort();
+                serviceHost.Close();
             }
         }
     }

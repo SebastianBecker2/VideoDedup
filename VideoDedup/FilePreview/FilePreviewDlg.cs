@@ -42,9 +42,7 @@ namespace VideoDedup.FilePreview
         {
             DisplayInfo();
 
-            var width = VideoFile.CodecInfo.Width;
-            var height = VideoFile.CodecInfo.Height;
-            SetImageSize(new Size(width, height));
+            SetImageSize(VideoFile.CodecInfo.Size);
 
             var index = 0;
             foreach (var image in VideoFile.Images)
@@ -94,8 +92,8 @@ namespace VideoDedup.FilePreview
             {
                 return;
             }
-            TxtInfo.Text += codecInfo.Width.ToString() +
-                " x " + codecInfo.Height.ToString() +
+            TxtInfo.Text += codecInfo.Size.Width.ToString() +
+                " x " + codecInfo.Size.Height.ToString() +
                 " @ " + codecInfo.FrameRate + " Frames" + Environment.NewLine +
                 codecInfo.Name;
         }

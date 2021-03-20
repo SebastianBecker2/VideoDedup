@@ -29,5 +29,20 @@ namespace VideoDedupConsole
 
         public LogData GetLogEntries(Guid logToken, int start, int count) =>
             Program.GetLogEntries(logToken, start, count);
+
+        public CustomVideoComparisonStartData StartCustomVideoComparison(
+            CustomVideoComparisonData customVideoCompareData) =>
+            Program.StartCustomVideoComparison(customVideoCompareData);
+
+        public CustomVideoComparisonStatusData GetVideoComparisonStatus(
+            Guid videoComparisonToken,
+            int imageComparisonIndex = 0) =>
+            Program.GetVideoComparisonStatus(
+                videoComparisonToken,
+                imageComparisonIndex);
+
+        public void CancelCustomVideoComparison(
+            Guid videoCompareToken) =>
+            Program.CancelCustomVideoComparison(videoCompareToken);
     }
 }
