@@ -1,4 +1,4 @@
-namespace VideoDedupConsole.DuplicateManagement
+namespace DuplicateManager
 {
     using System;
     using System.Collections.Generic;
@@ -9,7 +9,7 @@ namespace VideoDedupConsole.DuplicateManagement
     using VideoDedupShared;
     using Wcf.Contracts.Data;
 
-    internal class DuplicateManager
+    public class DuplicateManager
     {
         private class DuplicateWrapper : IEquatable<DuplicateWrapper>
         {

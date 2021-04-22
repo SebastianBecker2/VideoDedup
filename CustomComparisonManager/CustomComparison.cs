@@ -1,4 +1,4 @@
-namespace VideoDedupConsole.CustomComparisonManagement
+namespace CustomComparisonManager
 {
     using System;
     using System.Collections.Generic;

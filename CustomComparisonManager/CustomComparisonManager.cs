@@ -1,11 +1,11 @@
-namespace VideoDedupConsole.CustomComparisonManagement
+namespace CustomComparisonManager
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using Wcf.Contracts.Data;
 
-    internal class CustomComparisonManager : IDisposable
+    public class CustomComparisonManager : IDisposable
     {
         private static readonly TimeSpan TimeoutTimerInterval =
             TimeSpan.FromMinutes(1);

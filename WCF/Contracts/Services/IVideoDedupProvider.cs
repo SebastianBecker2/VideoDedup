@@ -38,15 +38,15 @@ namespace Wcf.Contracts.Services
 
         [OperationContract]
         CustomVideoComparisonStartData StartCustomVideoComparison(
-            CustomVideoComparisonData customVideoCompareData);
+            CustomVideoComparisonData customVideoComparisonData);
 
         [OperationContract]
         CustomVideoComparisonStatusData GetVideoComparisonStatus(
-            Guid videoCompareToken,
+            Guid videoComparisonToken,
             int imageComparisonIndex = 0);
 
         [OperationContract]
         void CancelCustomVideoComparison(
-            Guid videoCompareToken);
+            Guid videoComparisonToken);
     }
 }

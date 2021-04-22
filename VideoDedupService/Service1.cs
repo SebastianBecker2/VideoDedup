@@ -1,16 +1,17 @@
-namespace VideoDedupConsole
+namespace VideoDedupService
 {
     using System;
     using System.IO;
     using System.ServiceModel;
+    using System.ServiceProcess;
     using VideoDedupServer;
 
-    internal class Program
+    public partial class Service1 : ServiceBase
     {
         // The folder name, settings are stored in.
         // Which is actually the company name.
         // Though company name is empty and he still somehow gets this name:"
-        private static readonly string ApplicationName = "VideoDedupConsole";
+        private static readonly string ApplicationName = "VideoDedupService";
 
         private static string GetLocalAppPath()
         {
@@ -31,25 +32,34 @@ namespace VideoDedupConsole
         private static readonly Uri WcfBaseAddress =
             new Uri("net.tcp://localhost:41721/VideoDedup");
 
-        private static void Main()
+        private Service DedupService { get; set; }
+        private ServiceHost ServiceHost { get; set; }
+
+        public Service1() => InitializeComponent();
+
+        protected override void OnStart(string[] args)
         {
-            var dedupService = new Service(GetLocalAppPath());
-            var serviceHost = new ServiceHost(dedupService, WcfBaseAddress);
+            DedupService = new Service(GetLocalAppPath());
+            ServiceHost = new ServiceHost(DedupService, WcfBaseAddress);
 
             // Setting InstanceContextMode to single since we create
             // our own Service.
-            var behaviour = serviceHost.Description.Behaviors
+            var behaviour = ServiceHost.Description.Behaviors
                 .Find<ServiceBehaviorAttribute>();
             behaviour.InstanceContextMode = InstanceContextMode.Single;
 
-            serviceHost.Open();
+            ServiceHost.Open();
 
-            Console.WriteLine("Service running.  Please 'Enter' to exit...");
-            _ = Console.ReadLine();
+            base.OnStart(args);
+        }
 
-            serviceHost.Abort();
-            serviceHost.Close();
-            dedupService.Dispose();
+        protected override void OnStop()
+        {
+            ServiceHost.Abort();
+            ServiceHost.Close();
+            DedupService.Dispose();
+
+            base.OnStop();
         }
     }
 }
