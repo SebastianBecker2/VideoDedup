@@ -83,7 +83,6 @@ namespace VideoDedupServer
                         AddLogEntry(exc.Message);
                     }
                 }, TaskContinuationOptions.NotOnCanceled);
-            initializationTask.Wait();
         }
 
         private void OperationUpdateCallback(
