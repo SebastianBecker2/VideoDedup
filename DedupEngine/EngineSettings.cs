@@ -82,17 +82,23 @@ namespace DedupEngine
             var hashCode = 862207841;
             hashCode = (hashCode * -1521134295)
                 + EqualityComparer<string>.Default.GetHashCode(BasePath);
-            foreach (var excludedDirectory in ExcludedDirectories)
+            if (ExcludedDirectories != null)
             {
-                hashCode = (hashCode * -1521134295)
-                    + EqualityComparer<string>.Default.GetHashCode(
-                        excludedDirectory);
+                foreach (var excludedDirectory in ExcludedDirectories)
+                {
+                    hashCode = (hashCode * -1521134295)
+                        + EqualityComparer<string>.Default.GetHashCode(
+                            excludedDirectory);
+                }
             }
-            foreach (var fileExtension in FileExtensions)
+            if (FileExtensions != null)
             {
-                hashCode = (hashCode * -1521134295)
-                    + EqualityComparer<string>.Default.GetHashCode(
-                        fileExtension);
+                foreach (var fileExtension in FileExtensions)
+                {
+                    hashCode = (hashCode * -1521134295)
+                        + EqualityComparer<string>.Default.GetHashCode(
+                            fileExtension);
+                }
             }
             hashCode = (hashCode * -1521134295)
                 + Recursive.GetHashCode();
