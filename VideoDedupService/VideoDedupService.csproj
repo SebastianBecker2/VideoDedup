@@ -140,6 +140,14 @@ if not ERRORLEVEL 1 (
 )
 
 echo.
+echo Copying mpv-1.dll for respective platform
+if $(PlatformName) == x64 (
+  xcopy "$(SolutionDir)DedupEngine\Libs\libmpv\x64\mpv-1.dll" "$(TargetDir)" /y
+) else (
+  xcopy "$(SolutionDir)DedupEngine\Libs\libmpv\x86\mpv-1.dll" "$(TargetDir)" /y
+)
+
+echo.
 echo.
 echo Checking configuration name for DebugAsService
 if not $(ConfigurationName) == DebugAsService (
@@ -149,14 +157,6 @@ if not $(ConfigurationName) == DebugAsService (
 
 echo.
 echo Preparing installation
-echo.
-
-echo Copying mpv-1.dll for respective platform
-if $(PlatformName) == x64 (
-  xcopy "$(SolutionDir)DedupEngine\Libs\libmpv\x64\mpv-1.dll" "$(TargetDir)" /y
-) else (
-  xcopy "$(SolutionDir)DedupEngine\Libs\libmpv\x86\mpv-1.dll" "$(TargetDir)" /y
-)
 
 echo.
 echo Calling installutil.exe to install
@@ -171,7 +171,8 @@ if not ERRORLEVEL 1 (
   net start VideoDedupService
 )
 
-:EOF</PostBuildEvent>
+:EOF
+EXIT 0</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>sc query | findstr /C:"SERVICE_NAME: VideoDedupService"

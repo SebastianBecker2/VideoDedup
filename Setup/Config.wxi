@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include>
+  <?define Manufacturer = "Sebastian Becker" ?>
+  <?define ProductName = "VideoDedup" ?>
+  <?define ProductId = "4E0A8444-09F1-4ACE-8186-B6E8183FD67F" ?>
+  <?define UpgradeCode = "B8349C6D-6053-4016-911A-2731357F663D" ?>
+  <?define ServerComponent = "VideoDedupServer" ?>
+  <?define ServerComponentId = "CC8E71A2-C8DF-4690-AD81-FAED83E0E9D4" ?>
+  <?define ClientComponent = "VideoDedupClient" ?>
+  <?define ClientComponentId = "E43DE693-2A7F-42BC-AEDB-FA027F0CCA7E" ?>
+
+  <!--<?define PackageId = "2D618E8C-B2A0-453C-A48E-A450D276E0E8" ?>-->
+</Include>
