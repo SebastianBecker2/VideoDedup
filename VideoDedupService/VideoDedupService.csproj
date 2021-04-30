@@ -91,6 +91,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Versioning\Versioning.cs">
+      <Link>Versioning.cs</Link>
+    </Compile>
     <Compile Include="Installer1.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -110,6 +113,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Versioning\Versioning.csproj">
+      <Project>{80d1c901-fbd3-422a-b810-345c43edfc37}</Project>
+      <Name>Versioning</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VideoDedupServer\VideoDedupServer.csproj">
       <Project>{656cac8e-f9c2-4072-95de-7f2d6ac6353c}</Project>
       <Name>VideoDedupServer</Name>
