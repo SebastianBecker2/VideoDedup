@@ -2,11 +2,10 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <?include $(sys.CURRENTDIR)\Config.wxi?>
   
-  <!--Version="!(bind.FileVersion.ServerApp.exe)"-->
-  <Product Id="$(var.ProductId)"
+  <Product Id="*"
           Name="$(var.ProductName)"
           Language="1033"
-          Version="1.0.0.0"
+          Version="!(bind.FileVersion.Client_VideoDedupClient.exe)"
           Manufacturer="$(var.Manufacturer)"
           UpgradeCode="$(var.UpgradeCode)">
 
@@ -14,7 +13,7 @@
              Compressed="yes"
              InstallScope="perMachine" />
 
-    <MajorUpgrade DowngradeErrorMessage="A newer version of $(var.ProductName) is already installed." />
+    <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
     <MediaTemplate />
 
     <?if $(var.Platform) = x64 ?>
@@ -52,7 +51,7 @@
   <Fragment>
     <ComponentGroup Id="ClientComponents" Directory="CLIENTFOLDER">
       <Component Id="ClientComponent" Win64="$(var.Win64)" Guid="4C2F8BE9-80D7-4C41-A96A-E4F7734D9A95">
-        <File Source="$(var.VideoDedupClient.TargetPath)" />
+        <File Id="Client_VideoDedupClient.exe" Source="$(var.VideoDedupClient.TargetPath)" />
         
         <File Id="Client_Contracts.dll" Source="$(var.Contracts.TargetPath)" />
         <File Id="Client_Microsoft.WindowsAPICodePack.dll" Source="$(var.VideoDedupClient.TargetDir)Microsoft.WindowsAPICodePack.dll" />
@@ -65,7 +64,7 @@
     
     <ComponentGroup Id="ServerComponents" Directory="SERVERFOLDER">
       <Component Id="ServerComponent" Win64="$(var.Win64)" Guid="05AA6D44-9B24-42BB-8B04-2400BB10F96C">
-        <File Source="$(var.VideoDedupService.TargetPath)" />
+        <File Id="Server_VideoDedupService.exe" Source="$(var.VideoDedupService.TargetPath)" />
         
         <File Id="Server_Contracts.dll" Source="$(var.Contracts.TargetPath)" />
         <File Id="Server_CustomComparisonManager.dll" Source="$(var.CustomComparisonManager.TargetPath)" />
