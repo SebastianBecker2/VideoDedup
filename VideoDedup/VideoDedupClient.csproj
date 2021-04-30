@@ -11,7 +11,7 @@
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Deterministic>true</Deterministic>
+    <Deterministic>false</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -51,6 +51,9 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>film.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\WindowsAPICodePack-Core.1.1.2\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
@@ -77,6 +80,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Versioning\Versioning.cs">
+      <Link>Versioning.cs</Link>
+    </Compile>
     <Compile Include="AboutDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -180,6 +186,10 @@
     <ProjectReference Include="..\HandyTimer\SmartTimer.csproj">
       <Project>{ba276bca-e923-4e5c-a483-ac04ddf0eb61}</Project>
       <Name>SmartTimer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Versioning\Versioning.csproj">
+      <Project>{80d1c901-fbd3-422a-b810-345c43edfc37}</Project>
+      <Name>Versioning</Name>
     </ProjectReference>
     <ProjectReference Include="..\VideoDedupShared\VideoDedupShared.csproj">
       <Project>{c16eae42-0c5c-405f-9916-4dfab332171a}</Project>

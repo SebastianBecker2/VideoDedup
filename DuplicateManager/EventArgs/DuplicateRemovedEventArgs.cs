@@ -1,9 +1,9 @@
-namespace VideoDedupConsole.DuplicateManagement
+namespace DuplicateManager
 {
     using System;
     using Wcf.Contracts.Data;
 
-    public class DuplicateAddedEventArgs : EventArgs
+    public class DuplicateRemovedEventArgs : EventArgs
     {
         public DuplicateData Duplicate { get; set; }
         public int DuplicateCount { get; set; }

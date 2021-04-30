@@ -352,12 +352,12 @@ namespace DedupEngine
 
             foreach (var file in foundFiles.Except(CurrentState.VideoFiles))
             {
-                NewFiles.TryAdd(file, 0);
+                _ = NewFiles.TryAdd(file, 0);
             }
 
             foreach (var file in CurrentState.VideoFiles.Except(foundFiles))
             {
-                DeletedFiles.TryAdd(file, 0);
+                _ = DeletedFiles.TryAdd(file, 0);
             }
 
             return CurrentState.VideoFiles;

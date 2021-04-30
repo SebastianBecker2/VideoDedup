@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?include $(sys.CURRENTDIR)\Config.wxi?>
+  
+  <Product Id="*"
+           Name="$(var.ProductName)"
+           Language="1033"
+           Version="!(bind.FileVersion.Client_VideoDedupClient.exe)"
+           Manufacturer="$(var.Manufacturer)"
+           UpgradeCode="$(var.UpgradeCode)">
+
+    <Package InstallerVersion="200"
+             Compressed="yes"
+             InstallScope="perMachine" />
+
+    <MajorUpgrade AllowSameVersionUpgrades="yes" 
+                  DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate />
+
+    <?if $(var.Platform) = x64 ?>
+      <?define Win64 = "yes" ?>
+      <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
+    <?else ?>
+      <?define Win64 = "no" ?>
+      <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
+    <?endif ?>
+
+    <Feature Id="ClientFeature" Title="$(var.ClientComponent)" Level="1">
+      <ComponentGroupRef Id="ClientComponents" />
+    </Feature>
+
+    <Feature Id="ServerFeature" Title="$(var.ServerComponent)" Level="1">
+      <ComponentGroupRef Id="ServerComponents" />
+    </Feature>
+
+    <UIRef Id="UISequence" />
+  </Product>
+
+  <!-- Directory definitions -->
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="$(var.PlatformProgramFilesFolder)">
+        <Directory Id="SERVERFOLDER" Name="$(var.ServerComponent)">
+        </Directory>
+        <Directory Id="CLIENTFOLDER" Name="$(var.ClientComponent)">
+        </Directory>
+      </Directory>
+
+      <Directory Id="ProgramMenuFolder"/>
+    </Directory>
+  </Fragment>
+
+  <!-- Icon definition -->
+  <Fragment>
+    <Icon Id="ClientIcon.exe" SourceFile="$(var.VideoDedupClient.TargetPath)" />
+    <Property Id="ARPPRODUCTICON" Value="ClientIcon.exe" />
+  </Fragment>
+  
+  <!-- File actions -->
+  <Fragment>
+    <ComponentGroup Id="ClientComponents" Directory="CLIENTFOLDER">
+      <Component Id="ClientComponent" Win64="$(var.Win64)" Guid="4C2F8BE9-80D7-4C41-A96A-E4F7734D9A95">
+        <File Id="Client_VideoDedupClient.exe" Source="$(var.VideoDedupClient.TargetPath)" />
+        
+        <File Id="Client_Contracts.dll" 
+              Source="$(var.Contracts.TargetPath)" />
+        <File Id="Client_Microsoft.WindowsAPICodePack.dll" 
+              Source="$(var.VideoDedupClient.TargetDir)Microsoft.WindowsAPICodePack.dll" />
+        <File Id="Client_Microsoft.WindowsAPICodePack.Shell.dll" 
+              Source="$(var.VideoDedupClient.TargetDir)Microsoft.WindowsAPICodePack.Shell.dll" />
+        <File Id="Client_Newtonsoft.Json.dll" 
+              Source="$(var.VideoDedupClient.TargetDir)Newtonsoft.Json.dll" />
+        <File Id="Client_SmartTimer.dll" 
+              Source="$(var.SmartTimer.TargetPath)" />
+        <File Id="Client_VideoDedupShared.dll" 
+              Source="$(var.VideoDedupShared.TargetPath)" />
+        
+        <Shortcut Id="ClientStartMenuShortcut"
+                  Directory="ProgramMenuFolder"
+                  Name="$(var.ProductName)"
+                  Icon="ClientIcon.exe"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Advertise="yes" />
+      </Component>
+    </ComponentGroup>
+    
+    <ComponentGroup Id="ServerComponents" 
+                    Directory="SERVERFOLDER">
+      <Component Id="ServerComponent" 
+                 Win64="$(var.Win64)" 
+                 Guid="05AA6D44-9B24-42BB-8B04-2400BB10F96C">
+        <File Id="Server_VideoDedupService.exe" 
+              Source="$(var.VideoDedupService.TargetPath)" />
+        
+        <File Id="Server_Contracts.dll" 
+              Source="$(var.Contracts.TargetPath)" />
+        <File Id="Server_CustomComparisonManager.dll" 
+              Source="$(var.CustomComparisonManager.TargetPath)" />
+        <File Id="Server_DedupEngine.dll" 
+              Source="$(var.DedupEngine.TargetPath)" />
+        <File Id="Server_DuplicateManager.dll" 
+              Source="$(var.DuplicateManager.TargetPath)" />
+        <File Id="Server_ImageComparison.dll" 
+              Source="$(var.ImageComparison.TargetPath)" />
+        <File Id="Server_mpv_1.dll" 
+              Source="$(var.VideoDedupService.TargetDir)mpv-1.dll" />
+        <File Id="Server_Newtonsoft.Json.dll" 
+              Source="$(var.VideoDedupService.TargetDir)Newtonsoft.Json.dll" />
+        <File Id="Server_SmartTimer.dll" 
+              Source="$(var.SmartTimer.TargetPath)" />
+        <File Id="Server_VideoDedupServer.dll" 
+              Source="$(var.VideoDedupServer.TargetPath)" />
+        <File Id="Server_VideoDedupShared.dll" 
+              Source="$(var.VideoDedupShared.TargetPath)" />
+
+        <ServiceInstall Id="InstallServer"
+                        Name="$(var.ServerComponent)"
+                        Description="Backend for VideoDedup. Allows background deduplication and monitoring."
+                        Type ="ownProcess"
+                        DisplayName="$(var.ServerComponent)"
+                        Start="auto"
+                        Account="LocalSystem"
+                        ErrorControl="normal">
+        </ServiceInstall>
+
+        <ServiceControl Id="StartService"
+                        Start="install"
+                        Stop="both"
+                        Remove="uninstall"
+                        Name="$(var.ServerComponent)"
+                        Wait="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+
+  <!-- UI Sequence -->
+  <Fragment>
+    <UI Id="UISequence">
+      <UIRef Id="WixUI_FeatureTree" />
+      <!--Skip license dialog-->
+      <Publish Dialog="WelcomeDlg" 
+               Control="Next" 
+               Event="NewDialog" 
+               Value="CustomizeDlg" 
+               Order="2">1</Publish>
+      <Publish Dialog="CustomizeDlg" 
+               Control="Back" 
+               Event="NewDialog" 
+               Value="WelcomeDlg" 
+               Order="2">1</Publish>
+    </UI>
+  </Fragment>
+</Wix>

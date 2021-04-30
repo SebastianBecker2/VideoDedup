@@ -1,4 +1,4 @@
-namespace VideoDedupConsole.DuplicateManagement
+namespace DuplicateManager
 {
     using System;
 

@@ -1,14 +1,15 @@
-using System.Reflection;
+﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("VideoDedup")]
+[assembly: AssemblyTitle("Versioning")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("VideoDedup")]
+[assembly: AssemblyProduct("Versioning")]
 [assembly: AssemblyCopyright("Copyright ©  2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -19,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("2f31738c-1992-4af1-a101-35f5c0cf7991")]
+[assembly: Guid("80d1c901-fbd3-422a-b810-345c43edfc37")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -34,9 +35,9 @@ using System.Runtime.InteropServices;
 // -------------------------------------------
 // -------------------------------------------
 // We don't sepcify AssemblyVersion and AssemblyFileVersion here
-// Since we have a separate Versioning project that provides a linked
-// Versioning.cs with an AssemblyVersion and AssemblyFileVersion
-// for the whole solution.
+// Since we use this projects to specify the AssemblyVersion
+// and AssemblyFileVersion using a T4 template for the whole
+// solution.
 // -------------------------------------------
 // -------------------------------------------
 //[assembly: AssemblyVersion("1.0.0.0")]
