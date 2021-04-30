@@ -44,9 +44,17 @@
         <Directory Id="CLIENTFOLDER" Name="$(var.ClientComponent)">
         </Directory>
       </Directory>
+
+      <Directory Id="ProgramMenuFolder"/>
     </Directory>
   </Fragment>
 
+  <!-- Icon definition -->
+  <Fragment>
+    <Icon Id="ClientIcon.exe" SourceFile="$(var.VideoDedupClient.TargetPath)" />
+    <Property Id="ARPPRODUCTICON" Value="ClientIcon.exe" />
+  </Fragment>
+  
   <!-- File actions -->
   <Fragment>
     <ComponentGroup Id="ClientComponents" Directory="CLIENTFOLDER">
@@ -59,6 +67,13 @@
         <File Id="Client_Newtonsoft.Json.dll" Source="$(var.VideoDedupClient.TargetDir)Newtonsoft.Json.dll" />
         <File Id="Client_SmartTimer.dll" Source="$(var.SmartTimer.TargetPath)" />
         <File Id="Client_VideoDedupShared.dll" Source="$(var.VideoDedupShared.TargetPath)" />
+        
+        <Shortcut Id="ClientStartMenuShortcut"
+                  Directory="ProgramMenuFolder"
+                  Name="$(var.ProductName)"
+                  Icon="ClientIcon.exe"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Advertise="yes" />
       </Component>
     </ComponentGroup>
     
@@ -79,6 +94,7 @@
 
         <ServiceInstall Id="InstallServer"
                         Name="$(var.ServerComponent)"
+                        Description="Backend for VideoDedup. Allows background deduplication and monitoring."
                         Type ="ownProcess"
                         DisplayName="$(var.ServerComponent)"
                         Start="auto"
