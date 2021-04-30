@@ -22,7 +22,7 @@ VidepDedup is using the following tools and libraries:
 - [Newtonsoft.Json](https://www.newtonsoft.com/json)
 - [WindowsAPICodePack](https://github.com/aybe/Windows-API-Code-Pack-1.1)
 - [ImageComparison by Jakob Farian Krarup](https://www.codeproject.com/Articles/374386/Simple-image-comparison-in-NET)
-- The amazing [FatCow IconPack](http://www.fatcow.com/free-icons)
+- The amazing [FatCow IconPack](https://www.fatcow.com/free-icons)
 - [WiX Toolset](https://wixtoolset.org)
 
 libmpv 0.33 was cross-compiled with LGPL flag from the "release/0.33" branch using MXE for x64 and x86 with:  
