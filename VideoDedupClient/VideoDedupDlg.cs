@@ -447,7 +447,13 @@ namespace VideoDedup
             }
         }
 
-        private void ServerConfigurationToolStripMenuItem_Click(object sender,
+        private void ClientConfigurationToolStripMenuItem_Click(
+            object sender,
+            EventArgs e) =>
+            BtnClientConfig.PerformClick();
+
+        private void ServerConfigurationToolStripMenuItem_Click(
+            object sender,
             EventArgs e) =>
             BtnServerConfig.PerformClick();
 

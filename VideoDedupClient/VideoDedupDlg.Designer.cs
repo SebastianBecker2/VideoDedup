@@ -36,7 +36,7 @@ namespace VideoDedup
             this.BtnResolveDuplicates = new System.Windows.Forms.Button();
             this.MenuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.serverConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ServerConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -45,6 +45,7 @@ namespace VideoDedup
             this.BtnClientConfig = new System.Windows.Forms.Button();
             this.DgvLog = new System.Windows.Forms.DataGridView();
             this.DgcLogMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ClientConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DgvLog)).BeginInit();
             this.SuspendLayout();
@@ -115,18 +116,19 @@ namespace VideoDedup
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.serverConfigurationToolStripMenuItem,
+            this.ClientConfigurationToolStripMenuItem,
+            this.ServerConfigurationToolStripMenuItem,
             this.closeToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "&File";
             // 
-            // serverConfigurationToolStripMenuItem
+            // ServerConfigurationToolStripMenuItem
             // 
-            this.serverConfigurationToolStripMenuItem.Name = "serverConfigurationToolStripMenuItem";
-            this.serverConfigurationToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
-            this.serverConfigurationToolStripMenuItem.Text = "Server Configuration";
-            this.serverConfigurationToolStripMenuItem.Click += new System.EventHandler(this.ServerConfigurationToolStripMenuItem_Click);
+            this.ServerConfigurationToolStripMenuItem.Name = "ServerConfigurationToolStripMenuItem";
+            this.ServerConfigurationToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+            this.ServerConfigurationToolStripMenuItem.Text = "Server Configuration";
+            this.ServerConfigurationToolStripMenuItem.Click += new System.EventHandler(this.ServerConfigurationToolStripMenuItem_Click);
             // 
             // closeToolStripMenuItem
             // 
@@ -213,6 +215,13 @@ namespace VideoDedup
             this.DgcLogMessage.Name = "DgcLogMessage";
             this.DgcLogMessage.ReadOnly = true;
             // 
+            // ClientConfigurationToolStripMenuItem
+            // 
+            this.ClientConfigurationToolStripMenuItem.Name = "ClientConfigurationToolStripMenuItem";
+            this.ClientConfigurationToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+            this.ClientConfigurationToolStripMenuItem.Text = "Client Configuration";
+            this.ClientConfigurationToolStripMenuItem.Click += new System.EventHandler(this.ClientConfigurationToolStripMenuItem_Click);
+            // 
             // VideoDedupDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -253,10 +262,11 @@ namespace VideoDedup
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.Label LblDuplicateCount;
         private System.Windows.Forms.Button BtnDiscardDuplicates;
-        private System.Windows.Forms.ToolStripMenuItem serverConfigurationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ServerConfigurationToolStripMenuItem;
         private System.Windows.Forms.Button BtnClientConfig;
         private System.Windows.Forms.DataGridView DgvLog;
         private System.Windows.Forms.DataGridViewTextBoxColumn DgcLogMessage;
+        private System.Windows.Forms.ToolStripMenuItem ClientConfigurationToolStripMenuItem;
     }
 }
 
