@@ -168,4 +168,4 @@
 [0mChecking for macOS Media Player support                                   :[0m [33mmacos-10-12-2-features not found[0m 
 [0mChecking for macOS libmpv backend                                         :[0m [33mcocoa not found[0m 
 [0mWriting configuration header:                                             :[0m [35mconfig.h[0m 
-'configure' finished successfully (5.082s)
+'configure' finished successfully (5.565s)
