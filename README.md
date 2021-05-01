@@ -32,5 +32,5 @@ and:
 
     DEST_OS=win32 TARGET=i686-w64-mingw32.static ./waf configure --enable-libmpv-shared --disable-cplayer --enable-lgpl --disable-debug-build --disable-lua
 respectively.  
-For detailed configuration check [x64 libmpv_build_config](./VideoDedupShared/Libs/libmpv/x64/libmpv_build_config) and [x86 libmpv_build_config](./VideoDedupShared/Libs/libmpv/x86/libmpv_build_config) respectively.  
+For detailed configuration check [x64 libmpv_build_config](./DedupEngine/Libs/libmpv/x64/libmpv_build_config) and [x86 libmpv_build_config](./DedupEngine/Libs/libmpv/x86/libmpv_build_config) respectively.  
 For information on how to build libmpv check out [mpv-players windows compilation guide](https://github.com/mpv-player/mpv/blob/master/DOCS/compile-windows.md).
