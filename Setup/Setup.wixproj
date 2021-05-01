@@ -75,6 +75,14 @@
       <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
       <RefTargetDir>INSTALLFOLDER</RefTargetDir>
     </ProjectReference>
+    <ProjectReference Include="..\VideoDedupClient\VideoDedupClient.csproj">
+      <Name>VideoDedupClient</Name>
+      <Project>{2f31738c-1992-4af1-a101-35f5c0cf7991}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
     <ProjectReference Include="..\VideoDedupServer\VideoDedupServer.csproj">
       <Name>VideoDedupServer</Name>
       <Project>{656cac8e-f9c2-4072-95de-7f2d6ac6353c}</Project>
@@ -94,14 +102,6 @@
     <ProjectReference Include="..\VideoDedupShared\VideoDedupShared.csproj">
       <Name>VideoDedupShared</Name>
       <Project>{c16eae42-0c5c-405f-9916-4dfab332171a}</Project>
-      <Private>True</Private>
-      <DoNotHarvest>True</DoNotHarvest>
-      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
-      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
-    </ProjectReference>
-    <ProjectReference Include="..\VideoDedup\VideoDedupClient.csproj">
-      <Name>VideoDedupClient</Name>
-      <Project>{2f31738c-1992-4af1-a101-35f5c0cf7991}</Project>
       <Private>True</Private>
       <DoNotHarvest>True</DoNotHarvest>
       <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
