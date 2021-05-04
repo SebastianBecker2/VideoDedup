@@ -17,6 +17,7 @@ namespace DedupEngine.MpvLib
         private const string LibPath = @"mpv-1.dll";
         private static readonly TimeSpan GetEventIdTimeout =
             TimeSpan.FromSeconds(10);
+        private static readonly int MaxReadRetryCount = 10;
 
         public static CodecInfo GetCodecInfo(string filePath)
         {
@@ -241,7 +242,7 @@ namespace DedupEngine.MpvLib
                     foreach (var filePath in Directory.GetFiles(OutputPath))
                     {
                         counter++;
-                        yield return new MemoryStream(File.ReadAllBytes(filePath));
+                        yield return ReadFileWithRetry(filePath);
                         File.Delete(filePath);
                         if (counter == count)
                         {
@@ -468,6 +469,23 @@ namespace DedupEngine.MpvLib
             }
             Marshal.Copy(byteArrayPointers, 0, rootPointer, numberOfStrings);
             return rootPointer;
+        }
+
+        private MemoryStream ReadFileWithRetry(string filePath, int retryCount = 0)
+        {
+            try
+            {
+                return new MemoryStream(File.ReadAllBytes(filePath));
+            }
+            catch (IOException)
+            {
+                if (retryCount > MaxReadRetryCount)
+                {
+                    throw;
+                }
+                Thread.Sleep(10);
+                return ReadFileWithRetry(filePath, retryCount + 1);
+            }
         }
 
         protected virtual void Dispose(bool disposing)
