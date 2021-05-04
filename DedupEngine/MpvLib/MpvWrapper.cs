@@ -476,14 +476,14 @@ namespace DedupEngine.MpvLib
             {
                 if (disposing)
                 {
-                    if (Directory.Exists(OutputPath))
-                    {
-                        Directory.Delete(OutputPath, true);
-                    }
-
                     if (MpvHandle != IntPtr.Zero)
                     {
                         mpv_terminate_destroy(MpvHandle);
+                    }
+
+                    if (Directory.Exists(OutputPath))
+                    {
+                        Directory.Delete(OutputPath, true);
                     }
                 }
                 disposedValue = true;
