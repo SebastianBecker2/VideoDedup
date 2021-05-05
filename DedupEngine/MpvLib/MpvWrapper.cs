@@ -332,7 +332,12 @@ namespace DedupEngine.MpvLib
             IntPtr handle,
             byte[] name,
             int format,
-            out IntPtr data);
+            out long data);
+
+        [DllImport(LibPath, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr mpv_get_property_string(
+            IntPtr handle,
+            byte[] name);
 
         [DllImport(LibPath, CallingConvention = CallingConvention.Cdecl)]
         private static extern int mpv_set_property_string(
@@ -371,25 +376,24 @@ namespace DedupEngine.MpvLib
                     GetUtf8Bytes(value)),
                 $"Unable to set property '{name}' to '{value}'");
 
-        public static long GetLong(IntPtr handle, string name)
+        private static long GetLong(IntPtr handle, string name)
         {
             Check(mpv_get_property(
                     handle,
                     GetUtf8Bytes(name),
                     (int)DataFormat.Int64,
-                    out var valuePtr),
+                    out var value),
                 $"Unable to get property {name}");
-            return (long)valuePtr;
+            return value;
         }
 
-        public static string GetString(IntPtr handle, string name)
+        private static string GetString(IntPtr handle, string name)
         {
-            Check(mpv_get_property(
-                    handle,
-                    GetUtf8Bytes(name),
-                    (int)DataFormat.String,
-                    out var valuePtr),
-                $"Unable to get property {name}");
+            var valuePtr = mpv_get_property_string(handle, GetUtf8Bytes(name));
+            if (valuePtr == IntPtr.Zero)
+            {
+                throw new MpvException($"Unable to get property {name}");
+            }
             try
             {
                 // Replace with:
@@ -431,15 +435,15 @@ namespace DedupEngine.MpvLib
 
         private static CodecInfo ReadCodecInfo(IntPtr mpvHandle) =>
             new CodecInfo()
-            {
-                Size = new Size(
-                    (int)GetLong(mpvHandle, "width"),
-                    (int)GetLong(mpvHandle, "height")),
-                Name = GetString(mpvHandle, "video-codec"),
-                FrameRate = GetLong(mpvHandle, "container-fps"),
-            };
+        {
+            Size = new Size(
+                (int)GetLong(mpvHandle, "width"),
+                (int)GetLong(mpvHandle, "height")),
+            Name = GetString(mpvHandle, "video-codec"),
+            FrameRate = GetLong(mpvHandle, "container-fps"),
+        };
 
-        internal static void Check(int result, string message)
+        private static void Check(int result, string message)
         {
             if (result != 0)
             {
@@ -448,10 +452,10 @@ namespace DedupEngine.MpvLib
             }
         }
 
-        internal static byte[] GetUtf8Bytes(string s) =>
+        private static byte[] GetUtf8Bytes(string s) =>
             Encoding.UTF8.GetBytes(s + "\0");
 
-        internal static IntPtr AllocateUtf8IntPtrArrayWithSentinel(
+        private static IntPtr AllocateUtf8IntPtrArrayWithSentinel(
             string[] arr,
             out IntPtr[] byteArrayPointers)
         {
