@@ -1,9 +1,7 @@
 # VideoDedup
 Tool to deduplicate video files
 
-Branch|[![AppVeyor logo](pics/AppVeyor.png)](https://appveyor.com)
----|---
-master|[![Build status](https://ci.appveyor.com/api/projects/status/ld6w3vd6m49spu27/branch/master?svg=true)](https://ci.appveyor.com/project/SebastianBecker2/videodedup/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/ld6w3vd6m49spu27/branch/master?svg=true)](https://ci.appveyor.com/project/SebastianBecker2/videodedup/branch/master)
 
 This tool includes a server and client module. By default, the client looks for the server on localhost. Communication is achieved using [Microsofts WCF](https://docs.microsoft.com/en-us/dotnet/framework/wcf/whats-wcf).
 The server searches for duplicates of video files. Duplicates are determined by the following configurable settings:
