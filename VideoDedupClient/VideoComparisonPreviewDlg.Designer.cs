@@ -218,7 +218,7 @@ namespace VideoDedup
             this.BtnCancel.Location = new System.Drawing.Point(799, 584);
             this.BtnCancel.Name = "BtnCancel";
             this.BtnCancel.Size = new System.Drawing.Size(75, 23);
-            this.BtnCancel.TabIndex = 23;
+            this.BtnCancel.TabIndex = 1;
             this.BtnCancel.Text = "&Cancel";
             this.BtnCancel.UseVisualStyleBackColor = true;
             // 
@@ -228,7 +228,7 @@ namespace VideoDedup
             this.BtnOkay.Location = new System.Drawing.Point(718, 584);
             this.BtnOkay.Name = "BtnOkay";
             this.BtnOkay.Size = new System.Drawing.Size(75, 23);
-            this.BtnOkay.TabIndex = 22;
+            this.BtnOkay.TabIndex = 0;
             this.BtnOkay.Text = "&OK";
             this.BtnOkay.UseVisualStyleBackColor = true;
             this.BtnOkay.Click += new System.EventHandler(this.BtnOkay_Click);
@@ -273,7 +273,7 @@ namespace VideoDedup
             this.NumMaxImageComparison.Location = new System.Drawing.Point(193, 60);
             this.NumMaxImageComparison.Name = "NumMaxImageComparison";
             this.NumMaxImageComparison.Size = new System.Drawing.Size(63, 20);
-            this.NumMaxImageComparison.TabIndex = 23;
+            this.NumMaxImageComparison.TabIndex = 4;
             // 
             // label1
             // 
@@ -292,8 +292,8 @@ namespace VideoDedup
             this.BtnStartComparison.Location = new System.Drawing.Point(736, 115);
             this.BtnStartComparison.Name = "BtnStartComparison";
             this.BtnStartComparison.Size = new System.Drawing.Size(123, 22);
-            this.BtnStartComparison.TabIndex = 22;
-            this.BtnStartComparison.Text = "Start comparison";
+            this.BtnStartComparison.TabIndex = 7;
+            this.BtnStartComparison.Text = "&Start comparison";
             this.BtnStartComparison.UseVisualStyleBackColor = true;
             this.BtnStartComparison.Click += new System.EventHandler(this.BtnStartComparison_Click);
             // 
@@ -314,7 +314,7 @@ namespace VideoDedup
             this.TxtLeftFilePath.Location = new System.Drawing.Point(63, 4);
             this.TxtLeftFilePath.Name = "TxtLeftFilePath";
             this.TxtLeftFilePath.Size = new System.Drawing.Size(766, 20);
-            this.TxtLeftFilePath.TabIndex = 2;
+            this.TxtLeftFilePath.TabIndex = 0;
             // 
             // TxtRightFilePath
             // 
@@ -364,7 +364,7 @@ namespace VideoDedup
             this.NumMaxDifferentImages.Location = new System.Drawing.Point(193, 88);
             this.NumMaxDifferentImages.Name = "NumMaxDifferentImages";
             this.NumMaxDifferentImages.Size = new System.Drawing.Size(63, 20);
-            this.NumMaxDifferentImages.TabIndex = 24;
+            this.NumMaxDifferentImages.TabIndex = 5;
             // 
             // NumMaxDifferentPercentage
             // 
@@ -372,7 +372,7 @@ namespace VideoDedup
             this.NumMaxDifferentPercentage.Location = new System.Drawing.Point(193, 116);
             this.NumMaxDifferentPercentage.Name = "NumMaxDifferentPercentage";
             this.NumMaxDifferentPercentage.Size = new System.Drawing.Size(63, 20);
-            this.NumMaxDifferentPercentage.TabIndex = 25;
+            this.NumMaxDifferentPercentage.TabIndex = 6;
             // 
             // BtnSelectLeftFilePath
             // 
@@ -380,7 +380,7 @@ namespace VideoDedup
             this.BtnSelectLeftFilePath.Location = new System.Drawing.Point(835, 3);
             this.BtnSelectLeftFilePath.Name = "BtnSelectLeftFilePath";
             this.BtnSelectLeftFilePath.Size = new System.Drawing.Size(24, 22);
-            this.BtnSelectLeftFilePath.TabIndex = 20;
+            this.BtnSelectLeftFilePath.TabIndex = 1;
             this.BtnSelectLeftFilePath.Text = "...";
             this.BtnSelectLeftFilePath.UseVisualStyleBackColor = true;
             this.BtnSelectLeftFilePath.Click += new System.EventHandler(this.BtnSelectLeftFilePath_Click);
@@ -391,7 +391,7 @@ namespace VideoDedup
             this.BtnSelectRightFilePath.Location = new System.Drawing.Point(835, 31);
             this.BtnSelectRightFilePath.Name = "BtnSelectRightFilePath";
             this.BtnSelectRightFilePath.Size = new System.Drawing.Size(24, 22);
-            this.BtnSelectRightFilePath.TabIndex = 20;
+            this.BtnSelectRightFilePath.TabIndex = 3;
             this.BtnSelectRightFilePath.Text = "...";
             this.BtnSelectRightFilePath.UseVisualStyleBackColor = true;
             this.BtnSelectRightFilePath.Click += new System.EventHandler(this.BtnSelectRightFilePath_Click);
@@ -400,7 +400,7 @@ namespace VideoDedup
             // 
             this.StatusTimer.Tick += new System.EventHandler(this.HandleStatusTimerTick);
             // 
-            // VideoComparisonPreview
+            // VideoComparisonPreviewDlg
             // 
             this.AcceptButton = this.BtnOkay;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -411,7 +411,7 @@ namespace VideoDedup
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.BtnOkay);
             this.Controls.Add(this.PnlResult);
-            this.Name = "VideoComparisonPreview";
+            this.Name = "VideoComparisonPreviewDlg";
             this.Text = "VideoComparisonPreview";
             this.TlpResult.ResumeLayout(false);
             this.TlpResult.PerformLayout();

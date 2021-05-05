@@ -56,7 +56,7 @@ namespace VideoDedup
             this.BtnCancel.Location = new System.Drawing.Point(294, 189);
             this.BtnCancel.Name = "BtnCancel";
             this.BtnCancel.Size = new System.Drawing.Size(75, 23);
-            this.BtnCancel.TabIndex = 23;
+            this.BtnCancel.TabIndex = 1;
             this.BtnCancel.Text = "&Cancel";
             this.BtnCancel.UseVisualStyleBackColor = true;
             // 
@@ -66,7 +66,7 @@ namespace VideoDedup
             this.BtnOkay.Location = new System.Drawing.Point(213, 189);
             this.BtnOkay.Name = "BtnOkay";
             this.BtnOkay.Size = new System.Drawing.Size(75, 23);
-            this.BtnOkay.TabIndex = 22;
+            this.BtnOkay.TabIndex = 0;
             this.BtnOkay.Text = "&OK";
             this.BtnOkay.UseVisualStyleBackColor = true;
             this.BtnOkay.Click += new System.EventHandler(this.BtnOkay_Click);
@@ -142,7 +142,7 @@ namespace VideoDedup
             this.TxtServerAddress.ResolvedSuccessfully = false;
             this.TxtServerAddress.Resolving = false;
             this.TxtServerAddress.Size = new System.Drawing.Size(212, 20);
-            this.TxtServerAddress.TabIndex = 3;
+            this.TxtServerAddress.TabIndex = 0;
             this.TxtServerAddress.ResolveStarted += new System.EventHandler<VideoDedup.DnsTextBox.ResolveStartedEventArgs>(this.TxtServerAddress_ResolveStarted);
             this.TxtServerAddress.ResolveSuccessful += new System.EventHandler<VideoDedup.DnsTextBox.ResolveSuccessfulEventArgs>(this.TxtServerAddress_ResolveSuccessful);
             this.TxtServerAddress.ResolveFailed += new System.EventHandler<VideoDedup.DnsTextBox.ResolveFailedEventArgs>(this.TxtServerAddress_ResolveFailed);
@@ -164,7 +164,7 @@ namespace VideoDedup
             0});
             this.NudStatusRequestInterval.Name = "NudStatusRequestInterval";
             this.NudStatusRequestInterval.Size = new System.Drawing.Size(58, 20);
-            this.NudStatusRequestInterval.TabIndex = 4;
+            this.NudStatusRequestInterval.TabIndex = 1;
             this.NudStatusRequestInterval.Value = new decimal(new int[] {
             10000,
             0,
@@ -178,7 +178,7 @@ namespace VideoDedup
             this.TxtClientSourcePath.Location = new System.Drawing.Point(98, 82);
             this.TxtClientSourcePath.Name = "TxtClientSourcePath";
             this.TxtClientSourcePath.Size = new System.Drawing.Size(223, 20);
-            this.TxtClientSourcePath.TabIndex = 5;
+            this.TxtClientSourcePath.TabIndex = 2;
             // 
             // label3
             // 
@@ -196,7 +196,7 @@ namespace VideoDedup
             this.BtnSelectClientSourcePath.Location = new System.Drawing.Point(327, 81);
             this.BtnSelectClientSourcePath.Name = "BtnSelectClientSourcePath";
             this.BtnSelectClientSourcePath.Size = new System.Drawing.Size(21, 23);
-            this.BtnSelectClientSourcePath.TabIndex = 20;
+            this.BtnSelectClientSourcePath.TabIndex = 3;
             this.BtnSelectClientSourcePath.Text = "...";
             this.BtnSelectClientSourcePath.UseVisualStyleBackColor = true;
             this.BtnSelectClientSourcePath.Click += new System.EventHandler(this.BtnSelectClientSourcePath_Click);

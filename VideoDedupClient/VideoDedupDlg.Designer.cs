@@ -36,6 +36,7 @@ namespace VideoDedup
             this.BtnResolveDuplicates = new System.Windows.Forms.Button();
             this.MenuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ClientConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ServerConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -45,7 +46,6 @@ namespace VideoDedup
             this.BtnClientConfig = new System.Windows.Forms.Button();
             this.DgvLog = new System.Windows.Forms.DataGridView();
             this.DgcLogMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ClientConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DgvLog)).BeginInit();
             this.SuspendLayout();
@@ -75,8 +75,8 @@ namespace VideoDedup
             this.BtnServerConfig.Location = new System.Drawing.Point(133, 344);
             this.BtnServerConfig.Name = "BtnServerConfig";
             this.BtnServerConfig.Size = new System.Drawing.Size(115, 23);
-            this.BtnServerConfig.TabIndex = 8;
-            this.BtnServerConfig.Text = "Server Configuration";
+            this.BtnServerConfig.TabIndex = 1;
+            this.BtnServerConfig.Text = "&Server Configuration";
             this.BtnServerConfig.UseVisualStyleBackColor = true;
             this.BtnServerConfig.Click += new System.EventHandler(this.BtnServerConfig_Click);
             // 
@@ -97,7 +97,7 @@ namespace VideoDedup
             this.BtnResolveDuplicates.Location = new System.Drawing.Point(732, 344);
             this.BtnResolveDuplicates.Name = "BtnResolveDuplicates";
             this.BtnResolveDuplicates.Size = new System.Drawing.Size(75, 23);
-            this.BtnResolveDuplicates.TabIndex = 10;
+            this.BtnResolveDuplicates.TabIndex = 3;
             this.BtnResolveDuplicates.Text = "&Resolve";
             this.BtnResolveDuplicates.UseVisualStyleBackColor = true;
             this.BtnResolveDuplicates.Click += new System.EventHandler(this.BtnResolveConflicts_Click);
@@ -123,18 +123,25 @@ namespace VideoDedup
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "&File";
             // 
+            // ClientConfigurationToolStripMenuItem
+            // 
+            this.ClientConfigurationToolStripMenuItem.Name = "ClientConfigurationToolStripMenuItem";
+            this.ClientConfigurationToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
+            this.ClientConfigurationToolStripMenuItem.Text = "&Client Configuration";
+            this.ClientConfigurationToolStripMenuItem.Click += new System.EventHandler(this.ClientConfigurationToolStripMenuItem_Click);
+            // 
             // ServerConfigurationToolStripMenuItem
             // 
             this.ServerConfigurationToolStripMenuItem.Name = "ServerConfigurationToolStripMenuItem";
             this.ServerConfigurationToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
-            this.ServerConfigurationToolStripMenuItem.Text = "Server Configuration";
+            this.ServerConfigurationToolStripMenuItem.Text = "&Server Configuration";
             this.ServerConfigurationToolStripMenuItem.Click += new System.EventHandler(this.ServerConfigurationToolStripMenuItem_Click);
             // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
             this.closeToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
-            this.closeToolStripMenuItem.Text = "&Close";
+            this.closeToolStripMenuItem.Text = "C&lose";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.CloseToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
@@ -148,7 +155,7 @@ namespace VideoDedup
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.aboutToolStripMenuItem.Text = "&About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItem_Click);
             // 
@@ -169,8 +176,8 @@ namespace VideoDedup
             this.BtnDiscardDuplicates.Location = new System.Drawing.Point(622, 344);
             this.BtnDiscardDuplicates.Name = "BtnDiscardDuplicates";
             this.BtnDiscardDuplicates.Size = new System.Drawing.Size(104, 23);
-            this.BtnDiscardDuplicates.TabIndex = 14;
-            this.BtnDiscardDuplicates.Text = "Discard Duplicates";
+            this.BtnDiscardDuplicates.TabIndex = 2;
+            this.BtnDiscardDuplicates.Text = "&Discard Duplicates";
             this.BtnDiscardDuplicates.UseVisualStyleBackColor = true;
             this.BtnDiscardDuplicates.Click += new System.EventHandler(this.BtnDiscard_Click);
             // 
@@ -180,8 +187,8 @@ namespace VideoDedup
             this.BtnClientConfig.Location = new System.Drawing.Point(12, 344);
             this.BtnClientConfig.Name = "BtnClientConfig";
             this.BtnClientConfig.Size = new System.Drawing.Size(115, 23);
-            this.BtnClientConfig.TabIndex = 16;
-            this.BtnClientConfig.Text = "Client Configuration";
+            this.BtnClientConfig.TabIndex = 0;
+            this.BtnClientConfig.Text = "&Client Configuration";
             this.BtnClientConfig.UseVisualStyleBackColor = true;
             this.BtnClientConfig.Click += new System.EventHandler(this.BtnClientConfig_Click);
             // 
@@ -204,7 +211,7 @@ namespace VideoDedup
             this.DgvLog.ReadOnly = true;
             this.DgvLog.RowHeadersVisible = false;
             this.DgvLog.Size = new System.Drawing.Size(795, 251);
-            this.DgvLog.TabIndex = 17;
+            this.DgvLog.TabIndex = 4;
             this.DgvLog.VirtualMode = true;
             this.DgvLog.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.DgvLog_CellValueNeeded);
             // 
@@ -214,13 +221,6 @@ namespace VideoDedup
             this.DgcLogMessage.HeaderText = "Message";
             this.DgcLogMessage.Name = "DgcLogMessage";
             this.DgcLogMessage.ReadOnly = true;
-            // 
-            // ClientConfigurationToolStripMenuItem
-            // 
-            this.ClientConfigurationToolStripMenuItem.Name = "ClientConfigurationToolStripMenuItem";
-            this.ClientConfigurationToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
-            this.ClientConfigurationToolStripMenuItem.Text = "Client Configuration";
-            this.ClientConfigurationToolStripMenuItem.Click += new System.EventHandler(this.ClientConfigurationToolStripMenuItem_Click);
             // 
             // VideoDedupDlg
             // 
