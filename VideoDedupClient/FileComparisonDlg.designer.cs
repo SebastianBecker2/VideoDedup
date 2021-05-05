@@ -65,7 +65,7 @@ namespace VideoDedup
             this.SplitterContainer.Panel2.Controls.Add(this.btnDeleteRight);
             this.SplitterContainer.Panel2.Controls.Add(this.FpvRight);
             this.SplitterContainer.Size = new System.Drawing.Size(601, 381);
-            this.SplitterContainer.SplitterDistance = 300;
+            this.SplitterContainer.SplitterDistance = 297;
             this.SplitterContainer.SplitterWidth = 6;
             this.SplitterContainer.TabIndex = 2;
             this.SplitterContainer.TabStop = false;
@@ -87,9 +87,9 @@ namespace VideoDedup
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.FpvLeft.HighlightColor = System.Drawing.SystemColors.Control;
-            this.FpvLeft.Location = new System.Drawing.Point(0, 0);
+            this.FpvLeft.Location = new System.Drawing.Point(3, 0);
             this.FpvLeft.Name = "FpvLeft";
-            this.FpvLeft.Size = new System.Drawing.Size(303, 349);
+            this.FpvLeft.Size = new System.Drawing.Size(291, 349);
             this.FpvLeft.TabIndex = 0;
             this.FpvLeft.TabStop = false;
             this.FpvLeft.VideoFile = null;
@@ -108,7 +108,7 @@ namespace VideoDedup
             // BtnShowRight
             // 
             this.BtnShowRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnShowRight.Location = new System.Drawing.Point(185, 355);
+            this.BtnShowRight.Location = new System.Drawing.Point(198, 355);
             this.BtnShowRight.Name = "BtnShowRight";
             this.BtnShowRight.Size = new System.Drawing.Size(97, 23);
             this.BtnShowRight.TabIndex = 1;
@@ -119,7 +119,7 @@ namespace VideoDedup
             // btnDeleteRight
             // 
             this.btnDeleteRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeleteRight.Location = new System.Drawing.Point(104, 355);
+            this.btnDeleteRight.Location = new System.Drawing.Point(117, 355);
             this.btnDeleteRight.Name = "btnDeleteRight";
             this.btnDeleteRight.Size = new System.Drawing.Size(75, 23);
             this.btnDeleteRight.TabIndex = 0;
@@ -133,9 +133,9 @@ namespace VideoDedup
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.FpvRight.HighlightColor = System.Drawing.SystemColors.Control;
-            this.FpvRight.Location = new System.Drawing.Point(0, 0);
+            this.FpvRight.Location = new System.Drawing.Point(3, 0);
             this.FpvRight.Name = "FpvRight";
-            this.FpvRight.Size = new System.Drawing.Size(282, 349);
+            this.FpvRight.Size = new System.Drawing.Size(292, 349);
             this.FpvRight.TabIndex = 0;
             this.FpvRight.TabStop = false;
             this.FpvRight.VideoFile = null;
