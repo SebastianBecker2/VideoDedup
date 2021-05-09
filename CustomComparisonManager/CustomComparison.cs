@@ -183,8 +183,6 @@ namespace CustomComparisonManager
                     ComparerTask?.Wait();
                     CancelTokenSource?.Dispose();
                     ComparerTask?.Dispose();
-                    LeftVideoFile?.Dispose();
-                    RightVideoFile?.Dispose();
                 }
                 disposedValue = true;
             }

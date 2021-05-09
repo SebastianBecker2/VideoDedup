@@ -15,6 +15,16 @@ namespace VideoDedupShared
     {
         internal VideoFile() { }
 
+        public VideoFile(VideoFile other)
+            : this(other as IVideoFile) =>
+            ImageStreams = other.ImageStreams.Select(ms =>
+            {
+                ms.Position = 0;
+                var @new = new MemoryStream();
+                ms.CopyTo(@new);
+                return @new;
+            }).ToList();
+
         public VideoFile(IVideoFile other)
         {
             if (other is null)
@@ -26,15 +36,13 @@ namespace VideoDedupShared
             FileSize = other.FileSize;
             Duration = other.Duration;
             CodecInfo = other.CodecInfo;
-
-            ImageStreams = other.ImageStreams.Select(ms =>
-            {
-                ms.Position = 0;
-                var @new = new MemoryStream();
-                ms.CopyTo(@new);
-                return @new;
-            }).ToList();
         }
+
+        public VideoFile(
+            IVideoFile other,
+            IEnumerable<MemoryStream> imageStreams)
+            : this(other) =>
+            ImageStreams = imageStreams.ToList();
 
         [DataMember]
         public string FilePath { get; set; }

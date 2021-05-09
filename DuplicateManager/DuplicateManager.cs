@@ -5,6 +5,7 @@ namespace DuplicateManager
     using System.IO;
     using System.Linq;
     using System.Threading;
+    using DedupEngine.MpvLib;
     using Newtonsoft.Json;
     using VideoDedupShared;
     using Wcf.Contracts.Data;
@@ -93,21 +94,14 @@ namespace DuplicateManager
                     return refCounter.VideoFile;
                 }
 
-                if (videoFile.ImageCount == Settings.Count)
+                using (var mpv = new MpvWrapper(
+                    videoFile.FilePath,
+                    Settings.Count,
+                    videoFile.Duration))
                 {
-                    var videoFilePreview = new VideoFile(videoFile);
-                    UniqueVideoFiles.Add(videoFile, new VideoFileRefCounter
-                    {
-                        VideoFile = videoFilePreview,
-                        RefCount = 1,
-                    });
-                    return videoFilePreview;
-                }
-
-                using (var videoFileWithImages = new DedupEngine.VideoFile(
-                        videoFile, Settings.Count))
-                {
-                    var videoFilePreview = new VideoFile(videoFileWithImages);
+                    var videoFilePreview = new VideoFile(
+                        videoFile,
+                        mpv.GetImages(0, Settings.Count));
                     UniqueVideoFiles.Add(videoFile, new VideoFileRefCounter
                     {
                         VideoFile = videoFilePreview,
