@@ -6,27 +6,22 @@ namespace DedupEngine
     using System;
     using System.Collections.Generic;
     using System.Configuration;
-    using System.Drawing;
     using System.IO;
     using System.Linq;
     using global::DedupEngine.MpvLib;
     using Newtonsoft.Json;
     using VideoDedupShared;
 
-    public class VideoFile : IVideoFile, IDisposable
+    public class VideoFile : IVideoFile
     {
         internal VideoFile() { }
 
-        public VideoFile(
-            VideoFile other,
-            int imageCount = 0)
+        public VideoFile(VideoFile other)
         {
             if (other is null)
             {
                 throw new ArgumentNullException(nameof(other));
             }
-
-            ImageCount = imageCount;
 
             // We have to do a bit more work here since we can't use
             // the other ctors because we don't want to eagerly load
@@ -36,35 +31,17 @@ namespace DedupEngine
             duration = other.duration;
             codecInfo = other.codecInfo;
 
-            if (ImageCount == 0)
+            if (other.ImageCount == 0)
             {
                 return;
             }
 
-            if (other.ImageCount == ImageCount)
-            {
-                imageStreams = other.imageStreams
-                    .Select(image =>
-                    {
-                        var ms = new MemoryStream();
-                        image.Position = 0;
-                        image.CopyTo(ms);
-                        return ms;
-                    })
-                    .ToList();
-                return;
-            }
-
-            using (var mpv = new MpvWrapper(FilePath, imageCount, Duration))
-            {
-                imageStreams = mpv.GetImages(0, imageCount).ToList();
-            }
+            ImageCount = other.ImageCount;
+            ImageBytes = other.ImageBytes.ToList();
         }
 
-        public VideoFile(
-            IVideoFile other,
-            int imageCount = 0)
-            : this(other.FilePath, imageCount)
+        public VideoFile(IVideoFile other)
+            : this(other.FilePath)
         {
             if (other is null)
             {
@@ -76,9 +53,7 @@ namespace DedupEngine
             codecInfo = other.CodecInfo;
         }
 
-        public VideoFile(
-            string filePath,
-            int imageCount = 0)
+        public VideoFile(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
             {
@@ -87,17 +62,6 @@ namespace DedupEngine
             }
 
             this.filePath = filePath;
-            ImageCount = imageCount;
-
-            if (ImageCount == 0)
-            {
-                return;
-            }
-
-            using (var mpv = new MpvWrapper(FilePath, ImageCount, Duration))
-            {
-                imageStreams = mpv.GetImages(0, ImageCount).ToList();
-            }
         }
 
         [JsonIgnore]
@@ -168,25 +132,10 @@ namespace DedupEngine
         private CodecInfo codecInfo = null;
 
         [JsonIgnore]
-        public IEnumerable<Image> Images
-        {
-            get
-            {
-                if (imageStreams == null)
-                {
-                    return Enumerable.Empty<Image>();
-                }
-                return imageStreams.Select(image => Image.FromStream(image));
-            }
-        }
-        [JsonIgnore]
-        public IList<MemoryStream> ImageStreams => imageStreams;
-        [JsonIgnore]
-        private readonly IList<MemoryStream> imageStreams =
-            new List<MemoryStream>();
+        public List<List<byte>> ImageBytes { get; } = new List<List<byte>>();
 
         [JsonIgnore]
-        public int ImageCount { get; set; }
+        public int ImageCount { get; set; } = 0;
 
         public bool IsDurationEqual(
             IVideoFile other,
@@ -220,35 +169,5 @@ namespace DedupEngine
 
         public static bool operator !=(VideoFile left, IVideoFile right) =>
             !(left == right);
-
-        // For the IDisposable pattern
-        private bool disposedValue;
-
-        public void DisposeImages()
-        {
-            foreach (var image in imageStreams)
-            {
-                image.Dispose();
-            }
-            imageStreams.Clear();
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    DisposeImages();
-                }
-                disposedValue = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
     }
 }

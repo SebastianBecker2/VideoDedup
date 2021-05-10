@@ -67,14 +67,6 @@
       <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
       <RefTargetDir>INSTALLFOLDER</RefTargetDir>
     </ProjectReference>
-    <ProjectReference Include="..\ImageComparison\ImageComparison.csproj">
-      <Name>ImageComparison</Name>
-      <Project>{9317de4a-213d-4afc-b58f-ed401204534a}</Project>
-      <Private>True</Private>
-      <DoNotHarvest>True</DoNotHarvest>
-      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
-      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
-    </ProjectReference>
     <ProjectReference Include="..\VideoDedupClient\VideoDedupClient.csproj">
       <Name>VideoDedupClient</Name>
       <Project>{2f31738c-1992-4af1-a101-35f5c0cf7991}</Project>

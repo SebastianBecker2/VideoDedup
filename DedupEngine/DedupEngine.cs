@@ -141,21 +141,7 @@ namespace DedupEngine
             FileWatcher.IncludeSubdirectories = CurrentState.Settings.Recursive;
             FileWatcher.EnableRaisingEvents = CurrentState.Settings.MonitorChanges;
 
-            if (NewFiles != null)
-            {
-                foreach (var kvp in NewFiles)
-                {
-                    kvp.Key.Dispose();
-                }
-            }
             NewFiles = new ConcurrentDictionary<VideoFile, byte> { };
-            if (DeletedFiles != null)
-            {
-                foreach (var kvp in DeletedFiles)
-                {
-                    kvp.Key.Dispose();
-                }
-            }
             DeletedFiles = new ConcurrentDictionary<VideoFile, byte> { };
 
             lock (DedupLock)
@@ -462,7 +448,6 @@ namespace DedupEngine
                 }
 
                 CurrentState.SaveState();
-                file.DisposeImages();
             }
             // To make sure we don't do all the work again
             // when we load the state next time.
@@ -576,11 +561,6 @@ namespace DedupEngine
             cancelToken.ThrowIfCancellationRequested();
 
             FindDuplicates(CurrentState, cancelToken);
-            // Cleanup in case of cancel
-            foreach (var file in CurrentState.VideoFiles)
-            {
-                file.DisposeImages();
-            }
             cancelToken.ThrowIfCancellationRequested();
 
             ProcessChangesIfAny();
@@ -650,11 +630,6 @@ namespace DedupEngine
 
                 FindDuplicatesOf(CurrentState.VideoFiles, newFile, cancelToken);
                 CurrentState.SaveState();
-                // Cleanup in case of cancel
-                foreach (var file in CurrentState.VideoFiles)
-                {
-                    file.DisposeImages();
-                }
                 cancelToken.ThrowIfCancellationRequested();
             }
 

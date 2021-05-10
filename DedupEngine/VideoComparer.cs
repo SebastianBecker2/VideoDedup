@@ -1,16 +1,45 @@
 namespace DedupEngine
 {
     using System;
+    using System.Collections.Generic;
     using System.Drawing;
-    using System.IO;
     using System.Linq;
     using System.Threading;
     using global::DedupEngine.MpvLib;
     using VideoDedupShared;
-    using XnaFan.ImageComparison;
+    using VideoDedupShared.ImageExtension;
 
     public class VideoComparer
     {
+        private static readonly Size ImageDownscaleSize = new Size(16, 16);
+        private static int ImageDownscalePixelCount =>
+            ImageDownscaleSize.Width * ImageDownscaleSize.Height;
+        private const int ByteDifferenceThreshold = 3;
+
+        private static IEnumerable<byte> GetImageBytes(Bitmap image)
+        {
+            foreach (var y in Enumerable.Range(0, 16))
+            {
+                foreach (var x in Enumerable.Range(0, 16))
+                {
+                    yield return (byte)Math.Abs(image.GetPixel(x, y).R);
+                }
+            }
+        }
+
+        private static float GetDifferenceOfBytes(
+            List<byte> left,
+            List<byte> right,
+            byte threshold = ByteDifferenceThreshold)
+        {
+            var diffBytes = Enumerable
+                .Range(0, left.Count())
+                .Aggregate((d, i) =>
+                    Math.Abs(left[i] - right[i]) > threshold ? d + 1 : d);
+
+            return diffBytes / 256f;
+        }
+
         public IImageComparisonSettings Settings { get; set; }
 
         public VideoFile LeftVideoFile { get; set; }
@@ -29,7 +58,7 @@ namespace DedupEngine
             Func<ComparisonFinishedEventArgs> eventArgsCreator) =>
             ComparisonFinished?.Invoke(this, eventArgsCreator.Invoke());
 
-        private (MemoryStream ImageStream, int LoadLevel) LoadImage(
+        private (List<byte> ImageBytes, int LoadLevel) LoadImage(
             VideoFile videoFile,
             int index,
             IImageComparisonSettings settings)
@@ -43,13 +72,13 @@ namespace DedupEngine
             if (videoFile.ImageCount != 0
                 && videoFile.ImageCount != settings.MaxImageCompares)
             {
-                videoFile.DisposeImages();
+                videoFile.ImageBytes.Clear();
             }
             videoFile.ImageCount = settings.MaxImageCompares;
 
-            if (index < videoFile.ImageStreams.Count())
+            if (index < videoFile.ImageBytes.Count())
             {
-                return (videoFile.ImageStreams[index], 0);
+                return (videoFile.ImageBytes[index], 0);
             }
 
             using (var mpv = new MpvWrapper(
@@ -79,17 +108,32 @@ namespace DedupEngine
                 imagesToLoad = Math.Min(
                     imagesToLoad,
                     settings.MaxImageCompares - index);
-                foreach (var image in mpv.GetImages(index, imagesToLoad))
+                foreach (var imageStream in mpv.GetImages(index, imagesToLoad))
                 {
-                    videoFile.ImageStreams.Add(image);
+                    if (imageStream == null)
+                    {
+                        videoFile.ImageBytes.Add(
+                            Enumerable.Repeat<byte>(0, ImageDownscalePixelCount)
+                                .ToList());
+                        continue;
+                    }
+                    using (var image = Image.FromStream(imageStream))
+                    using (var smallImage = image.Resize(ImageDownscaleSize))
+                    using (var greyScaleImage = smallImage.MakeGrayScale())
+                    {
+                        videoFile.ImageBytes.Add(
+                            GetImageBytes(greyScaleImage)
+                                .ToList());
+                    }
+                    imageStream.Dispose();
                 }
 
-                if (index >= videoFile.ImageStreams.Count())
+                if (index >= videoFile.ImageBytes.Count())
                 {
                     return (null, loadLevel);
                 }
 
-                return (videoFile.ImageStreams[index], loadLevel);
+                return (videoFile.ImageBytes[index], loadLevel);
             }
         }
 
@@ -116,44 +160,49 @@ namespace DedupEngine
                     break;
                 }
 
-                Image StreamToImage(MemoryStream stream)
-                {
-                    if (stream != null)
-                    {
-                        return Image.FromStream(stream);
-                    }
-                    return new Bitmap(1, 1);
-                }
-
-                var (leftImageStream, lll) = LoadImage(
+                var (leftImageBytes, lll) = LoadImage(
                     LeftVideoFile,
                     index,
                     Settings);
                 leftLoadLevel = Math.Max(lll, leftLoadLevel);
-                var leftImage = StreamToImage(leftImageStream);
 
-                var (rightImageStream, rll) = LoadImage(
+                var (rightImageBytes, rll) = LoadImage(
                     RightVideoFile,
                     index,
                     Settings);
                 rightLoadLevel = Math.Max(rll, rightLoadLevel);
-                var rightImage = StreamToImage(rightImageStream);
 
-                var diff = leftImage.PercentageDifference(rightImage);
+                var diff = GetDifferenceOfBytes(leftImageBytes, rightImageBytes);
 
-                ImageComparedEventArgs eventArgsCreator(ComparisonResult result) =>
-                    new ImageComparedEventArgs
+                ImageComparedEventArgs eventArgsCreator(ComparisonResult result)
+                {
+                    using (var leftFileMpv = new MpvWrapper(
+                        LeftVideoFile.FilePath,
+                        Settings.MaxImageCompares,
+                        LeftVideoFile.Duration))
+                    using (var rightFileMpv = new MpvWrapper(
+                        RightVideoFile.FilePath,
+                        Settings.MaxImageCompares,
+                        RightVideoFile.Duration))
                     {
-                        LeftVideoFile = LeftVideoFile,
-                        RightVideoFile = RightVideoFile,
-                        LeftImage = leftImageStream,
-                        RightImage = rightImageStream,
-                        ImageComparisonResult = result,
-                        VideoComparisonResult = comparisonResult,
-                        Difference = diff,
-                        ImageLoadLevel = Math.Max(leftLoadLevel, rightLoadLevel),
-                        ImageComparisonIndex = index,
-                    };
+                        return new ImageComparedEventArgs
+                        {
+                            LeftVideoFile = LeftVideoFile,
+                            RightVideoFile = RightVideoFile,
+                            LeftImage = leftFileMpv
+                                .GetImages(index, 1)
+                                .FirstOrDefault(),
+                            RightImage = rightFileMpv
+                                .GetImages(index, 1)
+                                .FirstOrDefault(),
+                            ImageComparisonResult = result,
+                            VideoComparisonResult = comparisonResult,
+                            Difference = diff,
+                            ImageLoadLevel = Math.Max(leftLoadLevel, rightLoadLevel),
+                            ImageComparisonIndex = index,
+                        };
+                    }
+                }
 
                 if (diff <= (double)Settings.MaxImageDifferencePercent / 100)
                 {

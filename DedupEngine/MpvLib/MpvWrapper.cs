@@ -12,7 +12,7 @@ namespace DedupEngine.MpvLib
     using System.Threading;
     using VideoDedupShared;
 
-    internal class MpvWrapper : IDisposable
+    public class MpvWrapper : IDisposable
     {
         private const string LibPath = @"mpv-1.dll";
         private static readonly TimeSpan GetEventIdTimeout =
@@ -435,13 +435,13 @@ namespace DedupEngine.MpvLib
 
         private static CodecInfo ReadCodecInfo(IntPtr mpvHandle) =>
             new CodecInfo()
-        {
-            Size = new Size(
-                (int)GetLong(mpvHandle, "width"),
-                (int)GetLong(mpvHandle, "height")),
-            Name = GetString(mpvHandle, "video-codec"),
-            FrameRate = GetLong(mpvHandle, "container-fps"),
-        };
+            {
+                Size = new Size(
+                    (int)GetLong(mpvHandle, "width"),
+                    (int)GetLong(mpvHandle, "height")),
+                Name = GetString(mpvHandle, "video-codec"),
+                FrameRate = GetLong(mpvHandle, "container-fps"),
+            };
 
         private static void Check(int result, string message)
         {

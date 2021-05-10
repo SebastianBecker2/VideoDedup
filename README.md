@@ -8,7 +8,8 @@ This tool includes a server and client module. By default, the client looks for 
 The server searches for duplicates of video files. Duplicates are determined by the following configurable settings:
 - Number of Images to compare => Defines how many images will be compared to determine a duplicate.
 - Accepted number of different Images => Defines how many of the compared images can be different to still qualify as a duplicate.
-- Accepted percentage of difference => Defines how different two images have to be to be considered as different images. This solely depends on the [ImageComparison by Jaok Farian Krarup](https://www.codeproject.com/Articles/374386/Simple-image-comparison-in-NET). 35% seems to be a good value.
+- Accepted percentage of difference => Defines how different two images have to be to be considered as different images. 35% seems to be a good value.
+The comparison algorithm for images is based on [ImageComparison by Jaok Farian Krarup](https://www.codeproject.com/Articles/374386/Simple-image-comparison-in-NET). Though the library isn't used directly anymore. The algorithm is the same.
 
 To avoid comparing videos that differ too much in length, a maximum difference in length can be defined. Either as an absolute value in seconds or in percent.
 
@@ -20,7 +21,6 @@ VidepDedup is using the following tools and libraries:
 - [libmpv](https://github.com/mpv-player/mpv)
 - [Newtonsoft.Json](https://www.newtonsoft.com/json)
 - [WindowsAPICodePack](https://github.com/aybe/Windows-API-Code-Pack-1.1)
-- [ImageComparison by Jakob Farian Krarup](https://www.codeproject.com/Articles/374386/Simple-image-comparison-in-NET)
 - The amazing [FatCow IconPack](https://www.fatcow.com/free-icons)
 - [WiX Toolset](https://wixtoolset.org)
 

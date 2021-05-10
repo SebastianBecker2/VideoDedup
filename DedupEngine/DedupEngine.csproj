@@ -92,10 +92,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ImageComparison\ImageComparison.csproj">
-      <Project>{9317de4a-213d-4afc-b58f-ed401204534a}</Project>
-      <Name>ImageComparison</Name>
-    </ProjectReference>
     <ProjectReference Include="..\VideoDedupShared\VideoDedupShared.csproj">
       <Project>{c16eae42-0c5c-405f-9916-4dfab332171a}</Project>
       <Name>VideoDedupShared</Name>

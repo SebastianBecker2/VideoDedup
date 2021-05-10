@@ -100,8 +100,6 @@
               Source="$(var.DedupEngine.TargetPath)" />
         <File Id="Server_DuplicateManager.dll" 
               Source="$(var.DuplicateManager.TargetPath)" />
-        <File Id="Server_ImageComparison.dll" 
-              Source="$(var.ImageComparison.TargetPath)" />
         <File Id="Server_mpv_1.dll" 
               Source="$(var.VideoDedupService.TargetDir)mpv-1.dll" />
         <File Id="Server_Newtonsoft.Json.dll" 
