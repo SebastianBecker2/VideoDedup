@@ -19,7 +19,6 @@ namespace DedupEngine
     public class DedupEngine : IDisposable
     {
         private static readonly string LogCheckingFile = "Checking: {0} - Duration: {1}";
-        private static readonly string LogCompareFile = "  against: {0}";
         private static readonly string LogDeletedFile = "File deleted: {0}";
         private static readonly string LogNewFile = "File created: {0}";
 
@@ -423,7 +422,6 @@ namespace DedupEngine
                         return;
                     }
 
-                    OnLogged(string.Format(LogCompareFile, other.FilePath));
                     try
                     {
                         var comparer = new VideoComparer
@@ -481,7 +479,6 @@ namespace DedupEngine
                     return;
                 }
 
-                OnLogged(string.Format(LogCompareFile, file.FilePath));
                 try
                 {
                     var comparer = new VideoComparer
