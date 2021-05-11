@@ -91,7 +91,7 @@ namespace DedupEngine
                 return fileSize.Value;
             }
         }
-        [JsonProperty]
+        [JsonIgnore]
         private long? fileSize = null;
 
         [JsonIgnore]
