@@ -110,13 +110,6 @@ namespace DedupEngine
                     settings.MaxImageCompares - index);
                 foreach (var imageStream in mpv.GetImages(index, imagesToLoad))
                 {
-                    if (imageStream == null)
-                    {
-                        videoFile.ImageBytes.Add(
-                            Enumerable.Repeat<byte>(0, ImageDownscalePixelCount)
-                                .ToList());
-                        continue;
-                    }
                     using (var image = Image.FromStream(imageStream))
                     using (var smallImage = image.Resize(ImageDownscaleSize))
                     using (var greyScaleImage = smallImage.MakeGrayScale())
@@ -130,7 +123,10 @@ namespace DedupEngine
 
                 if (index >= videoFile.ImageBytes.Count())
                 {
-                    return (null, loadLevel);
+                    return (Enumerable
+                            .Repeat<byte>(0, ImageDownscalePixelCount)
+                            .ToList(),
+                        loadLevel);
                 }
 
                 return (videoFile.ImageBytes[index], loadLevel);
