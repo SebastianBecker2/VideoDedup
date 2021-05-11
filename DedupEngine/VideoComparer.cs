@@ -58,6 +58,36 @@ namespace DedupEngine
             Func<ComparisonFinishedEventArgs> eventArgsCreator) =>
             ComparisonFinished?.Invoke(this, eventArgsCreator.Invoke());
 
+        private (int ImagesToLoad, int LoadLevel) DetermineLoadLevel(
+            int index,
+            IImageComparisonSettings settings)
+        {
+            // First loading step, only the minimum (when index == 0)
+            var imagesToLoad = settings.MaxDifferentImages + 1;
+            var loadLevel = 1;
+            // Second loading step
+            if (index == settings.MaxDifferentImages + 1)
+            {
+                imagesToLoad = settings.MaxImageCompares
+                    - index
+                    - settings.MaxDifferentImages;
+                loadLevel = 2;
+            }
+            // Third loading step
+            else if (index
+                == settings.MaxImageCompares - settings.MaxDifferentImages)
+            {
+                imagesToLoad = settings.MaxDifferentImages;
+                loadLevel = 3;
+            }
+            // To make sure we never load more than we initially wanted.
+            imagesToLoad = Math.Min(
+                imagesToLoad,
+                settings.MaxImageCompares - index);
+
+            return (imagesToLoad, loadLevel);
+        }
+
         private (byte[] ImageBytes, int LoadLevel) LoadImage(
             VideoFile videoFile,
             int index,
@@ -81,33 +111,13 @@ namespace DedupEngine
                 return (videoFile.ImageBytes[index], 0);
             }
 
+            var (imagesToLoad, loadLevel) = DetermineLoadLevel(index, settings);
+
             using (var mpv = new MpvWrapper(
                 videoFile.FilePath,
                 settings.MaxImageCompares,
                 videoFile.Duration))
             {
-                // First loading step, only the minimum (when index == 0)
-                var imagesToLoad = settings.MaxDifferentImages + 1;
-                var loadLevel = 1;
-                // Second loading step
-                if (index == settings.MaxDifferentImages + 1)
-                {
-                    imagesToLoad = settings.MaxImageCompares
-                        - index
-                        - settings.MaxDifferentImages;
-                    loadLevel = 2;
-                }
-                // Third loading step
-                else if (index
-                    == settings.MaxImageCompares - settings.MaxDifferentImages)
-                {
-                    imagesToLoad = settings.MaxDifferentImages;
-                    loadLevel = 3;
-                }
-                // To make sure we never load more than we initially wanted.
-                imagesToLoad = Math.Min(
-                    imagesToLoad,
-                    settings.MaxImageCompares - index);
                 foreach (var imageStream in mpv.GetImages(index, imagesToLoad))
                 {
                     using (var image = Image.FromStream(imageStream))
