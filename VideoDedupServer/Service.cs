@@ -45,6 +45,13 @@ namespace VideoDedupServer
 
         public Service(string appDataFolder)
         {
+            if (Settings.Default.UpgradeRequired)
+            {
+                Settings.Default.Upgrade();
+                Settings.Default.UpgradeRequired = false;
+                Settings.Default.Save();
+            }
+
             var config = GetConfig();
 
             dedupper = new DedupEngine(appDataFolder);
