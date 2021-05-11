@@ -22,12 +22,11 @@ namespace DedupEngine
             MonitorChanges = settings.MonitorChanges;
             DifferenceType = settings.DifferenceType;
             MaxDurationDifferenceSeconds = settings.MaxDifferenceSeconds;
-            MaxDurationDifferencePercent =
-                (settings as IDurationComparisonSettings).MaxDifferencePercent;
+            MaxDurationDifferencePercent = settings.MaxDifferencePercent;
             MaxImageCompares = settings.MaxImageCompares;
             MaxDifferentImages = settings.MaxDifferentImages;
-            MaxImageDifferencePercent =
-                (settings as IImageComparisonSettings).MaxImageDifferencePercent;
+            MaxImageDifferencePercent = settings.MaxImageDifferencePercent;
+            SaveStateIntervalMinutes = settings.SaveStateIntervalMinutes;
         }
 
         public string BasePath { get; set; }
@@ -58,6 +57,13 @@ namespace DedupEngine
         public int MaxImageDifferencePercent { get; set; }
         int IImageComparisonSettings.MaxImageDifferencePercent =>
             MaxImageDifferencePercent;
+
+        public int SaveStateIntervalMinutes
+        {
+            get => (int)SaveStateInterval.TotalMinutes;
+            set => SaveStateInterval = TimeSpan.FromMinutes(value);
+        }
+        public TimeSpan SaveStateInterval { get; set; }
 
         public override bool Equals(object obj) => Equals(obj as EngineSettings);
         public bool Equals(EngineSettings other) =>

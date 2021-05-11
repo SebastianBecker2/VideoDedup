@@ -68,6 +68,9 @@
             this.label10 = new System.Windows.Forms.Label();
             this.ChbMonitorFileChanges = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.NumSaveStateIntervalMinutes = new System.Windows.Forms.NumericUpDown();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxImageComparison)).BeginInit();
@@ -82,6 +85,8 @@
             this.groupBox3.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
+            this.groupBox5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.NumSaveStateIntervalMinutes)).BeginInit();
             this.SuspendLayout();
             // 
             // BtnCancel
@@ -113,7 +118,7 @@
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(303, 156);
+            this.groupBox1.Size = new System.Drawing.Size(303, 152);
             this.groupBox1.TabIndex = 23;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Comparing Images";
@@ -138,14 +143,14 @@
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(297, 137);
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(297, 133);
             this.tableLayoutPanel4.TabIndex = 14;
             // 
             // BtnVideoComparisonPreview
             // 
             this.BtnVideoComparisonPreview.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.tableLayoutPanel4.SetColumnSpan(this.BtnVideoComparisonPreview, 2);
-            this.BtnVideoComparisonPreview.Location = new System.Drawing.Point(171, 108);
+            this.BtnVideoComparisonPreview.Location = new System.Drawing.Point(171, 104);
             this.BtnVideoComparisonPreview.Name = "BtnVideoComparisonPreview";
             this.BtnVideoComparisonPreview.Size = new System.Drawing.Size(123, 23);
             this.BtnVideoComparisonPreview.TabIndex = 3;
@@ -156,7 +161,7 @@
             // NumMaxImageComparison
             // 
             this.NumMaxImageComparison.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.NumMaxImageComparison.Location = new System.Drawing.Point(231, 7);
+            this.NumMaxImageComparison.Location = new System.Drawing.Point(231, 6);
             this.NumMaxImageComparison.Name = "NumMaxImageComparison";
             this.NumMaxImageComparison.Size = new System.Drawing.Size(63, 20);
             this.NumMaxImageComparison.TabIndex = 0;
@@ -165,7 +170,7 @@
             // 
             this.label6.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(50, 78);
+            this.label6.Location = new System.Drawing.Point(50, 76);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(175, 13);
             this.label6.TabIndex = 13;
@@ -174,7 +179,7 @@
             // NumMaxDifferentImages
             // 
             this.NumMaxDifferentImages.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.NumMaxDifferentImages.Location = new System.Drawing.Point(231, 41);
+            this.NumMaxDifferentImages.Location = new System.Drawing.Point(231, 39);
             this.NumMaxDifferentImages.Name = "NumMaxDifferentImages";
             this.NumMaxDifferentImages.Size = new System.Drawing.Size(63, 20);
             this.NumMaxDifferentImages.TabIndex = 1;
@@ -183,7 +188,7 @@
             // 
             this.label5.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(41, 44);
+            this.label5.Location = new System.Drawing.Point(41, 43);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(184, 13);
             this.label5.TabIndex = 12;
@@ -192,7 +197,7 @@
             // NumMaxDifferentPercentage
             // 
             this.NumMaxDifferentPercentage.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.NumMaxDifferentPercentage.Location = new System.Drawing.Point(231, 75);
+            this.NumMaxDifferentPercentage.Location = new System.Drawing.Point(231, 72);
             this.NumMaxDifferentPercentage.Name = "NumMaxDifferentPercentage";
             this.NumMaxDifferentPercentage.Size = new System.Drawing.Size(63, 20);
             this.NumMaxDifferentPercentage.TabIndex = 2;
@@ -211,7 +216,7 @@
             // 
             this.RdbDurationDifferenceSeconds.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.RdbDurationDifferenceSeconds.AutoSize = true;
-            this.RdbDurationDifferenceSeconds.Location = new System.Drawing.Point(16, 54);
+            this.RdbDurationDifferenceSeconds.Location = new System.Drawing.Point(16, 38);
             this.RdbDurationDifferenceSeconds.Name = "RdbDurationDifferenceSeconds";
             this.RdbDurationDifferenceSeconds.Size = new System.Drawing.Size(110, 17);
             this.RdbDurationDifferenceSeconds.TabIndex = 0;
@@ -228,10 +233,10 @@
             this.groupBox2.Controls.Add(this.NumMaxDurationDifferenceSeconds);
             this.groupBox2.Controls.Add(this.RdbDurationDifferenceSeconds);
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox2.Location = new System.Drawing.Point(0, 156);
+            this.groupBox2.Location = new System.Drawing.Point(0, 152);
             this.groupBox2.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(303, 194);
+            this.groupBox2.Size = new System.Drawing.Size(303, 162);
             this.groupBox2.TabIndex = 24;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Comparing Duration";
@@ -240,7 +245,7 @@
             // 
             this.label8.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(69, 120);
+            this.label8.Location = new System.Drawing.Point(69, 104);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(154, 13);
             this.label8.TabIndex = 17;
@@ -249,7 +254,7 @@
             // NumMaxDurationDifferencePercent
             // 
             this.NumMaxDurationDifferencePercent.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.NumMaxDurationDifferencePercent.Location = new System.Drawing.Point(229, 118);
+            this.NumMaxDurationDifferencePercent.Location = new System.Drawing.Point(229, 102);
             this.NumMaxDurationDifferencePercent.Name = "NumMaxDurationDifferencePercent";
             this.NumMaxDurationDifferencePercent.Size = new System.Drawing.Size(63, 20);
             this.NumMaxDurationDifferencePercent.TabIndex = 3;
@@ -258,7 +263,7 @@
             // 
             this.label7.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(65, 80);
+            this.label7.Location = new System.Drawing.Point(65, 64);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(158, 13);
             this.label7.TabIndex = 15;
@@ -268,7 +273,7 @@
             // 
             this.RdbDurationDifferencePercent.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.RdbDurationDifferencePercent.AutoSize = true;
-            this.RdbDurationDifferencePercent.Location = new System.Drawing.Point(16, 98);
+            this.RdbDurationDifferencePercent.Location = new System.Drawing.Point(16, 82);
             this.RdbDurationDifferencePercent.Name = "RdbDurationDifferencePercent";
             this.RdbDurationDifferencePercent.Size = new System.Drawing.Size(114, 17);
             this.RdbDurationDifferencePercent.TabIndex = 1;
@@ -279,7 +284,7 @@
             // NumMaxDurationDifferenceSeconds
             // 
             this.NumMaxDurationDifferenceSeconds.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.NumMaxDurationDifferenceSeconds.Location = new System.Drawing.Point(229, 78);
+            this.NumMaxDurationDifferenceSeconds.Location = new System.Drawing.Point(229, 62);
             this.NumMaxDurationDifferenceSeconds.Name = "NumMaxDurationDifferenceSeconds";
             this.NumMaxDurationDifferenceSeconds.Size = new System.Drawing.Size(63, 20);
             this.NumMaxDurationDifferenceSeconds.TabIndex = 2;
@@ -289,10 +294,10 @@
             this.groupBox4.Controls.Add(this.label9);
             this.groupBox4.Controls.Add(this.NumThumbnailViewCount);
             this.groupBox4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox4.Location = new System.Drawing.Point(0, 350);
+            this.groupBox4.Location = new System.Drawing.Point(0, 314);
             this.groupBox4.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(303, 95);
+            this.groupBox4.Size = new System.Drawing.Size(303, 65);
             this.groupBox4.TabIndex = 26;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Resolving Duplicates";
@@ -301,7 +306,7 @@
             // 
             this.label9.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(80, 39);
+            this.label9.Location = new System.Drawing.Point(80, 26);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(143, 13);
             this.label9.TabIndex = 19;
@@ -310,7 +315,7 @@
             // NumThumbnailViewCount
             // 
             this.NumThumbnailViewCount.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.NumThumbnailViewCount.Location = new System.Drawing.Point(229, 37);
+            this.NumThumbnailViewCount.Location = new System.Drawing.Point(229, 24);
             this.NumThumbnailViewCount.Name = "NumThumbnailViewCount";
             this.NumThumbnailViewCount.Size = new System.Drawing.Size(63, 20);
             this.NumThumbnailViewCount.TabIndex = 0;
@@ -531,20 +536,53 @@
             // tableLayoutPanel2
             // 
             this.tableLayoutPanel2.ColumnCount = 1;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.Controls.Add(this.groupBox1, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.groupBox2, 0, 1);
             this.tableLayoutPanel2.Controls.Add(this.groupBox4, 0, 2);
+            this.tableLayoutPanel2.Controls.Add(this.groupBox5, 0, 3);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(346, 0);
             this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(0);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 3;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 44.54023F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 55.45977F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 94F));
+            this.tableLayoutPanel2.RowCount = 4;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 48.5133F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 51.4867F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 65F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 65F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(303, 445);
             this.tableLayoutPanel2.TabIndex = 0;
+            // 
+            // groupBox5
+            // 
+            this.groupBox5.Controls.Add(this.label2);
+            this.groupBox5.Controls.Add(this.NumSaveStateIntervalMinutes);
+            this.groupBox5.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox5.Location = new System.Drawing.Point(0, 379);
+            this.groupBox5.Margin = new System.Windows.Forms.Padding(0);
+            this.groupBox5.Name = "groupBox5";
+            this.groupBox5.Size = new System.Drawing.Size(303, 66);
+            this.groupBox5.TabIndex = 27;
+            this.groupBox5.TabStop = false;
+            this.groupBox5.Text = "Advanced Settings";
+            // 
+            // label2
+            // 
+            this.label2.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(37, 29);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(186, 13);
+            this.label2.TabIndex = 21;
+            this.label2.Text = "Save Engine State interval in minutes:";
+            // 
+            // NumSaveStateIntervalMinutes
+            // 
+            this.NumSaveStateIntervalMinutes.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.NumSaveStateIntervalMinutes.Location = new System.Drawing.Point(229, 27);
+            this.NumSaveStateIntervalMinutes.Name = "NumSaveStateIntervalMinutes";
+            this.NumSaveStateIntervalMinutes.Size = new System.Drawing.Size(63, 20);
+            this.NumSaveStateIntervalMinutes.TabIndex = 20;
             // 
             // ServerConfigDlg
             // 
@@ -578,6 +616,9 @@
             this.tableLayoutPanel3.ResumeLayout(false);
             this.tableLayoutPanel3.PerformLayout();
             this.tableLayoutPanel2.ResumeLayout(false);
+            this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.NumSaveStateIntervalMinutes)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -622,5 +663,8 @@
         private System.Windows.Forms.CheckBox ChbMonitorFileChanges;
         private System.Windows.Forms.Button BtnVideoComparisonPreview;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
+        private System.Windows.Forms.GroupBox groupBox5;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.NumericUpDown NumSaveStateIntervalMinutes;
     }
 }

@@ -28,8 +28,8 @@ namespace DedupEngine
         }
 
         private static float GetDifferenceOfBytes(
-            List<byte> left,
-            List<byte> right,
+            byte[] left,
+            byte[] right,
             byte threshold = ByteDifferenceThreshold)
         {
             var diffBytes = Enumerable
@@ -58,7 +58,7 @@ namespace DedupEngine
             Func<ComparisonFinishedEventArgs> eventArgsCreator) =>
             ComparisonFinished?.Invoke(this, eventArgsCreator.Invoke());
 
-        private (List<byte> ImageBytes, int LoadLevel) LoadImage(
+        private (byte[] ImageBytes, int LoadLevel) LoadImage(
             VideoFile videoFile,
             int index,
             IImageComparisonSettings settings)
@@ -116,7 +116,7 @@ namespace DedupEngine
                     {
                         videoFile.ImageBytes.Add(
                             GetImageBytes(greyScaleImage)
-                                .ToList());
+                                .ToArray());
                     }
                     imageStream.Dispose();
                 }
@@ -125,7 +125,7 @@ namespace DedupEngine
                 {
                     return (Enumerable
                             .Repeat<byte>(0, ImageDownscalePixelCount)
-                            .ToList(),
+                            .ToArray(),
                         loadLevel);
                 }
 

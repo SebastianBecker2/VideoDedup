@@ -376,6 +376,8 @@ namespace DedupEngine
                 {
                     break;
                 }
+
+                CurrentState.SaveState(false);
             }
         }
 
@@ -445,7 +447,7 @@ namespace DedupEngine
                     }
                 }
 
-                CurrentState.SaveState();
+                CurrentState.SaveState(false);
             }
             // To make sure we don't do all the work again
             // when we load the state next time.
@@ -574,7 +576,7 @@ namespace DedupEngine
 
                 if (CurrentState.VideoFiles.Remove(deletedFile))
                 {
-                    CurrentState.SaveState();
+                    CurrentState.SaveState(false);
                     OnLogged($"Removed file: {deletedFile.FilePath}");
                 }
                 else
@@ -584,6 +586,7 @@ namespace DedupEngine
                 }
                 cancelToken.ThrowIfCancellationRequested();
             }
+            CurrentState.SaveState();
 
             operationStartTime = DateTime.Now;
             OnOperationUpdate(OperationType.Comparing, 0, NewFiles.Count());
@@ -626,9 +629,10 @@ namespace DedupEngine
                 cancelToken.ThrowIfCancellationRequested();
 
                 FindDuplicatesOf(CurrentState.VideoFiles, newFile, cancelToken);
-                CurrentState.SaveState();
+                CurrentState.SaveState(false);
                 cancelToken.ThrowIfCancellationRequested();
             }
+            CurrentState.SaveState();
 
             ProcessChangesIfAny();
         }

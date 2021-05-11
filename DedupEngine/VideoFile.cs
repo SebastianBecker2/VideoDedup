@@ -131,8 +131,8 @@ namespace DedupEngine
         [JsonIgnore]
         private CodecInfo codecInfo = null;
 
-        [JsonIgnore]
-        public List<List<byte>> ImageBytes { get; } = new List<List<byte>>();
+        [JsonProperty]
+        public List<byte[]> ImageBytes { get; } = new List<byte[]>();
 
         [JsonIgnore]
         public int ImageCount { get; set; } = 0;

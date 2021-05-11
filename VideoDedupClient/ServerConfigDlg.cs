@@ -20,24 +20,34 @@ namespace VideoDedup
 
             if (ServerConfig.ExcludedDirectories != null)
             {
-                LsbExcludedDirectories.Items.AddRange(ServerConfig.ExcludedDirectories.ToArray());
+                LsbExcludedDirectories.Items.AddRange(
+                    ServerConfig.ExcludedDirectories.ToArray());
             }
 
             if (ServerConfig.FileExtensions != null)
             {
-                LsbFileExtensions.Items.AddRange(ServerConfig.FileExtensions.ToArray());
+                LsbFileExtensions.Items.AddRange(
+                    ServerConfig.FileExtensions.ToArray());
             }
 
             NumMaxImageComparison.Value = ServerConfig.MaxImageCompares;
             NumMaxDifferentImages.Value = ServerConfig.MaxDifferentImages;
-            NumMaxDifferentPercentage.Value = ServerConfig.MaxImageDifferencePercent;
+            NumMaxDifferentPercentage.Value =
+                ServerConfig.MaxImageDifferencePercent;
 
-            RdbDurationDifferencePercent.Checked = ServerConfig.DifferenceType == DurationDifferenceType.Percent;
-            RdbDurationDifferenceSeconds.Checked = ServerConfig.DifferenceType != DurationDifferenceType.Percent;
-            NumMaxDurationDifferencePercent.Value = ServerConfig.MaxDurationDifferencePercent;
-            NumMaxDurationDifferenceSeconds.Value = ServerConfig.MaxDurationDifferenceSeconds;
+            RdbDurationDifferencePercent.Checked =
+                ServerConfig.DifferenceType == DurationDifferenceType.Percent;
+            RdbDurationDifferenceSeconds.Checked =
+                ServerConfig.DifferenceType != DurationDifferenceType.Percent;
+            NumMaxDurationDifferencePercent.Value =
+                ServerConfig.MaxDurationDifferencePercent;
+            NumMaxDurationDifferenceSeconds.Value =
+                ServerConfig.MaxDurationDifferenceSeconds;
 
             NumThumbnailViewCount.Value = ServerConfig.ThumbnailCount;
+
+            NumSaveStateIntervalMinutes.Value =
+                ServerConfig.SaveStateIntervalMinutes;
 
             base.OnLoad(e);
         }
@@ -48,12 +58,15 @@ namespace VideoDedup
             ServerConfig.Recursive = ChbRecursive.Checked;
             ServerConfig.MonitorChanges = ChbMonitorFileChanges.Checked;
 
-            ServerConfig.ExcludedDirectories = LsbExcludedDirectories.Items.Cast<string>().ToList();
-            ServerConfig.FileExtensions = LsbFileExtensions.Items.Cast<string>().ToList();
+            ServerConfig.ExcludedDirectories =
+                LsbExcludedDirectories.Items.Cast<string>().ToList();
+            ServerConfig.FileExtensions =
+                LsbFileExtensions.Items.Cast<string>().ToList();
 
             ServerConfig.MaxImageCompares = (int)NumMaxImageComparison.Value;
             ServerConfig.MaxDifferentImages = (int)NumMaxDifferentImages.Value;
-            ServerConfig.MaxImageDifferencePercent = (int)NumMaxDifferentPercentage.Value;
+            ServerConfig.MaxImageDifferencePercent =
+                (int)NumMaxDifferentPercentage.Value;
 
             if (RdbDurationDifferencePercent.Checked)
             {
@@ -63,10 +76,15 @@ namespace VideoDedup
             {
                 ServerConfig.DifferenceType = DurationDifferenceType.Seconds;
             }
-            ServerConfig.MaxDurationDifferencePercent = (int)NumMaxDurationDifferencePercent.Value;
-            ServerConfig.MaxDurationDifferenceSeconds = (int)NumMaxDurationDifferenceSeconds.Value;
+            ServerConfig.MaxDurationDifferencePercent =
+                (int)NumMaxDurationDifferencePercent.Value;
+            ServerConfig.MaxDurationDifferenceSeconds =
+                (int)NumMaxDurationDifferenceSeconds.Value;
 
             ServerConfig.ThumbnailCount = (int)NumThumbnailViewCount.Value;
+
+            ServerConfig.SaveStateIntervalMinutes =
+                (int)NumSaveStateIntervalMinutes.Value;
 
             DialogResult = DialogResult.OK;
         }
@@ -104,7 +122,10 @@ namespace VideoDedup
 
         private void BtnRemoveExcludedDirectory_Click(object sender, EventArgs e)
         {
-            foreach (var s in LsbExcludedDirectories.SelectedItems.OfType<string>().ToList())
+            foreach (var s in LsbExcludedDirectories
+                .SelectedItems
+                .OfType<string>()
+                .ToList())
             {
                 LsbExcludedDirectories.Items.Remove(s);
             }
@@ -122,7 +143,10 @@ namespace VideoDedup
 
         private void BtnRemoveFileExtension_Click(object sender, EventArgs e)
         {
-            foreach (var s in LsbFileExtensions.SelectedItems.OfType<string>().ToList())
+            foreach (var s in LsbFileExtensions
+                .SelectedItems
+                .OfType<string>()
+                .ToList())
             {
                 LsbFileExtensions.Items.Remove(s);
             }

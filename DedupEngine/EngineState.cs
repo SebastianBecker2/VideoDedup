@@ -18,6 +18,7 @@ namespace DedupEngine
             Path.Combine(StateFolderPath, stateId + StatePostfix);
 
         private string StateFolderPath { get; }
+        private DateTime LastSave { get; set; } = DateTime.MinValue;
 
         [JsonProperty]
         public IList<VideoFile> VideoFiles { get; set; }
@@ -73,8 +74,15 @@ namespace DedupEngine
             CurrentIndex = savedState.CurrentIndex;
         }
 
-        public void SaveState()
+        public void SaveState(bool force = true)
         {
+            if (!force
+                && DateTime.Now - LastSave < Settings.SaveStateInterval)
+            {
+                return;
+            }
+            LastSave = DateTime.Now;
+
             Dictionary<EngineSettings, string> engineStateIndex;
             try
             {
