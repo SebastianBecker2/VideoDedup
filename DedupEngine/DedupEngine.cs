@@ -540,20 +540,20 @@ namespace DedupEngine
         {
             var cancelToken = CancelSource.Token;
 
-            var files = GetVideoFileList(CurrentState.Settings);
+            CurrentState.VideoFiles = GetVideoFileList(CurrentState.Settings)
+                .ToList();
             cancelToken.ThrowIfCancellationRequested();
 
             // Cancellable preload of files
-            PreloadFiles(files, cancelToken);
+            PreloadFiles(CurrentState.VideoFiles, cancelToken);
             if (cancelToken.IsCancellationRequested)
             {
-                CurrentState.VideoFiles = files.ToList();
                 CurrentState.SaveState();
                 cancelToken.ThrowIfCancellationRequested();
             }
 
             // Remove invalid files
-            CurrentState.VideoFiles = files
+            CurrentState.VideoFiles = CurrentState.VideoFiles
                 .Where(f => f.Duration != TimeSpan.Zero)
                 .ToList();
             CurrentState.SaveState();
