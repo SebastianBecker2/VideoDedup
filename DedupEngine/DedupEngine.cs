@@ -551,6 +551,8 @@ namespace DedupEngine
                 CurrentState.SaveState();
                 cancelToken.ThrowIfCancellationRequested();
             }
+            OnLogged($"Finished preloading media info of " +
+                $"{CurrentState.VideoFiles.Count()} Files");
 
             // Remove invalid files
             CurrentState.VideoFiles = CurrentState.VideoFiles
@@ -560,7 +562,13 @@ namespace DedupEngine
             cancelToken.ThrowIfCancellationRequested();
 
             FindDuplicates(CurrentState, cancelToken);
-            cancelToken.ThrowIfCancellationRequested();
+            if (cancelToken.IsCancellationRequested)
+            {
+                CurrentState.SaveState();
+                cancelToken.ThrowIfCancellationRequested();
+            }
+            OnLogged($"Finished searching for duplicates of " +
+                $"{CurrentState.VideoFiles.Count()} Files");
 
             ProcessChangesIfAny();
         }
