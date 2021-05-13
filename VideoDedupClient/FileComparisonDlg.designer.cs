@@ -109,7 +109,7 @@ namespace VideoDedup
             // BtnShowRight
             // 
             this.BtnShowRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnShowRight.Location = new System.Drawing.Point(196, 355);
+            this.BtnShowRight.Location = new System.Drawing.Point(194, 355);
             this.BtnShowRight.Name = "BtnShowRight";
             this.BtnShowRight.Size = new System.Drawing.Size(97, 23);
             this.BtnShowRight.TabIndex = 2;
@@ -120,7 +120,7 @@ namespace VideoDedup
             // btnDeleteRight
             // 
             this.btnDeleteRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeleteRight.Location = new System.Drawing.Point(115, 355);
+            this.btnDeleteRight.Location = new System.Drawing.Point(113, 355);
             this.btnDeleteRight.Name = "btnDeleteRight";
             this.btnDeleteRight.Size = new System.Drawing.Size(75, 23);
             this.btnDeleteRight.TabIndex = 1;
@@ -136,7 +136,7 @@ namespace VideoDedup
             this.FpvRight.HighlightColor = System.Drawing.SystemColors.Control;
             this.FpvRight.Location = new System.Drawing.Point(3, 0);
             this.FpvRight.Name = "FpvRight";
-            this.FpvRight.Size = new System.Drawing.Size(290, 349);
+            this.FpvRight.Size = new System.Drawing.Size(288, 349);
             this.FpvRight.TabIndex = 0;
             this.FpvRight.TabStop = false;
             this.FpvRight.VideoFile = null;
@@ -199,7 +199,7 @@ namespace VideoDedup
             this.Controls.Add(this.SplitterContainer);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FileComparisonDlg";
-            this.Text = "FileComparison";
+            this.Text = "File Comparison";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.SplitterContainer.Panel1.ResumeLayout(false);
             this.SplitterContainer.Panel2.ResumeLayout(false);
