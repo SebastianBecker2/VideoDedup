@@ -22,8 +22,6 @@ namespace DedupEngine
 
         [JsonProperty]
         public IList<VideoFile> VideoFiles { get; set; }
-        [JsonProperty]
-        public int CurrentIndex { get; set; } = 0;
         [JsonIgnore]
         public EngineSettings Settings { get; set; }
 
@@ -71,7 +69,6 @@ namespace DedupEngine
             }
 
             VideoFiles = savedState.VideoFiles;
-            CurrentIndex = savedState.CurrentIndex;
         }
 
         public void SaveState(bool force = true)

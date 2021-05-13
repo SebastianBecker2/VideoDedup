@@ -335,17 +335,21 @@ namespace DedupEngine
                 return foundFiles;
             }
 
-            foreach (var file in foundFiles.Except(CurrentState.VideoFiles))
-            {
-                _ = NewFiles.TryAdd(file, 0);
-            }
+            // Get files that are in the loaded engine state but
+            // don't exist anymore. Might be deleted or excluded
+            // by the exclusion list or because the recursive flag
+            // isn't set anymore.
+            var obsoleteFiles = CurrentState.VideoFiles.Except(foundFiles);
 
-            foreach (var file in CurrentState.VideoFiles.Except(foundFiles))
-            {
-                _ = DeletedFiles.TryAdd(file, 0);
-            }
+            // Remove the files that we don't care about anymore.
+            var storedFilesWithoutObsolete = new HashSet<VideoFile>(
+                CurrentState.VideoFiles.Except(obsoleteFiles));
 
-            return CurrentState.VideoFiles;
+            // Add the files that do exist now but are not yet
+            // part of the engine state.
+            storedFilesWithoutObsolete.UnionWith(foundFiles);
+
+            return storedFilesWithoutObsolete;
         }
 
         private void PreloadFiles(
@@ -396,26 +400,24 @@ namespace DedupEngine
                 .OrderBy(f => f.Duration)
                 .ToList();
 
-            for (/*We continue at the current index*/;
-                CurrentState.CurrentIndex < state.VideoFiles.Count() - 1;
-                CurrentState.CurrentIndex++)
+            foreach (var index in Enumerable.Range(0, state.VideoFiles.Count - 1))
             {
                 if (cancelToken.IsCancellationRequested)
                 {
                     return;
                 }
 
-                var file = state.VideoFiles[CurrentState.CurrentIndex];
+                var file = state.VideoFiles[index];
 
                 OnLogged(string.Format(LogCheckingFile,
                     file.FilePath,
                     file.Duration.ToPrettyString()));
                 OnOperationUpdate(OperationType.Comparing,
-                    CurrentState.CurrentIndex + 1,
+                    index + 1,
                     state.VideoFiles.Count());
 
                 foreach (var other in state.VideoFiles
-                    .Skip(CurrentState.CurrentIndex + 1)
+                    .Skip(index + 1)
                     .TakeWhile(other =>
                         file.IsDurationEqual(other, state.Settings)))
                 {
@@ -449,10 +451,6 @@ namespace DedupEngine
 
                 CurrentState.SaveState(false);
             }
-            // To make sure we don't do all the work again
-            // when we load the state next time.
-            // Maybe we should track that separately though.
-            CurrentState.CurrentIndex = int.MaxValue;
             CurrentState.SaveState();
 
             timer.Stop();

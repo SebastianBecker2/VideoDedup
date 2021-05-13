@@ -7,6 +7,5 @@ namespace VideoDedupShared
         Searching,
         Monitoring,
         Completed,
-        LoadingDuplicates,
     }
 }

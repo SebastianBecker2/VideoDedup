@@ -2,7 +2,6 @@ namespace DedupEngine
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using VideoDedupShared;
 
     internal class EngineSettings :
@@ -69,57 +68,15 @@ namespace DedupEngine
         public bool Equals(EngineSettings other) =>
             other != null
             && BasePath == other.BasePath
-            && ExcludedDirectories.OrderBy(e => e).SequenceEqual(
-                other.ExcludedDirectories.OrderBy(e => e))
-            && FileExtensions.OrderBy(e => e).SequenceEqual(
-                other.FileExtensions.OrderBy(e => e))
-            && Recursive == other.Recursive
-            && DifferenceType == other.DifferenceType
-            && MaxDurationDifferenceSeconds
-                == other.MaxDurationDifferenceSeconds
-            && MaxDurationDifferencePercent
-                == other.MaxDurationDifferencePercent
-            && MaxImageCompares == other.MaxImageCompares
-            && MaxDifferentImages == other.MaxDifferentImages
-            && MaxImageDifferencePercent == other.MaxImageDifferencePercent;
+            && MaxImageCompares == other.MaxImageCompares;
 
         public override int GetHashCode()
         {
             var hashCode = 862207841;
             hashCode = (hashCode * -1521134295)
                 + EqualityComparer<string>.Default.GetHashCode(BasePath);
-            if (ExcludedDirectories != null)
-            {
-                foreach (var excludedDirectory in ExcludedDirectories)
-                {
-                    hashCode = (hashCode * -1521134295)
-                        + EqualityComparer<string>.Default.GetHashCode(
-                            excludedDirectory);
-                }
-            }
-            if (FileExtensions != null)
-            {
-                foreach (var fileExtension in FileExtensions)
-                {
-                    hashCode = (hashCode * -1521134295)
-                        + EqualityComparer<string>.Default.GetHashCode(
-                            fileExtension);
-                }
-            }
-            hashCode = (hashCode * -1521134295)
-                + Recursive.GetHashCode();
-            hashCode = (hashCode * -1521134295)
-                + DifferenceType.GetHashCode();
-            hashCode = (hashCode * -1521134295)
-                + MaxDurationDifferenceSeconds.GetHashCode();
-            hashCode = (hashCode * -1521134295)
-                + MaxDurationDifferencePercent.GetHashCode();
             hashCode = (hashCode * -1521134295)
                 + MaxImageCompares.GetHashCode();
-            hashCode = (hashCode * -1521134295)
-                + MaxDifferentImages.GetHashCode();
-            hashCode = (hashCode * -1521134295)
-                + MaxImageDifferencePercent.GetHashCode();
             return hashCode;
         }
 

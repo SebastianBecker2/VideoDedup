@@ -25,7 +25,6 @@ namespace VideoDedupServer
             { OperationType.Searching, "Searching for files..." },
             { OperationType.Monitoring, "Monitoring for file changes..." },
             { OperationType.Completed, "Finished comparison" },
-            { OperationType.LoadingDuplicates, "Loading duplicates: {0}/{1}" },
         };
 
         private readonly DedupEngine dedupper;
@@ -60,10 +59,7 @@ namespace VideoDedupServer
             dedupper.Logged += LoggedCallback;
             dedupper.UpdateConfiguration(config);
 
-            duplicateManager = new DuplicateManager(appDataFolder);
-            duplicateManager.FileLoadedProgress +=
-                DuplicateFileLoadedProgressCallback;
-            duplicateManager.Settings = config;
+            duplicateManager = new DuplicateManager(config);
 
             OperationInfo = new OperationInfo
             {
@@ -71,10 +67,7 @@ namespace VideoDedupServer
                 Message = "Initializing...",
             };
 
-            initializationTask = Task.Factory.StartNew(
-                () => duplicateManager.LoadFromFile(cancelTokenSource.Token),
-                cancelTokenSource.Token)
-                .ContinueWith(t =>
+            initializationTask = Task.Factory.StartNew(() =>
                 {
                     try
                     {
@@ -89,7 +82,7 @@ namespace VideoDedupServer
                         };
                         AddLogEntry(exc.Message);
                     }
-                }, TaskContinuationOptions.NotOnCanceled);
+                });
         }
 
         private void OperationUpdateCallback(
@@ -136,21 +129,6 @@ namespace VideoDedupServer
                 logEntries.Add(DateTime.Now.ToString("s") + " " + message);
             }
         }
-
-        private void DuplicateFileLoadedProgressCallback(
-            object sender,
-            FileLoadedProgressEventArgs e) =>
-            OperationInfo = new OperationInfo
-            {
-                Message = string.Format(
-                    OperationTypeTexts[OperationType.LoadingDuplicates],
-                    e.Count,
-                    e.MaxCount),
-                CurrentProgress = e.Count,
-                MaximumProgress = e.MaxCount,
-                ProgressStyle = ProgressStyle.Continuous,
-                StartTime = e.StartTime,
-            };
 
         public CustomVideoComparisonStartData StartCustomVideoComparison(
             CustomVideoComparisonData customVideoComparisonData) =>
