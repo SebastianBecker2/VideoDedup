@@ -52,6 +52,40 @@ namespace DedupEngine
         protected virtual void OnImageCompared(
             Func<ImageComparedEventArgs> eventArgsCreator) =>
             ImageCompared?.Invoke(this, eventArgsCreator.Invoke());
+        private ImageComparedEventArgs CreateImageComparedEventArgs(
+            int imageComparisonIndex,
+            ComparisonResult imageComparisonResult,
+            ComparisonResult videoComparisonResult,
+            double difference,
+            int loadLevel)
+        {
+            using (var leftFileMpv = new MpvWrapper(
+                        LeftVideoFile.FilePath,
+                        Settings.MaxImageCompares,
+                        LeftVideoFile.Duration))
+            using (var rightFileMpv = new MpvWrapper(
+                RightVideoFile.FilePath,
+                Settings.MaxImageCompares,
+                RightVideoFile.Duration))
+            {
+                return new ImageComparedEventArgs
+                {
+                    LeftVideoFile = LeftVideoFile,
+                    RightVideoFile = RightVideoFile,
+                    LeftImage = leftFileMpv
+                        .GetImages(imageComparisonIndex, 1)
+                        .FirstOrDefault(),
+                    RightImage = rightFileMpv
+                        .GetImages(imageComparisonIndex, 1)
+                        .FirstOrDefault(),
+                    ImageComparisonResult = imageComparisonResult,
+                    VideoComparisonResult = videoComparisonResult,
+                    Difference = difference,
+                    ImageLoadLevel = loadLevel,
+                    ImageComparisonIndex = imageComparisonIndex,
+                };
+            }
+        }
 
         public event EventHandler<ComparisonFinishedEventArgs> ComparisonFinished;
         protected virtual void OnComparisonFinished(
@@ -180,36 +214,6 @@ namespace DedupEngine
 
                 var diff = GetDifferenceOfBytes(leftImageBytes, rightImageBytes);
 
-                ImageComparedEventArgs eventArgsCreator(ComparisonResult result)
-                {
-                    using (var leftFileMpv = new MpvWrapper(
-                        LeftVideoFile.FilePath,
-                        Settings.MaxImageCompares,
-                        LeftVideoFile.Duration))
-                    using (var rightFileMpv = new MpvWrapper(
-                        RightVideoFile.FilePath,
-                        Settings.MaxImageCompares,
-                        RightVideoFile.Duration))
-                    {
-                        return new ImageComparedEventArgs
-                        {
-                            LeftVideoFile = LeftVideoFile,
-                            RightVideoFile = RightVideoFile,
-                            LeftImage = leftFileMpv
-                                .GetImages(index, 1)
-                                .FirstOrDefault(),
-                            RightImage = rightFileMpv
-                                .GetImages(index, 1)
-                                .FirstOrDefault(),
-                            ImageComparisonResult = result,
-                            VideoComparisonResult = comparisonResult,
-                            Difference = diff,
-                            ImageLoadLevel = Math.Max(leftLoadLevel, rightLoadLevel),
-                            ImageComparisonIndex = index,
-                        };
-                    }
-                }
-
                 if (diff <= (double)Settings.MaxImageDifferencePercent / 100)
                 {
                     // Early return when there are not enough images left to
@@ -220,8 +224,12 @@ namespace DedupEngine
                         comparisonResult = ComparisonResult.Duplicate;
                     }
 
-                    OnImageCompared(
-                        () => eventArgsCreator(ComparisonResult.Duplicate));
+                    OnImageCompared(() => CreateImageComparedEventArgs(
+                        index,
+                        ComparisonResult.Duplicate,
+                        comparisonResult,
+                        diff,
+                        Math.Max(leftLoadLevel, rightLoadLevel)));
                 }
                 else
                 {
@@ -234,8 +242,12 @@ namespace DedupEngine
                         comparisonResult = ComparisonResult.Different;
                     }
 
-                    OnImageCompared(
-                        () => eventArgsCreator(ComparisonResult.Different));
+                    OnImageCompared(() => CreateImageComparedEventArgs(
+                        index,
+                        ComparisonResult.Different,
+                        comparisonResult,
+                        diff,
+                        Math.Max(leftLoadLevel, rightLoadLevel)));
                 }
 
                 if (comparisonResult != ComparisonResult.NoResult
