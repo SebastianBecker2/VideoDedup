@@ -54,7 +54,7 @@ namespace CustomComparisonManager
                 LeftVideoFile = LeftVideoFile,
                 RightVideoFile = RightVideoFile,
                 Settings = Data,
-                AlwaysLoadAllImages = true,
+                AlwaysLoadAllImages = Data.AlwaysLoadAllImages,
             };
 
             Comparer.ImageCompared += HandleImageCompared;
