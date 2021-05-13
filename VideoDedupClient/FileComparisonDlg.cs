@@ -101,5 +101,19 @@ namespace VideoDedup
             ResolveOperation = ResolveOperation.Discard;
             DialogResult = DialogResult.OK;
         }
+
+        private void BtnReviewComparison_Click(object sender, EventArgs e)
+        {
+            using (var dlg = new VideoComparisonPreviewDlg
+            {
+                ServerConfig = VideoDedupDlg.WcfProxy.GetConfig(),
+                LeftFilePath = LeftFile.FilePath,
+                RightFilePath = RightFile.FilePath,
+                CloseButtons = VideoComparisonPreviewDlg.Buttons.Close,
+            })
+            {
+                _ = dlg.ShowDialog();
+            }
+        }
     }
 }

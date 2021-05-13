@@ -13,6 +13,12 @@ namespace VideoDedup
 
     public partial class VideoComparisonPreviewDlg : Form
     {
+        public enum Buttons
+        {
+            OkCancel,
+            Close,
+        }
+
         private struct ImageComparison
         {
             public Image LeftImage { get; set; }
@@ -31,7 +37,20 @@ namespace VideoDedup
         private static readonly Color DefaultColor =
             Color.FromKnownColor(KnownColor.Control);
 
+        public Buttons CloseButtons { get; set; } = Buttons.OkCancel;
+
         public Wcf.Contracts.Data.ConfigData ServerConfig { get; set; }
+
+        public string LeftFilePath
+        {
+            get => TxtLeftFilePath.Text;
+            set => TxtLeftFilePath.Text = value;
+        }
+        public string RightFilePath
+        {
+            get => TxtRightFilePath.Text;
+            set => TxtRightFilePath.Text = value;
+        }
 
         private Guid? ComparisonToken { get; set; } = null;
         private int ImageComparisonIndex { get; set; } = 0;
@@ -41,11 +60,22 @@ namespace VideoDedup
 
         protected override void OnLoad(EventArgs e)
         {
-            NumMaxDifferentPercentage.Value = ServerConfig.MaxImageDifferencePercent;
+            NumMaxDifferentPercentage.Value =
+                ServerConfig.MaxImageDifferencePercent;
             NumMaxDifferentImages.Value = ServerConfig.MaxDifferentImages;
             NumMaxImageComparison.Value = ServerConfig.MaxImageCompares;
 
             CleanUpResult();
+
+            if (!string.IsNullOrWhiteSpace(LeftFilePath)
+                && !string.IsNullOrWhiteSpace(RightFilePath))
+            {
+                BtnStartComparison.PerformClick();
+            }
+
+            BtnOkay.Visible = CloseButtons == Buttons.OkCancel;
+            BtnCancel.Visible = CloseButtons == Buttons.OkCancel;
+            btnClose.Visible = CloseButtons == Buttons.Close;
 
             base.OnLoad(e);
         }
@@ -81,8 +111,8 @@ namespace VideoDedup
                  new CustomVideoComparisonData
                  {
                      AlwaysLoadAllImages = true,
-                     LeftFilePath = TxtLeftFilePath.Text,
-                     RightFilePath = TxtRightFilePath.Text,
+                     LeftFilePath = LeftFilePath,
+                     RightFilePath = RightFilePath,
                      MaxImageCompares = (int)NumMaxImageComparison.Value,
                      MaxImageDifferencePercent =
                          (int)NumMaxDifferentPercentage.Value,
@@ -123,7 +153,7 @@ namespace VideoDedup
                     return;
                 }
 
-                TxtLeftFilePath.Text = dlg.FileName;
+                LeftFilePath = dlg.FileName;
             }
         }
 
@@ -136,7 +166,7 @@ namespace VideoDedup
                     return;
                 }
 
-                TxtRightFilePath.Text = dlg.FileName;
+                RightFilePath = dlg.FileName;
             }
         }
 

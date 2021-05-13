@@ -39,6 +39,7 @@ namespace VideoDedup
             this.btnClose = new System.Windows.Forms.Button();
             this.BtnSkip = new System.Windows.Forms.Button();
             this.BtnDiscard = new System.Windows.Forms.Button();
+            this.BtnReviewComparison = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.SplitterContainer)).BeginInit();
             this.SplitterContainer.Panel1.SuspendLayout();
             this.SplitterContainer.Panel2.SuspendLayout();
@@ -67,7 +68,7 @@ namespace VideoDedup
             this.SplitterContainer.Size = new System.Drawing.Size(601, 381);
             this.SplitterContainer.SplitterDistance = 297;
             this.SplitterContainer.SplitterWidth = 6;
-            this.SplitterContainer.TabIndex = 2;
+            this.SplitterContainer.TabIndex = 0;
             this.SplitterContainer.TabStop = false;
             // 
             // BtnShowLeft
@@ -76,7 +77,7 @@ namespace VideoDedup
             this.BtnShowLeft.Location = new System.Drawing.Point(3, 355);
             this.BtnShowLeft.Name = "BtnShowLeft";
             this.BtnShowLeft.Size = new System.Drawing.Size(97, 23);
-            this.BtnShowLeft.TabIndex = 0;
+            this.BtnShowLeft.TabIndex = 1;
             this.BtnShowLeft.Text = "&Show in Explorer";
             this.BtnShowLeft.UseVisualStyleBackColor = true;
             this.BtnShowLeft.Click += new System.EventHandler(this.BtnShowLeft_Click);
@@ -100,7 +101,7 @@ namespace VideoDedup
             this.btnDeleteLeft.Location = new System.Drawing.Point(106, 355);
             this.btnDeleteLeft.Name = "btnDeleteLeft";
             this.btnDeleteLeft.Size = new System.Drawing.Size(75, 23);
-            this.btnDeleteLeft.TabIndex = 1;
+            this.btnDeleteLeft.TabIndex = 2;
             this.btnDeleteLeft.Text = "Delete &Left";
             this.btnDeleteLeft.UseVisualStyleBackColor = true;
             this.btnDeleteLeft.Click += new System.EventHandler(this.BtnDeleteLeft_Click);
@@ -108,10 +109,10 @@ namespace VideoDedup
             // BtnShowRight
             // 
             this.BtnShowRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnShowRight.Location = new System.Drawing.Point(198, 355);
+            this.BtnShowRight.Location = new System.Drawing.Point(196, 355);
             this.BtnShowRight.Name = "BtnShowRight";
             this.BtnShowRight.Size = new System.Drawing.Size(97, 23);
-            this.BtnShowRight.TabIndex = 1;
+            this.BtnShowRight.TabIndex = 2;
             this.BtnShowRight.Text = "Show in &Explorer";
             this.BtnShowRight.UseVisualStyleBackColor = true;
             this.BtnShowRight.Click += new System.EventHandler(this.BtnShowRight_Click);
@@ -119,10 +120,10 @@ namespace VideoDedup
             // btnDeleteRight
             // 
             this.btnDeleteRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeleteRight.Location = new System.Drawing.Point(117, 355);
+            this.btnDeleteRight.Location = new System.Drawing.Point(115, 355);
             this.btnDeleteRight.Name = "btnDeleteRight";
             this.btnDeleteRight.Size = new System.Drawing.Size(75, 23);
-            this.btnDeleteRight.TabIndex = 0;
+            this.btnDeleteRight.TabIndex = 1;
             this.btnDeleteRight.Text = "Delete &Right";
             this.btnDeleteRight.UseVisualStyleBackColor = true;
             this.btnDeleteRight.Click += new System.EventHandler(this.BtnDeleteRight_Click);
@@ -135,7 +136,7 @@ namespace VideoDedup
             this.FpvRight.HighlightColor = System.Drawing.SystemColors.Control;
             this.FpvRight.Location = new System.Drawing.Point(3, 0);
             this.FpvRight.Name = "FpvRight";
-            this.FpvRight.Size = new System.Drawing.Size(292, 349);
+            this.FpvRight.Size = new System.Drawing.Size(290, 349);
             this.FpvRight.TabIndex = 0;
             this.FpvRight.TabStop = false;
             this.FpvRight.VideoFile = null;
@@ -147,7 +148,7 @@ namespace VideoDedup
             this.btnClose.Location = new System.Drawing.Point(538, 399);
             this.btnClose.Name = "btnClose";
             this.btnClose.Size = new System.Drawing.Size(75, 23);
-            this.btnClose.TabIndex = 2;
+            this.btnClose.TabIndex = 4;
             this.btnClose.Text = "&Close";
             this.btnClose.UseVisualStyleBackColor = true;
             // 
@@ -157,7 +158,7 @@ namespace VideoDedup
             this.BtnSkip.Location = new System.Drawing.Point(457, 399);
             this.BtnSkip.Name = "BtnSkip";
             this.BtnSkip.Size = new System.Drawing.Size(75, 23);
-            this.BtnSkip.TabIndex = 1;
+            this.BtnSkip.TabIndex = 3;
             this.BtnSkip.Text = "&Skip";
             this.BtnSkip.UseVisualStyleBackColor = true;
             this.BtnSkip.Click += new System.EventHandler(this.BtnSkip_Click);
@@ -168,10 +169,21 @@ namespace VideoDedup
             this.BtnDiscard.Location = new System.Drawing.Point(376, 399);
             this.BtnDiscard.Name = "BtnDiscard";
             this.BtnDiscard.Size = new System.Drawing.Size(75, 23);
-            this.BtnDiscard.TabIndex = 0;
+            this.BtnDiscard.TabIndex = 2;
             this.BtnDiscard.Text = "&Discard";
             this.BtnDiscard.UseVisualStyleBackColor = true;
             this.BtnDiscard.Click += new System.EventHandler(this.BtnDiscard_Click);
+            // 
+            // BtnReviewComparison
+            // 
+            this.BtnReviewComparison.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnReviewComparison.Location = new System.Drawing.Point(261, 399);
+            this.BtnReviewComparison.Name = "BtnReviewComparison";
+            this.BtnReviewComparison.Size = new System.Drawing.Size(109, 23);
+            this.BtnReviewComparison.TabIndex = 1;
+            this.BtnReviewComparison.Text = "Re&view Comparison";
+            this.BtnReviewComparison.UseVisualStyleBackColor = true;
+            this.BtnReviewComparison.Click += new System.EventHandler(this.BtnReviewComparison_Click);
             // 
             // FileComparisonDlg
             // 
@@ -180,6 +192,7 @@ namespace VideoDedup
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnClose;
             this.ClientSize = new System.Drawing.Size(625, 434);
+            this.Controls.Add(this.BtnReviewComparison);
             this.Controls.Add(this.BtnDiscard);
             this.Controls.Add(this.BtnSkip);
             this.Controls.Add(this.btnClose);
@@ -207,5 +220,6 @@ namespace VideoDedup
         private System.Windows.Forms.Button BtnShowLeft;
         private System.Windows.Forms.Button BtnSkip;
         private System.Windows.Forms.Button BtnDiscard;
+        private System.Windows.Forms.Button BtnReviewComparison;
     }
 }

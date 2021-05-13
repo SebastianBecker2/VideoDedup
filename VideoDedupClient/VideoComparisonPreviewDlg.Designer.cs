@@ -57,6 +57,7 @@ namespace VideoDedup
             this.BtnSelectLeftFilePath = new System.Windows.Forms.Button();
             this.BtnSelectRightFilePath = new System.Windows.Forms.Button();
             this.StatusTimer = new System.Windows.Forms.Timer(this.components);
+            this.btnClose = new System.Windows.Forms.Button();
             this.TlpResult.SuspendLayout();
             this.GrbThirdLevelLoad.SuspendLayout();
             this.GrbFirstLevelLoad.SuspendLayout();
@@ -400,6 +401,17 @@ namespace VideoDedup
             // 
             this.StatusTimer.Tick += new System.EventHandler(this.HandleStatusTimerTick);
             // 
+            // btnClose
+            // 
+            this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnClose.Location = new System.Drawing.Point(799, 584);
+            this.btnClose.Name = "btnClose";
+            this.btnClose.Size = new System.Drawing.Size(75, 23);
+            this.btnClose.TabIndex = 25;
+            this.btnClose.Text = "&Close";
+            this.btnClose.UseVisualStyleBackColor = true;
+            this.btnClose.Visible = false;
+            // 
             // VideoComparisonPreviewDlg
             // 
             this.AcceptButton = this.BtnOkay;
@@ -407,6 +419,7 @@ namespace VideoDedup
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.BtnCancel;
             this.ClientSize = new System.Drawing.Size(886, 619);
+            this.Controls.Add(this.btnClose);
             this.Controls.Add(this.TlpSettings);
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.BtnOkay);
@@ -463,5 +476,6 @@ namespace VideoDedup
         private System.Windows.Forms.TableLayoutPanel TlpThirdLevelLoad;
         private System.Windows.Forms.Timer StatusTimer;
         private System.Windows.Forms.Button BtnStartComparison;
+        private System.Windows.Forms.Button btnClose;
     }
 }
