@@ -30,6 +30,7 @@ namespace VideoDedup
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VideoComparisonPreviewDlg));
             this.TlpResult = new System.Windows.Forms.TableLayoutPanel();
             this.GrbThirdLevelLoad = new System.Windows.Forms.GroupBox();
             this.TlpThirdLevelLoad = new System.Windows.Forms.TableLayoutPanel();
@@ -424,8 +425,9 @@ namespace VideoDedup
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.BtnOkay);
             this.Controls.Add(this.PnlResult);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "VideoComparisonPreviewDlg";
-            this.Text = "VideoComparisonPreview";
+            this.Text = "Video Comparison Preview";
             this.TlpResult.ResumeLayout(false);
             this.TlpResult.PerformLayout();
             this.GrbThirdLevelLoad.ResumeLayout(false);
