@@ -105,7 +105,7 @@ namespace CustomComparisonManager
                     .Select(kvp => kvp.Key)
                     .ToList())
                 {
-                    CancelCustomComparison(token);
+                    _ = CancelCustomComparison(token);
                 }
             }
         }
