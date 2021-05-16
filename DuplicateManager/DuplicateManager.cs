@@ -114,11 +114,13 @@ namespace DuplicateManager
             DedupEngine.VideoFile file2,
             string basePath)
         {
+            var videoFilePreview1 = thumbnailManager.AddVideoFileReference(file1);
+            var videoFilePreview2 = thumbnailManager.AddVideoFileReference(file2);
             lock (duplicateLock)
             {
                 AddDuplicate(new DuplicateWrapper(
-                    thumbnailManager.AddVideoFileReference(file1),
-                    thumbnailManager.AddVideoFileReference(file2),
+                    videoFilePreview1,
+                    videoFilePreview2,
                     basePath));
             }
         }
