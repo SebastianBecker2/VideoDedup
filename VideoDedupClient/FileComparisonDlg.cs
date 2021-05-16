@@ -10,6 +10,8 @@ namespace VideoDedup
 
     public partial class FileComparisonDlg : Form
     {
+        private static readonly int MinimumSizeDifference = 100 * 1024; // 100 kB
+
         public VideoFile LeftFile { get; set; }
         public VideoFile RightFile { get; set; }
         public string ServerSourcePath { get; set; }
@@ -24,21 +26,34 @@ namespace VideoDedup
         {
             SplitterContainer.SplitterDistance = SplitterContainer.Width / 2;
 
-            FpvLeft.VideoFile = LeftFile;
-            FpvRight.VideoFile = RightFile;
+            var sizeDifference = LeftFile.FileSize - RightFile.FileSize;
 
-            var leftSize = LeftFile.FileSize;
-            var rightSize = RightFile.FileSize;
-            if (Math.Abs(leftSize - rightSize) > (100 * 1024))
+            // If files are the same size
+            if (Math.Abs(sizeDifference) <= MinimumSizeDifference)
             {
-                if (leftSize > rightSize)
-                {
-                    FpvLeft.HighlightColor = Color.LightGreen;
-                }
-                else
-                {
-                    FpvRight.HighlightColor = Color.LightGreen;
-                }
+                FpvLeft.VideoFile = LeftFile;
+                FpvRight.VideoFile = RightFile;
+            }
+            // If the left file is larger than the right
+            else if (sizeDifference > 0)
+            {
+                FpvLeft.VideoFile = LeftFile;
+                FpvRight.VideoFile = RightFile;
+
+                FpvLeft.HighlightColor = Color.LightGreen;
+            }
+            // If the right file is larger than the left
+            else
+            {
+                // Switch left and right
+                // Since we want the larger file on the left side
+                FpvLeft.VideoFile = RightFile;
+                FpvRight.VideoFile = LeftFile;
+
+                LeftFile = FpvLeft.VideoFile;
+                RightFile = FpvRight.VideoFile;
+
+                FpvLeft.HighlightColor = Color.LightGreen;
             }
 
             base.OnLoad(e);
