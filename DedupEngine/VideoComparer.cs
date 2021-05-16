@@ -11,9 +11,9 @@ namespace DedupEngine
 
     public class VideoComparer
     {
-        private static readonly Size ImageDownscaleSize = new Size(16, 16);
-        private static int ImageDownscalePixelCount =>
-            ImageDownscaleSize.Width * ImageDownscaleSize.Height;
+        private static readonly Size DownscaleSize = new Size(16, 16);
+        private static int DownscalePixelCount =>
+            DownscaleSize.Width * DownscaleSize.Height;
         private const int ByteDifferenceThreshold = 3;
 
         private static IEnumerable<byte> GetImageBytes(Bitmap image)
@@ -155,7 +155,8 @@ namespace DedupEngine
                 foreach (var imageStream in mpv.GetImages(index, imagesToLoad))
                 {
                     using (var image = Image.FromStream(imageStream))
-                    using (var smallImage = image.Resize(ImageDownscaleSize))
+                    using (var croppedImage = image.CropBlackBars())
+                    using (var smallImage = croppedImage.Resize(DownscaleSize))
                     using (var greyScaleImage = smallImage.MakeGrayScale())
                     {
                         videoFile.ImageBytes.Add(
@@ -168,7 +169,7 @@ namespace DedupEngine
                 if (index >= videoFile.ImageBytes.Count())
                 {
                     return (Enumerable
-                            .Repeat<byte>(0, ImageDownscalePixelCount)
+                            .Repeat<byte>(0, DownscalePixelCount)
                             .ToArray(),
                         loadLevel);
                 }
