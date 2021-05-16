@@ -14,14 +14,22 @@ namespace DuplicateManager
         private readonly ISet<DuplicateWrapper> duplicateList
             = new HashSet<DuplicateWrapper>();
         private readonly object duplicateLock = new object();
-        private volatile int count;
 
         public IThumbnailSettings Settings
         {
             get => thumbnailManager.Settings;
             set => thumbnailManager.Settings = value;
         }
-        public int Count => count;
+        public int Count
+        {
+            get
+            {
+                lock (duplicateLock)
+                {
+                    return duplicateList.Count;
+                }
+            }
+        }
 
         public event EventHandler<DuplicateAddedEventArgs> DuplicateAdded;
         protected virtual void OnDuplicateAdded(DuplicateData duplicate) =>
@@ -98,7 +106,6 @@ namespace DuplicateManager
                     thumbnailManager.RemoveVideoFileReference(duplicate.File2);
                 }
                 duplicateList.Clear();
-                count = 0;
             }
         }
 
@@ -123,7 +130,6 @@ namespace DuplicateManager
             {
                 _ = duplicateList.Add(duplicate);
             }
-            count++;
             OnDuplicateAdded(duplicate.DuplicateData);
         }
 
@@ -153,7 +159,6 @@ namespace DuplicateManager
                 thumbnailManager.RemoveVideoFileReference(duplicate.File2);
                 _ = duplicateList.Remove(duplicate);
             }
-            count--;
             OnDuplicateRemoved(duplicate.DuplicateData);
         }
 
