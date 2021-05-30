@@ -172,7 +172,7 @@ namespace DedupEngine.MpvLib
             _ = Directory.CreateDirectory(OutputPath + "/");
         }
 
-        public IEnumerable<MemoryStream> GetImages(
+        public IList<MemoryStream> GetImages(
             int index,
             int count)
         {
@@ -192,7 +192,8 @@ namespace DedupEngine.MpvLib
 
             return Enumerable
                 .Range(index, count)
-                .Select(i => GetImages(i, 1, SeekMode.Precise).FirstOrDefault());
+                .Select(i => GetImages(i, 1, SeekMode.Precise).FirstOrDefault())
+                .ToList();
         }
 
         private IEnumerable<MemoryStream> GetImages(
@@ -352,7 +353,6 @@ namespace DedupEngine.MpvLib
             IntPtr handle,
             byte[] name,
             byte[] data);
-        //#pragma warning restore IDE1006 // Naming Styles
 
         private static void Execute(IntPtr handle, params string[] args)
         {

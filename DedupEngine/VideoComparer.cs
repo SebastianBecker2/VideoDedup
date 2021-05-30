@@ -146,6 +146,11 @@ namespace DedupEngine
                     loadLevel.ImageCount)
                     .Select(stream =>
                     {
+                        if (stream == null)
+                        {
+                            return null;
+                        }
+
                         var image = Image.FromStream(stream);
                         var cropped = image.CropBlackBars();
                         var small = cropped.Resize(DownscaleSize);
@@ -187,7 +192,14 @@ namespace DedupEngine
             }
 
             var images = LoadImagesFromFile(videoFile, loadLevel).ToList();
-            videoFile.ImageBytes.AddRange(images.Select(i => i.Bytes));
+            videoFile.ImageBytes.AddRange(images.Select(i =>
+            {
+                if (i == null)
+                {
+                    return null;
+                }
+                return i.Bytes;
+            }));
             return images;
         }
 
@@ -210,6 +222,19 @@ namespace DedupEngine
                 {
                     videoComparisonResult = ComparisonResult.Cancelled;
                     break;
+                }
+
+                if (leftImages[index] == null || rightImages[index] == null)
+                {
+                    OnImageCompared(() => CreateImageComparedEventArgs(
+                        index + loadLevel.ImageStartIndex,
+                        leftImages[index],
+                        rightImages[index],
+                        ComparisonResult.NoResult,
+                        videoComparisonResult,
+                        0,
+                        loadLevelIndex));
+                    continue;
                 }
 
                 var diff = GetDifferenceOfBytes(

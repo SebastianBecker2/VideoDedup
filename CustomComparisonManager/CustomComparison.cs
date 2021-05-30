@@ -160,14 +160,21 @@ namespace CustomComparisonManager
                     };
                 }
 
-                VideoDedupShared.ImageSet ToMemoryStreams(ImageSet set) =>
-                    new VideoDedupShared.ImageSet
+                VideoDedupShared.ImageSet ToMemoryStreams(ImageSet set)
+                {
+                    if (set == null)
+                    {
+                        return null;
+                    }
+
+                    return new VideoDedupShared.ImageSet
                     {
                         Orignal = set.Stream,
                         Cropped = set.Cropped.ToMemoryStream(),
                         Resized = set.Resized.ToMemoryStream(),
                         Greyscaled = set.Greyscaled.ToMemoryStream(),
                     };
+                }
 
                 Status.Token = Token;
                 ImageComparisons.Add(Tuple.Create(

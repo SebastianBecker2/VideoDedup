@@ -112,29 +112,29 @@ namespace VideoDedup
         {
             // Main View
             TlpImageComparison.Controls.Add(
-                GetPictureBox(ImageComparisonResult.LeftImages.Orignal));
+                GetPictureBox(ImageComparisonResult.LeftImages?.Orignal));
             TlpImageComparison.Controls.Add(GetComparisonResult());
             TlpImageComparison.Controls.Add(
-                GetPictureBox(ImageComparisonResult.RightImages.Orignal));
+                GetPictureBox(ImageComparisonResult.RightImages?.Orignal));
 
             // Detail View
             TlpDetails.Controls.Add(
-                GetPictureBox(ImageComparisonResult.LeftImages.Cropped));
+                GetPictureBox(ImageComparisonResult.LeftImages?.Cropped));
             TlpDetails.Controls.Add(GetDetailInfo(DetailLevel.Crop));
             TlpDetails.Controls.Add(
-                GetPictureBox(ImageComparisonResult.RightImages.Cropped));
+                GetPictureBox(ImageComparisonResult.RightImages?.Cropped));
 
             TlpDetails.Controls.Add(
-                GetPictureBox(ImageComparisonResult.LeftImages.Resized));
+                GetPictureBox(ImageComparisonResult.LeftImages?.Resized));
             TlpDetails.Controls.Add(GetDetailInfo(DetailLevel.Resize));
             TlpDetails.Controls.Add(
-                GetPictureBox(ImageComparisonResult.RightImages.Resized));
+                GetPictureBox(ImageComparisonResult.RightImages?.Resized));
 
             TlpDetails.Controls.Add(
-                GetPictureBox(ImageComparisonResult.LeftImages.Greyscaled));
+                GetPictureBox(ImageComparisonResult.LeftImages?.Greyscaled));
             TlpDetails.Controls.Add(GetDetailInfo(DetailLevel.Greyscale));
             TlpDetails.Controls.Add(
-                GetPictureBox(ImageComparisonResult.RightImages.Greyscaled));
+                GetPictureBox(ImageComparisonResult.RightImages?.Greyscaled));
 
             base.OnLoad(e);
         }
