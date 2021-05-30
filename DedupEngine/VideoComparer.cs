@@ -11,9 +11,15 @@ namespace DedupEngine
 
     public class VideoComparer
     {
+        private class LoadLevel
+        {
+            public int ImageCount { get; set; }
+            public int ImageStartIndex { get; set; }
+        }
+
+        private static readonly int LoadLevelCount = 3;
+
         private static readonly Size DownscaleSize = new Size(16, 16);
-        private static int DownscalePixelCount =>
-            DownscaleSize.Width * DownscaleSize.Height;
         private const int ByteDifferenceThreshold = 3;
 
         private static IEnumerable<byte> GetImageBytes(Bitmap image)
@@ -54,128 +60,202 @@ namespace DedupEngine
             ImageCompared?.Invoke(this, eventArgsCreator.Invoke());
         private ImageComparedEventArgs CreateImageComparedEventArgs(
             int imageComparisonIndex,
+            ImageSet leftImages,
+            ImageSet rightImages,
             ComparisonResult imageComparisonResult,
             ComparisonResult videoComparisonResult,
             double difference,
-            int loadLevel)
-        {
-            using (var leftFileMpv = new MpvWrapper(
-                        LeftVideoFile.FilePath,
-                        Settings.MaxImageCompares,
-                        LeftVideoFile.Duration))
-            using (var rightFileMpv = new MpvWrapper(
-                RightVideoFile.FilePath,
-                Settings.MaxImageCompares,
-                RightVideoFile.Duration))
+            int loadLevel) =>
+            new ImageComparedEventArgs
             {
-                return new ImageComparedEventArgs
-                {
-                    LeftVideoFile = LeftVideoFile,
-                    RightVideoFile = RightVideoFile,
-                    LeftImage = leftFileMpv
-                        .GetImages(imageComparisonIndex, 1)
-                        .FirstOrDefault(),
-                    RightImage = rightFileMpv
-                        .GetImages(imageComparisonIndex, 1)
-                        .FirstOrDefault(),
-                    ImageComparisonResult = imageComparisonResult,
-                    VideoComparisonResult = videoComparisonResult,
-                    Difference = difference,
-                    ImageLoadLevel = loadLevel,
-                    ImageComparisonIndex = imageComparisonIndex,
-                };
-            }
-        }
+                LeftVideoFile = LeftVideoFile,
+                RightVideoFile = RightVideoFile,
+                LeftImages = leftImages,
+                RightImages = rightImages,
+                ImageComparisonResult = imageComparisonResult,
+                VideoComparisonResult = videoComparisonResult,
+                Difference = difference,
+                ImageLoadLevelIndex = loadLevel,
+                ImageComparisonIndex = imageComparisonIndex,
+            };
 
         public event EventHandler<ComparisonFinishedEventArgs> ComparisonFinished;
         protected virtual void OnComparisonFinished(
             Func<ComparisonFinishedEventArgs> eventArgsCreator) =>
             ComparisonFinished?.Invoke(this, eventArgsCreator.Invoke());
 
-        private (int ImagesToLoad, int LoadLevel) DetermineLoadLevel(
-            int index,
+
+        private static LoadLevel CalculateLoadLevel(
+            int loadLevelIndex,
             IImageComparisonSettings settings)
         {
-            // First loading step, only the minimum (when index == 0)
-            var imagesToLoad = settings.MaxDifferentImages + 1;
-            var loadLevel = 1;
-            // Second loading step
-            if (index == settings.MaxDifferentImages + 1)
+            if (loadLevelIndex <= 0 || loadLevelIndex >= 4)
             {
-                imagesToLoad = settings.MaxImageCompares
-                    - index
-                    - settings.MaxDifferentImages;
-                loadLevel = 2;
+                throw new ArgumentOutOfRangeException(
+                    nameof(loadLevelIndex),
+                    $"LoadLevel has to be between 1 and {LoadLevelCount}");
             }
-            // Third loading step
-            else if (index
-                == settings.MaxImageCompares - settings.MaxDifferentImages)
-            {
-                imagesToLoad = settings.MaxDifferentImages;
-                loadLevel = 3;
-            }
-            // To make sure we never load more than we initially wanted.
-            imagesToLoad = Math.Min(
-                imagesToLoad,
-                settings.MaxImageCompares - index);
 
-            return (imagesToLoad, loadLevel);
+            var startIndex = 0;
+            var count = 0;
+            if (loadLevelIndex == 1)
+            {
+                startIndex = 0;
+                count = settings.MaxDifferentImages + 1;
+            }
+            else if (loadLevelIndex == 2)
+            {
+                startIndex = settings.MaxDifferentImages + 1;
+                count = settings.MaxImageCompares
+                    - (settings.MaxDifferentImages + 1)
+                    - settings.MaxDifferentImages;
+            }
+            else if (loadLevelIndex == 3)
+            {
+                startIndex = Math.Max(
+                    settings.MaxImageCompares - settings.MaxDifferentImages,
+                    settings.MaxDifferentImages + 1);
+                count = Math.Min(
+                    settings.MaxDifferentImages,
+                    settings.MaxImageCompares - (settings.MaxDifferentImages + 1));
+            }
+
+            // Make sure we are between 0 and MaxImageCompares at all time
+            count = Math.Max(count, 0);
+            count = Math.Min(count, settings.MaxImageCompares);
+            startIndex = Math.Max(startIndex, 0);
+            startIndex = Math.Min(startIndex, settings.MaxImageCompares - 1);
+            return new LoadLevel
+            {
+                ImageCount = count,
+                ImageStartIndex = startIndex
+            };
         }
 
-        private (byte[] ImageBytes, int LoadLevel) LoadImage(
+        private IEnumerable<ImageSet> LoadImagesFromFile(
             VideoFile videoFile,
-            int index,
-            IImageComparisonSettings settings)
+            LoadLevel loadLevel)
         {
-            if (index >= settings.MaxImageCompares || index < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(index),
-                    "Index out of range.");
-            }
-
-            if (videoFile.ImageCount != 0
-                && videoFile.ImageCount != settings.MaxImageCompares)
-            {
-                videoFile.ImageBytes.Clear();
-            }
-            videoFile.ImageCount = settings.MaxImageCompares;
-
-            if (index < videoFile.ImageBytes.Count())
-            {
-                return (videoFile.ImageBytes[index], 0);
-            }
-
-            var (imagesToLoad, loadLevel) = DetermineLoadLevel(index, settings);
-
             using (var mpv = new MpvWrapper(
                 videoFile.FilePath,
-                settings.MaxImageCompares,
+                Settings.MaxImageCompares,
                 videoFile.Duration))
             {
-                foreach (var imageStream in mpv.GetImages(index, imagesToLoad))
-                {
-                    using (var image = Image.FromStream(imageStream))
-                    using (var croppedImage = image.CropBlackBars())
-                    using (var smallImage = croppedImage.Resize(DownscaleSize))
-                    using (var greyScaleImage = smallImage.MakeGrayScale())
+                return mpv.GetImages(
+                    loadLevel.ImageStartIndex,
+                    loadLevel.ImageCount)
+                    .Select(stream =>
                     {
-                        videoFile.ImageBytes.Add(
-                            GetImageBytes(greyScaleImage)
-                                .ToArray());
-                    }
-                    imageStream.Dispose();
-                }
-
-                if (index >= videoFile.ImageBytes.Count())
-                {
-                    return (Enumerable
-                            .Repeat<byte>(0, DownscalePixelCount)
-                            .ToArray(),
-                        loadLevel);
-                }
-
-                return (videoFile.ImageBytes[index], loadLevel);
+                        var image = Image.FromStream(stream);
+                        var cropped = image.CropBlackBars();
+                        var small = cropped.Resize(DownscaleSize);
+                        var greysaled = small.MakeGrayScale();
+                        return new ImageSet
+                        {
+                            Stream = stream,
+                            Orignal = image,
+                            Cropped = cropped,
+                            Resized = small,
+                            Greyscaled = greysaled,
+                            Bytes = GetImageBytes(greysaled).ToArray(),
+                        };
+                    });
             }
+        }
+
+        private IEnumerable<ImageSet> GetImagesFromFile(
+            VideoFile videoFile,
+            LoadLevel loadLevel)
+        {
+            if (videoFile.ImageCount != Settings.MaxImageCompares)
+            {
+                videoFile.ImageBytes.Clear();
+                videoFile.ImageCount = Settings.MaxImageCompares;
+            }
+
+            if (ImageCompared == null
+                && (loadLevel.ImageStartIndex + loadLevel.ImageCount
+                <= videoFile.ImageBytes.Count()))
+            {
+                return Enumerable.Range(
+                    loadLevel.ImageStartIndex,
+                    loadLevel.ImageCount)
+                    .Select(i => new ImageSet
+                    {
+                        Bytes = videoFile.ImageBytes[i]
+                    });
+            }
+
+            var images = LoadImagesFromFile(videoFile, loadLevel).ToList();
+            videoFile.ImageBytes.AddRange(images.Select(i => i.Bytes));
+            return images;
+        }
+
+        private ComparisonResult CompareLoadLevel(
+            int loadLevelIndex,
+            ref int differenceCount,
+            CancellationToken cancelToken)
+        {
+            var loadLevel = CalculateLoadLevel(loadLevelIndex, Settings);
+
+            var leftImages = GetImagesFromFile(LeftVideoFile, loadLevel).ToList();
+            var rightImages = GetImagesFromFile(RightVideoFile, loadLevel).ToList();
+
+            var videoComparisonResult = ComparisonResult.NoResult;
+
+            foreach (var index in Enumerable
+                    .Range(0, loadLevel.ImageCount))
+            {
+                if (cancelToken.IsCancellationRequested)
+                {
+                    videoComparisonResult = ComparisonResult.Cancelled;
+                    break;
+                }
+
+                var diff = GetDifferenceOfBytes(
+                    leftImages[index].Bytes,
+                    rightImages[index].Bytes);
+
+                var imageComparisonResult = ComparisonResult.Duplicate;
+                if (diff <= (double)Settings.MaxImageDifferencePercent / 100)
+                {
+                    // Early return when there are not enough images left to
+                    // compare to exceed the MaxDifferentImages
+                    if ((Settings.MaxImageCompares - (index + 1))
+                        <= (Settings.MaxDifferentImages - differenceCount))
+                    {
+                        videoComparisonResult = ComparisonResult.Duplicate;
+                    }
+                }
+                else
+                {
+                    imageComparisonResult = ComparisonResult.Different;
+                    ++differenceCount;
+
+                    // Early return when we already exceeded the number of
+                    // MaxDifferentImages
+                    if (differenceCount > Settings.MaxDifferentImages)
+                    {
+                        videoComparisonResult = ComparisonResult.Different;
+                    }
+                }
+                OnImageCompared(() => CreateImageComparedEventArgs(
+                        index + loadLevel.ImageStartIndex,
+                        leftImages[index],
+                        rightImages[index],
+                        imageComparisonResult,
+                        videoComparisonResult,
+                        diff,
+                        loadLevelIndex));
+
+                if (videoComparisonResult != ComparisonResult.NoResult
+                    && !AlwaysLoadAllImages)
+                {
+                    break;
+                }
+            }
+
+            return videoComparisonResult;
         }
 
         public ComparisonResult Compare(CancellationToken cancelToken)
@@ -191,9 +271,7 @@ namespace DedupEngine
 
             var differenceCount = 0;
             var comparisonResult = ComparisonResult.NoResult;
-            var leftLoadLevel = 0;
-            var rightLoadLevel = 0;
-            foreach (var index in Enumerable.Range(0, Settings.MaxImageCompares))
+            foreach (var loadLevelIndex in Enumerable.Range(1, LoadLevelCount))
             {
                 if (cancelToken.IsCancellationRequested)
                 {
@@ -201,61 +279,10 @@ namespace DedupEngine
                     break;
                 }
 
-                var (leftImageBytes, lll) = LoadImage(
-                    LeftVideoFile,
-                    index,
-                    Settings);
-                leftLoadLevel = Math.Max(lll, leftLoadLevel);
-
-                var (rightImageBytes, rll) = LoadImage(
-                    RightVideoFile,
-                    index,
-                    Settings);
-                rightLoadLevel = Math.Max(rll, rightLoadLevel);
-
-                var diff = GetDifferenceOfBytes(leftImageBytes, rightImageBytes);
-
-                if (diff <= (double)Settings.MaxImageDifferencePercent / 100)
-                {
-                    // Early return when there are not enough images left to
-                    // compare to exceed the MaxDifferentImages
-                    if ((Settings.MaxImageCompares - (index + 1))
-                        <= (Settings.MaxDifferentImages - differenceCount))
-                    {
-                        comparisonResult = ComparisonResult.Duplicate;
-                    }
-
-                    OnImageCompared(() => CreateImageComparedEventArgs(
-                        index,
-                        ComparisonResult.Duplicate,
-                        comparisonResult,
-                        diff,
-                        Math.Max(leftLoadLevel, rightLoadLevel)));
-                }
-                else
-                {
-                    ++differenceCount;
-
-                    // Early return when we already exceeded the number of
-                    // MaxDifferentImages
-                    if (differenceCount > Settings.MaxDifferentImages)
-                    {
-                        comparisonResult = ComparisonResult.Different;
-                    }
-
-                    OnImageCompared(() => CreateImageComparedEventArgs(
-                        index,
-                        ComparisonResult.Different,
-                        comparisonResult,
-                        diff,
-                        Math.Max(leftLoadLevel, rightLoadLevel)));
-                }
-
-                if (comparisonResult != ComparisonResult.NoResult
-                    && !AlwaysLoadAllImages)
-                {
-                    break;
-                }
+                comparisonResult = CompareLoadLevel(
+                    loadLevelIndex,
+                    ref differenceCount,
+                    cancelToken);
             }
 
             if (comparisonResult == ComparisonResult.NoResult)

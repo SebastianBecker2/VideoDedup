@@ -11,6 +11,7 @@ namespace CustomComparisonManager
     using ImageComparisonResult = VideoDedupShared.ImageComparisonResult;
     using ComparisonResult = VideoDedupShared.ComparisonResult;
     using System.IO;
+    using VideoDedupShared.ImageExtension;
 
     internal class CustomComparison : IDisposable
     {
@@ -159,6 +160,15 @@ namespace CustomComparisonManager
                     };
                 }
 
+                VideoDedupShared.ImageSet ToMemoryStreams(ImageSet set) =>
+                    new VideoDedupShared.ImageSet
+                    {
+                        Orignal = set.Stream,
+                        Cropped = set.Cropped.ToMemoryStream(),
+                        Resized = set.Resized.ToMemoryStream(),
+                        Greyscaled = set.Greyscaled.ToMemoryStream(),
+                    };
+
                 Status.Token = Token;
                 ImageComparisons.Add(Tuple.Create(
                     e.ImageComparisonIndex,
@@ -166,9 +176,9 @@ namespace CustomComparisonManager
                     {
                         ComparisonResult = e.ImageComparisonResult,
                         Difference = e.Difference,
-                        ImageLoadLevel = e.ImageLoadLevel,
-                        LeftImage = e.LeftImage,
-                        RightImage = e.RightImage,
+                        ImageLoadLevel = e.ImageLoadLevelIndex,
+                        LeftImages = ToMemoryStreams(e.LeftImages),
+                        RightImages = ToMemoryStreams(e.RightImages),
                     }));
             }
         }

@@ -101,6 +101,12 @@
     <Compile Include="DnsTextBox\ResolveFailedEventArgs.cs" />
     <Compile Include="DnsTextBox\ResolveStartedEventArgs.cs" />
     <Compile Include="DnsTextBox\ResolveSuccessfulEventArgs.cs" />
+    <Compile Include="ImageComparisonResultView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ImageComparisonResultView.Designer.cs">
+      <DependentUpon>ImageComparisonResultView.cs</DependentUpon>
+    </Compile>
     <Compile Include="LogEntry.cs" />
     <Compile Include="LogEntryStatus.cs" />
     <Compile Include="ServerConfigDlg.cs">
@@ -142,6 +148,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ClientConfigDlg.resx">
       <DependentUpon>ClientConfigDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ImageComparisonResultView.resx">
+      <DependentUpon>ImageComparisonResultView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ServerConfigDlg.resx">
       <DependentUpon>ServerConfigDlg.cs</DependentUpon>
@@ -211,6 +220,21 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Loading.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="control_down_blue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="control_up_gray.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="picture_cropped.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="picture_greyscale.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="picture_size_down.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

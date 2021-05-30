@@ -182,7 +182,17 @@ namespace DedupEngine.MpvLib
             {
                 return images;
             }
-            return GetImages(index, count, SeekMode.Precise).ToList();
+
+            images = GetImages(index, count, SeekMode.Precise)
+                .ToList();
+            if (images.Count() == count)
+            {
+                return images;
+            }
+
+            return Enumerable
+                .Range(index, count)
+                .Select(i => GetImages(i, 1, SeekMode.Precise).FirstOrDefault());
         }
 
         private IEnumerable<MemoryStream> GetImages(
@@ -299,14 +309,12 @@ namespace DedupEngine.MpvLib
                 throw new MpvException("Unable to initialize handle");
             }
 
-            Set(MpvHandle, "hr-seek", "absolute");
             Set(MpvHandle, "aid", "no");
             Set(MpvHandle, "sid", "no");
             Set(MpvHandle, "vo", "image");
             Set(MpvHandle, "vo-image-outdir", OutputPath);
         }
 
-#pragma warning disable IDE1006 // Naming Styles
         [DllImport(LibPath, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr mpv_create();
 
@@ -344,7 +352,7 @@ namespace DedupEngine.MpvLib
             IntPtr handle,
             byte[] name,
             byte[] data);
-#pragma warning restore IDE1006 // Naming Styles
+        //#pragma warning restore IDE1006 // Naming Styles
 
         private static void Execute(IntPtr handle, params string[] args)
         {
@@ -371,9 +379,9 @@ namespace DedupEngine.MpvLib
             string name,
             string value) =>
             Check(mpv_set_property_string(
-                    handle,
-                    GetUtf8Bytes(name),
-                    GetUtf8Bytes(value)),
+                handle,
+                GetUtf8Bytes(name),
+                GetUtf8Bytes(value)),
                 $"Unable to set property '{name}' to '{value}'");
 
         private static long GetLong(IntPtr handle, string name)

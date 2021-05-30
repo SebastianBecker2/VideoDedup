@@ -134,7 +134,7 @@ namespace DedupEngine
         [JsonProperty]
         public List<byte[]> ImageBytes { get; } = new List<byte[]>();
 
-        [JsonIgnore]
+        [JsonProperty]
         public int ImageCount { get; set; } = 0;
 
         public bool IsDurationEqual(

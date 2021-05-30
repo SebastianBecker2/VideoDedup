@@ -3,12 +3,10 @@ namespace VideoDedup
     using System;
     using System.Collections.Generic;
     using System.Drawing;
-    using System.IO;
     using System.Linq;
     using System.Windows.Forms;
     using Microsoft.WindowsAPICodePack.Dialogs;
     using VideoDedupShared;
-    using VideoDedupShared.ImageExtension;
     using Wcf.Contracts.Data;
 
     public partial class VideoComparisonPreviewDlg : Form
@@ -29,13 +27,16 @@ namespace VideoDedup
             public ComparisonResult ComparisonResult { get; set; }
         }
 
-        private static readonly Size ThumbnailSize = new Size(256, 256);
         private static readonly Color DifferenceColor =
-            Color.FromKnownColor(KnownColor.LightCoral);
+            Color.LightCoral;
         private static readonly Color DuplicateColor =
-            Color.FromKnownColor(KnownColor.DarkSeaGreen);
-        private static readonly Color DefaultColor =
-            Color.FromKnownColor(KnownColor.Control);
+            Color.DarkSeaGreen;
+        private static readonly Color NeutralColor =
+            SystemColors.Control;
+        private static readonly Color OddRowBackColor =
+            SystemColors.ControlDark;
+        private static readonly Color EvenRowBackColor =
+            SystemColors.ControlDarkDark;
 
         public Buttons CloseButtons { get; set; } = Buttons.OkCancel;
 
@@ -246,32 +247,6 @@ namespace VideoDedup
             GrbThirdLevelLoad.Visible = false;
         }
 
-        private static Size GetThumbnailSize(CodecInfo codecInfo)
-        {
-            if (codecInfo == null)
-            {
-                return ThumbnailSize;
-            }
-            return GetThumbnailSize(codecInfo.Size);
-        }
-
-        private static Size GetThumbnailSize(Size originalSize)
-        {
-            var width = originalSize.Width;
-            var height = originalSize.Height;
-
-            if (width > height)
-            {
-                height = (int)(height / ((double)width / ThumbnailSize.Width));
-                return new Size(ThumbnailSize.Width, height);
-            }
-            else
-            {
-                width = (int)(width / ((double)height / ThumbnailSize.Height));
-                return new Size(width, ThumbnailSize.Height);
-            }
-        }
-
         private Dictionary<int, Tuple<GroupBox, TableLayoutPanel>> loadLevelControls;
         private Tuple<GroupBox, TableLayoutPanel> GetLoadLevelControls(
             int loadLevel)
@@ -287,62 +262,6 @@ namespace VideoDedup
                     };
             }
             return loadLevelControls[loadLevel];
-        }
-
-        private string GetTextFromImageComparison(
-            int index,
-            ImageComparisonResult imageComparison,
-            bool finished,
-            bool loaded)
-        {
-            var text = $"{index + 1}. Comparison:{Environment.NewLine}";
-            if (!finished)
-            {
-                text += $"Images loaded and compared{Environment.NewLine}"
-                    + $"Difference {imageComparison.Difference * 100} is ";
-                if (imageComparison.ComparisonResult
-                    == ComparisonResult.Different)
-                {
-                    text += "higher";
-                }
-                else
-                {
-                    text += "lower";
-                }
-                text += $" than {NumMaxDifferentPercentage.Value}";
-            }
-            else
-            {
-                text += $"Result already determined.{Environment.NewLine}";
-                if (loaded)
-                {
-                    text += "Images loaded but comparison was skipped.";
-                }
-                else
-                {
-                    text += "Images have not been loaded.";
-                }
-            }
-            return text;
-        }
-
-        private static Color GetColorFromImageComparison(
-            ImageComparisonResult imageComparison,
-            bool finished)
-        {
-            if (!finished)
-            {
-                if (imageComparison.ComparisonResult
-                    == ComparisonResult.Different)
-                {
-                    return DifferenceColor;
-                }
-                else
-                {
-                    return DuplicateColor;
-                }
-            }
-            return DefaultBackColor;
         }
 
         private void UpdateVideoComparisonResult(VideoComparisonResult result)
@@ -364,12 +283,12 @@ namespace VideoDedup
                 else if (result.ComparisonResult == ComparisonResult.Cancelled)
                 {
                     LblResult.Text = "Cancelled";
-                    LblResult.BackColor = DefaultColor;
+                    LblResult.BackColor = NeutralColor;
                 }
                 else if (result.ComparisonResult == ComparisonResult.Aborted)
                 {
                     LblResult.Text = "Aborted: " + result.Reason;
-                    LblResult.BackColor = DefaultColor;
+                    LblResult.BackColor = NeutralColor;
                 }
             }
         }
@@ -382,21 +301,7 @@ namespace VideoDedup
                 return;
             }
 
-            var leftThumbnailSize = GetThumbnailSize(
-                status.LeftVideoFile.CodecInfo);
-            var rightThumbnailSize = GetThumbnailSize(
-                status.RightVideoFile.CodecInfo);
-
             PnlResult.Visible = true;
-
-            Image StreamToImage(MemoryStream stream)
-            {
-                if (stream != null)
-                {
-                    return Image.FromStream(stream);
-                }
-                return new Bitmap(1, 1);
-            }
 
             foreach (var loadLevel in status.ImageComparisons
                 .GroupBy(kvp => kvp.Item2.ImageLoadLevel))
@@ -413,44 +318,35 @@ namespace VideoDedup
                 var loaded = FinishedInLoadLevel == null
                     || loadLevel.Key <= FinishedInLoadLevel;
 
-                tlp.Controls.AddRange(loadLevel.SelectMany(kvp =>
-                {
-                    var leftPib = new PictureBox
+                tlp.Controls.AddRange(loadLevel.Select(kvp =>
+                    new ImageComparisonResultView
                     {
-                        Image = StreamToImage(kvp.Item2.LeftImage)
-                            .Resize(leftThumbnailSize),
-                        SizeMode = PictureBoxSizeMode.AutoSize,
-                        Anchor = AnchorStyles.None,
-                    };
-
-                    var finished = lastCompared != null
-                        && kvp.Item1 > lastCompared;
-                    var text = GetTextFromImageComparison(
-                        kvp.Item1,
-                        kvp.Item2,
-                        finished,
-                        loaded);
-                    var backColor = GetColorFromImageComparison(
-                        kvp.Item2,
-                        finished);
-                    var result = new Label
-                    {
-                        Text = text,
+                        ImageComparisonIndex = kvp.Item1,
+                        ImageComparisonResult = kvp.Item2,
+                        ComparisonFinished = lastCompared != null
+                                && kvp.Item1 > lastCompared,
+                        ImageLoaded = loaded,
+                        MaximumDifferencePercentage =
+                                (int)NumMaxDifferentPercentage.Value,
                         Dock = DockStyle.Fill,
-                        TextAlign = ContentAlignment.MiddleCenter,
-                        BackColor = backColor,
-                    };
-
-                    var rightPib = new PictureBox
-                    {
-                        Image = StreamToImage(kvp.Item2.RightImage)
-                            .Resize(rightThumbnailSize),
-                        SizeMode = PictureBoxSizeMode.AutoSize,
-                        Anchor = AnchorStyles.None,
-                    };
-                    return new Control[] { leftPib, result, rightPib };
-                }).ToArray());
+                        BackColor = GetAlternatingBackColor(),
+                        DifferenceColor = DifferenceColor,
+                        DuplicateColor = DuplicateColor,
+                        NeutralColor = NeutralColor,
+                    }).ToArray());
             }
+        }
+
+        private Color rowBackColor = EvenRowBackColor;
+        private Color GetAlternatingBackColor()
+        {
+            if (rowBackColor == EvenRowBackColor)
+            {
+                rowBackColor = OddRowBackColor;
+                return rowBackColor;
+            }
+            rowBackColor = EvenRowBackColor;
+            return rowBackColor;
         }
     }
 }

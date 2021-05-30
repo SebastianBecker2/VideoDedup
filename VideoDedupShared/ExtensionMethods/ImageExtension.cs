@@ -4,6 +4,7 @@ namespace VideoDedupShared.ImageExtension
     using System.Drawing;
     using System.Drawing.Drawing2D;
     using System.Drawing.Imaging;
+    using System.IO;
     using System.Linq;
 
     public static class ImageExtension
@@ -20,17 +21,33 @@ namespace VideoDedupShared.ImageExtension
         private const int DefaultPercentToCheck = 30;
         private const int DefaultBlacknessThreshold = 30;
 
-        public static Image Resize(this Image original, Size size) =>
-            original.Resize(size.Width, size.Height);
+        public static Image Resize(
+            this Image original,
+            Size size,
+            InterpolationMode interpolationMode = InterpolationMode.HighQualityBicubic,
+            SmoothingMode smoothingMode = SmoothingMode.HighQuality,
+            PixelOffsetMode pixelOffsetMode = PixelOffsetMode.HighQuality) =>
+            original.Resize(
+                size.Width,
+                size.Height,
+                interpolationMode,
+                smoothingMode,
+                pixelOffsetMode);
 
-        public static Image Resize(this Image original, int width, int height)
+        public static Image Resize(
+            this Image original,
+            int width,
+            int height,
+            InterpolationMode interpolationMode = InterpolationMode.HighQualityBicubic,
+            SmoothingMode smoothingMode = SmoothingMode.HighQuality,
+            PixelOffsetMode pixelOffsetMode = PixelOffsetMode.HighQuality)
         {
             var result = new Bitmap(width, height);
             using (var graphics = Graphics.FromImage(result))
             {
-                graphics.SmoothingMode = SmoothingMode.HighQuality;
-                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                graphics.SmoothingMode = smoothingMode;
+                graphics.InterpolationMode = interpolationMode;
+                graphics.PixelOffsetMode = pixelOffsetMode;
                 graphics.DrawImage(original, 0, 0, width, height);
             }
             return result;
@@ -187,5 +204,17 @@ namespace VideoDedupShared.ImageExtension
 
             return croppedImage;
         }
+
+        public static MemoryStream ToMemoryStream(
+            this Image image,
+            ImageFormat format)
+        {
+            var ms = new MemoryStream();
+            image.Save(ms, format);
+            return ms;
+        }
+
+        public static MemoryStream ToMemoryStream(this Image image) =>
+            image.ToMemoryStream(ImageFormat.Jpeg);
     }
 }

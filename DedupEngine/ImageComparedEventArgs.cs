@@ -8,10 +8,10 @@ namespace DedupEngine
     {
         public VideoFile LeftVideoFile { get; set; }
         public VideoFile RightVideoFile { get; set; }
-        public MemoryStream LeftImage { get; set; }
-        public MemoryStream RightImage { get; set; }
+        public ImageSet LeftImages { get; set; }
+        public ImageSet RightImages { get; set; }
         public double Difference { get; set; }
-        public int ImageLoadLevel { get; set; }
+        public int ImageLoadLevelIndex { get; set; }
         public int ImageComparisonIndex { get; set; }
         public ComparisonResult ImageComparisonResult { get; set; }
         public ComparisonResult VideoComparisonResult { get; set; }

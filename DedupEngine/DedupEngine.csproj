@@ -71,6 +71,7 @@
     <Compile Include="DuplicateFoundEventArgs.cs" />
     <Compile Include="EngineState.cs" />
     <Compile Include="ImageComparedEventArgs.cs" />
+    <Compile Include="ImageSet.cs" />
     <Compile Include="LoggedEventArgs.cs" />
     <Compile Include="MpvLib\DataFormat.cs" />
     <Compile Include="MpvLib\Event.cs" />

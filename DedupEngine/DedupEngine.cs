@@ -171,7 +171,6 @@ namespace DedupEngine
             {
                 exc.Handle(x => x is OperationCanceledException);
             }
-            CancelSource?.Dispose();
             OnStopped();
         }
 

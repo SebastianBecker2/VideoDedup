@@ -107,10 +107,10 @@ namespace VideoDedup
             // TlpThirdLevelLoad
             // 
             this.TlpThirdLevelLoad.AutoSize = true;
-            this.TlpThirdLevelLoad.ColumnCount = 3;
-            this.TlpThirdLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33332F));
-            this.TlpThirdLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
-            this.TlpThirdLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
+            this.TlpThirdLevelLoad.ColumnCount = 1;
+            this.TlpThirdLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.TlpThirdLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.TlpThirdLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.TlpThirdLevelLoad.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TlpThirdLevelLoad.Location = new System.Drawing.Point(3, 16);
             this.TlpThirdLevelLoad.Name = "TlpThirdLevelLoad";
@@ -134,10 +134,10 @@ namespace VideoDedup
             // TlpFirstLevelLoad
             // 
             this.TlpFirstLevelLoad.AutoSize = true;
-            this.TlpFirstLevelLoad.ColumnCount = 3;
-            this.TlpFirstLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33332F));
-            this.TlpFirstLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
-            this.TlpFirstLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
+            this.TlpFirstLevelLoad.ColumnCount = 1;
+            this.TlpFirstLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.TlpFirstLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.TlpFirstLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.TlpFirstLevelLoad.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TlpFirstLevelLoad.Location = new System.Drawing.Point(3, 16);
             this.TlpFirstLevelLoad.Name = "TlpFirstLevelLoad";
@@ -162,16 +162,15 @@ namespace VideoDedup
             // TlpSecondLevelLoad
             // 
             this.TlpSecondLevelLoad.AutoSize = true;
-            this.TlpSecondLevelLoad.ColumnCount = 3;
-            this.TlpSecondLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.TlpSecondLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
-            this.TlpSecondLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
+            this.TlpSecondLevelLoad.ColumnCount = 1;
+            this.TlpSecondLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.TlpSecondLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.TlpSecondLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.TlpSecondLevelLoad.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TlpSecondLevelLoad.Location = new System.Drawing.Point(3, 16);
             this.TlpSecondLevelLoad.Name = "TlpSecondLevelLoad";
             this.TlpSecondLevelLoad.RowCount = 1;
             this.TlpSecondLevelLoad.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.TlpSecondLevelLoad.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 1F));
             this.TlpSecondLevelLoad.Size = new System.Drawing.Size(838, 0);
             this.TlpSecondLevelLoad.TabIndex = 0;
             // 
@@ -425,6 +424,7 @@ namespace VideoDedup
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.BtnOkay);
             this.Controls.Add(this.PnlResult);
+            this.DoubleBuffered = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "VideoComparisonPreviewDlg";
             this.Text = "Video Comparison Preview";

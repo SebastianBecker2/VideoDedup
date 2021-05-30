@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\ImageComparisonResult.cs" />
+    <Compile Include="Classes\ImageSet.cs" />
     <Compile Include="Classes\OperationInfo.cs" />
     <Compile Include="Classes\VideoComparisonResult.cs" />
     <Compile Include="Classes\VideoFile.cs" />
