@@ -185,9 +185,16 @@ namespace DedupEngine
                 return Enumerable.Range(
                     loadLevel.ImageStartIndex,
                     loadLevel.ImageCount)
-                    .Select(i => new ImageSet
+                    .Select(i =>
                     {
-                        Bytes = videoFile.ImageBytes[i]
+                        if (videoFile.ImageBytes[i] == null)
+                        {
+                            return null;
+                        }
+                        return new ImageSet
+                        {
+                            Bytes = videoFile.ImageBytes[i]
+                        };
                     });
             }
 
