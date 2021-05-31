@@ -236,5 +236,8 @@
   <ItemGroup>
     <None Include="picture_size_down.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="broken_image_icon.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

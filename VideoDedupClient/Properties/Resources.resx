@@ -124,6 +124,9 @@
   <data name="ArrowUpGray" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\control_up_gray.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="BrokenImageIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\broken_image_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="film" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\film.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>

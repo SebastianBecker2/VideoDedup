@@ -240,7 +240,25 @@ namespace VideoDedup
         private string GetResultText()
         {
             var text = $"{ImageComparisonIndex + 1}. Comparison:{Environment.NewLine}";
-            if (!ComparisonFinished)
+            if (ComparisonFinished)
+            {
+                text += $"Result already determined.{Environment.NewLine}";
+                if (ImageLoaded)
+                {
+                    text += "Images loaded but comparison was skipped.";
+                }
+                else
+                {
+                    text += "Images have not been loaded.";
+                }
+            }
+            else if (ImageComparisonResult.ComparisonResult
+                    == ComparisonResult.NoResult)
+            {
+                text += $"Unable to load image.{Environment.NewLine}" +
+                    $"Comparison was skipped.";
+            }
+            else
             {
                 text += $"Images loaded and compared.{Environment.NewLine}"
                     + $"Difference {ImageComparisonResult.Difference * 100} is ";
@@ -255,36 +273,29 @@ namespace VideoDedup
                 }
                 text += $" than {MaximumDifferencePercentage}.";
             }
-            else
-            {
-                text += $"Result already determined.{Environment.NewLine}";
-                if (ImageLoaded)
-                {
-                    text += "Images loaded but comparison was skipped.";
-                }
-                else
-                {
-                    text += "Images have not been loaded.";
-                }
-            }
             return text;
         }
 
         private Color GetComparisonResultColor()
         {
-            if (!ComparisonFinished)
+            if (ComparisonFinished)
             {
-                if (ImageComparisonResult.ComparisonResult
-                    == ComparisonResult.Different)
-                {
-                    return DifferenceColor;
-                }
-                else
-                {
-                    return DuplicateColor;
-                }
+                return NeutralColor;
             }
-            return NeutralColor;
+            else if (ImageComparisonResult.ComparisonResult
+                == ComparisonResult.NoResult)
+            {
+                return DifferenceColor;
+            }
+            else if (ImageComparisonResult.ComparisonResult
+                == ComparisonResult.Different)
+            {
+                return DifferenceColor;
+            }
+            else
+            {
+                return DuplicateColor;
+            }
         }
 
         private static Image StreamToImage(MemoryStream stream)
@@ -293,7 +304,7 @@ namespace VideoDedup
             {
                 return Image.FromStream(stream);
             }
-            return new Bitmap(1, 1);
+            return Resources.BrokenImageIcon;
         }
 
         private static Size GetThumbnailSize(Size originalSize)

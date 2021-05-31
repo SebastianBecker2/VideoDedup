@@ -66,7 +66,14 @@ namespace VideoDedupShared
                 {
                     return Enumerable.Empty<Image>();
                 }
-                return ImageStreams.Select(image => Image.FromStream(image));
+                return ImageStreams.Select(image =>
+                {
+                    if (image == null)
+                    {
+                        return null;
+                    }
+                    return Image.FromStream(image);
+                });
             }
         }
         [DataMember]

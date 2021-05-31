@@ -3,6 +3,7 @@ namespace VideoDedup.FilePreview
     using System;
     using System.Drawing;
     using System.Windows.Forms;
+    using VideoDedup.Properties;
     using VideoDedupShared;
 
     public partial class FilePreviewDlg : UserControl
@@ -47,7 +48,14 @@ namespace VideoDedup.FilePreview
             var index = 0;
             foreach (var image in VideoFile.Images)
             {
-                ImlThumbnails.Images.Add(image);
+                if (image == null)
+                {
+                    ImlThumbnails.Images.Add(Resources.BrokenImageIcon);
+                }
+                else
+                {
+                    ImlThumbnails.Images.Add(image);
+                }
                 _ = LsvThumbnails.Items.Add(new ListViewItem
                 {
                     ImageIndex = index++,
