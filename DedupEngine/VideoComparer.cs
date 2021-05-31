@@ -231,37 +231,14 @@ namespace DedupEngine
                     break;
                 }
 
+                var imageComparisonResult = ComparisonResult.NoResult;
+                var diff = 0.0f;
+
+                // If we don't have either one of the images, we don't have
+                // a result, but consider them different.
                 if (leftImages[index] == null || rightImages[index] == null)
                 {
-                    OnImageCompared(() => CreateImageComparedEventArgs(
-                        index + loadLevel.ImageStartIndex,
-                        leftImages[index],
-                        rightImages[index],
-                        ComparisonResult.NoResult,
-                        videoComparisonResult,
-                        0,
-                        loadLevelIndex));
-                    continue;
-                }
-
-                var diff = GetDifferenceOfBytes(
-                    leftImages[index].Bytes,
-                    rightImages[index].Bytes);
-
-                var imageComparisonResult = ComparisonResult.Duplicate;
-                if (diff <= (double)Settings.MaxImageDifferencePercent / 100)
-                {
-                    // Early return when there are not enough images left to
-                    // compare to exceed the MaxDifferentImages
-                    if ((Settings.MaxImageCompares - (index + 1))
-                        <= (Settings.MaxDifferentImages - differenceCount))
-                    {
-                        videoComparisonResult = ComparisonResult.Duplicate;
-                    }
-                }
-                else
-                {
-                    imageComparisonResult = ComparisonResult.Different;
+                    imageComparisonResult = ComparisonResult.NoResult;
                     ++differenceCount;
 
                     // Early return when we already exceeded the number of
@@ -271,14 +248,46 @@ namespace DedupEngine
                         videoComparisonResult = ComparisonResult.Different;
                     }
                 }
+                else
+                {
+                    diff = GetDifferenceOfBytes(
+                        leftImages[index].Bytes,
+                        rightImages[index].Bytes);
+
+                    if (diff <= (double)Settings.MaxImageDifferencePercent / 100)
+                    {
+                        imageComparisonResult = ComparisonResult.Duplicate;
+
+                        // Early return when there are not enough images left to
+                        // compare to exceed the MaxDifferentImages
+                        if ((Settings.MaxImageCompares - (index + 1))
+                            <= (Settings.MaxDifferentImages - differenceCount))
+                        {
+                            videoComparisonResult = ComparisonResult.Duplicate;
+                        }
+                    }
+                    else
+                    {
+                        imageComparisonResult = ComparisonResult.Different;
+                        ++differenceCount;
+
+                        // Early return when we already exceeded the number of
+                        // MaxDifferentImages
+                        if (differenceCount > Settings.MaxDifferentImages)
+                        {
+                            videoComparisonResult = ComparisonResult.Different;
+                        }
+                    }
+                }
+
                 OnImageCompared(() => CreateImageComparedEventArgs(
-                        index + loadLevel.ImageStartIndex,
-                        leftImages[index],
-                        rightImages[index],
-                        imageComparisonResult,
-                        videoComparisonResult,
-                        diff,
-                        loadLevelIndex));
+                    index + loadLevel.ImageStartIndex,
+                    leftImages[index],
+                    rightImages[index],
+                    imageComparisonResult,
+                    videoComparisonResult,
+                    diff,
+                    loadLevelIndex));
 
                 if (videoComparisonResult != ComparisonResult.NoResult
                     && !AlwaysLoadAllImages)
