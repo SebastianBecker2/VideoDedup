@@ -153,7 +153,7 @@ namespace DedupEngine
 
                         using (var image = Image.FromStream(stream))
                         using (var cropped = image.CropBlackBars())
-                        using (var small = image.Resize(DownscaleSize))
+                        using (var small = cropped.Resize(DownscaleSize))
                         using (var greysaled = small.MakeGrayScale())
                         {
                             return new ImageSet
