@@ -176,24 +176,38 @@ namespace DedupEngine.MpvLib
             int index,
             int count)
         {
-            var images = GetImages(index, count, SeekMode.KeyFramesOnly)
-                .ToList();
-            if (images.Count() == count)
+            // We ran into issues with some files accessed over the network
+            // (SMB shares). When libmpv (Version 0.33 and 0.33.1) loads the
+            // file, it allocates a lot of memory (in this case 1.8 GB). Even
+            // though the file size is less then 500 MB. Especially in x86 it
+            // would cause an OutOfMemoryException. Additionally, we wouldn't
+            // get the any of the images. So now we try to handle the
+            // OutOfMemoryException and just return a list with null values.
+            try
             {
-                return images;
-            }
+                var images = GetImages(index, count, SeekMode.KeyFramesOnly)
+                    .ToList();
+                if (images.Count() == count)
+                {
+                    return images;
+                }
 
-            images = GetImages(index, count, SeekMode.Precise)
-                .ToList();
-            if (images.Count() == count)
+                images = GetImages(index, count, SeekMode.Precise)
+                    .ToList();
+                if (images.Count() == count)
+                {
+                    return images;
+                }
+
+                return Enumerable
+                    .Range(index, count)
+                    .Select(i => GetImages(i, 1, SeekMode.Precise).FirstOrDefault())
+                    .ToList();
+            }
+            catch (OutOfMemoryException)
             {
-                return images;
+                return Enumerable.Repeat<MemoryStream>(null, count).ToList();
             }
-
-            return Enumerable
-                .Range(index, count)
-                .Select(i => GetImages(i, 1, SeekMode.Precise).FirstOrDefault())
-                .ToList();
         }
 
         private IEnumerable<MemoryStream> GetImages(
