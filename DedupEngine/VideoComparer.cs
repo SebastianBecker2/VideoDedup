@@ -151,19 +151,20 @@ namespace DedupEngine
                             return null;
                         }
 
-                        var image = Image.FromStream(stream);
-                        var cropped = image.CropBlackBars();
-                        var small = cropped.Resize(DownscaleSize);
-                        var greysaled = small.MakeGrayScale();
-                        return new ImageSet
+                        using (var image = Image.FromStream(stream))
+                        using (var cropped = image.CropBlackBars())
+                        using (var small = image.Resize(DownscaleSize))
+                        using (var greysaled = small.MakeGrayScale())
                         {
-                            Stream = stream,
-                            Orignal = image,
-                            Cropped = cropped,
-                            Resized = small,
-                            Greyscaled = greysaled,
-                            Bytes = GetImageBytes(greysaled).ToArray(),
-                        };
+                            return new ImageSet
+                            {
+                                Orignal = stream,
+                                Cropped = cropped.ToMemoryStream(),
+                                Resized = small.ToMemoryStream(),
+                                Greyscaled = greysaled.ToMemoryStream(),
+                                Bytes = GetImageBytes(greysaled).ToArray(),
+                            };
+                        }
                     });
             }
         }
@@ -178,6 +179,10 @@ namespace DedupEngine
                 videoFile.ImageCount = Settings.MaxImageCompares;
             }
 
+            // If we need to call the ImageCompared event, we
+            // need to load the images from the video file.
+            // Because we only store the prepared, scaled down
+            // version of the image in the engine state.
             if (ImageCompared == null
                 && (loadLevel.ImageStartIndex + loadLevel.ImageCount
                 <= videoFile.ImageBytes.Count()))

@@ -8,5 +8,6 @@ namespace VideoDedupShared
         public MemoryStream Cropped { get; set; }
         public MemoryStream Resized { get; set; }
         public MemoryStream Greyscaled { get; set; }
+        public byte[] Bytes { get; set; }
     }
 }
