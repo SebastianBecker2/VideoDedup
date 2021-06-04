@@ -208,7 +208,7 @@ namespace VideoDedupServer
                 fileExtensions = new List<string>
                     {
                         ".mp4", ".mpg", ".avi", ".wmv", ".flv", ".m4v", ".mov",
-                        ".mpeg", ".rm", ".mts", ".3gp"
+                        ".mpeg", ".rm", ".3gp"
                     };
             }
 
