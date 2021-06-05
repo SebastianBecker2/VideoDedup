@@ -172,7 +172,17 @@ namespace DedupEngine.MpvLib
             _ = Directory.CreateDirectory(OutputPath + "/");
         }
 
+        public IList<MemoryStream> GetImages(int index, int count) =>
+            GetImages(null, index, count);
+
         public IList<MemoryStream> GetImages(
+            int index,
+            int count,
+            CancellationToken cancelToken) =>
+            GetImages(cancelToken, index, count);
+
+        public IList<MemoryStream> GetImages(
+            CancellationToken? cancelToken,
             int index,
             int count)
         {
@@ -185,15 +195,21 @@ namespace DedupEngine.MpvLib
             // OutOfMemoryException and just return a list with null values.
             try
             {
-                var images = GetImages(index, count, SeekMode.KeyFramesOnly)
-                    .ToList();
+                var images = GetImages(
+                    index,
+                    count,
+                    SeekMode.KeyFramesOnly,
+                    cancelToken).ToList();
                 if (images.Count() == count)
                 {
                     return images;
                 }
 
-                images = GetImages(index, count, SeekMode.Precise)
-                    .ToList();
+                images = GetImages(
+                    index,
+                    count,
+                    SeekMode.Precise,
+                    cancelToken).ToList();
                 if (images.Count() == count)
                 {
                     return images;
@@ -201,7 +217,9 @@ namespace DedupEngine.MpvLib
 
                 return Enumerable
                     .Range(index, count)
-                    .Select(i => GetImages(i, 1, SeekMode.Precise).FirstOrDefault())
+                    .Select(i =>
+                        GetImages(i, 1, SeekMode.Precise, cancelToken)
+                        .FirstOrDefault())
                     .ToList();
             }
             catch (OutOfMemoryException)
@@ -213,7 +231,8 @@ namespace DedupEngine.MpvLib
         private IEnumerable<MemoryStream> GetImages(
             int index,
             int count,
-            SeekMode seekMode)
+            SeekMode seekMode,
+            CancellationToken? cancelToken)
         {
             if (count <= 0)
             {
@@ -261,6 +280,12 @@ namespace DedupEngine.MpvLib
             while (true)
             {
                 var eventId = GetEventId(MpvHandle, GetEventIdTimeout);
+
+                if (cancelToken.HasValue
+                    && cancelToken.Value.IsCancellationRequested)
+                {
+                    yield break;
+                }
 
                 if (eventId == EventId.Seek)
                 {

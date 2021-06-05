@@ -134,7 +134,8 @@ namespace DedupEngine
 
         private IEnumerable<ImageSet> LoadImagesFromFile(
             VideoFile videoFile,
-            LoadLevel loadLevel)
+            LoadLevel loadLevel,
+            CancellationToken cancelToken)
         {
             using (var mpv = new MpvWrapper(
                 videoFile.FilePath,
@@ -143,7 +144,8 @@ namespace DedupEngine
             {
                 return mpv.GetImages(
                     loadLevel.ImageStartIndex,
-                    loadLevel.ImageCount)
+                    loadLevel.ImageCount,
+                    cancelToken)
                     .Select(stream =>
                     {
                         if (stream == null)
@@ -171,7 +173,8 @@ namespace DedupEngine
 
         private IEnumerable<ImageSet> GetImagesFromFile(
             VideoFile videoFile,
-            LoadLevel loadLevel)
+            LoadLevel loadLevel,
+            CancellationToken cancelToken)
         {
             if (videoFile.ImageCount != Settings.MaxImageCompares)
             {
@@ -203,7 +206,8 @@ namespace DedupEngine
                     });
             }
 
-            var images = LoadImagesFromFile(videoFile, loadLevel).ToList();
+            var images = LoadImagesFromFile(videoFile, loadLevel, cancelToken)
+                .ToList();
             videoFile.ImageBytes.AddRange(images.Select(i =>
             {
                 if (i == null)
@@ -222,8 +226,15 @@ namespace DedupEngine
         {
             var loadLevel = CalculateLoadLevel(loadLevelIndex, Settings);
 
-            var leftImages = GetImagesFromFile(LeftVideoFile, loadLevel).ToList();
-            var rightImages = GetImagesFromFile(RightVideoFile, loadLevel).ToList();
+            var leftImages = GetImagesFromFile(
+                LeftVideoFile,
+                loadLevel,
+                cancelToken).ToList();
+
+            var rightImages = GetImagesFromFile(
+                RightVideoFile,
+                loadLevel,
+                cancelToken).ToList();
 
             var videoComparisonResult = ComparisonResult.NoResult;
 
