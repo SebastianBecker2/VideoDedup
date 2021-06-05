@@ -10,12 +10,13 @@ namespace DedupEngine
     internal class EngineState
     {
         private static readonly string IndexFilename = "DedupEngine.index";
-        private static readonly string StatePostfix = ".state";
+        private static readonly string PartPostfix = ".part";
+        private static readonly int BatchSize = 1000;
 
         private string IndexFilePath =>
             Path.Combine(StateFolderPath, IndexFilename);
-        private string GetStateFilePath(string stateId) =>
-            Path.Combine(StateFolderPath, stateId + StatePostfix);
+        private string GetPartFilePath(string stateId, int partIndex) =>
+            Path.Combine(StateFolderPath, $"{stateId}{PartPostfix}{partIndex:D5}");
 
         private string StateFolderPath { get; }
         private DateTime LastSave { get; set; } = DateTime.MinValue;
@@ -57,18 +58,22 @@ namespace DedupEngine
                 return;
             }
 
-            EngineState savedState;
-            try
+            var partIndex = 0;
+            var videoFiles = Enumerable.Empty<VideoFile>();
+            while (true)
             {
-                savedState = JsonConvert.DeserializeObject<EngineState>(
-                    File.ReadAllText(GetStateFilePath(stateId)));
-            }
-            catch (Exception)
-            {
-                return;
-            }
+                var filePath = GetPartFilePath(stateId, partIndex++);
+                if (!File.Exists(filePath))
+                {
+                    break;
+                }
 
-            VideoFiles = savedState.VideoFiles;
+                var part = JsonConvert.DeserializeObject<List<VideoFile>>(
+                    File.ReadAllText(filePath));
+                videoFiles = (videoFiles ?? Enumerable.Empty<VideoFile>())
+                    .Concat(part);
+            }
+            VideoFiles = videoFiles.ToList();
         }
 
         public void SaveState(bool force = true)
@@ -115,15 +120,22 @@ namespace DedupEngine
 
             try
             {
-                File.WriteAllText(
-                    GetStateFilePath(stateId),
-                    JsonConvert.SerializeObject(
-                        this,
-                        Formatting.Indented,
-                        new JsonSerializerSettings
-                        {
-                            TypeNameHandling = TypeNameHandling.All,
-                        }));
+                var batchCount = (int)Math.Ceiling(
+                    VideoFiles.Count() / (double)BatchSize);
+                foreach (var batchIndex in Enumerable.Range(0, batchCount))
+                {
+                    var part = VideoFiles.Skip(batchIndex * BatchSize).Take(BatchSize);
+
+                    File.WriteAllText(
+                        GetPartFilePath(stateId, batchIndex),
+                        JsonConvert.SerializeObject(
+                            part,
+                            Formatting.Indented,
+                            new JsonSerializerSettings
+                            {
+                                TypeNameHandling = TypeNameHandling.All,
+                            }));
+                }
             }
             catch (Exception) { }
         }
