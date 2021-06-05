@@ -265,7 +265,7 @@ namespace DedupEngine
 
                         // Early return when there are not enough images left to
                         // compare to exceed the MaxDifferentImages
-                        if ((Settings.MaxImageCompares - (index + 1))
+                        if ((Settings.MaxImageCompares - (index + loadLevel.ImageStartIndex + 1))
                             <= (Settings.MaxDifferentImages - differenceCount))
                         {
                             videoComparisonResult = ComparisonResult.Duplicate;
@@ -329,8 +329,17 @@ namespace DedupEngine
                     loadLevelIndex,
                     ref differenceCount,
                     cancelToken);
+
+                if (comparisonResult != ComparisonResult.NoResult
+                    && !AlwaysLoadAllImages)
+                {
+                    break;
+                }
             }
 
+            // If we didn't stop comparison early because of a
+            // precondition, then we end up here with no result.
+            // Which means, the videos are considered to be duplicates.
             if (comparisonResult == ComparisonResult.NoResult)
             {
                 comparisonResult = ComparisonResult.Duplicate;
