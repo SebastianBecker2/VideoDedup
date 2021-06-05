@@ -256,6 +256,7 @@ namespace VideoDedup
             this.Controls.Add(this.LblStatusInfo);
             this.Controls.Add(this.ProgressBar);
             this.Controls.Add(this.MenuStrip);
+            this.DoubleBuffered = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.MenuStrip;
             this.Name = "VideoDedupDlg";
