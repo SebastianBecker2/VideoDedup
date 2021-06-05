@@ -108,6 +108,9 @@ namespace VideoDedup
                 return;
             }
 
+            PgbComparisonProgress.Visible = true;
+            PnlResult.Visible = true;
+
             var startData = VideoDedupDlg.WcfProxy.StartCustomVideoComparison(
                  new CustomVideoComparisonData
                  {
@@ -195,6 +198,7 @@ namespace VideoDedup
             {
                 VideoDedupDlg.WcfProxy.CancelCustomVideoComparison(
                     ComparisonToken.Value);
+                PgbComparisonProgress.Visible = false;
                 return;
             }
 
@@ -209,6 +213,7 @@ namespace VideoDedup
             PnlResult.Visible = false;
 
             LblResult.Visible = false;
+            PgbComparisonProgress.Visible = false;
 
             var localRef = TlpFirstLevelLoad.Controls;
             TlpFirstLevelLoad.Controls.Clear();
