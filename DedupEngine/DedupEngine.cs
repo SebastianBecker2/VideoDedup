@@ -95,6 +95,9 @@ namespace DedupEngine
 
             AppDataFolder = appDataFolder;
 
+            CurrentState = new EngineState(AppDataFolder);
+            CurrentState.Logged += (s, e) => OnLogged(e.Message);
+
             FileWatcher.Changed += HandleFileWatcherChangedEvent;
             FileWatcher.Deleted += HandleFileWatcherDeletedEvent;
             FileWatcher.Error += HandleFileWatcherErrorEvent;
@@ -114,7 +117,7 @@ namespace DedupEngine
             }
 
             Stop();
-            CurrentState = new EngineState(settings, AppDataFolder);
+            CurrentState.LoadState(settings);
         }
 
         public void Start()
@@ -542,6 +545,8 @@ namespace DedupEngine
             cancelToken.ThrowIfCancellationRequested();
 
             // Cancellable preload of files
+            OnLogged($"Starting preloading media info of " +
+                $"{CurrentState.VideoFiles.Count()} Files.");
             PreloadFiles(CurrentState.VideoFiles, cancelToken);
             if (cancelToken.IsCancellationRequested)
             {
@@ -549,7 +554,7 @@ namespace DedupEngine
                 cancelToken.ThrowIfCancellationRequested();
             }
             OnLogged($"Finished preloading media info of " +
-                $"{CurrentState.VideoFiles.Count()} Files");
+                $"{CurrentState.VideoFiles.Count()} Files.");
 
             // Remove invalid files
             CurrentState.VideoFiles = CurrentState.VideoFiles
@@ -565,7 +570,7 @@ namespace DedupEngine
                 cancelToken.ThrowIfCancellationRequested();
             }
             OnLogged($"Finished searching for duplicates of " +
-                $"{CurrentState.VideoFiles.Count()} Files");
+                $"{CurrentState.VideoFiles.Count()} Files.");
 
             ProcessChangesIfAny();
         }

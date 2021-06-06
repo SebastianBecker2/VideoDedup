@@ -9,6 +9,19 @@ namespace DedupEngine
 
     internal class EngineState
     {
+        private static readonly string LogNotFound =
+            "No existing engine state found for this configuration.";
+        private static readonly string LogLoadError =
+            "Unable to load existing engine state: {0}";
+        private static readonly string LogLoadSuccessful =
+            "Engine state loaded.";
+        private static readonly string LogUpdateError =
+            "Unable to update engine state index files: {0}";
+        private static readonly string LogSaveError =
+            "Unable to write engine state part files: {0}";
+        private static readonly string LogSaveSuccessful =
+            "Engine state saved.";
+
         private static readonly string IndexFilename = "DedupEngine.index";
         private static readonly string PartPostfix = ".part";
         private static readonly int BatchSize = 1000;
@@ -26,20 +39,24 @@ namespace DedupEngine
         [JsonIgnore]
         public EngineSettings Settings { get; set; }
 
+        public event EventHandler<LoggedEventArgs> Logged;
+        protected virtual void OnLogged(string message) =>
+            Logged?.Invoke(this, new LoggedEventArgs
+            {
+                Message = message,
+            });
+
         [JsonConstructor]
         private EngineState()
         {
         }
 
-        public EngineState(IDedupEngineSettings settings, string stateFolderPath)
+        public EngineState(string stateFolderPath) => StateFolderPath = stateFolderPath;
+
+        public void LoadState(IDedupEngineSettings settings)
         {
             Settings = new EngineSettings(settings);
-            StateFolderPath = stateFolderPath;
-            LoadState();
-        }
 
-        private void LoadState()
-        {
             Dictionary<EngineSettings, string> engineStateIndex;
             try
             {
@@ -55,25 +72,36 @@ namespace DedupEngine
 
             if (!engineStateIndex.TryGetValue(Settings, out var stateId))
             {
+                OnLogged(LogNotFound);
                 return;
             }
 
-            var partIndex = 0;
-            var videoFiles = Enumerable.Empty<VideoFile>();
-            while (true)
+            try
             {
-                var filePath = GetPartFilePath(stateId, partIndex++);
-                if (!File.Exists(filePath))
+                var partIndex = 0;
+                var videoFiles = Enumerable.Empty<VideoFile>();
+                while (true)
                 {
-                    break;
-                }
+                    var filePath = GetPartFilePath(stateId, partIndex++);
+                    if (!File.Exists(filePath))
+                    {
+                        break;
+                    }
 
-                var part = JsonConvert.DeserializeObject<List<VideoFile>>(
-                    File.ReadAllText(filePath));
-                videoFiles = (videoFiles ?? Enumerable.Empty<VideoFile>())
-                    .Concat(part);
+                    var part = JsonConvert.DeserializeObject<List<VideoFile>>(
+                        File.ReadAllText(filePath));
+                    videoFiles = (videoFiles ?? Enumerable.Empty<VideoFile>())
+                        .Concat(part);
+                }
+                VideoFiles = videoFiles.ToList();
             }
-            VideoFiles = videoFiles.ToList();
+            catch (Exception exc)
+            {
+                OnLogged(string.Format(LogLoadError, exc.Message));
+                return;
+            }
+
+            OnLogged(LogLoadSuccessful);
         }
 
         public void SaveState(bool force = true)
@@ -115,7 +143,11 @@ namespace DedupEngine
                                 TypeNameHandling = TypeNameHandling.All,
                             }));
                 }
-                catch (Exception) { }
+                catch (Exception exc)
+                {
+                    OnLogged(string.Format(LogUpdateError, exc.Message));
+                    return;
+                }
             }
 
             try
@@ -124,7 +156,9 @@ namespace DedupEngine
                     VideoFiles.Count() / (double)BatchSize);
                 foreach (var batchIndex in Enumerable.Range(0, batchCount))
                 {
-                    var part = VideoFiles.Skip(batchIndex * BatchSize).Take(BatchSize);
+                    var part = VideoFiles
+                        .Skip(batchIndex * BatchSize)
+                        .Take(BatchSize);
 
                     File.WriteAllText(
                         GetPartFilePath(stateId, batchIndex),
@@ -137,7 +171,13 @@ namespace DedupEngine
                             }));
                 }
             }
-            catch (Exception) { }
+            catch (Exception exc)
+            {
+                OnLogged(string.Format(LogSaveError, exc.Message));
+                return;
+            }
+
+            OnLogged(LogSaveSuccessful);
         }
     }
 }

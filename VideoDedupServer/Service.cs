@@ -280,16 +280,16 @@ namespace VideoDedupServer
 
         private void UpdateConfig(ConfigData settings)
         {
-            duplicateManager.DiscardAll();
-            duplicateManager.Settings = settings;
-            dedupper.Stop();
-            dedupper.UpdateConfiguration(settings);
-
             lock (logEntriesLock)
             {
                 logEntries.Clear();
                 LogId = Guid.NewGuid();
             }
+
+            duplicateManager.DiscardAll();
+            duplicateManager.Settings = settings;
+            dedupper.Stop();
+            dedupper.UpdateConfiguration(settings);
 
             try
             {
