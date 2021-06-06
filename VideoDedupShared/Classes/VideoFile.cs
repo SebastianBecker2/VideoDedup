@@ -100,7 +100,7 @@ namespace VideoDedupShared
         {
             foreach (var image in ImageStreams)
             {
-                image.Dispose();
+                image?.Dispose();
             }
             ImageStreams.Clear();
         }
