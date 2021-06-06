@@ -162,9 +162,19 @@
             // 
             this.NumMaxImageComparison.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.NumMaxImageComparison.Location = new System.Drawing.Point(231, 6);
+            this.NumMaxImageComparison.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             this.NumMaxImageComparison.Name = "NumMaxImageComparison";
             this.NumMaxImageComparison.Size = new System.Drawing.Size(63, 20);
             this.NumMaxImageComparison.TabIndex = 0;
+            this.NumMaxImageComparison.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
             // label6
             // 
@@ -285,6 +295,11 @@
             // 
             this.NumMaxDurationDifferenceSeconds.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.NumMaxDurationDifferenceSeconds.Location = new System.Drawing.Point(229, 62);
+            this.NumMaxDurationDifferenceSeconds.Maximum = new decimal(new int[] {
+            999999,
+            0,
+            0,
+            0});
             this.NumMaxDurationDifferenceSeconds.Name = "NumMaxDurationDifferenceSeconds";
             this.NumMaxDurationDifferenceSeconds.Size = new System.Drawing.Size(63, 20);
             this.NumMaxDurationDifferenceSeconds.TabIndex = 2;
@@ -316,9 +331,19 @@
             // 
             this.NumThumbnailViewCount.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.NumThumbnailViewCount.Location = new System.Drawing.Point(229, 24);
+            this.NumThumbnailViewCount.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             this.NumThumbnailViewCount.Name = "NumThumbnailViewCount";
             this.NumThumbnailViewCount.Size = new System.Drawing.Size(63, 20);
             this.NumThumbnailViewCount.TabIndex = 0;
+            this.NumThumbnailViewCount.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
             // tableLayoutPanel1
             // 
@@ -580,9 +605,24 @@
             // 
             this.NumSaveStateIntervalMinutes.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.NumSaveStateIntervalMinutes.Location = new System.Drawing.Point(229, 27);
+            this.NumSaveStateIntervalMinutes.Maximum = new decimal(new int[] {
+            120,
+            0,
+            0,
+            0});
+            this.NumSaveStateIntervalMinutes.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             this.NumSaveStateIntervalMinutes.Name = "NumSaveStateIntervalMinutes";
             this.NumSaveStateIntervalMinutes.Size = new System.Drawing.Size(63, 20);
             this.NumSaveStateIntervalMinutes.TabIndex = 20;
+            this.NumSaveStateIntervalMinutes.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
             // ServerConfigDlg
             // 
