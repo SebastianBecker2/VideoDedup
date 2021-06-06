@@ -280,6 +280,7 @@ namespace VideoDedupServer
 
         private void UpdateConfig(ConfigData settings)
         {
+            duplicateManager.DiscardAll();
             duplicateManager.Settings = settings;
             dedupper.Stop();
             dedupper.UpdateConfiguration(settings);
