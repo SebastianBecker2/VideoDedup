@@ -51,7 +51,8 @@ namespace DedupEngine
         {
         }
 
-        public EngineState(string stateFolderPath) => StateFolderPath = stateFolderPath;
+        public EngineState(string stateFolderPath) =>
+            StateFolderPath = stateFolderPath;
 
         public void LoadState(IDedupEngineSettings settings)
         {
