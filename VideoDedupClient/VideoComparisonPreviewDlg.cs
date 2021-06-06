@@ -74,9 +74,7 @@ namespace VideoDedup
                 BtnStartComparison.PerformClick();
             }
 
-            BtnOkay.Visible = CloseButtons == Buttons.OkCancel;
-            BtnCancel.Visible = CloseButtons == Buttons.OkCancel;
-            btnClose.Visible = CloseButtons == Buttons.Close;
+            UpdateCloseButtons();
 
             base.OnLoad(e);
         }
@@ -90,6 +88,21 @@ namespace VideoDedup
                     ComparisonToken.Value);
             }
             base.OnClosed(e);
+        }
+
+        private void UpdateCloseButtons()
+        {
+            BtnOkay.Visible = CloseButtons == Buttons.OkCancel;
+            BtnCancel.Visible = CloseButtons == Buttons.OkCancel;
+            btnClose.Visible = CloseButtons == Buttons.Close;
+            if (CloseButtons == Buttons.OkCancel)
+            {
+                CancelButton = BtnCancel;
+            }
+            else
+            {
+                CancelButton = btnClose;
+            }
         }
 
         private void BtnStartComparison_Click(object sender, EventArgs e)
