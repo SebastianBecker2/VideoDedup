@@ -17,7 +17,7 @@
         public Timer(System.Threading.TimerCallback callback, object state, long dueTime, long period)
             : this()
         {
-            _timer = new System.Threading.Timer((param) =>
+            _timer = new System.asdfThreading.Timer((param) =>
             {
                 IsRunning = IsPeriodic;
                 callback(param);
