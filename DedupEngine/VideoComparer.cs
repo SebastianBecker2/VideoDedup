@@ -3,6 +3,7 @@ namespace DedupEngine
     using System;
     using System.Collections.Generic;
     using System.Drawing;
+    using System.Drawing.Imaging;
     using System.Linq;
     using System.Threading;
     using global::DedupEngine.MpvLib;
@@ -22,15 +23,29 @@ namespace DedupEngine
         private static readonly Size DownscaleSize = new Size(16, 16);
         private const int ByteDifferenceThreshold = 3;
 
-        private static IEnumerable<byte> GetImageBytes(Bitmap image)
+        private static byte[] GetImageBytes(Bitmap image)
         {
-            foreach (var y in Enumerable.Range(0, 16))
+            unsafe
             {
-                foreach (var x in Enumerable.Range(0, 16))
-                {
-                    yield return (byte)Math.Abs(image.GetPixel(x, y).R);
-                }
+                var bitmapData = image.LockBits(
+                    new Rectangle(new Point(0,0), DownscaleSize),
+                    ImageLockMode.ReadOnly,
+                    image.PixelFormat);
+                var bytesPerPixel =
+                    Image.GetPixelFormatSize(image.PixelFormat) / 8;
+                var widthInBytes = bitmapData.Width * bytesPerPixel;
+
+                return Enumerable
+                    .Range(0, DownscaleSize.Height)
+                    .SelectMany(y => Enumerable
+                        .Range(0, DownscaleSize.Width)
+                        .Select(x =>
+                            ((byte *)bitmapData.Scan0
+                                + (y * bitmapData.Stride)
+                                + (x * bytesPerPixel))[0]))
+                    .ToArray();
             }
+
         }
 
         private static float GetDifferenceOfBytes(
@@ -166,7 +181,7 @@ namespace DedupEngine
                                     Cropped = cropped.ToMemoryStream(),
                                     Resized = small.ToMemoryStream(),
                                     Greyscaled = greysaled.ToMemoryStream(),
-                                    Bytes = GetImageBytes(greysaled).ToArray(),
+                                    Bytes = GetImageBytes(greysaled),
                                 };
                             }
                         }
