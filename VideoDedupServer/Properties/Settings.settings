@@ -15,13 +15,13 @@
       <Value Profile="(Default)">20</Value>
     </Setting>
     <Setting Name="MaxDifferentThumbnails" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">3</Value>
+      <Value Profile="(Default)">4</Value>
     </Setting>
     <Setting Name="MaxDifferencePercentage" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">35</Value>
+      <Value Profile="(Default)">80</Value>
     </Setting>
     <Setting Name="MaxDurationDifferenceSeconds" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">10</Value>
+      <Value Profile="(Default)">60</Value>
     </Setting>
     <Setting Name="DurationDifferenceType" Type="System.String" Scope="User">
       <Value Profile="(Default)">Seconds</Value>
@@ -39,7 +39,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="SaveStateIntervalMinutes" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">1</Value>
+      <Value Profile="(Default)">5</Value>
     </Setting>
     <Setting Name="UpgradeRequired" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
