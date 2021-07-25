@@ -153,19 +153,26 @@ namespace DedupEngine
                             return null;
                         }
 
-                        using (var image = Image.FromStream(stream))
-                        using (var cropped = image.CropBlackBars())
-                        using (var small = cropped.Resize(DownscaleSize))
-                        using (var greysaled = small.MakeGrayScale())
+                        try
                         {
-                            return new ImageSet
+                            using (var image = (Bitmap)Image.FromStream(stream))
+                            using (var cropped = image.CropBlackBars())
+                            using (var small = cropped.Resize(DownscaleSize))
+                            using (var greysaled = small.MakeGrayScale())
                             {
-                                Orignal = stream,
-                                Cropped = cropped.ToMemoryStream(),
-                                Resized = small.ToMemoryStream(),
-                                Greyscaled = greysaled.ToMemoryStream(),
-                                Bytes = GetImageBytes(greysaled).ToArray(),
-                            };
+                                return new ImageSet
+                                {
+                                    Orignal = stream,
+                                    Cropped = cropped.ToMemoryStream(),
+                                    Resized = small.ToMemoryStream(),
+                                    Greyscaled = greysaled.ToMemoryStream(),
+                                    Bytes = GetImageBytes(greysaled).ToArray(),
+                                };
+                            }
+                        }
+                        catch (ArgumentNullException)
+                        {
+                            return null;
                         }
                     });
             }
