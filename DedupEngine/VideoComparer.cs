@@ -28,7 +28,7 @@ namespace DedupEngine
             unsafe
             {
                 var bitmapData = image.LockBits(
-                    new Rectangle(new Point(0,0), DownscaleSize),
+                    new Rectangle(new Point(0, 0), DownscaleSize),
                     ImageLockMode.ReadOnly,
                     image.PixelFormat);
                 var bytesPerPixel =
@@ -40,7 +40,7 @@ namespace DedupEngine
                     .SelectMany(y => Enumerable
                         .Range(0, DownscaleSize.Width)
                         .Select(x =>
-                            ((byte *)bitmapData.Scan0
+                            ((byte*)bitmapData.Scan0
                                 + (y * bitmapData.Stride)
                                 + (x * bytesPerPixel))[0]))
                     .ToArray();
@@ -98,7 +98,6 @@ namespace DedupEngine
         protected virtual void OnComparisonFinished(
             Func<ComparisonFinishedEventArgs> eventArgsCreator) =>
             ComparisonFinished?.Invoke(this, eventArgsCreator.Invoke());
-
 
         private static LoadLevel CalculateLoadLevel(
             int loadLevelIndex,
