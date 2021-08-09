@@ -153,12 +153,12 @@ namespace DedupEngine
         {
             using (var mpv = new MpvWrapper(
                 videoFile.FilePath,
-                Settings.MaxImageCompares,
                 videoFile.Duration))
             {
                 return mpv.GetImages(
                     loadLevel.ImageStartIndex,
                     loadLevel.ImageCount,
+                    Settings.MaxImageCompares,
                     cancelToken)
                     .Select(stream =>
                     {

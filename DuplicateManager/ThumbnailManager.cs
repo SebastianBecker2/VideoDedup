@@ -10,7 +10,6 @@ namespace DuplicateManager
         {
             public VideoFile VideoFile { get; set; }
             public int RefCount { get; set; }
-
         }
 
         private Dictionary<IVideoFile, VideoFileRefCounter> UniqueVideoFiles { get; } =
@@ -29,12 +28,11 @@ namespace DuplicateManager
 
             using (var mpv = new MpvWrapper(
                 videoFile.FilePath,
-                Settings.Count,
                 videoFile.Duration))
             {
                 var videoFilePreview = new VideoFile(
                     videoFile,
-                    mpv.GetImages(0, Settings.Count));
+                    mpv.GetImages(0, Settings.Count, Settings.Count));
                 UniqueVideoFiles.Add(videoFile, new VideoFileRefCounter
                 {
                     VideoFile = videoFilePreview,

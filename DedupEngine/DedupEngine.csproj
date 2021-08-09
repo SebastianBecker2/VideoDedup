@@ -81,7 +81,6 @@
     <Compile Include="MpvLib\EventId.cs" />
     <Compile Include="MpvLib\MpvException.cs" />
     <Compile Include="MpvLib\MpvWrapper.cs" />
-    <Compile Include="MpvLib\SeekMode.cs" />
     <Compile Include="OperationUpdateEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StoppedEventArgs.cs" />
