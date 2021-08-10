@@ -179,7 +179,7 @@ namespace VideoDedupServer
 
                 return new LogData
                 {
-                    LogEntries = logEntries.Skip(start).Take(count),
+                    LogEntries = logEntries.Skip(start).Take(count).ToList(),
                 };
             }
         }
