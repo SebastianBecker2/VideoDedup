@@ -46,9 +46,6 @@ namespace VideoDedup
 
             NumThumbnailViewCount.Value = ServerConfig.ThumbnailCount;
 
-            NumSaveStateIntervalMinutes.Value =
-                ServerConfig.SaveStateIntervalMinutes;
-
             base.OnLoad(e);
         }
 
@@ -82,9 +79,6 @@ namespace VideoDedup
                 (int)NumMaxDurationDifferenceSeconds.Value;
 
             ServerConfig.ThumbnailCount = (int)NumThumbnailViewCount.Value;
-
-            ServerConfig.SaveStateIntervalMinutes =
-                (int)NumSaveStateIntervalMinutes.Value;
 
             DialogResult = DialogResult.OK;
         }

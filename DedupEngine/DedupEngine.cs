@@ -22,6 +22,7 @@ namespace DedupEngine
         private static readonly string LogDeletedFile = "File deleted: {0}";
         private static readonly string LogNewFile = "File created: {0}";
 
+        private static readonly string EngineDatastoreFileName = "engine.db";
         private string AppDataFolder { get; }
 
         private bool disposedValue; // For IDisposable
@@ -37,7 +38,9 @@ namespace DedupEngine
         // ConcurrentDictionary is used as a hash set
         private ConcurrentDictionary<VideoFile, byte> NewFiles { get; set; }
         private ConcurrentDictionary<VideoFile, byte> DeletedFiles { get; set; }
-        private EngineState CurrentState { get; set; }
+        private EngineSettings Settings { get; set; }
+        private IList<VideoFile> VideoFiles { get; set; }
+        private EngineDatastore Datastore { get; set; }
 
         public event EventHandler<StoppedEventArgs> Stopped;
         protected virtual void OnStopped() =>
@@ -51,7 +54,7 @@ namespace DedupEngine
             {
                 File1 = file1,
                 File2 = file2,
-                BasePath = CurrentState.Settings.BasePath,
+                BasePath = Settings.BasePath,
             });
 
         public event EventHandler<OperationUpdateEventArgs> OperationUpdate;
@@ -95,8 +98,8 @@ namespace DedupEngine
 
             AppDataFolder = appDataFolder;
 
-            CurrentState = new EngineState(AppDataFolder);
-            CurrentState.Logged += (s, e) => OnLogged(e.Message);
+            Datastore = new EngineDatastore(
+                Path.Combine(appDataFolder, EngineDatastoreFileName));
 
             FileWatcher.Changed += HandleFileWatcherChangedEvent;
             FileWatcher.Deleted += HandleFileWatcherDeletedEvent;
@@ -117,18 +120,18 @@ namespace DedupEngine
             }
 
             Stop();
-            CurrentState.LoadState(settings);
+            Settings = new EngineSettings(settings);
         }
 
         public void Start()
         {
-            if (CurrentState.Settings == null)
+            if (Settings == null)
             {
                 throw new InvalidOperationException("Unable to start. " +
                     "No configuration set.");
             }
 
-            if (!Directory.Exists(CurrentState.Settings.BasePath))
+            if (!Directory.Exists(Settings.BasePath))
             {
                 throw new InvalidOperationException("Unable to start. " +
                     "Base path is not valid.");
@@ -139,9 +142,9 @@ namespace DedupEngine
                 return;
             }
 
-            FileWatcher.Path = CurrentState.Settings.BasePath;
-            FileWatcher.IncludeSubdirectories = CurrentState.Settings.Recursive;
-            FileWatcher.EnableRaisingEvents = CurrentState.Settings.MonitorChanges;
+            FileWatcher.Path = Settings.BasePath;
+            FileWatcher.IncludeSubdirectories = Settings.Recursive;
+            FileWatcher.EnableRaisingEvents = Settings.MonitorChanges;
 
             NewFiles = new ConcurrentDictionary<VideoFile, byte> { };
             DeletedFiles = new ConcurrentDictionary<VideoFile, byte> { };
@@ -251,7 +254,7 @@ namespace DedupEngine
 
         private void HandleDeletedFileEvent(string filePath)
         {
-            if (!IsFilePathRelevant(filePath, CurrentState.Settings))
+            if (!IsFilePathRelevant(filePath, Settings))
             {
                 return;
             }
@@ -263,7 +266,7 @@ namespace DedupEngine
 
         private void HandleNewFileEvent(string filePath)
         {
-            if (!IsFilePathRelevant(filePath, CurrentState.Settings))
+            if (!IsFilePathRelevant(filePath, Settings))
             {
                 return;
             }
@@ -321,37 +324,14 @@ namespace DedupEngine
             operationStartTime = DateTime.Now;
             OnOperationUpdate(OperationType.Searching, ProgressStyle.Marquee);
 
-            // Get all video files in source path.
-            var foundFiles = GetAllAccessibleFilesIn(
+            return GetAllAccessibleFilesIn(
                 folderSettings.BasePath,
                 folderSettings.ExcludedDirectories,
                 folderSettings.Recursive)
                 .Where(f => folderSettings.FileExtensions.Contains(
                     Path.GetExtension(f),
                     StringComparer.InvariantCultureIgnoreCase))
-                .Select(f => new VideoFile(f))
-                .ToList();
-
-            if (CurrentState.VideoFiles == null)
-            {
-                return foundFiles;
-            }
-
-            // Get files that are in the loaded engine state but
-            // don't exist anymore. Might be deleted or excluded
-            // by the exclusion list or because the recursive flag
-            // isn't set anymore.
-            var obsoleteFiles = CurrentState.VideoFiles.Except(foundFiles);
-
-            // Remove the files that we don't care about anymore.
-            var storedFilesWithoutObsolete = new HashSet<VideoFile>(
-                CurrentState.VideoFiles.Except(obsoleteFiles));
-
-            // Add the files that do exist now but are not yet
-            // part of the engine state.
-            storedFilesWithoutObsolete.UnionWith(foundFiles);
-
-            return storedFilesWithoutObsolete;
+                .Select(f => new VideoFile(f));
         }
 
         private void PreloadFiles(
@@ -366,62 +346,64 @@ namespace DedupEngine
                 counter,
                 videoFiles.Count());
 
-            foreach (var f in videoFiles)
+            foreach (var file in videoFiles)
             {
                 OnOperationUpdate(OperationType.LoadingMedia,
                     ++counter,
                     videoFiles.Count());
 
-                // For now we only preload the duration
-                // since the size is only rarely used
-                // in the comparison dialog. No need
-                // to preload it.
-                _ = f.Duration;
-                //var size = f.FileSize;
+                var duration = Datastore.GetVideoFileDuration(file);
+                if (duration.HasValue)
+                {
+                    file.Duration = duration.Value;
+                }
+                else
+                {
+                    _ = file.Duration;
+                    Datastore.InsertVideoFile(file);
+                }
+
                 if (cancelToken.IsCancellationRequested)
                 {
                     break;
                 }
-
-                CurrentState.SaveState(false);
             }
         }
 
-        private void FindDuplicates(EngineState state,
-            CancellationToken cancelToken)
+        private void FindDuplicates(CancellationToken cancelToken)
         {
             operationStartTime = DateTime.Now;
             OnOperationUpdate(
                 OperationType.Comparing,
                 0,
-                state.VideoFiles.Count());
+                VideoFiles.Count());
 
             var timer = Stopwatch.StartNew();
 
-            state.VideoFiles = state.VideoFiles
+            VideoFiles = VideoFiles
                 .OrderBy(f => f.Duration)
                 .ToList();
 
-            foreach (var index in Enumerable.Range(0, state.VideoFiles.Count - 1))
+            foreach (var index in Enumerable.Range(0, VideoFiles.Count - 1))
             {
                 if (cancelToken.IsCancellationRequested)
                 {
                     return;
                 }
 
-                var file = state.VideoFiles[index];
+                var file = VideoFiles[index];
 
                 OnLogged(string.Format(LogCheckingFile,
                     file.FilePath,
                     file.Duration.ToPrettyString()));
                 OnOperationUpdate(OperationType.Comparing,
                     index + 1,
-                    state.VideoFiles.Count());
+                    VideoFiles.Count());
 
-                foreach (var other in state.VideoFiles
+                foreach (var other in VideoFiles
                     .Skip(index + 1)
                     .TakeWhile(other =>
-                        file.IsDurationEqual(other, state.Settings)))
+                        file.IsDurationEqual(other, Settings)))
                 {
                     if (cancelToken.IsCancellationRequested)
                     {
@@ -430,11 +412,11 @@ namespace DedupEngine
 
                     try
                     {
-                        var comparer = new VideoComparer
+                        var comparer = new VideoComparer(Datastore)
                         {
                             LeftVideoFile = file,
                             RightVideoFile = other,
-                            Settings = state.Settings,
+                            Settings = Settings,
                         };
                         if (comparer.Compare(cancelToken)
                             == ComparisonResult.Duplicate)
@@ -450,17 +432,14 @@ namespace DedupEngine
                         OnLogged(exc.InnerException.Message);
                     }
                 }
-
-                CurrentState.SaveState(false);
             }
-            CurrentState.SaveState();
 
             timer.Stop();
             Debug.Print($"Dedup took {timer.ElapsedMilliseconds} ms");
 
             OnOperationUpdate(OperationType.Comparing,
-                state.VideoFiles.Count(),
-                state.VideoFiles.Count());
+                VideoFiles.Count(),
+                VideoFiles.Count());
         }
 
         private void FindDuplicatesOf(
@@ -474,7 +453,7 @@ namespace DedupEngine
 
             foreach (var file in videoFiles
                 .Where(f => f != refFile)
-                .Where(f => f.IsDurationEqual(refFile, CurrentState.Settings)))
+                .Where(f => f.IsDurationEqual(refFile, Settings)))
             {
                 if (cancelToken.IsCancellationRequested)
                 {
@@ -483,11 +462,11 @@ namespace DedupEngine
 
                 try
                 {
-                    var comparer = new VideoComparer
+                    var comparer = new VideoComparer(Datastore)
                     {
                         LeftVideoFile = file,
                         RightVideoFile = refFile,
-                        Settings = CurrentState.Settings,
+                        Settings = Settings,
                     };
                     if (comparer.Compare(cancelToken)
                         == ComparisonResult.Duplicate)
@@ -517,7 +496,7 @@ namespace DedupEngine
                     return;
                 }
 
-                if (!CurrentState.Settings.MonitorChanges)
+                if (!Settings.MonitorChanges)
                 {
                     operationStartTime = DateTime.MinValue;
                     OnOperationUpdate(
@@ -540,37 +519,33 @@ namespace DedupEngine
         {
             var cancelToken = CancelSource.Token;
 
-            CurrentState.VideoFiles = GetVideoFileList(CurrentState.Settings)
-                .ToList();
+            VideoFiles = GetVideoFileList(Settings).ToList();
             cancelToken.ThrowIfCancellationRequested();
 
             // Cancellable preload of files
             OnLogged($"Starting preloading media info of " +
-                $"{CurrentState.VideoFiles.Count()} Files.");
-            PreloadFiles(CurrentState.VideoFiles, cancelToken);
+                $"{VideoFiles.Count()} Files.");
+            PreloadFiles(VideoFiles, cancelToken);
             if (cancelToken.IsCancellationRequested)
             {
-                CurrentState.SaveState();
                 cancelToken.ThrowIfCancellationRequested();
             }
             OnLogged($"Finished preloading media info of " +
-                $"{CurrentState.VideoFiles.Count()} Files.");
+                $"{VideoFiles.Count()} Files.");
 
             // Remove invalid files
-            CurrentState.VideoFiles = CurrentState.VideoFiles
+            VideoFiles = VideoFiles
                 .Where(f => f.Duration != TimeSpan.Zero)
                 .ToList();
-            CurrentState.SaveState();
             cancelToken.ThrowIfCancellationRequested();
 
-            FindDuplicates(CurrentState, cancelToken);
+            FindDuplicates(cancelToken);
             if (cancelToken.IsCancellationRequested)
             {
-                CurrentState.SaveState();
                 cancelToken.ThrowIfCancellationRequested();
             }
             OnLogged($"Finished searching for duplicates of " +
-                $"{CurrentState.VideoFiles.Count()} Files.");
+                $"{VideoFiles.Count()} Files.");
 
             ProcessChangesIfAny();
         }
@@ -584,9 +559,8 @@ namespace DedupEngine
                 var deletedFile = DeletedFiles.First().Key;
                 _ = DeletedFiles.TryRemove(deletedFile, out var _);
 
-                if (CurrentState.VideoFiles.Remove(deletedFile))
+                if (VideoFiles.Remove(deletedFile))
                 {
-                    CurrentState.SaveState(false);
                     OnLogged($"Removed file: {deletedFile.FilePath}");
                 }
                 else
@@ -596,7 +570,6 @@ namespace DedupEngine
                 }
                 cancelToken.ThrowIfCancellationRequested();
             }
-            CurrentState.SaveState();
 
             operationStartTime = DateTime.Now;
             OnOperationUpdate(OperationType.Comparing, 0, NewFiles.Count());
@@ -626,10 +599,10 @@ namespace DedupEngine
                 }
                 cancelToken.ThrowIfCancellationRequested();
 
-                if (!CurrentState.VideoFiles.Contains(newFile))
+                if (!VideoFiles.Contains(newFile))
                 {
                     OnLogged($"New file added to VideoFile-List: {newFile.FilePath}");
-                    CurrentState.VideoFiles.Add(newFile);
+                    VideoFiles.Add(newFile);
                 }
                 else
                 {
@@ -638,11 +611,9 @@ namespace DedupEngine
                 }
                 cancelToken.ThrowIfCancellationRequested();
 
-                FindDuplicatesOf(CurrentState.VideoFiles, newFile, cancelToken);
-                CurrentState.SaveState(false);
+                FindDuplicatesOf(VideoFiles, newFile, cancelToken);
                 cancelToken.ThrowIfCancellationRequested();
             }
-            CurrentState.SaveState();
 
             ProcessChangesIfAny();
         }
