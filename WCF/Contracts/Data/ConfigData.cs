@@ -52,8 +52,5 @@ namespace Wcf.Contracts.Data
         [DataMember]
         public int ThumbnailCount { get; set; }
         int IThumbnailSettings.Count => ThumbnailCount;
-
-        [DataMember]
-        public int SaveStateIntervalMinutes { get; set; }
     }
 }

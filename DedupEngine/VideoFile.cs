@@ -1,15 +1,10 @@
-using System.Runtime.CompilerServices;
-
-[assembly: InternalsVisibleTo("Newtonsoft.Json")]
 namespace DedupEngine
 {
     using System;
     using System.Collections.Generic;
     using System.Configuration;
     using System.IO;
-    using System.Linq;
     using global::DedupEngine.MpvLib;
-    using Newtonsoft.Json;
     using VideoDedupShared;
 
     public class VideoFile : IVideoFile
@@ -26,10 +21,12 @@ namespace DedupEngine
             // We have to do a bit more work here since we can't use
             // the other ctors because we don't want to eagerly load
             // the images when we can copy them from the other file.
-            filePath = other.filePath;
+            FilePath = other.FilePath;
             fileSize = other.fileSize;
+            lastWriteTime = other.lastWriteTime;
             duration = other.duration;
             codecInfo = other.codecInfo;
+
 
             if (other.ImageCount == 0)
             {
@@ -37,7 +34,7 @@ namespace DedupEngine
             }
 
             ImageCount = other.ImageCount;
-            ImageBytes = other.ImageBytes.ToList();
+            ImageBytes = new Dictionary<ImageIndex, byte[]>(other.ImageBytes);
         }
 
         public VideoFile(IVideoFile other)
@@ -49,6 +46,7 @@ namespace DedupEngine
             }
 
             fileSize = other.FileSize;
+            lastWriteTime = other.LastWriteTime;
             duration = other.Duration;
             codecInfo = other.CodecInfo;
         }
@@ -61,18 +59,13 @@ namespace DedupEngine
                     $" null or whitespace", nameof(filePath));
             }
 
-            this.filePath = filePath;
+            FilePath = filePath;
         }
 
-        [JsonIgnore]
-        public string FilePath => filePath;
-        [JsonProperty]
-        private readonly string filePath;
+        public string FilePath { get; }
 
-        [JsonIgnore]
         public string FileName => Path.GetFileName(FilePath);
 
-        [JsonIgnore]
         public long FileSize
         {
             get
@@ -91,10 +84,28 @@ namespace DedupEngine
                 return fileSize.Value;
             }
         }
-        [JsonIgnore]
         private long? fileSize = null;
 
-        [JsonIgnore]
+        public DateTime LastWriteTime
+        {
+            get
+            {
+                if (!lastWriteTime.HasValue)
+                {
+                    try
+                    {
+                        lastWriteTime = File.GetLastWriteTime(FilePath);
+                    }
+                    catch (Exception)
+                    {
+                        lastWriteTime = DateTime.MinValue;
+                    }
+                }
+                return lastWriteTime.Value;
+            }
+        }
+        private DateTime? lastWriteTime = null;
+
         public TimeSpan Duration
         {
             get
@@ -103,7 +114,7 @@ namespace DedupEngine
                 {
                     try
                     {
-                        duration = MpvWrapper.GetDuration(filePath);
+                        duration = MpvWrapper.GetDuration(FilePath);
                     }
                     catch (Exception)
                     {
@@ -112,29 +123,26 @@ namespace DedupEngine
                 }
                 return duration;
             }
+            set => duration = value;
         }
-        [JsonProperty]
         private TimeSpan duration = TimeSpan.Zero;
 
-        [JsonIgnore]
         public CodecInfo CodecInfo
         {
             get
             {
                 if (codecInfo == null)
                 {
-                    codecInfo = MpvWrapper.GetCodecInfo(filePath);
+                    codecInfo = MpvWrapper.GetCodecInfo(FilePath);
                 }
                 return codecInfo;
             }
         }
-        [JsonIgnore]
         private CodecInfo codecInfo = null;
 
-        [JsonProperty]
-        public List<byte[]> ImageBytes { get; } = new List<byte[]>();
+        public IDictionary<ImageIndex, byte[]> ImageBytes { get; } =
+            new Dictionary<ImageIndex, byte[]>();
 
-        [JsonProperty]
         public int ImageCount { get; set; } = 0;
 
         public bool IsDurationEqual(

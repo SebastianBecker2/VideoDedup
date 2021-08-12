@@ -36,6 +36,7 @@ namespace VideoDedupShared
             FileSize = other.FileSize;
             Duration = other.Duration;
             CodecInfo = other.CodecInfo;
+            LastWriteTime = other.LastWriteTime;
         }
 
         public VideoFile(
@@ -57,6 +58,9 @@ namespace VideoDedupShared
 
         [DataMember]
         public CodecInfo CodecInfo { get; set; }
+
+        [DataMember]
+        public DateTime LastWriteTime { get; set; }
 
         public IEnumerable<Image> Images
         {

@@ -6,6 +6,7 @@ namespace VideoDedupShared
     {
         string FilePath { get; }
         long FileSize { get; }
+        DateTime LastWriteTime { get; }
         TimeSpan Duration { get; }
         CodecInfo CodecInfo { get; }
     }

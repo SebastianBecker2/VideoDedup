@@ -1,7 +1,6 @@
 namespace DedupEngine
 {
     using System;
-    using System.IO;
     using VideoDedupShared;
 
     public class ImageComparedEventArgs : EventArgs

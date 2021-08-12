@@ -5,6 +5,5 @@ namespace VideoDedupShared
         IImageComparisonSettings,
         IFolderSettings
     {
-        int SaveStateIntervalMinutes { get; }
     }
 }

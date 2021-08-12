@@ -242,8 +242,6 @@ namespace VideoDedupServer
                 ThumbnailCount = Settings.Default.ThumbnailCount,
                 Recursive = Settings.Default.Recursive,
                 MonitorChanges = Settings.Default.MonitorFileChanges,
-                SaveStateIntervalMinutes =
-                    Settings.Default.SaveStateIntervalMinutes,
             };
         }
 
@@ -271,8 +269,6 @@ namespace VideoDedupServer
             Settings.Default.Recursive = settings.Recursive;
             Settings.Default.MonitorFileChanges =
                 settings.MonitorChanges;
-            Settings.Default.SaveStateIntervalMinutes =
-                settings.SaveStateIntervalMinutes;
             Settings.Default.Save();
 
             UpdateConfig(settings);
