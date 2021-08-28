@@ -3,7 +3,6 @@ namespace VideoDedupShared
     using System;
     using System.Data.SQLite;
     using System.IO;
-    using System.Security;
 
     public abstract class Datastore
     {
