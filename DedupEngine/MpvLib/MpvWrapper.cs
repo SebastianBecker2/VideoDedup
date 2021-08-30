@@ -20,18 +20,10 @@ namespace DedupEngine.MpvLib
 
         public static CodecInfo GetCodecInfo(string filePath)
         {
-            var mpvHandle = IntPtr.Zero;
+            var mpvHandle = PreparePropertyHandle(filePath);
 
             try
             {
-                mpvHandle = mpv_create();
-                if (mpvHandle == IntPtr.Zero)
-                {
-                    throw new MpvException($"Unable to create handle");
-                }
-
-                PreparePropertyHandle(mpvHandle, filePath);
-
                 while (true)
                 {
                     var eventId = GetEventId(mpvHandle, GetEventIdTimeout);
@@ -55,22 +47,28 @@ namespace DedupEngine.MpvLib
 
                     if (eventId == EventId.EndFile)
                     {
-                        return null;
+                        throw new MpvOperationException(
+                            "Unable to get codec information from video.",
+                            filePath);
                     }
                     if (eventId == EventId.Shutdown)
                     {
-                        return null;
+                        throw new MpvOperationException(
+                            "Unable to get codec information from video.",
+                            filePath);
                     }
                     if (eventId == EventId.None)
                     {
-                        return null;
+                        throw new MpvOperationException(
+                            "Unable to get codec information from video.",
+                            filePath);
                     }
                 }
             }
             catch (MpvException exc)
             {
-                throw new AggregateException(
-                    $"Error getting codec info from '{filePath}'", exc);
+                exc.VideoFilePath = filePath;
+                throw;
             }
             finally
             {
@@ -83,19 +81,10 @@ namespace DedupEngine.MpvLib
 
         public static TimeSpan GetDuration(string filePath)
         {
-            var mpvHandle = IntPtr.Zero;
+            var mpvHandle = PreparePropertyHandle(filePath);
 
             try
             {
-                mpvHandle = mpv_create();
-                if (mpvHandle == IntPtr.Zero)
-                {
-                    throw new MpvException(
-                        $"Unable to create handle");
-                }
-
-                PreparePropertyHandle(mpvHandle, filePath);
-
                 while (true)
                 {
                     var eventId = GetEventId(mpvHandle, GetEventIdTimeout);
@@ -108,22 +97,28 @@ namespace DedupEngine.MpvLib
 
                     if (eventId == EventId.EndFile)
                     {
-                        return TimeSpan.Zero;
+                        throw new MpvOperationException(
+                            "Unable to get duration from video.",
+                            filePath);
                     }
                     if (eventId == EventId.Shutdown)
                     {
-                        return TimeSpan.Zero;
+                        throw new MpvOperationException(
+                            "Unable to get duration from video.",
+                            filePath);
                     }
                     if (eventId == EventId.None)
                     {
-                        return TimeSpan.Zero;
+                        throw new MpvOperationException(
+                            "Unable to get duration from video.",
+                            filePath);
                     }
                 }
             }
             catch (MpvException exc)
             {
-                throw new AggregateException(
-                    $"Error getting duration from '{filePath}'", exc);
+                exc.VideoFilePath = filePath;
+                throw;
             }
             finally
             {
@@ -137,7 +132,19 @@ namespace DedupEngine.MpvLib
         public IntPtr MpvHandle { get; private set; } = IntPtr.Zero;
         public string FilePath { get; private set; }
         public string OutputPath { get; private set; }
-        public TimeSpan? Duration { get; private set; }
+        public TimeSpan Duration
+        {
+            get
+            {
+                if (!duration.HasValue)
+                {
+                    duration = GetDuration(FilePath);
+                }
+                return duration.Value;
+            }
+            private set => duration = value;
+        }
+        private TimeSpan? duration;
 
         private bool disposedValue;
 
@@ -152,7 +159,7 @@ namespace DedupEngine.MpvLib
             }
 
             FilePath = filePath;
-            Duration = duration;
+            this.duration = duration;
 
             OutputPath = Path.Combine(
                 Path.GetTempPath(),
@@ -171,14 +178,18 @@ namespace DedupEngine.MpvLib
             int index,
             int count,
             int partition) =>
-            GetImages(null, index, count, partition);
+            CheckForOutOfMemory(
+                () => GetImages(null, index, count, partition),
+                FilePath);
 
         public IEnumerable<MemoryStream> GetImages(
             int index,
             int count,
             int partition,
             CancellationToken cancelToken) =>
-            GetImages(cancelToken, index, count, partition);
+            CheckForOutOfMemory(
+                () => GetImages(cancelToken, index, count, partition),
+                FilePath);
 
         private IEnumerable<MemoryStream> GetImages(
             CancellationToken? cancelToken,
@@ -186,46 +197,44 @@ namespace DedupEngine.MpvLib
             int count,
             int partition)
         {
-            // We ran into issues with some files accessed over the network
-            // (SMB shares). When libmpv (Version 0.33 and 0.33.1) loads the
-            // file, it allocates a lot of memory (in this case 1.8 GB). Even
-            // though the file size is less then 500 MB. Especially in x86 it
-            // would cause an OutOfMemoryException. Additionally, we wouldn't
-            // get any of the images. So now we try to handle the
-            // OutOfMemoryException and just return a list with null values.
-            try
-            {
-                return GetImages(index, count, partition, cancelToken);
-            }
-            catch (OutOfMemoryException)
-            {
-                return Enumerable.Repeat<MemoryStream>(null, count);
-            }
-        }
-
-        public IEnumerable<MemoryStream> GetImages(
-            int index,
-            int count,
-            int partition,
-            CancellationToken? cancelToken)
-        {
             if (count <= 0)
             {
                 yield break;
             }
 
-            if (index >= partition || index < 0)
+            if (partition < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(index),
-                    "Index out of range.");
+                throw new ArgumentOutOfRangeException(nameof(partition),
+                    $"{nameof(partition)} cannot be less than zero.");
             }
 
-            if (!Duration.HasValue)
+            if (count < 0)
             {
-                Duration = GetDuration(FilePath);
+                throw new ArgumentOutOfRangeException(nameof(count),
+                    $"{nameof(count)} cannot be less than zero.");
+            }
+
+            if (index < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index),
+                    $"{nameof(index)} cannot be less than zero.");
+            }
+
+            if (index + count > partition || count < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(count),
+                    $"{nameof(index)} and {nameof(count)} must refer to a " +
+                    $"location within {nameof(partition)}.");
+            }
+
+            if (Duration == TimeSpan.Zero)
+            {
+                throw new MpvOperationException(
+                    $"Extracting images failed. Unable to read video length.",
+                    FilePath);
             }
             var stepping = Math.Max(
-                Duration.Value.TotalSeconds / (partition + 1),
+                Duration.TotalSeconds / (partition + 1),
                 1);
 
             PrepareImageHandle(stepping * ++index);
@@ -265,43 +274,29 @@ namespace DedupEngine.MpvLib
                     break;
                 }
             }
+
+            // If we haven't returned an image for every image index we got,
+            // then something went terribly wrong.
+            if (count != 0)
+            {
+                throw new MpvException(
+                    "Unrecoverable error. Extracting images failed.",
+                    FilePath);
+            }
         }
 
         public IEnumerable<MemoryStream> GetImages(
             IEnumerable<ImageIndex> indices) =>
-            GetImages(null, indices);
+            CheckForOutOfMemory(() => GetImages(null, indices), FilePath);
 
         public IEnumerable<MemoryStream> GetImages(
             IEnumerable<ImageIndex> indices,
             CancellationToken cancelToken) =>
-            GetImages(cancelToken, indices);
-
-        public IEnumerable<MemoryStream> GetImages(
-            CancellationToken? cancelToken,
-            IEnumerable<ImageIndex> indices)
-        {
-            // We ran into issues with some files accessed over the network
-            // (SMB shares). When libmpv (Version 0.33 and 0.33.1) loads the
-            // file, it allocates a lot of memory (in this case 1.8 GB). Even
-            // though the file size is less then 500 MB. Especially in x86 it
-            // would cause an OutOfMemoryException. Additionally, we wouldn't
-            // get any of the images. So now we try to handle the
-            // OutOfMemoryException and just return a list with null values.
-            try
-            {
-                return GetImages(indices, cancelToken);
-            }
-            catch (OutOfMemoryException)
-            {
-                return Enumerable
-                    .Repeat<MemoryStream>(null, indices.Count())
-                    .ToList();
-            }
-        }
+            CheckForOutOfMemory(() => GetImages(cancelToken, indices), FilePath);
 
         private IEnumerable<MemoryStream> GetImages(
-            IEnumerable<ImageIndex> indices,
-            CancellationToken? cancelToken)
+            CancellationToken? cancelToken,
+            IEnumerable<ImageIndex> indices)
         {
             if (indices is null)
             {
@@ -314,11 +309,13 @@ namespace DedupEngine.MpvLib
                 yield break;
             }
 
-            if (!Duration.HasValue)
+            if (Duration == TimeSpan.Zero)
             {
-                Duration = GetDuration(FilePath);
+                throw new MpvOperationException(
+                    $"Extracting images failed. Unable to read video length.",
+                    FilePath);
             }
-            var seconds = Duration.Value.TotalSeconds;
+            var seconds = Duration.TotalSeconds;
             double GetPosition(ImageIndex index) =>
                 seconds / index.Denominator * index.Numerator;
 
@@ -359,21 +356,44 @@ namespace DedupEngine.MpvLib
                     break;
                 }
             }
+
+            // If we haven't returned an image for every image index we got,
+            // then something went terribly wrong.
+            if (indicesIt.MoveNext())
+            {
+                throw new MpvException(
+                    "Unrecoverable error. Extracting images failed.",
+                    FilePath);
+            }
         }
 
-        private static void PreparePropertyHandle(
-            IntPtr mpvHandle,
+        private static IntPtr PreparePropertyHandle(
             string filePath)
         {
-            if (mpv_initialize(mpvHandle) != 0)
+            var mpvHandle = mpv_create();
+            if (mpvHandle == IntPtr.Zero)
             {
-                throw new MpvException("Unable to initialize handle");
+                throw new MpvInitializationException(filePath);
             }
 
-            Set(mpvHandle, "aid", "no");
-            Set(mpvHandle, "sid", "no");
-            Set(mpvHandle, "vo", "null");
-            Execute(mpvHandle, "loadfile", filePath);
+            if (mpv_initialize(mpvHandle) != 0)
+            {
+                throw new MpvInitializationException(filePath);
+            }
+
+            try
+            {
+                Set(mpvHandle, "aid", "no");
+                Set(mpvHandle, "sid", "no");
+                Set(mpvHandle, "vo", "null");
+                Execute(mpvHandle, "loadfile", filePath);
+            }
+            catch (MpvException exc)
+            {
+                exc.VideoFilePath = filePath;
+                throw;
+            }
+            return mpvHandle;
         }
 
         private void PrepareImageHandle(double position)
@@ -385,12 +405,12 @@ namespace DedupEngine.MpvLib
                     MpvHandle = mpv_create();
                     if (MpvHandle == IntPtr.Zero)
                     {
-                        throw new MpvException("Unable to create handle");
+                        throw new MpvInitializationException();
                     }
 
                     if (mpv_initialize(MpvHandle) != 0)
                     {
-                        throw new MpvException("Unable to initialize handle");
+                        throw new MpvInitializationException();
                     }
                 }
 
@@ -406,8 +426,8 @@ namespace DedupEngine.MpvLib
             }
             catch (MpvException exc)
             {
-                throw new AggregateException(
-                    $"Error getting images from '{FilePath}'", exc);
+                exc.VideoFilePath = FilePath;
+                throw;
             }
         }
 
@@ -457,7 +477,7 @@ namespace DedupEngine.MpvLib
             try
             {
                 Check(mpv_command(handle, mainPtr),
-                    $"Unable to execute command '{string.Join(" ", args)}'");
+                    $"Unable to execute command '{string.Join(" ", args)}'.");
             }
             finally
             {
@@ -477,7 +497,7 @@ namespace DedupEngine.MpvLib
                     handle,
                     GetUtf8Bytes(name),
                     GetUtf8Bytes(value)),
-                $"Unable to set property '{name}' to '{value}'");
+                $"Unable to set property '{name}' to '{value}'.");
 
         private static void Set(
             IntPtr handle,
@@ -501,7 +521,7 @@ namespace DedupEngine.MpvLib
             var valuePtr = mpv_get_property_string(handle, GetUtf8Bytes(name));
             if (valuePtr == IntPtr.Zero)
             {
-                throw new MpvException($"Unable to get property {name}");
+                throw new MpvOperationException($"Unable to get property {name}.");
             }
             try
             {
@@ -569,8 +589,28 @@ namespace DedupEngine.MpvLib
         {
             if (result != 0)
             {
-                throw new MpvException(
+                throw new MpvOperationException(
                     message + " result: " + result.ToString());
+            }
+        }
+
+        private static T CheckForOutOfMemory<T>(Func<T> func, string filePath)
+        {
+            // We ran into issues with some files accessed over the network
+            // (SMB shares). When libmpv (Version 0.33 and 0.33.1) loads the
+            // file, it allocates a lot of memory (in this case 1.8 GB). Even
+            // though the file size is less then 500 MB. Especially in x86 it
+            // would cause an OutOfMemoryException. Additionally, we wouldn't
+            // get any of the images. So now we try to handle the
+            // OutOfMemoryException and throw something that reflects the issue
+            // properly.
+            try
+            {
+                return func();
+            }
+            catch (OutOfMemoryException)
+            {
+                throw new MpvOutOfMemoryException(filePath);
             }
         }
 

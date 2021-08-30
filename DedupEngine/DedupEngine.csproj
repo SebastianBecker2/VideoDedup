@@ -85,6 +85,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ComparisonException.cs" />
     <Compile Include="ComparisonFinishedEventArgs.cs" />
     <Compile Include="EngineSettings.cs" />
     <Compile Include="DedupEngine.cs" />
@@ -95,6 +96,9 @@
     <Compile Include="MpvLib\Event.cs" />
     <Compile Include="MpvLib\EventId.cs" />
     <Compile Include="MpvLib\MpvException.cs" />
+    <Compile Include="MpvLib\MpvInitializationException.cs" />
+    <Compile Include="MpvLib\MpvOperationException.cs" />
+    <Compile Include="MpvLib\MpvOutOfMemoryException.cs" />
     <Compile Include="MpvLib\MpvWrapper.cs" />
     <Compile Include="OperationUpdateEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

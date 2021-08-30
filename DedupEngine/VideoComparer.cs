@@ -228,32 +228,39 @@ namespace DedupEngine
             IEnumerable<ImageIndex> indices,
             CancellationToken cancelToken)
         {
-            using (var mpv = new MpvWrapper(
-                videoFile.FilePath,
-                videoFile.Duration))
+            try
             {
-                var images = mpv.GetImages(indices, cancelToken)
-                    .ToList()
-                    .Zip(indices, (stream, index) => (index, stream))
-                    .Select(kvp => ToImageSet(kvp.index, kvp.stream));
-
-                foreach (var image in images)
+                using (var mpv = new MpvWrapper(
+                   videoFile.FilePath,
+                   videoFile.Duration))
                 {
-                    // Cache in memory
-                    videoFile.ImageBytes[image.Index] = image.Bytes;
+                    var images = mpv.GetImages(indices, cancelToken)
+                        .ToList()
+                        .Zip(indices, (stream, index) => (index, stream))
+                        .Select(kvp => ToImageSet(kvp.index, kvp.stream));
 
-                    // Cache in DB if we have a DB cache
-                    if (engineDatastore is null)
+                    foreach (var image in images)
                     {
-                        continue;
-                    }
-                    engineDatastore.InsertImage(
-                        image.Index,
-                        image.Bytes,
-                        videoFile);
-                }
+                        // Cache in memory
+                        videoFile.ImageBytes[image.Index] = image.Bytes;
 
-                return images;
+                        // Cache in DB if we have a DB cache
+                        if (engineDatastore is null)
+                        {
+                            continue;
+                        }
+                        engineDatastore.InsertImage(
+                            image.Index,
+                            image.Bytes,
+                            videoFile);
+                    }
+
+                    return images;
+                }
+            }
+            catch (MpvOperationException exc)
+            {
+                throw new ComparisonException(exc.Message, videoFile, exc);
             }
         }
 

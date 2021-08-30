@@ -2,6 +2,7 @@ namespace VideoDedup.FilePreview
 {
     using System;
     using System.Drawing;
+    using System.Linq;
     using System.Windows.Forms;
     using VideoDedup.Properties;
     using VideoDedupShared;
@@ -43,7 +44,8 @@ namespace VideoDedup.FilePreview
         {
             DisplayInfo();
 
-            SetImageSize(VideoFile.CodecInfo.Size);
+            var resolution = GetVideoResolution(videoFile);
+            SetThumbnailImageSize(resolution);
 
             var index = 0;
             foreach (var image in VideoFile.Images)
@@ -64,11 +66,36 @@ namespace VideoDedup.FilePreview
         }
 
         /// <summary>
+        /// We can't rely on having the codec information of the video.
+        /// So if we are missing those, we use the resolution of the
+        /// first available image from the video. If we don't have any
+        /// we use the resolution of the "BrokenImageIcon", since that
+        /// is what we will display anyways.
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        private static Size GetVideoResolution(VideoFile file)
+        {
+            if (file.CodecInfo != null)
+            {
+                return file.CodecInfo.Size;
+            }
+
+            var img = file.Images.FirstOrDefault(i => i != null);
+            if (img != null)
+            {
+                return img.Size;
+            }
+
+            return Resources.BrokenImageIcon.Size;
+        }
+
+        /// <summary>
         /// Scales the images to max 256x256
         /// but keeping the aspect ratio
         /// </summary>
         /// <param name="originalSize"></param>
-        private void SetImageSize(Size originalSize)
+        private void SetThumbnailImageSize(Size originalSize)
         {
             var width = originalSize.Width;
             var height = originalSize.Height;

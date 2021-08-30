@@ -18,12 +18,19 @@ namespace DedupEngine
 
     public class DedupEngine : IDisposable
     {
-        private static readonly string LogCheckingFile = "Checking: {0} - Duration: {1}";
+        private static readonly string LogCheckingFile =
+            "Checking: {0} - Duration: {1}";
         private static readonly string LogDeletedFile = "File deleted: {0}";
         private static readonly string LogNewFile = "File created: {0}";
+        private static readonly string LogDamagedFile = "File corrupted: {0}";
+        private static readonly string LogCriticalError = "Critical Error: {0}";
+        private static readonly string LogComparisonFailed =
+            "Comparison failed. Couldn't access: {0}";
 
         private static readonly string EngineDatastoreFileName = "engine.db";
         private string AppDataFolder { get; }
+
+        private static readonly int DamagedFileRetryCount = 5;
 
         private bool disposedValue; // For IDisposable
 
@@ -402,35 +409,20 @@ namespace DedupEngine
 
                 foreach (var other in VideoFiles
                     .Skip(index + 1)
-                    .TakeWhile(other =>
-                        file.IsDurationEqual(other, Settings)))
+                    .TakeWhile(f => file.IsDurationEqual(f, Settings))
+                    .Where(f => f.ErrorCount <= DamagedFileRetryCount))
                 {
+                    if (file.ErrorCount > DamagedFileRetryCount)
+                    {
+                        break;
+                    }
+
                     if (cancelToken.IsCancellationRequested)
                     {
                         return;
                     }
 
-                    try
-                    {
-                        var comparer = new VideoComparer(Datastore)
-                        {
-                            LeftVideoFile = file,
-                            RightVideoFile = other,
-                            Settings = Settings,
-                        };
-                        if (comparer.Compare(cancelToken)
-                            == ComparisonResult.Duplicate)
-                        {
-                            OnLogged($"Found duplicate of {file.FilePath} and " +
-                                $"{other.FilePath}");
-                            OnDuplicateFound(file, other);
-                        }
-                    }
-                    catch (AggregateException exc)
-                    when (exc.InnerException is MpvLib.MpvException)
-                    {
-                        OnLogged(exc.InnerException.Message);
-                    }
+                    CompareVideoFiles(file, other, cancelToken);
                 }
             }
 
@@ -444,43 +436,75 @@ namespace DedupEngine
 
         private void FindDuplicatesOf(
             IEnumerable<VideoFile> videoFiles,
-            VideoFile refFile,
+            VideoFile file,
             CancellationToken cancelToken)
         {
             OnLogged(string.Format(LogCheckingFile,
-                    refFile.FilePath,
-                    refFile.Duration.ToPrettyString()));
+                    file.FilePath,
+                    file.Duration.ToPrettyString()));
 
-            foreach (var file in videoFiles
-                .Where(f => f != refFile)
-                .Where(f => f.IsDurationEqual(refFile, Settings)))
+            foreach (var other in videoFiles
+                .Where(f => f != file)
+                .Where(f => f.IsDurationEqual(file, Settings))
+                .Where(f => f.ErrorCount <= DamagedFileRetryCount))
             {
+                if (file.ErrorCount > DamagedFileRetryCount)
+                {
+                    break;
+                }
+
                 if (cancelToken.IsCancellationRequested)
                 {
                     return;
                 }
 
-                try
+                CompareVideoFiles(file, other, cancelToken);
+            }
+        }
+
+        private void CompareVideoFiles(
+            VideoFile left,
+            VideoFile right,
+            CancellationToken cancelToken)
+        {
+            try
+            {
+                var comparer = new VideoComparer(Datastore)
                 {
-                    var comparer = new VideoComparer(Datastore)
-                    {
-                        LeftVideoFile = file,
-                        RightVideoFile = refFile,
-                        Settings = Settings,
-                    };
-                    if (comparer.Compare(cancelToken)
-                        == ComparisonResult.Duplicate)
-                    {
-                        OnLogged($"Found duplicate of {refFile.FilePath} and" +
-                            $" {file.FilePath}");
-                        OnDuplicateFound(refFile, file);
-                    }
-                }
-                catch (AggregateException exc)
-                when (exc.InnerException is MpvLib.MpvException)
+                    LeftVideoFile = left,
+                    RightVideoFile = right,
+                    Settings = Settings,
+                };
+                if (comparer.Compare(cancelToken)
+                    == ComparisonResult.Duplicate)
                 {
-                    OnLogged(exc.InnerException.Message);
+                    OnLogged($"Found duplicate of {left.FilePath} and" +
+                        $" {right.FilePath}");
+                    OnDuplicateFound(left, right);
                 }
+            }
+            catch (ComparisonException exc)
+            {
+                if (++exc.VideoFile.ErrorCount > DamagedFileRetryCount)
+                {
+                    _ = DeletedFiles.TryAdd(
+                        new VideoFile(exc.VideoFile),
+                        0);
+                    OnLogged(string.Format(
+                        LogDamagedFile,
+                        exc.VideoFile.FilePath));
+                }
+                else
+                {
+                    OnLogged(string.Format(
+                        LogComparisonFailed,
+                        exc.VideoFile.FilePath));
+                }
+            }
+            catch (Exception exc)
+            {
+                OnLogged(string.Format(LogCriticalError, exc.Message));
+                throw;
             }
         }
 

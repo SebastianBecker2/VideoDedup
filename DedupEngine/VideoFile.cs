@@ -116,7 +116,7 @@ namespace DedupEngine
                     {
                         duration = MpvWrapper.GetDuration(FilePath);
                     }
-                    catch (Exception)
+                    catch (MpvOperationException)
                     {
                         duration = TimeSpan.Zero;
                     }
@@ -133,7 +133,11 @@ namespace DedupEngine
             {
                 if (codecInfo == null)
                 {
-                    codecInfo = MpvWrapper.GetCodecInfo(FilePath);
+                    try
+                    {
+                        codecInfo = MpvWrapper.GetCodecInfo(FilePath);
+                    }
+                    catch (MpvOperationException) { }
                 }
                 return codecInfo;
             }
@@ -163,6 +167,8 @@ namespace DedupEngine
                         "DurationDifferenceType has not valid value");
             }
         }
+
+        public int ErrorCount { get; set; } = 0;
 
         public override bool Equals(object obj) => Equals(obj as IVideoFile);
 

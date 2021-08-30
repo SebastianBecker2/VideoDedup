@@ -1,6 +1,7 @@
 namespace DuplicateManager
 {
     using System.Collections.Generic;
+    using System.IO;
     using DedupEngine.MpvLib;
     using VideoDedupShared;
 
@@ -26,20 +27,32 @@ namespace DuplicateManager
                 return refCounter.VideoFile;
             }
 
-            using (var mpv = new MpvWrapper(
-                videoFile.FilePath,
-                videoFile.Duration))
+            IEnumerable<MemoryStream> GetTumbnails()
             {
-                var videoFilePreview = new VideoFile(
-                    videoFile,
-                    mpv.GetImages(0, Settings.Count, Settings.Count));
-                UniqueVideoFiles.Add(videoFile, new VideoFileRefCounter
+                try
                 {
-                    VideoFile = videoFilePreview,
-                    RefCount = 1,
-                });
-                return videoFilePreview;
+                    using (var mpv = new MpvWrapper(
+                        videoFile.FilePath,
+                        videoFile.Duration))
+                    {
+                        return mpv.GetImages(0, Settings.Count, Settings.Count);
+                    }
+                }
+                catch (MpvOperationException)
+                {
+                    return new MemoryStream[Settings.Count];
+                }
             }
+
+            var videoFilePreview = new VideoFile(
+                videoFile,
+                GetTumbnails());
+            UniqueVideoFiles.Add(videoFile, new VideoFileRefCounter
+            {
+                VideoFile = videoFilePreview,
+                RefCount = 1,
+            });
+            return videoFilePreview;
         }
 
         public void RemoveVideoFileReference(IVideoFile videoFile)

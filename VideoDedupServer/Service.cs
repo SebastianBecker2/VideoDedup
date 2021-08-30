@@ -108,12 +108,15 @@ namespace VideoDedupServer
             {
                 duplicateManager.AddDuplicate(e.File1, e.File2, e.BasePath);
             }
-            catch (AggregateException exc)
+            catch (Exception exc)
             {
                 lock (logEntriesLock)
                 {
                     AddLogEntry(exc.Message);
-                    AddLogEntry(exc.InnerException.Message);
+                    if (exc.InnerException != null)
+                    {
+                        AddLogEntry(exc.InnerException.Message);
+                    }
                 }
             }
         }
