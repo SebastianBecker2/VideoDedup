@@ -110,7 +110,7 @@ namespace DedupEngine
         {
             get
             {
-                if (duration == TimeSpan.Zero)
+                if (!duration.HasValue)
                 {
                     try
                     {
@@ -121,11 +121,11 @@ namespace DedupEngine
                         duration = TimeSpan.Zero;
                     }
                 }
-                return duration;
+                return duration.Value;
             }
             set => duration = value;
         }
-        private TimeSpan duration = TimeSpan.Zero;
+        private TimeSpan? duration = TimeSpan.Zero;
 
         public CodecInfo CodecInfo
         {
