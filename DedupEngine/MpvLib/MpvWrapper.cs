@@ -48,19 +48,19 @@ namespace DedupEngine.MpvLib
                     if (eventId == EventId.EndFile)
                     {
                         throw new MpvOperationException(
-                            "Unable to get codec information from video.",
+                            "Unable to read codec information from video.",
                             filePath);
                     }
                     if (eventId == EventId.Shutdown)
                     {
                         throw new MpvOperationException(
-                            "Unable to get codec information from video.",
+                            "Unable to read codec information from video.",
                             filePath);
                     }
                     if (eventId == EventId.None)
                     {
                         throw new MpvOperationException(
-                            "Unable to get codec information from video.",
+                            "Unable to read codec information from video.",
                             filePath);
                     }
                 }
@@ -98,19 +98,19 @@ namespace DedupEngine.MpvLib
                     if (eventId == EventId.EndFile)
                     {
                         throw new MpvOperationException(
-                            "Unable to get duration from video.",
+                            "Unable to read duration from video.",
                             filePath);
                     }
                     if (eventId == EventId.Shutdown)
                     {
                         throw new MpvOperationException(
-                            "Unable to get duration from video.",
+                            "Unable to read duration from video.",
                             filePath);
                     }
                     if (eventId == EventId.None)
                     {
                         throw new MpvOperationException(
-                            "Unable to get duration from video.",
+                            "Unable to read duration from video.",
                             filePath);
                     }
                 }

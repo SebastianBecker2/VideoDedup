@@ -14,6 +14,7 @@ namespace VideoDedupServer
     using OperationUpdateEventArgs = DedupEngine.OperationUpdateEventArgs;
     using Wcf.Contracts.Services;
     using VideoDedupServer.Properties;
+    using DedupEngine.MpvLib;
 
     public class Service : IVideoDedupProvider, IDisposable
     {
@@ -107,6 +108,17 @@ namespace VideoDedupServer
             try
             {
                 duplicateManager.AddDuplicate(e.File1, e.File2, e.BasePath);
+            }
+            catch (MpvException exc)
+            {
+                lock (logEntriesLock)
+                {
+                    AddLogEntry($"{exc.Message} {exc.VideoFilePath}");
+                    if (exc.InnerException != null)
+                    {
+                        AddLogEntry(exc.InnerException.Message);
+                    }
+                }
             }
             catch (Exception exc)
             {

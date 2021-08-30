@@ -15,6 +15,7 @@ namespace DedupEngine
     using OperationType = VideoDedupShared.OperationType;
     using ProgressStyle = VideoDedupShared.ProgressStyle;
     using ComparisonResult = VideoDedupShared.ComparisonResult;
+    using global::DedupEngine.MpvLib;
 
     public class DedupEngine : IDisposable
     {
@@ -500,6 +501,13 @@ namespace DedupEngine
                         LogComparisonFailed,
                         exc.VideoFile.FilePath));
                 }
+            }
+            catch (MpvException exc)
+            {
+                OnLogged(string.Format(
+                    LogCriticalError,
+                    $"{exc.Message} {exc.VideoFilePath}"));
+                throw;
             }
             catch (Exception exc)
             {
