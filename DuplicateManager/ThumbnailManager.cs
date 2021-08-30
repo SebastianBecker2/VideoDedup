@@ -2,6 +2,7 @@ namespace DuplicateManager
 {
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using DedupEngine.MpvLib;
     using VideoDedupShared;
 
@@ -35,7 +36,9 @@ namespace DuplicateManager
                         videoFile.FilePath,
                         videoFile.Duration))
                     {
-                        return mpv.GetImages(0, Settings.Count, Settings.Count);
+                        return mpv
+                            .GetImages(0, Settings.Count, Settings.Count)
+                            .ToList();
                     }
                 }
                 catch (MpvOperationException)
