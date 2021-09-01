@@ -392,7 +392,8 @@ namespace DedupEngine
                 .OrderBy(f => f.Duration)
                 .ToList();
 
-            foreach (var index in Enumerable.Range(0, VideoFiles.Count - 1))
+            foreach (var index in
+                Enumerable.Range(0, Math.Max(VideoFiles.Count - 1, 0)))
             {
                 if (cancelToken.IsCancellationRequested)
                 {
