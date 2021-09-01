@@ -125,7 +125,7 @@ namespace DedupEngine
             }
             set => duration = value;
         }
-        private TimeSpan? duration = TimeSpan.Zero;
+        private TimeSpan? duration = null;
 
         public CodecInfo CodecInfo
         {
