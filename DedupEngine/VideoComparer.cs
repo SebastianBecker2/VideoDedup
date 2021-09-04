@@ -8,6 +8,7 @@ namespace DedupEngine
     using System.Linq;
     using System.Threading;
     using global::DedupEngine.MpvLib;
+    using KGySoft.Drawing;
     using VideoDedupShared;
     using VideoDedupShared.ImageExtension;
 
@@ -54,7 +55,10 @@ namespace DedupEngine
             {
                 using (var image = (Bitmap)Image.FromStream(stream))
                 using (var cropped = image?.CropBlackBars())
-                using (var small = cropped?.Resize(DownscaleSize))
+                using (var small = cropped?.Resize(
+                    DownscaleSize,
+                    ScalingMode.NearestNeighbor,
+                    false))
                 using (var greysaled = small?.MakeGrayScale())
                 {
                     return new ImageSet

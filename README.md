@@ -19,6 +19,7 @@ The duplicates can be resolved using the client. It will view details as well as
 
 VidepDedup is using the following tools and libraries:
 - [libmpv](https://github.com/mpv-player/mpv)
+- [KGySoft Drawing](https://kgysoft.net/drawing)
 - [Newtonsoft.Json](https://www.newtonsoft.com/json)
 - [WindowsAPICodePack](https://github.com/aybe/Windows-API-Code-Pack-1.1)
 - The amazing [FatCow IconPack](https://www.fatcow.com/free-icons)

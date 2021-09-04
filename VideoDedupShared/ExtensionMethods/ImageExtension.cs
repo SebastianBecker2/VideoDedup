@@ -75,7 +75,7 @@ namespace VideoDedupShared.ImageExtension
             return newBitmap;
         }
 
-        public static Image CropBlackBars(
+        public static Bitmap CropBlackBars(
             this Bitmap image,
             int blacknessThreshold = DefaultBlacknessThreshold)
         {
