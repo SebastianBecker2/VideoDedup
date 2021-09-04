@@ -19,8 +19,8 @@ namespace DedupEngine
             public bool Loaded { get; set; } = false;
         }
 
-        private static IOrderedEnumerable<ImageIndex> imageIndices;
-        private static IOrderedEnumerable<ImageIndex> GetOrderedImageIndices(
+        private static IList<ImageIndex> imageIndices;
+        private static IList<ImageIndex> GetOrderedImageIndices(
             int imageCount)
         {
             // Make local copy of the reference
@@ -29,7 +29,8 @@ namespace DedupEngine
             {
                 indices = ImageIndex
                     .CreateImageIndices(imageCount)
-                    .OrderBy(i => i);
+                    .OrderBy(i => i)
+                    .ToList();
                 imageIndices = indices;
             }
             return indices;
