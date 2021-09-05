@@ -45,7 +45,8 @@ namespace DedupEngine
 
         private static ImageSet ToImageSet(
             ImageIndex index,
-            MemoryStream stream)
+            MemoryStream stream,
+            bool provideIntermediateImages = false)
         {
             if (stream == null)
             {
@@ -62,15 +63,19 @@ namespace DedupEngine
                     false))
                 using (var greysaled = small?.MakeGrayScale())
                 {
-                    return new ImageSet
+                    var imageSet = new ImageSet
                     {
                         Index = index,
                         Orignal = stream,
-                        Cropped = cropped?.ToMemoryStream(),
-                        Resized = small?.ToMemoryStream(),
-                        Greyscaled = greysaled?.ToMemoryStream(),
                         Bytes = GetImageBytes(greysaled),
                     };
+                    if (provideIntermediateImages)
+                    {
+                        imageSet.Cropped = cropped?.ToMemoryStream();
+                        imageSet.Resized = small?.ToMemoryStream();
+                        imageSet.Greyscaled = greysaled?.ToMemoryStream();
+                    }
+                    return imageSet;
                 }
             }
             catch (ArgumentNullException)
@@ -242,7 +247,12 @@ namespace DedupEngine
                     var images = mpv.GetImages(indices, cancelToken)
                         .ToList()
                         .Zip(indices, (stream, index) => (index, stream))
-                        .Select(kvp => ToImageSet(kvp.index, kvp.stream));
+                        // Converting to image set including the intermediate
+                        // images if necessary.
+                        .Select(kvp => ToImageSet(
+                            kvp.index,
+                            kvp.stream,
+                            ImageCompared != null));
 
                     foreach (var image in images)
                     {
