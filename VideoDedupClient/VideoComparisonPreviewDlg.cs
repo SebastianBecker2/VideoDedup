@@ -57,6 +57,10 @@ namespace VideoDedup
         private int ImageComparisonIndex { get; set; } = 0;
         private int? FinishedInLoadLevel { get; set; }
 
+        private List<Tuple<int, ImageComparisonResult>> ImageComparisons { get; set; }
+            = new List<Tuple<int, ImageComparisonResult>>();
+        private VideoComparisonResult VideoComparisonResult { get; set; }
+
         public VideoComparisonPreviewDlg() => InitializeComponent();
 
         protected override void OnLoad(EventArgs e)
@@ -75,6 +79,8 @@ namespace VideoDedup
             }
 
             UpdateCloseButtons();
+
+            RdbSortByLoadLevel.Checked = true;
 
             base.OnLoad(e);
         }
@@ -103,6 +109,42 @@ namespace VideoDedup
             {
                 CancelButton = btnClose;
             }
+        }
+
+        private void BtnSelectLeftFilePath_Click(object sender, EventArgs e)
+        {
+            using (var dlg = new CommonOpenFileDialog())
+            {
+                if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
+                {
+                    return;
+                }
+
+                LeftFilePath = dlg.FileName;
+            }
+        }
+
+        private void BtnSelectRightFilePath_Click(object sender, EventArgs e)
+        {
+            using (var dlg = new CommonOpenFileDialog())
+            {
+                if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
+                {
+                    return;
+                }
+
+                RightFilePath = dlg.FileName;
+            }
+        }
+
+        private void BtnOkay_Click(object sender, EventArgs e)
+        {
+            ServerConfig.MaxImageCompares = (int)NumMaxImageComparison.Value;
+            ServerConfig.MaxImageDifferencePercent =
+                (int)NumMaxDifferentPercentage.Value;
+            ServerConfig.MaxDifferentImages = (int)NumMaxDifferentImages.Value;
+
+            DialogResult = DialogResult.OK;
         }
 
         private void BtnStartComparison_Click(object sender, EventArgs e)
@@ -151,42 +193,6 @@ namespace VideoDedup
             StatusTimer.Start();
         }
 
-        private void BtnOkay_Click(object sender, EventArgs e)
-        {
-            ServerConfig.MaxImageCompares = (int)NumMaxImageComparison.Value;
-            ServerConfig.MaxImageDifferencePercent =
-                (int)NumMaxDifferentPercentage.Value;
-            ServerConfig.MaxDifferentImages = (int)NumMaxDifferentImages.Value;
-
-            DialogResult = DialogResult.OK;
-        }
-
-        private void BtnSelectLeftFilePath_Click(object sender, EventArgs e)
-        {
-            using (var dlg = new CommonOpenFileDialog())
-            {
-                if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
-                {
-                    return;
-                }
-
-                LeftFilePath = dlg.FileName;
-            }
-        }
-
-        private void BtnSelectRightFilePath_Click(object sender, EventArgs e)
-        {
-            using (var dlg = new CommonOpenFileDialog())
-            {
-                if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
-                {
-                    return;
-                }
-
-                RightFilePath = dlg.FileName;
-            }
-        }
-
         private void HandleStatusTimerTick(object sender, EventArgs e)
         {
             StatusTimer.Stop();
@@ -194,8 +200,15 @@ namespace VideoDedup
                     ComparisonToken.Value,
                     ImageComparisonIndex);
 
-            UpdateVideoComparisonResult(status.VideoCompareResult);
-            UpdateImageComparisonResult(status);
+            // We store the status data
+            ImageComparisons.AddRange(status.ImageComparisons);
+            VideoComparisonResult = status.VideoCompareResult ?? VideoComparisonResult;
+
+            // Instead of updateting with the new status data, we need to
+            // update the view with the stored status data.
+            // But can we do it properly and fast?
+            //UpdateVideoComparisonResult(status.VideoCompareResult);
+            //UpdateImageComparisonResult(status);
 
             if (!status.ImageComparisons.Any())
             {
@@ -218,51 +231,89 @@ namespace VideoDedup
             StatusTimer.Start();
         }
 
-        private void CleanUpResult()
+        private void UpdateResultDisplay()
         {
-            ImageComparisonIndex = 0;
-            FinishedInLoadLevel = null;
-
-            PnlResult.Visible = false;
-
-            LblResult.Visible = false;
-            PgbComparisonProgress.Visible = false;
-
-            var localRef = TlpFirstLevelLoad.Controls;
-            TlpFirstLevelLoad.Controls.Clear();
-            foreach (Control control in localRef)
+            if (!ImageComparisons.Any())
             {
-                control.Dispose();
+                return;
             }
 
-            TlpFirstLevelLoad.RowStyles.Clear();
-            TlpFirstLevelLoad.RowCount = 0;
+            PnlResult.Visible = true;
 
-            GrbFirstLevelLoad.Visible = false;
-
-            localRef = TlpSecondLevelLoad.Controls;
-            TlpSecondLevelLoad.Controls.Clear();
-            foreach (Control control in localRef)
+            if (RdbSortByLoadLevel.Checked)
             {
-                control.Dispose();
+                foreach (var loadLevel in ImageComparisons
+                    .GroupBy(kvp => kvp.Item2.ImageLoadLevel))
+                {
+                    var (grb, tlp) = GetLoadLevelControls(loadLevel.Key);
+                    grb.Visible = true;
+
+                    var lastCompared = VideoComparisonResult?.LastComparisonIndex;
+                    if (lastCompared != null
+                        && loadLevel.Any(k => k.Item1 == lastCompared.Value))
+                    {
+                        FinishedInLoadLevel = loadLevel.Key;
+                    }
+                    var loaded = FinishedInLoadLevel == null
+                        || loadLevel.Key <= FinishedInLoadLevel;
+
+                    tlp.Controls.AddRange(loadLevel.Select(kvp =>
+                        new ImageComparisonResultView
+                        {
+                            ImageComparisonIndex = kvp.Item1,
+                            ImageComparisonResult = kvp.Item2,
+                            ComparisonFinished = lastCompared != null
+                                    && kvp.Item1 > lastCompared,
+                            ImageLoaded = loaded,
+                            MaximumDifferencePercentage =
+                                    (int)NumMaxDifferentPercentage.Value,
+                            Dock = DockStyle.Fill,
+                            BackColor = GetAlternatingBackColor(),
+                            DifferenceColor = DifferenceColor,
+                            DuplicateColor = DuplicateColor,
+                            NeutralColor = NeutralColor,
+                        }).ToArray());
+                }
             }
-
-            TlpSecondLevelLoad.RowStyles.Clear();
-            TlpSecondLevelLoad.RowCount = 0;
-
-            GrbSecondLevelLoad.Visible = false;
-
-            localRef = TlpThirdLevelLoad.Controls;
-            TlpThirdLevelLoad.Controls.Clear();
-            foreach (Control control in localRef)
+            else
             {
-                control.Dispose();
+                var grp = GrbVideoTimeline;
+                var tlp = TlpVideoTimeline;
+
+
+                foreach (var loadLevel in ImageComparisons
+                                    .GroupBy(kvp => kvp.Item2.ImageLoadLevel))
+                {
+                    var (grb, tlp) = GetLoadLevelControls(loadLevel.Key);
+                    grb.Visible = true;
+
+                    var lastCompared = VideoComparisonResult?.LastComparisonIndex;
+                    if (lastCompared != null
+                        && loadLevel.Any(k => k.Item1 == lastCompared.Value))
+                    {
+                        FinishedInLoadLevel = loadLevel.Key;
+                    }
+                    var loaded = FinishedInLoadLevel == null
+                        || loadLevel.Key <= FinishedInLoadLevel;
+
+                    tlp.Controls.AddRange(loadLevel.Select(kvp =>
+                        new ImageComparisonResultView
+                        {
+                            ImageComparisonIndex = kvp.Item1,
+                            ImageComparisonResult = kvp.Item2,
+                            ComparisonFinished = lastCompared != null
+                                    && kvp.Item1 > lastCompared,
+                            ImageLoaded = loaded,
+                            MaximumDifferencePercentage =
+                                    (int)NumMaxDifferentPercentage.Value,
+                            Dock = DockStyle.Fill,
+                            BackColor = GetAlternatingBackColor(),
+                            DifferenceColor = DifferenceColor,
+                            DuplicateColor = DuplicateColor,
+                            NeutralColor = NeutralColor,
+                        }).ToArray());
+                }
             }
-
-            TlpThirdLevelLoad.RowStyles.Clear();
-            TlpThirdLevelLoad.RowCount = 0;
-
-            GrbThirdLevelLoad.Visible = false;
         }
 
         private Dictionary<int, Tuple<GroupBox, TableLayoutPanel>> loadLevelControls;
@@ -366,5 +417,53 @@ namespace VideoDedup
             rowBackColor = EvenRowBackColor;
             return rowBackColor;
         }
+
+        private void CleanUpResult()
+        {
+            ImageComparisonIndex = 0;
+            FinishedInLoadLevel = null;
+
+            PnlResult.Visible = false;
+
+            LblResult.Visible = false;
+            PgbComparisonProgress.Visible = false;
+
+            var localRef = TlpFirstLevelLoad.Controls;
+            TlpFirstLevelLoad.Controls.Clear();
+            foreach (Control control in localRef)
+            {
+                control.Dispose();
+            }
+
+            TlpFirstLevelLoad.RowStyles.Clear();
+            TlpFirstLevelLoad.RowCount = 0;
+
+            GrbFirstLevelLoad.Visible = false;
+
+            localRef = TlpSecondLevelLoad.Controls;
+            TlpSecondLevelLoad.Controls.Clear();
+            foreach (Control control in localRef)
+            {
+                control.Dispose();
+            }
+
+            TlpSecondLevelLoad.RowStyles.Clear();
+            TlpSecondLevelLoad.RowCount = 0;
+
+            GrbSecondLevelLoad.Visible = false;
+
+            localRef = TlpThirdLevelLoad.Controls;
+            TlpThirdLevelLoad.Controls.Clear();
+            foreach (Control control in localRef)
+            {
+                control.Dispose();
+            }
+
+            TlpThirdLevelLoad.RowStyles.Clear();
+            TlpThirdLevelLoad.RowCount = 0;
+
+            GrbThirdLevelLoad.Visible = false;
+        }
+
     }
 }
