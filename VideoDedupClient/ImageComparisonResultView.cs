@@ -36,7 +36,7 @@ namespace VideoDedup
 
         public int ImageComparisonIndex { get; set; }
         public ImageComparisonResult ImageComparisonResult { get; set; }
-        public bool ComparisonFinished { get; set; }
+        public bool ComparisonAlreadyFinished { get; set; }
         public bool ImageLoaded { get; set; }
         public int MaximumDifferencePercentage { get; set; }
 
@@ -240,7 +240,7 @@ namespace VideoDedup
         private string GetResultText()
         {
             var text = $"{ImageComparisonIndex + 1}. Comparison:{Environment.NewLine}";
-            if (ComparisonFinished)
+            if (ComparisonAlreadyFinished)
             {
                 text += $"Result already determined.{Environment.NewLine}";
                 if (ImageLoaded)
@@ -278,7 +278,7 @@ namespace VideoDedup
 
         private Color GetComparisonResultColor()
         {
-            if (ComparisonFinished)
+            if (ComparisonAlreadyFinished)
             {
                 return NeutralColor;
             }

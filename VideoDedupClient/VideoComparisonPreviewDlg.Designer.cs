@@ -32,13 +32,15 @@ namespace VideoDedup
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VideoComparisonPreviewDlg));
             this.TlpResult = new System.Windows.Forms.TableLayoutPanel();
+            this.GrbVideoTimeline = new System.Windows.Forms.GroupBox();
+            this.TlpVideoTimeline = new System.Windows.Forms.TableLayoutPanel();
             this.GrbThirdLevelLoad = new System.Windows.Forms.GroupBox();
             this.TlpThirdLevelLoad = new System.Windows.Forms.TableLayoutPanel();
             this.GrbFirstLevelLoad = new System.Windows.Forms.GroupBox();
             this.TlpFirstLevelLoad = new System.Windows.Forms.TableLayoutPanel();
             this.GrbSecondLevelLoad = new System.Windows.Forms.GroupBox();
             this.TlpSecondLevelLoad = new System.Windows.Forms.TableLayoutPanel();
-            this.TlpResultProgress = new System.Windows.Forms.TableLayoutPanel();
+            this.TlpProgress = new System.Windows.Forms.TableLayoutPanel();
             this.LblResult = new System.Windows.Forms.Label();
             this.PgbComparisonProgress = new System.Windows.Forms.ProgressBar();
             this.PnlResult = new System.Windows.Forms.Panel();
@@ -64,13 +66,12 @@ namespace VideoDedup
             this.TlpSortOrder = new System.Windows.Forms.TableLayoutPanel();
             this.RdbSortByLoadLevel = new System.Windows.Forms.RadioButton();
             this.RdbSortByVideoTimeline = new System.Windows.Forms.RadioButton();
-            this.GrbVideoTimeline = new System.Windows.Forms.GroupBox();
-            this.TlpVideoTimeline = new System.Windows.Forms.TableLayoutPanel();
             this.TlpResult.SuspendLayout();
+            this.GrbVideoTimeline.SuspendLayout();
             this.GrbThirdLevelLoad.SuspendLayout();
             this.GrbFirstLevelLoad.SuspendLayout();
             this.GrbSecondLevelLoad.SuspendLayout();
-            this.TlpResultProgress.SuspendLayout();
+            this.TlpProgress.SuspendLayout();
             this.PnlResult.SuspendLayout();
             this.GrbResult.SuspendLayout();
             this.TlpSettings.SuspendLayout();
@@ -78,7 +79,6 @@ namespace VideoDedup
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentImages)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentPercentage)).BeginInit();
             this.TlpSortOrder.SuspendLayout();
-            this.GrbVideoTimeline.SuspendLayout();
             this.SuspendLayout();
             // 
             // TlpResult
@@ -91,7 +91,7 @@ namespace VideoDedup
             this.TlpResult.Controls.Add(this.GrbThirdLevelLoad, 0, 3);
             this.TlpResult.Controls.Add(this.GrbFirstLevelLoad, 0, 1);
             this.TlpResult.Controls.Add(this.GrbSecondLevelLoad, 0, 2);
-            this.TlpResult.Controls.Add(this.TlpResultProgress, 0, 0);
+            this.TlpResult.Controls.Add(this.TlpProgress, 0, 0);
             this.TlpResult.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TlpResult.Location = new System.Drawing.Point(3, 16);
             this.TlpResult.Name = "TlpResult";
@@ -103,6 +103,33 @@ namespace VideoDedup
             this.TlpResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TlpResult.Size = new System.Drawing.Size(856, 174);
             this.TlpResult.TabIndex = 0;
+            // 
+            // GrbVideoTimeline
+            // 
+            this.GrbVideoTimeline.AutoSize = true;
+            this.GrbVideoTimeline.Controls.Add(this.TlpVideoTimeline);
+            this.GrbVideoTimeline.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.GrbVideoTimeline.Location = new System.Drawing.Point(3, 152);
+            this.GrbVideoTimeline.Name = "GrbVideoTimeline";
+            this.GrbVideoTimeline.Size = new System.Drawing.Size(850, 19);
+            this.GrbVideoTimeline.TabIndex = 5;
+            this.GrbVideoTimeline.TabStop = false;
+            this.GrbVideoTimeline.Visible = false;
+            // 
+            // TlpVideoTimeline
+            // 
+            this.TlpVideoTimeline.AutoSize = true;
+            this.TlpVideoTimeline.ColumnCount = 1;
+            this.TlpVideoTimeline.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.TlpVideoTimeline.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.TlpVideoTimeline.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.TlpVideoTimeline.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TlpVideoTimeline.Location = new System.Drawing.Point(3, 16);
+            this.TlpVideoTimeline.Name = "TlpVideoTimeline";
+            this.TlpVideoTimeline.RowCount = 1;
+            this.TlpVideoTimeline.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.TlpVideoTimeline.Size = new System.Drawing.Size(844, 0);
+            this.TlpVideoTimeline.TabIndex = 0;
             // 
             // GrbThirdLevelLoad
             // 
@@ -187,23 +214,23 @@ namespace VideoDedup
             this.TlpSecondLevelLoad.Size = new System.Drawing.Size(844, 0);
             this.TlpSecondLevelLoad.TabIndex = 0;
             // 
-            // TlpResultProgress
+            // TlpProgress
             // 
-            this.TlpResultProgress.AutoSize = true;
-            this.TlpResultProgress.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.TlpResultProgress.ColumnCount = 1;
-            this.TlpResultProgress.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.TlpResultProgress.Controls.Add(this.LblResult, 0, 0);
-            this.TlpResultProgress.Controls.Add(this.PgbComparisonProgress, 0, 1);
-            this.TlpResultProgress.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TlpResultProgress.Location = new System.Drawing.Point(0, 0);
-            this.TlpResultProgress.Margin = new System.Windows.Forms.Padding(0);
-            this.TlpResultProgress.Name = "TlpResultProgress";
-            this.TlpResultProgress.RowCount = 2;
-            this.TlpResultProgress.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpResultProgress.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpResultProgress.Size = new System.Drawing.Size(856, 74);
-            this.TlpResultProgress.TabIndex = 4;
+            this.TlpProgress.AutoSize = true;
+            this.TlpProgress.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.TlpProgress.ColumnCount = 1;
+            this.TlpProgress.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.TlpProgress.Controls.Add(this.LblResult, 0, 0);
+            this.TlpProgress.Controls.Add(this.PgbComparisonProgress, 0, 1);
+            this.TlpProgress.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TlpProgress.Location = new System.Drawing.Point(0, 0);
+            this.TlpProgress.Margin = new System.Windows.Forms.Padding(0);
+            this.TlpProgress.Name = "TlpProgress";
+            this.TlpProgress.RowCount = 2;
+            this.TlpProgress.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.TlpProgress.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.TlpProgress.Size = new System.Drawing.Size(856, 74);
+            this.TlpProgress.TabIndex = 4;
             // 
             // LblResult
             // 
@@ -495,33 +522,6 @@ namespace VideoDedup
             this.RdbSortByVideoTimeline.Text = "Sort by video timeline";
             this.RdbSortByVideoTimeline.UseVisualStyleBackColor = true;
             // 
-            // GrbVideoTimeline
-            // 
-            this.GrbVideoTimeline.AutoSize = true;
-            this.GrbVideoTimeline.Controls.Add(this.TlpVideoTimeline);
-            this.GrbVideoTimeline.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.GrbVideoTimeline.Location = new System.Drawing.Point(3, 152);
-            this.GrbVideoTimeline.Name = "GrbVideoTimeline";
-            this.GrbVideoTimeline.Size = new System.Drawing.Size(850, 19);
-            this.GrbVideoTimeline.TabIndex = 5;
-            this.GrbVideoTimeline.TabStop = false;
-            this.GrbVideoTimeline.Visible = false;
-            // 
-            // TlpVideoTimeline
-            // 
-            this.TlpVideoTimeline.AutoSize = true;
-            this.TlpVideoTimeline.ColumnCount = 1;
-            this.TlpVideoTimeline.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.TlpVideoTimeline.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.TlpVideoTimeline.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.TlpVideoTimeline.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TlpVideoTimeline.Location = new System.Drawing.Point(3, 16);
-            this.TlpVideoTimeline.Name = "TlpVideoTimeline";
-            this.TlpVideoTimeline.RowCount = 1;
-            this.TlpVideoTimeline.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpVideoTimeline.Size = new System.Drawing.Size(844, 0);
-            this.TlpVideoTimeline.TabIndex = 0;
-            // 
             // VideoComparisonPreviewDlg
             // 
             this.AcceptButton = this.BtnOkay;
@@ -541,14 +541,16 @@ namespace VideoDedup
             this.Text = "Video Comparison Preview";
             this.TlpResult.ResumeLayout(false);
             this.TlpResult.PerformLayout();
+            this.GrbVideoTimeline.ResumeLayout(false);
+            this.GrbVideoTimeline.PerformLayout();
             this.GrbThirdLevelLoad.ResumeLayout(false);
             this.GrbThirdLevelLoad.PerformLayout();
             this.GrbFirstLevelLoad.ResumeLayout(false);
             this.GrbFirstLevelLoad.PerformLayout();
             this.GrbSecondLevelLoad.ResumeLayout(false);
             this.GrbSecondLevelLoad.PerformLayout();
-            this.TlpResultProgress.ResumeLayout(false);
-            this.TlpResultProgress.PerformLayout();
+            this.TlpProgress.ResumeLayout(false);
+            this.TlpProgress.PerformLayout();
             this.PnlResult.ResumeLayout(false);
             this.PnlResult.PerformLayout();
             this.GrbResult.ResumeLayout(false);
@@ -560,8 +562,6 @@ namespace VideoDedup
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentPercentage)).EndInit();
             this.TlpSortOrder.ResumeLayout(false);
             this.TlpSortOrder.PerformLayout();
-            this.GrbVideoTimeline.ResumeLayout(false);
-            this.GrbVideoTimeline.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -596,7 +596,7 @@ namespace VideoDedup
         private System.Windows.Forms.Timer StatusTimer;
         private System.Windows.Forms.Button BtnStartComparison;
         private System.Windows.Forms.Button btnClose;
-        private System.Windows.Forms.TableLayoutPanel TlpResultProgress;
+        private System.Windows.Forms.TableLayoutPanel TlpProgress;
         private System.Windows.Forms.ProgressBar PgbComparisonProgress;
         private System.Windows.Forms.TableLayoutPanel TlpSortOrder;
         private System.Windows.Forms.RadioButton RdbSortByLoadLevel;

@@ -27,8 +27,8 @@ namespace CustomComparisonManager
 
         private CustomVideoComparisonStatusData Status { get; set; } =
             new CustomVideoComparisonStatusData();
-        private IList<Tuple<int, ImageComparisonResult>> ImageComparisons
-        { get; set; } = new List<Tuple<int, ImageComparisonResult>>();
+        private IList<ImageComparisonResult> ImageComparisons { get; set; } =
+            new List<ImageComparisonResult>();
         private object StatusLock { get; set; } = new object();
 
         public CustomComparison(CustomVideoComparisonData data)
@@ -108,7 +108,7 @@ namespace CustomComparisonManager
                     {
                         Reason = exc.Message,
                         ComparisonResult = ComparisonResult.Aborted,
-                        LastComparisonIndex = last != null ? last.Item1 : 0,
+                        LastComparedIndex = last?.Index ?? 0,
                     };
                 }
             }
@@ -131,13 +131,12 @@ namespace CustomComparisonManager
                     return;
                 }
 
-                var last = ImageComparisons.LastOrDefault()?.Item2;
+                var last = ImageComparisons.LastOrDefault();
                 Status.VideoCompareResult = new VideoComparisonResult
                 {
                     Reason = "Comparison cancelled",
                     ComparisonResult = ComparisonResult.Cancelled,
-                    LastComparisonIndex =
-                        last != null ? last.ImageLoadLevel : 0,
+                    LastComparedIndex = last?.LoadLevel ?? 0,
                 };
             }
         }
@@ -155,21 +154,21 @@ namespace CustomComparisonManager
                     {
                         Reason = "Comparison ran to completion",
                         ComparisonResult = e.VideoComparisonResult,
-                        LastComparisonIndex = e.ImageComparisonIndex,
+                        LastComparedIndex = e.ImageComparisonIndex,
                     };
                 }
 
                 Status.Token = Token;
-                ImageComparisons.Add(Tuple.Create(
-                    e.ImageComparisonIndex,
+                ImageComparisons.Add(
                     new ImageComparisonResult
                     {
+                        Index = e.ImageComparisonIndex,
                         ComparisonResult = e.ImageComparisonResult,
                         Difference = e.Difference,
-                        ImageLoadLevel = e.ImageLoadLevelIndex,
+                        LoadLevel = e.ImageLoadLevelIndex,
                         LeftImages = e.LeftImages,
                         RightImages = e.RightImages,
-                    }));
+                    });
             }
         }
 

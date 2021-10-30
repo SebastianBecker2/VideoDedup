@@ -15,8 +15,7 @@ namespace Wcf.Contracts.Data
         [DataMember]
         public VideoFile RightVideoFile { get; set; }
         [DataMember]
-        public IEnumerable<Tuple<int, ImageComparisonResult>> ImageComparisons
-        { get; set; }
+        public IEnumerable<ImageComparisonResult> ImageComparisons { get; set; }
         [DataMember]
         public VideoComparisonResult VideoCompareResult { get; set; }
     }
