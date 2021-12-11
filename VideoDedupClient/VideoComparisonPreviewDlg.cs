@@ -2,11 +2,11 @@ namespace VideoDedup
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Drawing;
     using System.Linq;
     using System.Windows.Forms;
     using Microsoft.WindowsAPICodePack.Dialogs;
+    using ImageGroupBox;
     using VideoDedupShared;
     using Wcf.Contracts.Data;
 
@@ -201,17 +201,12 @@ namespace VideoDedup
                     ComparisonToken.Value,
                     ImageComparisonIndex);
 
-            // We store the status data
-            ImageComparisons.AddRange(status.ImageComparisons);
-            VideoComparisonResult =
-                status.VideoCompareResult ?? VideoComparisonResult;
-
-            // Instead of updateting with the new status data, we need to
-            // update the view with the stored status data.
-            // But can we do it properly and fast?
-            //UpdateVideoComparisonResult(status.VideoCompareResult);
-            //UpdateImageComparisonResult(status);
-
+            if (VideoComparisonResult != status.VideoCompareResult)
+            {
+                VideoComparisonResult =
+                    status.VideoCompareResult ?? VideoComparisonResult;
+                UpdateVideoComparisonResult(VideoComparisonResult);
+            }
 
             if (!status.ImageComparisons.Any())
             {
@@ -220,6 +215,7 @@ namespace VideoDedup
             }
             else
             {
+                ImageComparisons.AddRange(status.ImageComparisons);
                 UpdateResultDisplay();
             }
 
@@ -267,7 +263,9 @@ namespace VideoDedup
                         icr.LeftImages.Index.Numerator
                         / (double)icr.LeftImages.Index.Denominator);
 
-                AddImageComparisonsToTableLayoutPanel(TlpVideoTimeline, images);
+                AddImageComparisonsToTableLayoutPanel(
+                    TlpVideoTimeline,
+                    images);
             }
         }
 
@@ -306,53 +304,47 @@ namespace VideoDedup
             var resultViews = tableLayoutPanel.Controls
                 .Cast<ImageComparisonResultView>();
 
-            Debug.Print($"Updating with {imageComparisonResults.Count()} while having {resultViews.Count()} items already");
+            // Get all icrs that are missing.
+            // Add them.
+            // Then iterate over all with index to set ALL the new row indexes.
+            tableLayoutPanel.Controls.AddRange(imageComparisonResults
+                .Where(icr => !resultViews.Any(view => view.ImageComparisonResult == icr))
+                .Select(icr => toView(icr))
+                .ToArray());
 
-            foreach (var icr in Enumerable
+            var indexed = Enumerable
                 .Range(0, imageComparisonResults.Count())
-                .Zip(imageComparisonResults,
-                    (rowIndex, icr) => new { RowIndex = rowIndex, Icr = icr }))
-            {
-                var icrv = resultViews.FirstOrDefault(view =>
-                    view.ImageComparisonResult == icr.Icr);
-
-                if (icrv != null)
+                .Zip(imageComparisonResults, (rowIndex, icr) => new
                 {
-                    Debug.Print($"Image {icr.Icr.Index} gets updated to row {icr.RowIndex}");
-                    tableLayoutPanel.SetRow(icrv, icr.RowIndex);
-                    continue;
-                }
+                    RowIndex = rowIndex,
+                    Result = icr,
+                });
 
-                Debug.Print($"Image {icr.Icr.Index} gets added to row {icr.RowIndex}");
-                tableLayoutPanel.Controls.Add(toView(icr.Icr), 0, icr.RowIndex);
+            foreach (ImageComparisonResultView view in tableLayoutPanel.Controls)
+            {
+                var rowIndex = indexed
+                    .First(comparison => comparison.Result == view.ImageComparisonResult)
+                    .RowIndex;
+
+                tableLayoutPanel.SetCellPosition(
+                    view,
+                    new TableLayoutPanelCellPosition
+                    {
+                        Column = 0,
+                        Row = rowIndex,
+                    });
             }
-
-
-
-            //SuspendLayout();
-            //try
-            //{
-            //    //tableLayoutPanel.Controls.Clear();
-            //    tableLayoutPanel.Controls.AddRange(imageComparisonResults
-            //        //.Where(icr =>
-            //        //    !resultViews.Any(rv => rv.ImageComparisonIndex == icr.Index))
-            //        .Select(icr => toView(icr))
-            //        .ToArray());
-            //}
-            //finally
-            //{
-            //    ResumeLayout();
-            //}
         }
 
-        private Dictionary<int, Tuple<GroupBox, TableLayoutPanel>> loadLevelControls;
-        private Tuple<GroupBox, TableLayoutPanel> GetLoadLevelControls(
+        private Dictionary<int, Tuple<ImageGroupBox, TableLayoutPanel>>
+            loadLevelControls;
+        private Tuple<ImageGroupBox, TableLayoutPanel> GetLoadLevelControls(
             int loadLevel)
         {
             if (loadLevelControls == null)
             {
                 loadLevelControls =
-                    new Dictionary<int, Tuple<GroupBox, TableLayoutPanel>>
+                    new Dictionary<int, Tuple<ImageGroupBox, TableLayoutPanel>>
                     {
                         { 1, Tuple.Create(GrbFirstLevelLoad, TlpFirstLevelLoad) },
                         { 2, Tuple.Create(GrbSecondLevelLoad, TlpSecondLevelLoad) },
@@ -389,50 +381,6 @@ namespace VideoDedup
                     LblResult.BackColor = NeutralColor;
                 }
             }
-        }
-
-        private void UpdateImageComparisonResult(
-            CustomVideoComparisonStatusData status)
-        {
-            //if (!status.ImageComparisons.Any())
-            //{
-            //    return;
-            //}
-
-            //PnlResult.Visible = true;
-
-            //foreach (var loadLevel in status.ImageComparisons
-            //    .GroupBy(kvp => kvp.Item2.ImageLoadLevel))
-            //{
-            //    var (grb, tlp) = GetLoadLevelControls(loadLevel.Key);
-            //    grb.Visible = true;
-
-            //    var lastCompared = status.VideoCompareResult?.LastComparedIndex;
-            //    if (lastCompared != null
-            //        && loadLevel.Any(k => k.Item1 == lastCompared.Value))
-            //    {
-            //        FinishedInLoadLevel = loadLevel.Key;
-            //    }
-            //    var loaded = FinishedInLoadLevel == null
-            //        || loadLevel.Key <= FinishedInLoadLevel;
-
-            //    tlp.Controls.AddRange(loadLevel.Select(kvp =>
-            //        new ImageComparisonResultView
-            //        {
-            //            ImageComparisonIndex = kvp.Item1,
-            //            ImageComparisonResult = kvp.Item2,
-            //            ComparisonAlreadyFinished = lastCompared != null
-            //                    && kvp.Item1 > lastCompared,
-            //            ImageLoaded = loaded,
-            //            MaximumDifferencePercentage =
-            //                    (int)NumMaxDifferentPercentage.Value,
-            //            Dock = DockStyle.Fill,
-            //            BackColor = GetAlternatingBackColor(),
-            //            DifferenceColor = DifferenceColor,
-            //            DuplicateColor = DuplicateColor,
-            //            NeutralColor = NeutralColor,
-            //        }).ToArray());
-            //}
         }
 
         private Color rowBackColor = EvenRowBackColor;
@@ -481,6 +429,7 @@ namespace VideoDedup
             GrbThirdLevelLoad.Visible = false;
 
             clearTableLayoutPanel(TlpVideoTimeline);
+            GrbVideoTimeline.Visible = false;
         }
 
     }
