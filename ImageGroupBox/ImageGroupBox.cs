@@ -66,6 +66,19 @@ namespace ImageGroupBox
             }
         }
 
+        public Rectangle HeaderRectangle =>
+            new Rectangle(
+                0,
+                0,
+                ClientSize.Width,
+                Math.Max(fontHeight, Icon.Height));
+
+        [Category("Action"), Description("Occurres when the header has been clicked.")]
+        [Browsable(true), EditorBrowsable(EditorBrowsableState.Always)]
+        public event MouseEventHandler HeaderClicked;
+        protected void OnHeaderClick(MouseEventArgs mouseEventArgs) =>
+            HeaderClicked?.Invoke(this, mouseEventArgs);
+
         /// <summary>Override the GroupBox OnPaint method for customized drawing.</summary>
         /// <param name="e">The PaintEventArgs associated object.</param>
         protected override void OnPaint(PaintEventArgs e)
@@ -253,5 +266,14 @@ namespace ImageGroupBox
             }
         }
 
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            if (!DisplayRectangle.Contains(e.Location))
+            {
+                OnHeaderClick(e);
+                return;
+            }
+            base.OnMouseClick(e);
+        }
     }
 }

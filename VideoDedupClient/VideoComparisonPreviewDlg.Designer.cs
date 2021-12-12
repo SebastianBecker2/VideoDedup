@@ -101,7 +101,7 @@ namespace VideoDedup
             this.TlpResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TlpResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TlpResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpResult.Size = new System.Drawing.Size(856, 174);
+            this.TlpResult.Size = new System.Drawing.Size(856, 132);
             this.TlpResult.TabIndex = 0;
             // 
             // GrbVideoTimeline
@@ -109,7 +109,7 @@ namespace VideoDedup
             this.GrbVideoTimeline.AutoSize = true;
             this.GrbVideoTimeline.Controls.Add(this.TlpVideoTimeline);
             this.GrbVideoTimeline.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.GrbVideoTimeline.Location = new System.Drawing.Point(3, 152);
+            this.GrbVideoTimeline.Location = new System.Drawing.Point(3, 110);
             this.GrbVideoTimeline.Name = "GrbVideoTimeline";
             this.GrbVideoTimeline.Size = new System.Drawing.Size(850, 19);
             this.GrbVideoTimeline.TabIndex = 5;
@@ -193,7 +193,7 @@ namespace VideoDedup
             this.GrbResult.Dock = System.Windows.Forms.DockStyle.Top;
             this.GrbResult.Location = new System.Drawing.Point(0, 0);
             this.GrbResult.Name = "GrbResult";
-            this.GrbResult.Size = new System.Drawing.Size(862, 193);
+            this.GrbResult.Size = new System.Drawing.Size(862, 151);
             this.GrbResult.TabIndex = 1;
             this.GrbResult.TabStop = false;
             this.GrbResult.Text = "Result";
@@ -445,13 +445,14 @@ namespace VideoDedup
             this.GrbThirdLevelLoad.Controls.Add(this.TlpThirdLevelLoad);
             this.GrbThirdLevelLoad.Dock = System.Windows.Forms.DockStyle.Fill;
             this.GrbThirdLevelLoad.Icon = global::VideoDedup.Properties.Resources.ArrowUpGray;
-            this.GrbThirdLevelLoad.Location = new System.Drawing.Point(3, 127);
+            this.GrbThirdLevelLoad.Location = new System.Drawing.Point(3, 99);
             this.GrbThirdLevelLoad.Name = "GrbThirdLevelLoad";
-            this.GrbThirdLevelLoad.Size = new System.Drawing.Size(850, 19);
+            this.GrbThirdLevelLoad.Size = new System.Drawing.Size(850, 5);
             this.GrbThirdLevelLoad.TabIndex = 3;
             this.GrbThirdLevelLoad.TabStop = false;
             this.GrbThirdLevelLoad.Text = "Third level image load";
             this.GrbThirdLevelLoad.Visible = false;
+            this.GrbThirdLevelLoad.HeaderClicked += new System.Windows.Forms.MouseEventHandler(this.GrbThirdLevelLoad_HeaderClicked);
             // 
             // TlpThirdLevelLoad
             // 
@@ -461,7 +462,7 @@ namespace VideoDedup
             this.TlpThirdLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.TlpThirdLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.TlpThirdLevelLoad.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TlpThirdLevelLoad.Location = new System.Drawing.Point(3, 16);
+            this.TlpThirdLevelLoad.Location = new System.Drawing.Point(3, 35);
             this.TlpThirdLevelLoad.Name = "TlpThirdLevelLoad";
             this.TlpThirdLevelLoad.RowCount = 1;
             this.TlpThirdLevelLoad.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -476,10 +477,11 @@ namespace VideoDedup
             this.GrbFirstLevelLoad.Icon = global::VideoDedup.Properties.Resources.ArrowUpGray;
             this.GrbFirstLevelLoad.Location = new System.Drawing.Point(3, 77);
             this.GrbFirstLevelLoad.Name = "GrbFirstLevelLoad";
-            this.GrbFirstLevelLoad.Size = new System.Drawing.Size(850, 19);
+            this.GrbFirstLevelLoad.Size = new System.Drawing.Size(850, 5);
             this.GrbFirstLevelLoad.TabIndex = 0;
             this.GrbFirstLevelLoad.TabStop = false;
             this.GrbFirstLevelLoad.Text = "First level image load";
+            this.GrbFirstLevelLoad.HeaderClicked += new System.Windows.Forms.MouseEventHandler(this.GrbFirstLevelLoad_HeaderClicked);
             // 
             // TlpFirstLevelLoad
             // 
@@ -489,7 +491,7 @@ namespace VideoDedup
             this.TlpFirstLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.TlpFirstLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.TlpFirstLevelLoad.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TlpFirstLevelLoad.Location = new System.Drawing.Point(3, 16);
+            this.TlpFirstLevelLoad.Location = new System.Drawing.Point(3, 35);
             this.TlpFirstLevelLoad.Name = "TlpFirstLevelLoad";
             this.TlpFirstLevelLoad.RowCount = 1;
             this.TlpFirstLevelLoad.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -502,13 +504,14 @@ namespace VideoDedup
             this.GrbSecondLevelLoad.Controls.Add(this.TlpSecondLevelLoad);
             this.GrbSecondLevelLoad.Dock = System.Windows.Forms.DockStyle.Fill;
             this.GrbSecondLevelLoad.Icon = global::VideoDedup.Properties.Resources.ArrowUpGray;
-            this.GrbSecondLevelLoad.Location = new System.Drawing.Point(3, 102);
+            this.GrbSecondLevelLoad.Location = new System.Drawing.Point(3, 88);
             this.GrbSecondLevelLoad.Name = "GrbSecondLevelLoad";
-            this.GrbSecondLevelLoad.Size = new System.Drawing.Size(850, 19);
+            this.GrbSecondLevelLoad.Size = new System.Drawing.Size(850, 5);
             this.GrbSecondLevelLoad.TabIndex = 1;
             this.GrbSecondLevelLoad.TabStop = false;
             this.GrbSecondLevelLoad.Text = "Second level image load";
             this.GrbSecondLevelLoad.Visible = false;
+            this.GrbSecondLevelLoad.HeaderClicked += new System.Windows.Forms.MouseEventHandler(this.GrbSecondLevelLoad_HeaderClicked);
             // 
             // TlpSecondLevelLoad
             // 
@@ -518,7 +521,7 @@ namespace VideoDedup
             this.TlpSecondLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.TlpSecondLevelLoad.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.TlpSecondLevelLoad.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TlpSecondLevelLoad.Location = new System.Drawing.Point(3, 16);
+            this.TlpSecondLevelLoad.Location = new System.Drawing.Point(3, 35);
             this.TlpSecondLevelLoad.Name = "TlpSecondLevelLoad";
             this.TlpSecondLevelLoad.RowCount = 1;
             this.TlpSecondLevelLoad.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));

@@ -240,7 +240,6 @@ namespace VideoDedup
         private string GetResultText()
         {
             var text = $"{ImageComparisonIndex + 1}. Comparison:{Environment.NewLine}";
-            text += $"{ImageComparisonResult.LeftImages.Index.Numerator}/{ImageComparisonResult.LeftImages.Index.Denominator} = {ImageComparisonResult.LeftImages.Index.Numerator / (double)ImageComparisonResult.LeftImages.Index.Denominator}{Environment.NewLine}";
             if (ComparisonAlreadyFinished)
             {
                 text += $"Result already determined.{Environment.NewLine}";

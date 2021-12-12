@@ -71,6 +71,15 @@ namespace VideoDedup
             NumMaxDifferentImages.Value = ServerConfig.MaxDifferentImages;
             NumMaxImageComparison.Value = ServerConfig.MaxImageCompares;
 
+            // Set minimum size for ImageGroupBoxs
+            // so that we at least see the header when collapsed.
+            GrbFirstLevelLoad.MinimumSize =
+                GrbFirstLevelLoad.HeaderRectangle.Size;
+            GrbSecondLevelLoad.MinimumSize =
+                GrbSecondLevelLoad.HeaderRectangle.Size;
+            GrbThirdLevelLoad.MinimumSize =
+                GrbThirdLevelLoad.HeaderRectangle.Size;
+
             CleanUpResult();
 
             if (!string.IsNullOrWhiteSpace(LeftFilePath)
@@ -432,5 +441,52 @@ namespace VideoDedup
             GrbVideoTimeline.Visible = false;
         }
 
+        private void GrbFirstLevelLoad_HeaderClicked(
+            object sender,
+            MouseEventArgs e)
+        {
+            if (TlpFirstLevelLoad.Visible)
+            {
+                TlpFirstLevelLoad.Visible = false;
+                GrbFirstLevelLoad.Icon = Properties.Resources.ArrowDownBlue;
+            }
+            else
+            {
+                TlpFirstLevelLoad.Visible = true;
+                GrbFirstLevelLoad.Icon = Properties.Resources.ArrowUpGray;
+            }
+        }
+
+        private void GrbSecondLevelLoad_HeaderClicked(
+            object sender,
+            MouseEventArgs e)
+        {
+            if (TlpSecondLevelLoad.Visible)
+            {
+                TlpSecondLevelLoad.Visible = false;
+                GrbSecondLevelLoad.Icon = Properties.Resources.ArrowDownBlue;
+            }
+            else
+            {
+                TlpSecondLevelLoad.Visible = true;
+                GrbSecondLevelLoad.Icon = Properties.Resources.ArrowUpGray;
+            }
+        }
+
+        private void GrbThirdLevelLoad_HeaderClicked(
+            object sender,
+            MouseEventArgs e)
+        {
+            if (TlpThirdLevelLoad.Visible)
+            {
+                TlpThirdLevelLoad.Visible = false;
+                GrbThirdLevelLoad.Icon = Properties.Resources.ArrowDownBlue;
+            }
+            else
+            {
+                TlpThirdLevelLoad.Visible = true;
+                GrbThirdLevelLoad.Icon = Properties.Resources.ArrowUpGray;
+            }
+        }
     }
 }
