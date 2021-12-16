@@ -254,6 +254,8 @@ namespace VideoDedup
 
             if (RdbSortByLoadLevel.Checked)
             {
+                GrbVideoTimeline.Visible = false;
+
                 foreach (var loadLevel in ImageComparisons
                     .GroupBy(kvp => kvp.LoadLevel))
                 {
@@ -266,6 +268,9 @@ namespace VideoDedup
             else
             {
                 GrbVideoTimeline.Visible = true;
+                GrbFirstLevelLoad.Visible = false;
+                GrbSecondLevelLoad.Visible = false;
+                GrbThirdLevelLoad.Visible = false;
 
                 // Get image comparisons in order of timeline
                 var images = ImageComparisons.OrderBy(icr =>
@@ -488,5 +493,15 @@ namespace VideoDedup
                 GrbThirdLevelLoad.Icon = Properties.Resources.ArrowUpGray;
             }
         }
+
+        private void RdbSortByVideoTimeline_CheckedChanged(
+            object sender,
+            EventArgs e) =>
+            UpdateResultDisplay();
+
+        private void RdbSortByLoadLevel_CheckedChanged(
+            object sender,
+            EventArgs e) =>
+            UpdateResultDisplay();
     }
 }
