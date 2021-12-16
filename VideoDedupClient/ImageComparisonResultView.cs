@@ -261,7 +261,8 @@ namespace VideoDedup
             else
             {
                 text += $"Images loaded and compared.{Environment.NewLine}"
-                    + $"Difference {ImageComparisonResult.Difference * 100} is ";
+                    + $"Difference "
+                    + $"{ImageComparisonResult.Difference * 100:0.00} is ";
                 if (ImageComparisonResult.ComparisonResult
                     == ComparisonResult.Different)
                 {
