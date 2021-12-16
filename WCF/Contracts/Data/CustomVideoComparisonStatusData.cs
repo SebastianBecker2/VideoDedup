@@ -17,6 +17,6 @@ namespace Wcf.Contracts.Data
         [DataMember]
         public IEnumerable<ImageComparisonResult> ImageComparisons { get; set; }
         [DataMember]
-        public VideoComparisonResult VideoCompareResult { get; set; }
+        public VideoComparisonResult VideoComparisonResult { get; set; }
     }
 }

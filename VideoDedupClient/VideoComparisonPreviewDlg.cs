@@ -210,10 +210,10 @@ namespace VideoDedup
                     ComparisonToken.Value,
                     ImageComparisonIndex);
 
-            if (VideoComparisonResult != status.VideoCompareResult)
+            if (VideoComparisonResult?.ComparisonResult
+                != status.VideoComparisonResult?.ComparisonResult)
             {
-                VideoComparisonResult =
-                    status.VideoCompareResult ?? VideoComparisonResult;
+                VideoComparisonResult = status.VideoComparisonResult;
                 UpdateVideoComparisonResult(VideoComparisonResult);
             }
 

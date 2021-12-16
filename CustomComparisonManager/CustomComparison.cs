@@ -77,7 +77,7 @@ namespace CustomComparisonManager
                             .Skip(imageComparisonIndex)
                             .ToList(),
                     Token = Token,
-                    VideoCompareResult = Status.VideoCompareResult,
+                    VideoComparisonResult = Status.VideoComparisonResult,
                 };
                 if (LeftVideoFile != null)
                 {
@@ -104,7 +104,7 @@ namespace CustomComparisonManager
                 lock (StatusLock)
                 {
                     var last = ImageComparisons.LastOrDefault();
-                    Status.VideoCompareResult = new VideoComparisonResult
+                    Status.VideoComparisonResult = new VideoComparisonResult
                     {
                         Reason = exc.Message,
                         ComparisonResult = ComparisonResult.Aborted,
@@ -126,13 +126,13 @@ namespace CustomComparisonManager
 
             lock (StatusLock)
             {
-                if (Status.VideoCompareResult != null)
+                if (Status.VideoComparisonResult != null)
                 {
                     return;
                 }
 
                 var last = ImageComparisons.LastOrDefault();
-                Status.VideoCompareResult = new VideoComparisonResult
+                Status.VideoComparisonResult = new VideoComparisonResult
                 {
                     Reason = "Comparison cancelled",
                     ComparisonResult = ComparisonResult.Cancelled,
@@ -148,9 +148,9 @@ namespace CustomComparisonManager
             lock (StatusLock)
             {
                 if (e.VideoComparisonResult != ComparisonResult.NoResult
-                    && Status.VideoCompareResult == null)
+                    && Status.VideoComparisonResult == null)
                 {
-                    Status.VideoCompareResult = new VideoComparisonResult
+                    Status.VideoComparisonResult = new VideoComparisonResult
                     {
                         Reason = "Comparison ran to completion",
                         ComparisonResult = e.VideoComparisonResult,
