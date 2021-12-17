@@ -292,7 +292,7 @@ namespace VideoDedup
             {
                 FinishedInLoadLevel = imageComparisonResults
                     .FirstOrDefault(icr => icr.Index == lastComparedIndex.Value)
-                    ?.LoadLevel;
+                    ?.LoadLevel ?? FinishedInLoadLevel;
             }
 
             ImageComparisonResultView toView(ImageComparisonResult icr) =>
@@ -309,9 +309,10 @@ namespace VideoDedup
                                 (int)NumMaxDifferentPercentage.Value,
                     Dock = DockStyle.Fill,
                     BackColor = GetAlternatingBackColor(),
-                    DifferenceColor = DifferenceColor,
+                    DifferentColor = DifferenceColor,
                     DuplicateColor = DuplicateColor,
-                    NeutralColor = NeutralColor,
+                    LoadedColor = LoadedColor,
+                    NotLoadedColor = NotLoadedColor,
                 };
 
 
