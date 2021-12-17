@@ -32,7 +32,11 @@ namespace VideoDedup
             Color.LightCoral;
         private static readonly Color DuplicateColor =
             Color.DarkSeaGreen;
-        private static readonly Color NeutralColor =
+        private static readonly Color LoadedColor =
+            Color.FromArgb(0xE5, 0xD4, 0x8B); // Flax
+        private static readonly Color NotLoadedColor =
+            SystemColors.Control;
+        private static readonly Color CancelledColor =
             SystemColors.Control;
         private static readonly Color OddRowBackColor =
             SystemColors.ControlDark;
@@ -388,12 +392,12 @@ namespace VideoDedup
                 else if (result.ComparisonResult == ComparisonResult.Cancelled)
                 {
                     LblResult.Text = "Cancelled";
-                    LblResult.BackColor = NeutralColor;
+                    LblResult.BackColor = CancelledColor;
                 }
                 else if (result.ComparisonResult == ComparisonResult.Aborted)
                 {
                     LblResult.Text = "Aborted: " + result.Reason;
-                    LblResult.BackColor = NeutralColor;
+                    LblResult.BackColor = CancelledColor;
                 }
             }
         }

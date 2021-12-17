@@ -40,9 +40,10 @@ namespace VideoDedup
         public bool ImageLoaded { get; set; }
         public int MaximumDifferencePercentage { get; set; }
 
-        public Color DifferenceColor { get; set; }
+        public Color DifferentColor { get; set; }
         public Color DuplicateColor { get; set; }
-        public Color NeutralColor { get; set; }
+        public Color LoadedColor { get; set; }
+        public Color NotLoadedColor { get; set; }
 
         private Label ShowDetailsLabel { get; set; }
         private PictureBox LeftShowDetailArrow { get; set; }
@@ -281,17 +282,21 @@ namespace VideoDedup
         {
             if (ComparisonAlreadyFinished)
             {
-                return NeutralColor;
+                if (ImageLoaded)
+                {
+                    return LoadedColor;
+                }
+                return NotLoadedColor;
             }
             else if (ImageComparisonResult.ComparisonResult
                 == ComparisonResult.NoResult)
             {
-                return DifferenceColor;
+                return DifferentColor;
             }
             else if (ImageComparisonResult.ComparisonResult
                 == ComparisonResult.Different)
             {
-                return DifferenceColor;
+                return DifferentColor;
             }
             else
             {
