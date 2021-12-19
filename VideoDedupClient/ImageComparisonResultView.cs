@@ -8,6 +8,7 @@ namespace VideoDedup
     using VideoDedup.Properties;
     using VideoDedupShared;
     using VideoDedupShared.ImageExtension;
+    using VideoDedupShared.TimeSpanExtension;
 
     public partial class ImageComparisonResultView : UserControl
     {
@@ -39,6 +40,8 @@ namespace VideoDedup
         public bool ComparisonAlreadyFinished { get; set; }
         public bool ImageLoaded { get; set; }
         public int MaximumDifferencePercentage { get; set; }
+        public TimeSpan LeftTimestamp { get; set; }
+        public TimeSpan RightTimestamp { get; set; }
 
         public Color DifferentColor { get; set; }
         public Color DuplicateColor { get; set; }
@@ -240,7 +243,9 @@ namespace VideoDedup
 
         private string GetResultText()
         {
-            var text = $"{ImageComparisonIndex + 1}. Comparison:{Environment.NewLine}";
+            var text = $"{ImageComparisonIndex + 1}. Comparison:" +
+                $"{Environment.NewLine}{LeftTimestamp.ToPrettyString()}  |  " +
+                $"{RightTimestamp.ToPrettyString()}{Environment.NewLine}";
             if (ComparisonAlreadyFinished)
             {
                 text += $"Result already determined.{Environment.NewLine}";

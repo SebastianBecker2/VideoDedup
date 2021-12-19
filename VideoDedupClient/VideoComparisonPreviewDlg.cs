@@ -9,6 +9,7 @@ namespace VideoDedup
     using ImageGroupBox;
     using VideoDedupShared;
     using Wcf.Contracts.Data;
+    using VideoDedupShared.TimeSpanExtension;
 
     public partial class VideoComparisonPreviewDlg : Form
     {
@@ -52,11 +53,13 @@ namespace VideoDedup
             get => TxtLeftFilePath.Text;
             set => TxtLeftFilePath.Text = value;
         }
+        public VideoFile LeftVideoFile { get; set; }
         public string RightFilePath
         {
             get => TxtRightFilePath.Text;
             set => TxtRightFilePath.Text = value;
         }
+        public VideoFile RightVideoFile { get; set; }
 
         private Guid? ComparisonToken { get; set; } = null;
         private int ImageComparisonIndex { get; set; } = 0;
@@ -66,7 +69,30 @@ namespace VideoDedup
             = new List<ImageComparisonResult>();
         private VideoComparisonResult VideoComparisonResult { get; set; }
 
-        public VideoComparisonPreviewDlg() => InitializeComponent();
+        public VideoComparisonPreviewDlg()
+        {
+            InitializeComponent();
+
+            TrbMaxDifferentPercentage.ValueChanged +=
+                (s, e) => NumMaxDifferentPercentage.Value =
+                TrbMaxDifferentPercentage.Value;
+            TrbMaxDifferentImages.ValueChanged +=
+                (s, e) => NumMaxDifferentImages.Value =
+                TrbMaxDifferentImages.Value;
+            TrbMaxImageComparison.ValueChanged +=
+                (s, e) => NumMaxImageComparison.Value =
+                TrbMaxImageComparison.Value;
+
+            NumMaxDifferentPercentage.ValueChanged +=
+                (s, e) => TrbMaxDifferentPercentage.Value =
+                (int)NumMaxDifferentPercentage.Value;
+            NumMaxDifferentImages.ValueChanged +=
+                (s, e) => TrbMaxDifferentImages.Value =
+                (int)NumMaxDifferentImages.Value;
+            NumMaxImageComparison.ValueChanged +=
+                (s, e) => TrbMaxImageComparison.Value =
+                (int)NumMaxImageComparison.Value;
+        }
 
         protected override void OnLoad(EventArgs e)
         {
@@ -94,7 +120,7 @@ namespace VideoDedup
 
             UpdateCloseButtons();
 
-            RdbSortByLoadLevel.Checked = true;
+            RdbSortByProcessingOrder.Checked = true;
 
             base.OnLoad(e);
         }
@@ -214,6 +240,9 @@ namespace VideoDedup
                     ComparisonToken.Value,
                     ImageComparisonIndex);
 
+            LeftVideoFile = status.LeftVideoFile;
+            RightVideoFile = status.RightVideoFile;
+
             if (VideoComparisonResult?.ComparisonResult
                 != status.VideoComparisonResult?.ComparisonResult)
             {
@@ -256,7 +285,7 @@ namespace VideoDedup
 
             PnlResult.Visible = true;
 
-            if (RdbSortByLoadLevel.Checked)
+            if (RdbSortByProcessingOrder.Checked)
             {
                 GrbVideoTimeline.Visible = false;
 
@@ -278,8 +307,7 @@ namespace VideoDedup
 
                 // Get image comparisons in order of timeline
                 var images = ImageComparisons.OrderBy(icr =>
-                        icr.LeftImages.Index.Numerator
-                        / (double)icr.LeftImages.Index.Denominator);
+                        icr.LeftImages.Index.Quotient);
 
                 AddImageComparisonsToTableLayoutPanel(
                     TlpVideoTimeline,
@@ -305,18 +333,22 @@ namespace VideoDedup
                     ImageComparisonIndex = icr.Index,
                     ImageComparisonResult = icr,
                     ComparisonAlreadyFinished =
-                                lastComparedIndex != null
-                                && icr.Index > lastComparedIndex,
+                        lastComparedIndex != null
+                        && icr.Index > lastComparedIndex,
                     ImageLoaded = FinishedInLoadLevel == null
-                                || icr.LoadLevel <= FinishedInLoadLevel,
+                        || icr.LoadLevel <= FinishedInLoadLevel,
                     MaximumDifferencePercentage =
-                                (int)NumMaxDifferentPercentage.Value,
+                        (int)NumMaxDifferentPercentage.Value,
                     Dock = DockStyle.Fill,
                     BackColor = GetAlternatingBackColor(),
                     DifferentColor = DifferenceColor,
                     DuplicateColor = DuplicateColor,
                     LoadedColor = LoadedColor,
                     NotLoadedColor = NotLoadedColor,
+                    LeftTimestamp = LeftVideoFile.Duration.Multiply(
+                        icr.LeftImages.Index.Quotient),
+                    RightTimestamp = RightVideoFile.Duration.Multiply(
+                        icr.RightImages.Index.Quotient),
                 };
 
 
@@ -504,7 +536,7 @@ namespace VideoDedup
             EventArgs e) =>
             UpdateResultDisplay();
 
-        private void RdbSortByLoadLevel_CheckedChanged(
+        private void RdbSortByProcessingOrder_CheckedChanged(
             object sender,
             EventArgs e) =>
             UpdateResultDisplay();

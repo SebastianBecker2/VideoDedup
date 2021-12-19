@@ -11,7 +11,9 @@ namespace VideoDedupShared.TimeSpanExtension
         {
             var format = ts.Days >= 1 ? TimeSpanLongFormat : TimeSpanShortFormat;
             return ts.ToString(format);
-
         }
+
+        public static TimeSpan Multiply(this TimeSpan ts, double multiplier) =>
+            TimeSpan.FromTicks((long)(ts.Ticks * multiplier));
     }
 }
