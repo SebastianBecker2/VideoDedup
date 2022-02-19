@@ -9,6 +9,7 @@ namespace VideoDedup
     using VideoDedupShared;
     using Wcf.Contracts.Data;
     using VideoDedupShared.TimeSpanExtension;
+    using VideoDedupShared.ExtensionMethods;
 
     public partial class VideoComparisonPreviewDlg : Form
     {
@@ -231,7 +232,15 @@ namespace VideoDedup
                     ImageComparisonIndex);
 
             LeftVideoFile = status.LeftVideoFile;
+            if (string.IsNullOrEmpty(TxtLeftFileInfo.Text))
+            {
+                TxtLeftFileInfo.Text = LeftVideoFile.GetInfoText();
+            }
             RightVideoFile = status.RightVideoFile;
+            if (string.IsNullOrEmpty(TxtRightFileInfo.Text))
+            {
+                TxtRightFileInfo.Text = RightVideoFile.GetInfoText();
+            }
 
             if (VideoComparisonResult?.ComparisonResult
                 != status.VideoComparisonResult?.ComparisonResult)
@@ -442,6 +451,9 @@ namespace VideoDedup
 
         private void CleanUpResult()
         {
+            TxtLeftFileInfo.Text = "";
+            TxtRightFileInfo.Text = "";
+
             ImageComparisons.Clear();
 
             ImageComparisonIndex = 0;
@@ -529,7 +541,6 @@ namespace VideoDedup
             object sender,
             EventArgs e) =>
             UpdateResultDisplay();
-
         private void RdbSortByProcessingOrder_CheckedChanged(
             object sender,
             EventArgs e) =>

@@ -79,6 +79,8 @@ namespace VideoDedup
             this.StatusTimer = new System.Windows.Forms.Timer(this.components);
             this.btnClose = new System.Windows.Forms.Button();
             this.GrbSettings = new System.Windows.Forms.GroupBox();
+            this.TxtLeftFileInfo = new System.Windows.Forms.TextBox();
+            this.TxtRightFileInfo = new System.Windows.Forms.TextBox();
             this.TlpResult.SuspendLayout();
             this.TlpThirdLoadLevel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -107,23 +109,27 @@ namespace VideoDedup
             // 
             this.TlpResult.AutoSize = true;
             this.TlpResult.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.TlpResult.ColumnCount = 1;
-            this.TlpResult.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.TlpResult.Controls.Add(this.TlpThirdLoadLevel, 0, 3);
-            this.TlpResult.Controls.Add(this.TlpSecondLoadLevel, 0, 2);
-            this.TlpResult.Controls.Add(this.TlpFirstLoadLevel, 0, 1);
-            this.TlpResult.Controls.Add(this.GrbVideoTimeline, 0, 4);
+            this.TlpResult.ColumnCount = 2;
+            this.TlpResult.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.TlpResult.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.TlpResult.Controls.Add(this.TlpThirdLoadLevel, 0, 4);
+            this.TlpResult.Controls.Add(this.TlpSecondLoadLevel, 0, 3);
+            this.TlpResult.Controls.Add(this.TlpFirstLoadLevel, 0, 2);
+            this.TlpResult.Controls.Add(this.GrbVideoTimeline, 0, 5);
             this.TlpResult.Controls.Add(this.TlpProgress, 0, 0);
+            this.TlpResult.Controls.Add(this.TxtLeftFileInfo, 0, 1);
+            this.TlpResult.Controls.Add(this.TxtRightFileInfo, 1, 1);
             this.TlpResult.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TlpResult.Location = new System.Drawing.Point(3, 16);
             this.TlpResult.Name = "TlpResult";
-            this.TlpResult.RowCount = 5;
+            this.TlpResult.RowCount = 6;
             this.TlpResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TlpResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TlpResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TlpResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.TlpResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpResult.Size = new System.Drawing.Size(1033, 306);
+            this.TlpResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.TlpResult.Size = new System.Drawing.Size(1033, 383);
             this.TlpResult.TabIndex = 0;
             // 
             // TlpThirdLoadLevel
@@ -131,13 +137,14 @@ namespace VideoDedup
             this.TlpThirdLoadLevel.AutoSize = true;
             this.TlpThirdLoadLevel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.TlpThirdLoadLevel.ColumnCount = 2;
+            this.TlpResult.SetColumnSpan(this.TlpThirdLoadLevel, 2);
             this.TlpThirdLoadLevel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.TlpThirdLoadLevel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.TlpThirdLoadLevel.Controls.Add(this.pictureBox1, 0, 0);
             this.TlpThirdLoadLevel.Controls.Add(this.LblThirdLoadLevel, 1, 0);
             this.TlpThirdLoadLevel.Controls.Add(this.GrbThirdLoadLevel, 0, 1);
             this.TlpThirdLoadLevel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TlpThirdLoadLevel.Location = new System.Drawing.Point(3, 215);
+            this.TlpThirdLoadLevel.Location = new System.Drawing.Point(3, 292);
             this.TlpThirdLoadLevel.Name = "TlpThirdLoadLevel";
             this.TlpThirdLoadLevel.RowCount = 2;
             this.TlpThirdLoadLevel.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -200,13 +207,14 @@ namespace VideoDedup
             this.TlpSecondLoadLevel.AutoSize = true;
             this.TlpSecondLoadLevel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.TlpSecondLoadLevel.ColumnCount = 2;
+            this.TlpResult.SetColumnSpan(this.TlpSecondLoadLevel, 2);
             this.TlpSecondLoadLevel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.TlpSecondLoadLevel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.TlpSecondLoadLevel.Controls.Add(this.LblSecondLoadLevel, 1, 0);
             this.TlpSecondLoadLevel.Controls.Add(this.PibSecondLoadLevel, 0, 0);
             this.TlpSecondLoadLevel.Controls.Add(this.GrbSecondLoadLevel, 0, 1);
             this.TlpSecondLoadLevel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TlpSecondLoadLevel.Location = new System.Drawing.Point(3, 146);
+            this.TlpSecondLoadLevel.Location = new System.Drawing.Point(3, 223);
             this.TlpSecondLoadLevel.Name = "TlpSecondLoadLevel";
             this.TlpSecondLoadLevel.RowCount = 2;
             this.TlpSecondLoadLevel.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -269,13 +277,14 @@ namespace VideoDedup
             this.TlpFirstLoadLevel.AutoSize = true;
             this.TlpFirstLoadLevel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.TlpFirstLoadLevel.ColumnCount = 2;
+            this.TlpResult.SetColumnSpan(this.TlpFirstLoadLevel, 2);
             this.TlpFirstLoadLevel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.TlpFirstLoadLevel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.TlpFirstLoadLevel.Controls.Add(this.PibFirstLoadLevel, 0, 0);
             this.TlpFirstLoadLevel.Controls.Add(this.LblFirstLoadLevel, 1, 0);
             this.TlpFirstLoadLevel.Controls.Add(this.GrbFirstLoadLevel, 0, 1);
             this.TlpFirstLoadLevel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TlpFirstLoadLevel.Location = new System.Drawing.Point(3, 77);
+            this.TlpFirstLoadLevel.Location = new System.Drawing.Point(3, 154);
             this.TlpFirstLoadLevel.Name = "TlpFirstLoadLevel";
             this.TlpFirstLoadLevel.RowCount = 2;
             this.TlpFirstLoadLevel.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -336,9 +345,10 @@ namespace VideoDedup
             // GrbVideoTimeline
             // 
             this.GrbVideoTimeline.AutoSize = true;
+            this.TlpResult.SetColumnSpan(this.GrbVideoTimeline, 2);
             this.GrbVideoTimeline.Controls.Add(this.TlpVideoTimeline);
             this.GrbVideoTimeline.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.GrbVideoTimeline.Location = new System.Drawing.Point(3, 284);
+            this.GrbVideoTimeline.Location = new System.Drawing.Point(3, 361);
             this.GrbVideoTimeline.Name = "GrbVideoTimeline";
             this.GrbVideoTimeline.Size = new System.Drawing.Size(1027, 19);
             this.GrbVideoTimeline.TabIndex = 5;
@@ -365,6 +375,7 @@ namespace VideoDedup
             this.TlpProgress.AutoSize = true;
             this.TlpProgress.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.TlpProgress.ColumnCount = 1;
+            this.TlpResult.SetColumnSpan(this.TlpProgress, 2);
             this.TlpProgress.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.TlpProgress.Controls.Add(this.LblResult, 0, 0);
             this.TlpProgress.Controls.Add(this.PgbComparisonProgress, 0, 1);
@@ -422,7 +433,7 @@ namespace VideoDedup
             this.GrbResult.Dock = System.Windows.Forms.DockStyle.Top;
             this.GrbResult.Location = new System.Drawing.Point(0, 0);
             this.GrbResult.Name = "GrbResult";
-            this.GrbResult.Size = new System.Drawing.Size(1039, 325);
+            this.GrbResult.Size = new System.Drawing.Size(1039, 402);
             this.GrbResult.TabIndex = 1;
             this.GrbResult.TabStop = false;
             this.GrbResult.Text = "Result";
@@ -733,6 +744,28 @@ namespace VideoDedup
             this.GrbSettings.TabStop = false;
             this.GrbSettings.Text = "Settings";
             // 
+            // TxtLeftFileInfo
+            // 
+            this.TxtLeftFileInfo.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TxtLeftFileInfo.Location = new System.Drawing.Point(3, 77);
+            this.TxtLeftFileInfo.Multiline = true;
+            this.TxtLeftFileInfo.Name = "TxtLeftFileInfo";
+            this.TxtLeftFileInfo.ReadOnly = true;
+            this.TxtLeftFileInfo.Size = new System.Drawing.Size(510, 71);
+            this.TxtLeftFileInfo.TabIndex = 34;
+            this.TxtLeftFileInfo.WordWrap = false;
+            // 
+            // TxtRightFileInfo
+            // 
+            this.TxtRightFileInfo.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TxtRightFileInfo.Location = new System.Drawing.Point(519, 77);
+            this.TxtRightFileInfo.Multiline = true;
+            this.TxtRightFileInfo.Name = "TxtRightFileInfo";
+            this.TxtRightFileInfo.ReadOnly = true;
+            this.TxtRightFileInfo.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.TxtRightFileInfo.Size = new System.Drawing.Size(511, 71);
+            this.TxtRightFileInfo.TabIndex = 34;
+            // 
             // VideoComparisonPreviewDlg
             // 
             this.AcceptButton = this.BtnOkay;
@@ -837,5 +870,7 @@ namespace VideoDedup
         private System.Windows.Forms.TableLayoutPanel TlpThirdLoadLevel;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label LblThirdLoadLevel;
+        private System.Windows.Forms.TextBox TxtLeftFileInfo;
+        private System.Windows.Forms.TextBox TxtRightFileInfo;
     }
 }

@@ -1,11 +1,11 @@
 namespace VideoDedup.FilePreview
 {
-    using System;
     using System.Drawing;
     using System.Linq;
     using System.Windows.Forms;
     using VideoDedup.Properties;
     using VideoDedupShared;
+    using VideoDedupShared.ExtensionMethods;
 
     public partial class FilePreviewDlg : UserControl
     {
@@ -112,25 +112,6 @@ namespace VideoDedup.FilePreview
             }
         }
 
-        private void DisplayInfo()
-        {
-            var fileSize = VideoFile.FileSize;
-            var duration = VideoFile.Duration;
-            var codecInfo = VideoFile.CodecInfo;
-
-            TxtInfo.Text = VideoFile.FilePath + Environment.NewLine;
-            TxtInfo.Text += (fileSize / (1024 * 1024)).ToString() + " MB" + Environment.NewLine;
-            var duration_format = duration.Hours >= 1 ? @"hh\:mm\:ss" : @"mm\:ss";
-            TxtInfo.Text += duration.ToString(duration_format) + Environment.NewLine;
-
-            if (codecInfo == null)
-            {
-                return;
-            }
-            TxtInfo.Text += codecInfo.Size.Width.ToString() +
-                " x " + codecInfo.Size.Height.ToString() +
-                " @ " + codecInfo.FrameRate + " Frames" + Environment.NewLine +
-                codecInfo.Name;
-        }
+        private void DisplayInfo() => TxtInfo.Text = VideoFile.GetInfoText();
     }
 }
