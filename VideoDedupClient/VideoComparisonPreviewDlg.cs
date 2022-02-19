@@ -106,7 +106,7 @@ namespace VideoDedup
             if (!string.IsNullOrWhiteSpace(LeftFilePath)
                 && !string.IsNullOrWhiteSpace(RightFilePath))
             {
-                BtnStartComparison.PerformClick();
+                StartComparison();
             }
 
             UpdateCloseButtons();
@@ -178,7 +178,10 @@ namespace VideoDedup
             DialogResult = DialogResult.OK;
         }
 
-        private void BtnStartComparison_Click(object sender, EventArgs e)
+        private void BtnStartComparison_Click(object sender, EventArgs e) =>
+            StartComparison();
+
+        private void StartComparison()
         {
             if (ComparisonToken.HasValue)
             {
