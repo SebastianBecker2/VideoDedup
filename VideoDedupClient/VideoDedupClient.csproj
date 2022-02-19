@@ -196,10 +196,6 @@
       <Project>{ba276bca-e923-4e5c-a483-ac04ddf0eb61}</Project>
       <Name>SmartTimer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ImageGroupBox\ImageGroupBox.csproj">
-      <Project>{e0d9881b-f2f1-4a50-a70f-708397e5f4d0}</Project>
-      <Name>ImageGroupBox</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Versioning\Versioning.csproj">
       <Project>{80d1c901-fbd3-422a-b810-345c43edfc37}</Project>
       <Name>Versioning</Name>

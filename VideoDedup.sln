@@ -34,8 +34,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageGroupBox", "ImageGroupBox\ImageGroupBox.csproj", "{E0D9881B-F2F1-4A50-A70F-708397E5F4D0}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -186,18 +184,6 @@ Global
 		{80D1C901-FBD3-422A-B810-345C43EDFC37}.Release|x64.Build.0 = Release|Any CPU
 		{80D1C901-FBD3-422A-B810-345C43EDFC37}.Release|x86.ActiveCfg = Release|Any CPU
 		{80D1C901-FBD3-422A-B810-345C43EDFC37}.Release|x86.Build.0 = Release|Any CPU
-		{E0D9881B-F2F1-4A50-A70F-708397E5F4D0}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{E0D9881B-F2F1-4A50-A70F-708397E5F4D0}.Debug|x64.Build.0 = Debug|Any CPU
-		{E0D9881B-F2F1-4A50-A70F-708397E5F4D0}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{E0D9881B-F2F1-4A50-A70F-708397E5F4D0}.Debug|x86.Build.0 = Debug|Any CPU
-		{E0D9881B-F2F1-4A50-A70F-708397E5F4D0}.DebugAsService|x64.ActiveCfg = Debug|Any CPU
-		{E0D9881B-F2F1-4A50-A70F-708397E5F4D0}.DebugAsService|x64.Build.0 = Debug|Any CPU
-		{E0D9881B-F2F1-4A50-A70F-708397E5F4D0}.DebugAsService|x86.ActiveCfg = Debug|Any CPU
-		{E0D9881B-F2F1-4A50-A70F-708397E5F4D0}.DebugAsService|x86.Build.0 = Debug|Any CPU
-		{E0D9881B-F2F1-4A50-A70F-708397E5F4D0}.Release|x64.ActiveCfg = Release|Any CPU
-		{E0D9881B-F2F1-4A50-A70F-708397E5F4D0}.Release|x64.Build.0 = Release|Any CPU
-		{E0D9881B-F2F1-4A50-A70F-708397E5F4D0}.Release|x86.ActiveCfg = Release|Any CPU
-		{E0D9881B-F2F1-4A50-A70F-708397E5F4D0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

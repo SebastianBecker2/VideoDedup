@@ -6,7 +6,6 @@ namespace VideoDedup
     using System.Linq;
     using System.Windows.Forms;
     using Microsoft.WindowsAPICodePack.Dialogs;
-    using ImageGroupBox;
     using VideoDedupShared;
     using Wcf.Contracts.Data;
     using VideoDedupShared.TimeSpanExtension;
@@ -100,15 +99,6 @@ namespace VideoDedup
                 ServerConfig.MaxImageDifferencePercent;
             NumMaxDifferentImages.Value = ServerConfig.MaxDifferentImages;
             NumMaxImageComparison.Value = ServerConfig.MaxImageCompares;
-
-            // Set minimum size for ImageGroupBoxs
-            // so that we at least see the header when collapsed.
-            GrbFirstLevelLoad.MinimumSize =
-                GrbFirstLevelLoad.HeaderRectangle.Size;
-            GrbSecondLevelLoad.MinimumSize =
-                GrbSecondLevelLoad.HeaderRectangle.Size;
-            GrbThirdLevelLoad.MinimumSize =
-                GrbThirdLevelLoad.HeaderRectangle.Size;
 
             CleanUpResult();
 
@@ -247,8 +237,8 @@ namespace VideoDedup
                 != status.VideoComparisonResult?.ComparisonResult)
             {
                 VideoComparisonResult = status.VideoComparisonResult;
-                UpdateVideoComparisonResult(VideoComparisonResult);
             }
+            UpdateVideoComparisonResult(VideoComparisonResult);
 
             if (!status.ImageComparisons.Any())
             {
@@ -292,18 +282,18 @@ namespace VideoDedup
                 foreach (var loadLevel in ImageComparisons
                     .GroupBy(kvp => kvp.LoadLevel))
                 {
-                    var (grb, tlp) = GetLoadLevelControls(loadLevel.Key);
-                    grb.Visible = true;
+                    var (tlp, tlpResult) = GetLoadLevelControls(loadLevel.Key);
+                    tlp.Visible = true;
 
-                    AddImageComparisonsToTableLayoutPanel(tlp, loadLevel);
+                    AddImageComparisonsToTableLayoutPanel(tlpResult, loadLevel);
                 }
             }
             else
             {
                 GrbVideoTimeline.Visible = true;
-                GrbFirstLevelLoad.Visible = false;
-                GrbSecondLevelLoad.Visible = false;
-                GrbThirdLevelLoad.Visible = false;
+                TlpFirstLoadLevel.Visible = false;
+                TlpSecondLoadLevel.Visible = false;
+                TlpThirdLoadLevel.Visible = false;
 
                 // Get image comparisons in order of timeline
                 var images = ImageComparisons.OrderBy(icr =>
@@ -387,19 +377,19 @@ namespace VideoDedup
             }
         }
 
-        private Dictionary<int, Tuple<ImageGroupBox, TableLayoutPanel>>
+        private Dictionary<int, Tuple<TableLayoutPanel, TableLayoutPanel>>
             loadLevelControls;
-        private Tuple<ImageGroupBox, TableLayoutPanel> GetLoadLevelControls(
+        private Tuple<TableLayoutPanel, TableLayoutPanel> GetLoadLevelControls(
             int loadLevel)
         {
             if (loadLevelControls == null)
             {
                 loadLevelControls =
-                    new Dictionary<int, Tuple<ImageGroupBox, TableLayoutPanel>>
+                    new Dictionary<int, Tuple<TableLayoutPanel, TableLayoutPanel>>
                     {
-                        { 1, Tuple.Create(GrbFirstLevelLoad, TlpFirstLevelLoad) },
-                        { 2, Tuple.Create(GrbSecondLevelLoad, TlpSecondLevelLoad) },
-                        { 3, Tuple.Create(GrbThirdLevelLoad, TlpThirdLevelLoad) },
+                        { 1, Tuple.Create(TlpFirstLoadLevel, TlpFirstLoadLevelResult) },
+                        { 2, Tuple.Create(TlpSecondLoadLevel, TlpSecondLoadLevelResult) },
+                        { 3, Tuple.Create(TlpThirdLoadLevel, TlpThirdLoadLevelResult) },
                     };
             }
             return loadLevelControls[loadLevel];
@@ -407,30 +397,34 @@ namespace VideoDedup
 
         private void UpdateVideoComparisonResult(VideoComparisonResult result)
         {
-            if (result != null && !LblResult.Visible)
+            LblResult.Visible = true;
+
+            if (result == null)
             {
-                PnlResult.Visible = true;
-                LblResult.Visible = true;
-                if (result.ComparisonResult == ComparisonResult.Different)
-                {
-                    LblResult.Text = "Videos are considered to be different.";
-                    LblResult.BackColor = DifferenceColor;
-                }
-                else if (result.ComparisonResult == ComparisonResult.Duplicate)
-                {
-                    LblResult.Text = "Videos are considered to be duplicates.";
-                    LblResult.BackColor = DuplicateColor;
-                }
-                else if (result.ComparisonResult == ComparisonResult.Cancelled)
-                {
-                    LblResult.Text = "Cancelled";
-                    LblResult.BackColor = CancelledColor;
-                }
-                else if (result.ComparisonResult == ComparisonResult.Aborted)
-                {
-                    LblResult.Text = "Aborted: " + result.Reason;
-                    LblResult.BackColor = CancelledColor;
-                }
+                LblResult.Text = "Comparing...";
+                LblResult.BackColor = NotLoadedColor;
+                return;
+            }
+
+            if (result.ComparisonResult == ComparisonResult.Different)
+            {
+                LblResult.Text = "Videos are considered to be different.";
+                LblResult.BackColor = DifferenceColor;
+            }
+            else if (result.ComparisonResult == ComparisonResult.Duplicate)
+            {
+                LblResult.Text = "Videos are considered to be duplicates.";
+                LblResult.BackColor = DuplicateColor;
+            }
+            else if (result.ComparisonResult == ComparisonResult.Cancelled)
+            {
+                LblResult.Text = "Cancelled";
+                LblResult.BackColor = CancelledColor;
+            }
+            else if (result.ComparisonResult == ComparisonResult.Aborted)
+            {
+                LblResult.Text = "Aborted: " + result.Reason;
+                LblResult.BackColor = CancelledColor;
             }
         }
 
@@ -455,7 +449,7 @@ namespace VideoDedup
 
             PnlResult.Visible = false;
 
-            LblResult.Visible = false;
+            UpdateVideoComparisonResult(null);
             PgbComparisonProgress.Visible = false;
 
             void clearTableLayoutPanel(TableLayoutPanel tlp)
@@ -470,64 +464,64 @@ namespace VideoDedup
                 tlp.RowCount = 0;
             }
 
-            clearTableLayoutPanel(TlpFirstLevelLoad);
-            GrbFirstLevelLoad.Visible = false;
+            clearTableLayoutPanel(TlpFirstLoadLevelResult);
+            TlpFirstLoadLevel.Visible = false;
 
-            clearTableLayoutPanel(TlpSecondLevelLoad);
-            GrbSecondLevelLoad.Visible = false;
+            clearTableLayoutPanel(TlpSecondLoadLevelResult);
+            TlpSecondLoadLevel.Visible = false;
 
-            clearTableLayoutPanel(TlpThirdLevelLoad);
-            GrbThirdLevelLoad.Visible = false;
+            clearTableLayoutPanel(TlpThirdLoadLevelResult);
+            TlpThirdLoadLevel.Visible = false;
 
             clearTableLayoutPanel(TlpVideoTimeline);
             GrbVideoTimeline.Visible = false;
         }
 
-        private void GrbFirstLevelLoad_HeaderClicked(
+        private void FirstLoadLevelHeaderClicked(
             object sender,
-            MouseEventArgs e)
+            EventArgs e)
         {
-            if (TlpFirstLevelLoad.Visible)
+            if (TlpFirstLoadLevelResult.Visible)
             {
-                TlpFirstLevelLoad.Visible = false;
-                GrbFirstLevelLoad.Icon = Properties.Resources.ArrowDownBlue;
+                TlpFirstLoadLevelResult.Visible = false;
+                PibFirstLoadLevel.Image = Properties.Resources.ArrowDownBlue;
             }
             else
             {
-                TlpFirstLevelLoad.Visible = true;
-                GrbFirstLevelLoad.Icon = Properties.Resources.ArrowUpGray;
+                TlpFirstLoadLevelResult.Visible = true;
+                PibFirstLoadLevel.Image = Properties.Resources.ArrowUpGray;
             }
         }
 
-        private void GrbSecondLevelLoad_HeaderClicked(
+        private void SecondLoadLevelHeaderClicked(
             object sender,
-            MouseEventArgs e)
+            EventArgs e)
         {
-            if (TlpSecondLevelLoad.Visible)
+            if (TlpSecondLoadLevelResult.Visible)
             {
-                TlpSecondLevelLoad.Visible = false;
-                GrbSecondLevelLoad.Icon = Properties.Resources.ArrowDownBlue;
+                TlpSecondLoadLevelResult.Visible = false;
+                PibSecondLoadLevel.Image = Properties.Resources.ArrowDownBlue;
             }
             else
             {
-                TlpSecondLevelLoad.Visible = true;
-                GrbSecondLevelLoad.Icon = Properties.Resources.ArrowUpGray;
+                TlpSecondLoadLevelResult.Visible = true;
+                PibSecondLoadLevel.Image = Properties.Resources.ArrowUpGray;
             }
         }
 
-        private void GrbThirdLevelLoad_HeaderClicked(
+        private void ThirdLoadLevelHeaderClicked(
             object sender,
-            MouseEventArgs e)
+            EventArgs e)
         {
-            if (TlpThirdLevelLoad.Visible)
+            if (TlpThirdLoadLevelResult.Visible)
             {
-                TlpThirdLevelLoad.Visible = false;
-                GrbThirdLevelLoad.Icon = Properties.Resources.ArrowDownBlue;
+                TlpThirdLoadLevelResult.Visible = false;
+                pictureBox1.Image = Properties.Resources.ArrowDownBlue;
             }
             else
             {
-                TlpThirdLevelLoad.Visible = true;
-                GrbThirdLevelLoad.Icon = Properties.Resources.ArrowUpGray;
+                TlpThirdLoadLevelResult.Visible = true;
+                pictureBox1.Image = Properties.Resources.ArrowUpGray;
             }
         }
 
