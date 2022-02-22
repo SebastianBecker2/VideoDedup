@@ -27,8 +27,8 @@ namespace CustomComparisonManager
 
         private CustomVideoComparisonStatusData Status { get; set; } =
             new CustomVideoComparisonStatusData();
-        private IList<Tuple<int, ImageComparisonResult>> ImageComparisons
-        { get; set; } = new List<Tuple<int, ImageComparisonResult>>();
+        private IList<ImageComparisonResult> ImageComparisons { get; set; } =
+            new List<ImageComparisonResult>();
         private object StatusLock { get; set; } = new object();
 
         public CustomComparison(CustomVideoComparisonData data)
@@ -76,8 +76,8 @@ namespace CustomComparisonManager
                         Status.ImageComparisons
                             .Skip(imageComparisonIndex)
                             .ToList(),
-                    Token = Token,
-                    VideoCompareResult = Status.VideoCompareResult,
+                    ComparisonToken = Token,
+                    VideoComparisonResult = Status.VideoComparisonResult,
                 };
                 if (LeftVideoFile != null)
                 {
@@ -104,11 +104,11 @@ namespace CustomComparisonManager
                 lock (StatusLock)
                 {
                     var last = ImageComparisons.LastOrDefault();
-                    Status.VideoCompareResult = new VideoComparisonResult
+                    Status.VideoComparisonResult = new VideoComparisonResult
                     {
                         Reason = exc.Message,
                         ComparisonResult = ComparisonResult.Aborted,
-                        LastComparisonIndex = last != null ? last.Item1 : 0,
+                        LastComparedIndex = last?.Index ?? 0,
                     };
                 }
             }
@@ -126,18 +126,17 @@ namespace CustomComparisonManager
 
             lock (StatusLock)
             {
-                if (Status.VideoCompareResult != null)
+                if (Status.VideoComparisonResult != null)
                 {
                     return;
                 }
 
-                var last = ImageComparisons.LastOrDefault()?.Item2;
-                Status.VideoCompareResult = new VideoComparisonResult
+                var last = ImageComparisons.LastOrDefault();
+                Status.VideoComparisonResult = new VideoComparisonResult
                 {
                     Reason = "Comparison cancelled",
                     ComparisonResult = ComparisonResult.Cancelled,
-                    LastComparisonIndex =
-                        last != null ? last.ImageLoadLevel : 0,
+                    LastComparedIndex = last?.LoadLevel ?? 0,
                 };
             }
         }
@@ -149,27 +148,27 @@ namespace CustomComparisonManager
             lock (StatusLock)
             {
                 if (e.VideoComparisonResult != ComparisonResult.NoResult
-                    && Status.VideoCompareResult == null)
+                    && Status.VideoComparisonResult == null)
                 {
-                    Status.VideoCompareResult = new VideoComparisonResult
+                    Status.VideoComparisonResult = new VideoComparisonResult
                     {
                         Reason = "Comparison ran to completion",
                         ComparisonResult = e.VideoComparisonResult,
-                        LastComparisonIndex = e.ImageComparisonIndex,
+                        LastComparedIndex = e.ImageComparisonIndex,
                     };
                 }
 
-                Status.Token = Token;
-                ImageComparisons.Add(Tuple.Create(
-                    e.ImageComparisonIndex,
+                Status.ComparisonToken = Token;
+                ImageComparisons.Add(
                     new ImageComparisonResult
                     {
+                        Index = e.ImageComparisonIndex,
                         ComparisonResult = e.ImageComparisonResult,
                         Difference = e.Difference,
-                        ImageLoadLevel = e.ImageLoadLevelIndex,
+                        LoadLevel = e.ImageLoadLevelIndex,
                         LeftImages = e.LeftImages,
                         RightImages = e.RightImages,
-                    }));
+                    });
             }
         }
 

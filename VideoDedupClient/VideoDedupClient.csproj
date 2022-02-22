@@ -101,12 +101,14 @@
     <Compile Include="DnsTextBox\ResolveFailedEventArgs.cs" />
     <Compile Include="DnsTextBox\ResolveStartedEventArgs.cs" />
     <Compile Include="DnsTextBox\ResolveSuccessfulEventArgs.cs" />
-    <Compile Include="ImageComparisonResultView.cs">
+    <Compile Include="ImageComparisonResultView\ImageComparisonResultEx.cs" />
+    <Compile Include="ImageComparisonResultView\ImageComparisonResultViewCtl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ImageComparisonResultView.Designer.cs">
-      <DependentUpon>ImageComparisonResultView.cs</DependentUpon>
+    <Compile Include="ImageComparisonResultView\ImageComparisonResultViewCtl.Designer.cs">
+      <DependentUpon>ImageComparisonResultViewCtl.cs</DependentUpon>
     </Compile>
+    <Compile Include="ImageComparisonResultView\ImageSetEx.cs" />
     <Compile Include="LogEntry.cs" />
     <Compile Include="LogEntryStatus.cs" />
     <Compile Include="ServerConfigDlg.cs">
@@ -116,11 +118,11 @@
       <DependentUpon>ServerConfigDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="ConfigData.cs" />
-    <Compile Include="FileComparisonDlg.cs">
+    <Compile Include="VideoComparisonDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FileComparisonDlg.designer.cs">
-      <DependentUpon>FileComparisonDlg.cs</DependentUpon>
+    <Compile Include="VideoComparisonDlg.designer.cs">
+      <DependentUpon>VideoComparisonDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="FilePreview\FilePreviewDlg.cs">
       <SubType>UserControl</SubType>
@@ -128,11 +130,11 @@
     <Compile Include="FilePreview\FilePreviewDlg.Designer.cs">
       <DependentUpon>FilePreviewDlg.cs</DependentUpon>
     </Compile>
-    <Compile Include="VideoComparisonPreviewDlg.cs">
+    <Compile Include="CustomVideoComparisonDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="VideoComparisonPreviewDlg.Designer.cs">
-      <DependentUpon>VideoComparisonPreviewDlg.cs</DependentUpon>
+    <Compile Include="CustomVideoComparisonDlg.Designer.cs">
+      <DependentUpon>CustomVideoComparisonDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="VideoDedupDlg.cs">
       <SubType>Form</SubType>
@@ -149,20 +151,20 @@
     <EmbeddedResource Include="ClientConfigDlg.resx">
       <DependentUpon>ClientConfigDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ImageComparisonResultView.resx">
-      <DependentUpon>ImageComparisonResultView.cs</DependentUpon>
+    <EmbeddedResource Include="ImageComparisonResultView\ImageComparisonResultViewCtl.resx">
+      <DependentUpon>ImageComparisonResultViewCtl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ServerConfigDlg.resx">
       <DependentUpon>ServerConfigDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FileComparisonDlg.resx">
-      <DependentUpon>FileComparisonDlg.cs</DependentUpon>
+    <EmbeddedResource Include="VideoComparisonDlg.resx">
+      <DependentUpon>VideoComparisonDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FilePreview\FilePreviewDlg.resx">
       <DependentUpon>FilePreviewDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="VideoComparisonPreviewDlg.resx">
-      <DependentUpon>VideoComparisonPreviewDlg.cs</DependentUpon>
+    <EmbeddedResource Include="CustomVideoComparisonDlg.resx">
+      <DependentUpon>CustomVideoComparisonDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="VideoDedupDlg.resx">
       <DependentUpon>VideoDedupDlg.cs</DependentUpon>

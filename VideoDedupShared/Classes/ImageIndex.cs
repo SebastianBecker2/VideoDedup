@@ -8,6 +8,7 @@ namespace VideoDedupShared
     {
         public int Numerator { get; set; }
         public int Denominator { get; set; }
+        public double Quotient => Numerator / (double)Denominator;
 
         public override string ToString() =>
             Numerator.ToString() + "/" + Denominator.ToString();

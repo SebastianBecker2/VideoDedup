@@ -33,7 +33,7 @@
             this.BtnOkay = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
-            this.BtnVideoComparisonPreview = new System.Windows.Forms.Button();
+            this.BtnCustomVideoComparison = new System.Windows.Forms.Button();
             this.NumMaxImageComparison = new System.Windows.Forms.NumericUpDown();
             this.label6 = new System.Windows.Forms.Label();
             this.NumMaxDifferentImages = new System.Windows.Forms.NumericUpDown();
@@ -123,7 +123,7 @@
             this.tableLayoutPanel4.ColumnCount = 2;
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel4.Controls.Add(this.BtnVideoComparisonPreview, 0, 3);
+            this.tableLayoutPanel4.Controls.Add(this.BtnCustomVideoComparison, 0, 3);
             this.tableLayoutPanel4.Controls.Add(this.NumMaxImageComparison, 1, 0);
             this.tableLayoutPanel4.Controls.Add(this.label6, 0, 2);
             this.tableLayoutPanel4.Controls.Add(this.NumMaxDifferentImages, 1, 1);
@@ -141,17 +141,17 @@
             this.tableLayoutPanel4.Size = new System.Drawing.Size(297, 157);
             this.tableLayoutPanel4.TabIndex = 14;
             // 
-            // BtnVideoComparisonPreview
+            // BtnCustomVideoComparison
             // 
-            this.BtnVideoComparisonPreview.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.tableLayoutPanel4.SetColumnSpan(this.BtnVideoComparisonPreview, 2);
-            this.BtnVideoComparisonPreview.Location = new System.Drawing.Point(171, 125);
-            this.BtnVideoComparisonPreview.Name = "BtnVideoComparisonPreview";
-            this.BtnVideoComparisonPreview.Size = new System.Drawing.Size(123, 23);
-            this.BtnVideoComparisonPreview.TabIndex = 3;
-            this.BtnVideoComparisonPreview.Text = "Try these &settings...";
-            this.BtnVideoComparisonPreview.UseVisualStyleBackColor = true;
-            this.BtnVideoComparisonPreview.Click += new System.EventHandler(this.BtnVideoComparisonPreview_Click);
+            this.BtnCustomVideoComparison.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.tableLayoutPanel4.SetColumnSpan(this.BtnCustomVideoComparison, 2);
+            this.BtnCustomVideoComparison.Location = new System.Drawing.Point(171, 125);
+            this.BtnCustomVideoComparison.Name = "BtnCustomVideoComparison";
+            this.BtnCustomVideoComparison.Size = new System.Drawing.Size(123, 23);
+            this.BtnCustomVideoComparison.TabIndex = 3;
+            this.BtnCustomVideoComparison.Text = "Try these &settings...";
+            this.BtnCustomVideoComparison.UseVisualStyleBackColor = true;
+            this.BtnCustomVideoComparison.Click += new System.EventHandler(this.BtnCustomVideoComparison_Click);
             // 
             // NumMaxImageComparison
             // 
@@ -645,7 +645,7 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.CheckBox ChbRecursive;
         private System.Windows.Forms.CheckBox ChbMonitorFileChanges;
-        private System.Windows.Forms.Button BtnVideoComparisonPreview;
+        private System.Windows.Forms.Button BtnCustomVideoComparison;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
     }
 }

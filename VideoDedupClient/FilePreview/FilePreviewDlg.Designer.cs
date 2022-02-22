@@ -42,8 +42,8 @@ namespace VideoDedup.FilePreview
             // 
             // LsvThumbnails
             // 
-            this.LsvThumbnails.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.LsvThumbnails.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.LsvThumbnails.HideSelection = false;
             this.LsvThumbnails.LargeImageList = this.ImlThumbnails;
@@ -56,23 +56,23 @@ namespace VideoDedup.FilePreview
             // 
             // TxtInfo
             // 
-            this.TxtInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.TxtInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.TxtInfo.Location = new System.Drawing.Point(4, 4);
             this.TxtInfo.Multiline = true;
             this.TxtInfo.Name = "TxtInfo";
             this.TxtInfo.ReadOnly = true;
             this.TxtInfo.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.TxtInfo.Size = new System.Drawing.Size(416, 70);
+            this.TxtInfo.Size = new System.Drawing.Size(416, 71);
             this.TxtInfo.TabIndex = 3;
             // 
-            // FilePreview
+            // FilePreviewDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.TxtInfo);
             this.Controls.Add(this.LsvThumbnails);
-            this.Name = "FilePreview";
+            this.Name = "FilePreviewDlg";
             this.Size = new System.Drawing.Size(423, 433);
             this.ResumeLayout(false);
             this.PerformLayout();

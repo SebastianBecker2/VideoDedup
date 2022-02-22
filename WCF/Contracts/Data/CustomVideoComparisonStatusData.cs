@@ -9,15 +9,14 @@ namespace Wcf.Contracts.Data
     public class CustomVideoComparisonStatusData
     {
         [DataMember]
-        public Guid Token { get; set; }
+        public Guid ComparisonToken { get; set; }
         [DataMember]
         public VideoFile LeftVideoFile { get; set; }
         [DataMember]
         public VideoFile RightVideoFile { get; set; }
         [DataMember]
-        public IEnumerable<Tuple<int, ImageComparisonResult>> ImageComparisons
-        { get; set; }
+        public IEnumerable<ImageComparisonResult> ImageComparisons { get; set; }
         [DataMember]
-        public VideoComparisonResult VideoCompareResult { get; set; }
+        public VideoComparisonResult VideoComparisonResult { get; set; }
     }
 }

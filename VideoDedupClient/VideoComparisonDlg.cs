@@ -8,7 +8,7 @@ namespace VideoDedup
     using VideoDedupShared;
     using VideoDedupShared.StringExtension;
 
-    public partial class FileComparisonDlg : Form
+    public partial class VideoComparisonDlg : Form
     {
         private static readonly int MinimumSizeDifference = 100 * 1024; // 100 kB
 
@@ -20,7 +20,7 @@ namespace VideoDedup
 
         public ResolveOperation ResolveOperation { get; set; }
 
-        public FileComparisonDlg() => InitializeComponent();
+        public VideoComparisonDlg() => InitializeComponent();
 
         protected override void OnLoad(EventArgs e)
         {
@@ -119,12 +119,12 @@ namespace VideoDedup
 
         private void BtnReviewComparison_Click(object sender, EventArgs e)
         {
-            using (var dlg = new VideoComparisonPreviewDlg
+            using (var dlg = new CustomVideoComparisonDlg
             {
                 ServerConfig = VideoDedupDlg.WcfProxy.GetConfig(),
                 LeftFilePath = LeftFile.FilePath,
                 RightFilePath = RightFile.FilePath,
-                CloseButtons = VideoComparisonPreviewDlg.Buttons.Close,
+                CloseButtons = CustomVideoComparisonDlg.Buttons.Close,
             })
             {
                 _ = dlg.ShowDialog();
