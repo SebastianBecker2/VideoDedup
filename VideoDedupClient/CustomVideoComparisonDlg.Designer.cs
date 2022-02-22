@@ -1,7 +1,7 @@
 namespace VideoDedup
 {
 
-    partial class VideoComparisonPreviewDlg
+    partial class CustomVideoComparisonDlg
     {
         /// <summary>
         /// Required designer variable.
@@ -30,7 +30,7 @@ namespace VideoDedup
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VideoComparisonPreviewDlg));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CustomVideoComparisonDlg));
             this.TlpResult = new System.Windows.Forms.TableLayoutPanel();
             this.TlpThirdLoadLevel = new System.Windows.Forms.TableLayoutPanel();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
@@ -52,6 +52,8 @@ namespace VideoDedup
             this.TlpProgress = new System.Windows.Forms.TableLayoutPanel();
             this.LblResult = new System.Windows.Forms.Label();
             this.PgbComparisonProgress = new System.Windows.Forms.ProgressBar();
+            this.TxtLeftFileInfo = new System.Windows.Forms.TextBox();
+            this.TxtRightFileInfo = new System.Windows.Forms.TextBox();
             this.PnlResult = new System.Windows.Forms.Panel();
             this.GrbResult = new System.Windows.Forms.GroupBox();
             this.BtnCancel = new System.Windows.Forms.Button();
@@ -79,8 +81,6 @@ namespace VideoDedup
             this.StatusTimer = new System.Windows.Forms.Timer(this.components);
             this.btnClose = new System.Windows.Forms.Button();
             this.GrbSettings = new System.Windows.Forms.GroupBox();
-            this.TxtLeftFileInfo = new System.Windows.Forms.TextBox();
-            this.TxtRightFileInfo = new System.Windows.Forms.TextBox();
             this.TlpResult.SuspendLayout();
             this.TlpThirdLoadLevel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -414,6 +414,28 @@ namespace VideoDedup
             this.PgbComparisonProgress.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.PgbComparisonProgress.TabIndex = 3;
             // 
+            // TxtLeftFileInfo
+            // 
+            this.TxtLeftFileInfo.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TxtLeftFileInfo.Location = new System.Drawing.Point(3, 77);
+            this.TxtLeftFileInfo.Multiline = true;
+            this.TxtLeftFileInfo.Name = "TxtLeftFileInfo";
+            this.TxtLeftFileInfo.ReadOnly = true;
+            this.TxtLeftFileInfo.Size = new System.Drawing.Size(510, 71);
+            this.TxtLeftFileInfo.TabIndex = 34;
+            this.TxtLeftFileInfo.WordWrap = false;
+            // 
+            // TxtRightFileInfo
+            // 
+            this.TxtRightFileInfo.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TxtRightFileInfo.Location = new System.Drawing.Point(519, 77);
+            this.TxtRightFileInfo.Multiline = true;
+            this.TxtRightFileInfo.Name = "TxtRightFileInfo";
+            this.TxtRightFileInfo.ReadOnly = true;
+            this.TxtRightFileInfo.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.TxtRightFileInfo.Size = new System.Drawing.Size(511, 71);
+            this.TxtRightFileInfo.TabIndex = 34;
+            // 
             // PnlResult
             // 
             this.PnlResult.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -744,29 +766,7 @@ namespace VideoDedup
             this.GrbSettings.TabStop = false;
             this.GrbSettings.Text = "Settings";
             // 
-            // TxtLeftFileInfo
-            // 
-            this.TxtLeftFileInfo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TxtLeftFileInfo.Location = new System.Drawing.Point(3, 77);
-            this.TxtLeftFileInfo.Multiline = true;
-            this.TxtLeftFileInfo.Name = "TxtLeftFileInfo";
-            this.TxtLeftFileInfo.ReadOnly = true;
-            this.TxtLeftFileInfo.Size = new System.Drawing.Size(510, 71);
-            this.TxtLeftFileInfo.TabIndex = 34;
-            this.TxtLeftFileInfo.WordWrap = false;
-            // 
-            // TxtRightFileInfo
-            // 
-            this.TxtRightFileInfo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TxtRightFileInfo.Location = new System.Drawing.Point(519, 77);
-            this.TxtRightFileInfo.Multiline = true;
-            this.TxtRightFileInfo.Name = "TxtRightFileInfo";
-            this.TxtRightFileInfo.ReadOnly = true;
-            this.TxtRightFileInfo.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.TxtRightFileInfo.Size = new System.Drawing.Size(511, 71);
-            this.TxtRightFileInfo.TabIndex = 34;
-            // 
-            // VideoComparisonPreviewDlg
+            // CustomVideoComparisonDlg
             // 
             this.AcceptButton = this.BtnOkay;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -780,8 +780,8 @@ namespace VideoDedup
             this.Controls.Add(this.PnlResult);
             this.DoubleBuffered = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "VideoComparisonPreviewDlg";
-            this.Text = "Video Comparison Preview";
+            this.Name = "CustomVideoComparisonDlg";
+            this.Text = "Custom Video Comparison";
             this.TlpResult.ResumeLayout(false);
             this.TlpResult.PerformLayout();
             this.TlpThirdLoadLevel.ResumeLayout(false);

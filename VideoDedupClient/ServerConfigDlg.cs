@@ -146,9 +146,9 @@ namespace VideoDedup
             }
         }
 
-        private void BtnVideoComparisonPreview_Click(object sender, EventArgs e)
+        private void BtnCustomVideoComparison_Click(object sender, EventArgs e)
         {
-            using (var dlg = new VideoComparisonPreviewDlg())
+            using (var dlg = new CustomVideoComparisonDlg())
             {
                 dlg.ServerConfig = new Wcf.Contracts.Data.ConfigData()
                 {

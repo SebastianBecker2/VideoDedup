@@ -13,7 +13,7 @@ namespace VideoDedup
     using VideoDedup.ImageComparisonResultView;
     using System.Threading.Tasks;
 
-    public partial class VideoComparisonPreviewDlg : Form
+    public partial class CustomVideoComparisonDlg : Form
     {
         public enum Buttons
         {
@@ -61,7 +61,7 @@ namespace VideoDedup
             = new List<ImageComparisonResultEx>();
         private VideoComparisonResult VideoComparisonResult { get; set; }
 
-        public VideoComparisonPreviewDlg()
+        public CustomVideoComparisonDlg()
         {
             InitializeComponent();
 
