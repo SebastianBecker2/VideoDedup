@@ -101,12 +101,14 @@
     <Compile Include="DnsTextBox\ResolveFailedEventArgs.cs" />
     <Compile Include="DnsTextBox\ResolveStartedEventArgs.cs" />
     <Compile Include="DnsTextBox\ResolveSuccessfulEventArgs.cs" />
-    <Compile Include="ImageComparisonResultView.cs">
+    <Compile Include="ImageComparisonResultView\ImageComparisonResultEx.cs" />
+    <Compile Include="ImageComparisonResultView\ImageComparisonResultViewCtl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ImageComparisonResultView.Designer.cs">
-      <DependentUpon>ImageComparisonResultView.cs</DependentUpon>
+    <Compile Include="ImageComparisonResultView\ImageComparisonResultViewCtl.Designer.cs">
+      <DependentUpon>ImageComparisonResultViewCtl.cs</DependentUpon>
     </Compile>
+    <Compile Include="ImageComparisonResultView\ImageSetEx.cs" />
     <Compile Include="LogEntry.cs" />
     <Compile Include="LogEntryStatus.cs" />
     <Compile Include="ServerConfigDlg.cs">
@@ -149,8 +151,8 @@
     <EmbeddedResource Include="ClientConfigDlg.resx">
       <DependentUpon>ClientConfigDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ImageComparisonResultView.resx">
-      <DependentUpon>ImageComparisonResultView.cs</DependentUpon>
+    <EmbeddedResource Include="ImageComparisonResultView\ImageComparisonResultViewCtl.resx">
+      <DependentUpon>ImageComparisonResultViewCtl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ServerConfigDlg.resx">
       <DependentUpon>ServerConfigDlg.cs</DependentUpon>

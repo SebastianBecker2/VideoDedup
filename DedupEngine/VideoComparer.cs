@@ -66,7 +66,7 @@ namespace DedupEngine
                     var imageSet = new ImageSet
                     {
                         Index = index,
-                        Orignal = stream,
+                        Original = stream,
                         Bytes = GetImageBytes(greysaled),
                     };
                     if (provideIntermediateImages)

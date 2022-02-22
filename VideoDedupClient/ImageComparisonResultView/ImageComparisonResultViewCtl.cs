@@ -1,18 +1,16 @@
-namespace VideoDedup
+namespace VideoDedup.ImageComparisonResultView
 {
     using System;
     using System.Collections.Generic;
     using System.Drawing;
-    using System.IO;
     using System.Windows.Forms;
     using VideoDedup.Properties;
     using VideoDedupShared;
-    using VideoDedupShared.ImageExtension;
     using VideoDedupShared.TimeSpanExtension;
 
-    public partial class ImageComparisonResultView : UserControl
+    public partial class ImageComparisonResultViewCtl : UserControl
     {
-        private static readonly Size ThumbnailSize = new Size(256, 256);
+        public static readonly Size ThumbnailSize = new Size(256, 256);
 
         private enum DetailLevel
         {
@@ -36,7 +34,7 @@ namespace VideoDedup
         };
 
         public int ImageComparisonIndex { get; set; }
-        public ImageComparisonResult ImageComparisonResult { get; set; }
+        public ImageComparisonResultEx ImageComparisonResult { get; set; }
         public bool ComparisonAlreadyFinished { get; set; }
         public bool ImageLoaded { get; set; }
         public int MaximumDifferencePercentage { get; set; }
@@ -53,7 +51,7 @@ namespace VideoDedup
         private PictureBox RightShowDetailArrow { get; set; }
         private TableLayoutPanel TlpDetails { get; set; }
 
-        public ImageComparisonResultView()
+        public ImageComparisonResultViewCtl()
         {
             InitializeComponent();
 
@@ -114,33 +112,41 @@ namespace VideoDedup
 
         protected override void OnLoad(EventArgs e)
         {
-            // Main View
-            TlpImageComparison.Controls.Add(
-                GetPictureBox(ImageComparisonResult.LeftImages?.Orignal));
-            TlpImageComparison.Controls.Add(GetComparisonResult());
-            TlpImageComparison.Controls.Add(
-                GetPictureBox(ImageComparisonResult.RightImages?.Orignal));
+            TlpImageComparison.SuspendLayout();
+            try
+            {
+                // Main View
+                TlpImageComparison.Controls.Add(
+                    GetPictureBox(ImageComparisonResult.LeftImages?.Original));
+                TlpImageComparison.Controls.Add(GetComparisonResult());
+                TlpImageComparison.Controls.Add(
+                    GetPictureBox(ImageComparisonResult.RightImages?.Original));
 
-            // Detail View
-            TlpDetails.Controls.Add(
-                GetPictureBox(ImageComparisonResult.LeftImages?.Cropped));
-            TlpDetails.Controls.Add(GetDetailInfo(DetailLevel.Crop));
-            TlpDetails.Controls.Add(
-                GetPictureBox(ImageComparisonResult.RightImages?.Cropped));
+                // Detail View
+                TlpDetails.Controls.Add(
+                    GetPictureBox(ImageComparisonResult.LeftImages?.Cropped));
+                TlpDetails.Controls.Add(GetDetailInfo(DetailLevel.Crop));
+                TlpDetails.Controls.Add(
+                    GetPictureBox(ImageComparisonResult.RightImages?.Cropped));
 
-            TlpDetails.Controls.Add(
-                GetPictureBox(ImageComparisonResult.LeftImages?.Resized));
-            TlpDetails.Controls.Add(GetDetailInfo(DetailLevel.Resize));
-            TlpDetails.Controls.Add(
-                GetPictureBox(ImageComparisonResult.RightImages?.Resized));
+                TlpDetails.Controls.Add(
+                    GetPictureBox(ImageComparisonResult.LeftImages?.Resized));
+                TlpDetails.Controls.Add(GetDetailInfo(DetailLevel.Resize));
+                TlpDetails.Controls.Add(
+                    GetPictureBox(ImageComparisonResult.RightImages?.Resized));
 
-            TlpDetails.Controls.Add(
-                GetPictureBox(ImageComparisonResult.LeftImages?.Greyscaled));
-            TlpDetails.Controls.Add(GetDetailInfo(DetailLevel.Greyscale));
-            TlpDetails.Controls.Add(
-                GetPictureBox(ImageComparisonResult.RightImages?.Greyscaled));
+                TlpDetails.Controls.Add(
+                    GetPictureBox(ImageComparisonResult.LeftImages?.Greyscaled));
+                TlpDetails.Controls.Add(GetDetailInfo(DetailLevel.Greyscale));
+                TlpDetails.Controls.Add(
+                    GetPictureBox(ImageComparisonResult.RightImages?.Greyscaled));
+            }
+            finally
+            {
+                TlpImageComparison.ResumeLayout();
 
-            base.OnLoad(e);
+                base.OnLoad(e);
+            }
         }
 
         protected override void OnBackColorChanged(EventArgs e)
@@ -309,49 +315,11 @@ namespace VideoDedup
             }
         }
 
-        private static Image StreamToImage(MemoryStream stream)
-        {
-            if (stream != null)
-            {
-                return Image.FromStream(stream);
-            }
-            return Resources.BrokenImageIcon;
-        }
-
-        private static Size GetThumbnailSize(Size originalSize)
-        {
-            var width = originalSize.Width;
-            var height = originalSize.Height;
-
-            if (width > height)
-            {
-                height = (int)(height / ((double)width / ThumbnailSize.Width));
-                return new Size(ThumbnailSize.Width, height);
-            }
-            else
-            {
-                width = (int)(width / ((double)height / ThumbnailSize.Height));
-                return new Size(width, ThumbnailSize.Height);
-            }
-        }
-
-        private static Image GetThumbnail(Image image)
-        {
-            if (image.Size.Height > ThumbnailSize.Height
-                || image.Size.Width > ThumbnailSize.Width)
-            {
-                return image.Resize(GetThumbnailSize(image.Size));
-            }
-            return image.Resize(
-                GetThumbnailSize(image.Size),
-                System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor);
-        }
-
-        private static PictureBox GetPictureBox(MemoryStream imageStream) =>
+        private static PictureBox GetPictureBox(Image image) =>
             new PictureBox
             {
-                Image = GetThumbnail(StreamToImage(imageStream)),
-                SizeMode = PictureBoxSizeMode.AutoSize,
+                Image = image,
+                Size = image.Size,
                 Anchor = AnchorStyles.None,
             };
 

@@ -10,6 +10,8 @@ namespace VideoDedup
     using Wcf.Contracts.Data;
     using VideoDedupShared.TimeSpanExtension;
     using VideoDedupShared.ExtensionMethods;
+    using VideoDedup.ImageComparisonResultView;
+    using System.Threading.Tasks;
 
     public partial class VideoComparisonPreviewDlg : Form
     {
@@ -17,16 +19,6 @@ namespace VideoDedup
         {
             OkCancel,
             Close,
-        }
-
-        private struct ImageComparison
-        {
-            public Image LeftImage { get; set; }
-            public double Difference { get; set; }
-            public Image RightImage { get; set; }
-            public bool ComparisonFinished { get; set; }
-            public bool ImagesLoaded { get; set; }
-            public ComparisonResult ComparisonResult { get; set; }
         }
 
         private static readonly Color DifferenceColor =
@@ -65,8 +57,8 @@ namespace VideoDedup
         private int ImageComparisonIndex { get; set; } = 0;
         private int? FinishedInLoadLevel { get; set; }
 
-        private List<ImageComparisonResult> ImageComparisons { get; set; }
-            = new List<ImageComparisonResult>();
+        private List<ImageComparisonResultEx> ImageComparisons { get; set; }
+            = new List<ImageComparisonResultEx>();
         private VideoComparisonResult VideoComparisonResult { get; set; }
 
         public VideoComparisonPreviewDlg()
@@ -227,6 +219,15 @@ namespace VideoDedup
             StatusTimer.Start();
         }
 
+        private IEnumerable<ImageComparisonResultEx> ToImageComparisonResultEx(
+            IEnumerable<ImageComparisonResult> icrs)
+        {
+            var size = ImageComparisonResultViewCtl.ThumbnailSize;
+            return icrs
+                .Select(icr => new ImageComparisonResultEx(icr, size))
+                .ToList();
+        }
+
         private void HandleStatusTimerTick(object sender, EventArgs e)
         {
             StatusTimer.Stop();
@@ -257,25 +258,47 @@ namespace VideoDedup
                 StatusTimer.Start();
                 return;
             }
-            else
-            {
-                ImageComparisons.AddRange(status.ImageComparisons);
-                UpdateResultDisplay();
-            }
 
-            ImageComparisonIndex = status.ImageComparisons
-                .Max(kvp => kvp.Index);
-            ImageComparisonIndex += 1;
-            var maxImages = (int)NumMaxImageComparison.Value;
-            if (ImageComparisonIndex >= maxImages)
+            var task = Task.Factory.StartNew(() =>
             {
-                VideoDedupDlg.WcfProxy.CancelCustomVideoComparison(
-                    ComparisonToken.Value);
-                PgbComparisonProgress.Visible = false;
-                return;
-            }
+                var ex = ToImageComparisonResultEx(status.ImageComparisons);
+                return ex;
+            });
+            _ = task.ContinueWith(t =>
+              {
+                  // Try-Catch in case the dialog closed while converting
+                  // the ImageComparisonResults.
+                  try
+                  {
+                      _ = Invoke(new Action(() =>
+                      {
+                          // Check if a new video comparison has been started
+                          // already.
+                          if (ComparisonToken != status.Token)
+                          {
+                              return;
+                          }
 
-            StatusTimer.Start();
+                          ImageComparisons.AddRange(t.Result);
+                          UpdateResultDisplay();
+
+                          ImageComparisonIndex = status.ImageComparisons
+                              .Max(kvp => kvp.Index);
+                          ImageComparisonIndex += 1;
+                          var maxImages = (int)NumMaxImageComparison.Value;
+                          if (ImageComparisonIndex >= maxImages)
+                          {
+                              VideoDedupDlg.WcfProxy.CancelCustomVideoComparison(
+                                  ComparisonToken.Value);
+                              PgbComparisonProgress.Visible = false;
+                              return;
+                          }
+
+                          StatusTimer.Start();
+                      }));
+                  }
+                  catch { }
+              });
         }
 
         private void UpdateResultDisplay()
@@ -319,7 +342,7 @@ namespace VideoDedup
 
         private void AddImageComparisonsToTableLayoutPanel(
             TableLayoutPanel tableLayoutPanel,
-            IEnumerable<ImageComparisonResult> imageComparisonResults)
+            IEnumerable<ImageComparisonResultEx> imageComparisonResults)
         {
             var lastComparedIndex = VideoComparisonResult?.LastComparedIndex;
             if (lastComparedIndex != null)
@@ -329,8 +352,8 @@ namespace VideoDedup
                     ?.LoadLevel ?? FinishedInLoadLevel;
             }
 
-            ImageComparisonResultView toView(ImageComparisonResult icr) =>
-                new ImageComparisonResultView
+            ImageComparisonResultViewCtl toView(ImageComparisonResultEx icr) =>
+                new ImageComparisonResultViewCtl
                 {
                     ImageComparisonIndex = icr.Index,
                     ImageComparisonResult = icr,
@@ -355,15 +378,17 @@ namespace VideoDedup
 
 
             var resultViews = tableLayoutPanel.Controls
-                .Cast<ImageComparisonResultView>();
+                .Cast<ImageComparisonResultViewCtl>();
 
             // Get all icrs that are missing.
             // Add them.
             // Then iterate over all with index to set ALL the new row indexes.
+            tableLayoutPanel.SuspendLayout();
             tableLayoutPanel.Controls.AddRange(imageComparisonResults
                 .Where(icr => !resultViews.Any(view => view.ImageComparisonResult == icr))
                 .Select(icr => toView(icr))
                 .ToArray());
+            tableLayoutPanel.ResumeLayout();
 
             var indexed = Enumerable
                 .Range(0, imageComparisonResults.Count())
@@ -373,7 +398,7 @@ namespace VideoDedup
                     Result = icr,
                 });
 
-            foreach (ImageComparisonResultView view in tableLayoutPanel.Controls)
+            foreach (ImageComparisonResultViewCtl view in tableLayoutPanel.Controls)
             {
                 var rowIndex = indexed
                     .First(comparison => comparison.Result == view.ImageComparisonResult)

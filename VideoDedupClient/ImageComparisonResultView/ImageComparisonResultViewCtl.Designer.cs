@@ -1,7 +1,7 @@
-﻿namespace VideoDedup
+namespace VideoDedup.ImageComparisonResultView
 {
 
-    partial class ImageComparisonResultView
+    partial class ImageComparisonResultViewCtl
     {
         /// <summary> 
         /// Required designer variable.
@@ -49,13 +49,13 @@
             this.TlpImageComparison.Size = new System.Drawing.Size(1046, 205);
             this.TlpImageComparison.TabIndex = 0;
             // 
-            // ImageComparisonResultView
+            // ImageComparisonResultViewCtl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.Controls.Add(this.TlpImageComparison);
-            this.Name = "ImageComparisonResultView";
+            this.Name = "ImageComparisonResultViewCtl";
             this.Size = new System.Drawing.Size(1046, 205);
             this.ResumeLayout(false);
             this.PerformLayout();
