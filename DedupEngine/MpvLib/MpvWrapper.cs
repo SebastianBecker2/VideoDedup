@@ -177,35 +177,35 @@ namespace DedupEngine.MpvLib
         public IEnumerable<MemoryStream> GetImages(
             int index,
             int count,
-            int partition) =>
+            int divisionCount) =>
             CheckForOutOfMemory(
-                () => GetImages(null, index, count, partition),
+                () => GetImages(null, index, count, divisionCount),
                 FilePath);
 
         public IEnumerable<MemoryStream> GetImages(
             int index,
             int count,
-            int partition,
+            int divisionCount,
             CancellationToken cancelToken) =>
             CheckForOutOfMemory(
-                () => GetImages(cancelToken, index, count, partition),
+                () => GetImages(cancelToken, index, count, divisionCount),
                 FilePath);
 
         private IEnumerable<MemoryStream> GetImages(
             CancellationToken? cancelToken,
             int index,
             int count,
-            int partition)
+            int divisionCount)
         {
             if (count <= 0)
             {
                 yield break;
             }
 
-            if (partition < 0)
+            if (divisionCount < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(partition),
-                    $"{nameof(partition)} cannot be less than zero.");
+                throw new ArgumentOutOfRangeException(nameof(divisionCount),
+                    $"{nameof(divisionCount)} cannot be less than zero.");
             }
 
             if (count < 0)
@@ -220,11 +220,11 @@ namespace DedupEngine.MpvLib
                     $"{nameof(index)} cannot be less than zero.");
             }
 
-            if (index + count > partition || count < 0)
+            if (index + count > divisionCount || count < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(count),
                     $"{nameof(index)} and {nameof(count)} must refer to a " +
-                    $"location within {nameof(partition)}.");
+                    $"location within {nameof(divisionCount)}.");
             }
 
             if (Duration == TimeSpan.Zero)
@@ -234,7 +234,7 @@ namespace DedupEngine.MpvLib
                     FilePath);
             }
             var stepping = Math.Max(
-                Duration.TotalSeconds / (partition + 1),
+                Duration.TotalSeconds / (divisionCount + 1),
                 1);
 
             PrepareImageHandle(stepping * ++index);
