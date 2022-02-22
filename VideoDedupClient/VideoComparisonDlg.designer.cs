@@ -1,6 +1,6 @@
 namespace VideoDedup
 {
-    partial class FileComparisonDlg
+    partial class VideoComparisonDlg
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@ namespace VideoDedup
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FileComparisonDlg));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VideoComparisonDlg));
             this.SplitterContainer = new System.Windows.Forms.SplitContainer();
             this.BtnShowLeft = new System.Windows.Forms.Button();
             this.FpvLeft = new VideoDedup.FilePreview.FilePreviewDlg();

@@ -401,7 +401,7 @@ namespace VideoDedup
                         return;
                     }
 
-                    using (var dlg = new FileComparisonDlg())
+                    using (var dlg = new VideoComparisonDlg())
                     {
                         DialogResult result;
                         dlg.LeftFile = duplicate.File1;

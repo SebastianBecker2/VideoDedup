@@ -118,11 +118,11 @@
       <DependentUpon>ServerConfigDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="ConfigData.cs" />
-    <Compile Include="FileComparisonDlg.cs">
+    <Compile Include="VideoComparisonDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FileComparisonDlg.designer.cs">
-      <DependentUpon>FileComparisonDlg.cs</DependentUpon>
+    <Compile Include="VideoComparisonDlg.designer.cs">
+      <DependentUpon>VideoComparisonDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="FilePreview\FilePreviewDlg.cs">
       <SubType>UserControl</SubType>
@@ -157,8 +157,8 @@
     <EmbeddedResource Include="ServerConfigDlg.resx">
       <DependentUpon>ServerConfigDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FileComparisonDlg.resx">
-      <DependentUpon>FileComparisonDlg.cs</DependentUpon>
+    <EmbeddedResource Include="VideoComparisonDlg.resx">
+      <DependentUpon>VideoComparisonDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FilePreview\FilePreviewDlg.resx">
       <DependentUpon>FilePreviewDlg.cs</DependentUpon>
