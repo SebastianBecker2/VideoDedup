@@ -274,7 +274,7 @@ namespace VideoDedup
                       {
                           // Check if a new video comparison has been started
                           // already.
-                          if (ComparisonToken != status.Token)
+                          if (ComparisonToken != status.ComparisonToken)
                           {
                               return;
                           }

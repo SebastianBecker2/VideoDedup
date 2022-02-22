@@ -76,7 +76,7 @@ namespace CustomComparisonManager
                         Status.ImageComparisons
                             .Skip(imageComparisonIndex)
                             .ToList(),
-                    Token = Token,
+                    ComparisonToken = Token,
                     VideoComparisonResult = Status.VideoComparisonResult,
                 };
                 if (LeftVideoFile != null)
@@ -158,7 +158,7 @@ namespace CustomComparisonManager
                     };
                 }
 
-                Status.Token = Token;
+                Status.ComparisonToken = Token;
                 ImageComparisons.Add(
                     new ImageComparisonResult
                     {
