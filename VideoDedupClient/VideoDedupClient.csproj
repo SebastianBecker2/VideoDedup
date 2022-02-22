@@ -124,11 +124,11 @@
     <Compile Include="VideoComparisonDlg.designer.cs">
       <DependentUpon>VideoComparisonDlg.cs</DependentUpon>
     </Compile>
-    <Compile Include="FilePreview\FilePreviewDlg.cs">
+    <Compile Include="FilePreview\FilePreviewCtl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="FilePreview\FilePreviewDlg.Designer.cs">
-      <DependentUpon>FilePreviewDlg.cs</DependentUpon>
+    <Compile Include="FilePreview\FilePreviewCtl.Designer.cs">
+      <DependentUpon>FilePreviewCtl.cs</DependentUpon>
     </Compile>
     <Compile Include="CustomVideoComparisonDlg.cs">
       <SubType>Form</SubType>
@@ -160,8 +160,8 @@
     <EmbeddedResource Include="VideoComparisonDlg.resx">
       <DependentUpon>VideoComparisonDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FilePreview\FilePreviewDlg.resx">
-      <DependentUpon>FilePreviewDlg.cs</DependentUpon>
+    <EmbeddedResource Include="FilePreview\FilePreviewCtl.resx">
+      <DependentUpon>FilePreviewCtl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="CustomVideoComparisonDlg.resx">
       <DependentUpon>CustomVideoComparisonDlg.cs</DependentUpon>

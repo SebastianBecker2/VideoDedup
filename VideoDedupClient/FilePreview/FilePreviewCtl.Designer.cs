@@ -1,6 +1,6 @@
 namespace VideoDedup.FilePreview
 {
-    partial class FilePreviewDlg
+    partial class FilePreviewCtl
     {
         /// <summary> 
         /// Required designer variable.

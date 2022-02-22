@@ -7,7 +7,7 @@ namespace VideoDedup.FilePreview
     using VideoDedupShared;
     using VideoDedupShared.ExtensionMethods;
 
-    public partial class FilePreviewDlg : UserControl
+    public partial class FilePreviewCtl : UserControl
     {
         private static readonly Size ThumbnailSize = new Size(256, 256);
         private static readonly ColorDepth ThumbnailColorDepth = ColorDepth.Depth32Bit;
@@ -32,7 +32,7 @@ namespace VideoDedup.FilePreview
         }
         private VideoFile videoFile = null;
 
-        public FilePreviewDlg()
+        public FilePreviewCtl()
         {
             InitializeComponent();
 
