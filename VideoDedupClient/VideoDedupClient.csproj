@@ -52,7 +52,7 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>film.ico</ApplicationIcon>
+    <ApplicationIcon>Images\film.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
@@ -83,90 +83,90 @@
     <Compile Include="..\Versioning\Versioning.cs">
       <Link>Versioning.cs</Link>
     </Compile>
-    <Compile Include="AboutDlg.cs">
+    <Compile Include="Dialogs\AboutDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AboutDlg.Designer.cs">
+    <Compile Include="Dialogs\AboutDlg.Designer.cs">
       <DependentUpon>AboutDlg.cs</DependentUpon>
     </Compile>
-    <Compile Include="ClientConfigDlg.cs">
+    <Compile Include="Dialogs\ClientConfigDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ClientConfigDlg.Designer.cs">
+    <Compile Include="Dialogs\ClientConfigDlg.Designer.cs">
       <DependentUpon>ClientConfigDlg.cs</DependentUpon>
     </Compile>
-    <Compile Include="DnsTextBox\DnsTextBoxCtrl.cs">
+    <Compile Include="Controls\DnsTextBox\DnsTextBoxCtrl.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="DnsTextBox\ResolveFailedEventArgs.cs" />
-    <Compile Include="DnsTextBox\ResolveStartedEventArgs.cs" />
-    <Compile Include="DnsTextBox\ResolveSuccessfulEventArgs.cs" />
-    <Compile Include="ImageComparisonResultView\ImageComparisonResultEx.cs" />
-    <Compile Include="ImageComparisonResultView\ImageComparisonResultViewCtl.cs">
+    <Compile Include="Controls\DnsTextBox\ResolveFailedEventArgs.cs" />
+    <Compile Include="Controls\DnsTextBox\ResolveStartedEventArgs.cs" />
+    <Compile Include="Controls\DnsTextBox\ResolveSuccessfulEventArgs.cs" />
+    <Compile Include="Controls\ImageComparisonResultView\ImageComparisonResultEx.cs" />
+    <Compile Include="Controls\ImageComparisonResultView\ImageComparisonResultViewCtl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ImageComparisonResultView\ImageComparisonResultViewCtl.Designer.cs">
+    <Compile Include="Controls\ImageComparisonResultView\ImageComparisonResultViewCtl.Designer.cs">
       <DependentUpon>ImageComparisonResultViewCtl.cs</DependentUpon>
     </Compile>
-    <Compile Include="ImageComparisonResultView\ImageSetEx.cs" />
+    <Compile Include="Controls\ImageComparisonResultView\ImageSetEx.cs" />
     <Compile Include="LogEntry.cs" />
     <Compile Include="LogEntryStatus.cs" />
-    <Compile Include="ServerConfigDlg.cs">
+    <Compile Include="Dialogs\ServerConfigDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ServerConfigDlg.Designer.cs">
+    <Compile Include="Dialogs\ServerConfigDlg.Designer.cs">
       <DependentUpon>ServerConfigDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="ConfigData.cs" />
-    <Compile Include="VideoComparisonDlg.cs">
+    <Compile Include="Dialogs\VideoComparisonDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="VideoComparisonDlg.designer.cs">
+    <Compile Include="Dialogs\VideoComparisonDlg.designer.cs">
       <DependentUpon>VideoComparisonDlg.cs</DependentUpon>
     </Compile>
-    <Compile Include="FilePreview\FilePreviewCtl.cs">
+    <Compile Include="Controls\FilePreview\FilePreviewCtl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="FilePreview\FilePreviewCtl.Designer.cs">
+    <Compile Include="Controls\FilePreview\FilePreviewCtl.Designer.cs">
       <DependentUpon>FilePreviewCtl.cs</DependentUpon>
     </Compile>
-    <Compile Include="CustomVideoComparisonDlg.cs">
+    <Compile Include="Dialogs\CustomVideoComparisonDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="CustomVideoComparisonDlg.Designer.cs">
+    <Compile Include="Dialogs\CustomVideoComparisonDlg.Designer.cs">
       <DependentUpon>CustomVideoComparisonDlg.cs</DependentUpon>
     </Compile>
-    <Compile Include="VideoDedupDlg.cs">
+    <Compile Include="Dialogs\VideoDedupDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="VideoDedupDlg.Designer.cs">
+    <Compile Include="Dialogs\VideoDedupDlg.Designer.cs">
       <DependentUpon>VideoDedupDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WcfProxy.cs" />
-    <EmbeddedResource Include="AboutDlg.resx">
+    <EmbeddedResource Include="Dialogs\AboutDlg.resx">
       <DependentUpon>AboutDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ClientConfigDlg.resx">
+    <EmbeddedResource Include="Dialogs\ClientConfigDlg.resx">
       <DependentUpon>ClientConfigDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ImageComparisonResultView\ImageComparisonResultViewCtl.resx">
+    <EmbeddedResource Include="Controls\ImageComparisonResultView\ImageComparisonResultViewCtl.resx">
       <DependentUpon>ImageComparisonResultViewCtl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ServerConfigDlg.resx">
+    <EmbeddedResource Include="Dialogs\ServerConfigDlg.resx">
       <DependentUpon>ServerConfigDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="VideoComparisonDlg.resx">
+    <EmbeddedResource Include="Dialogs\VideoComparisonDlg.resx">
       <DependentUpon>VideoComparisonDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FilePreview\FilePreviewCtl.resx">
+    <EmbeddedResource Include="Controls\FilePreview\FilePreviewCtl.resx">
       <DependentUpon>FilePreviewCtl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="CustomVideoComparisonDlg.resx">
+    <EmbeddedResource Include="Dialogs\CustomVideoComparisonDlg.resx">
       <DependentUpon>CustomVideoComparisonDlg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="VideoDedupDlg.resx">
+    <EmbeddedResource Include="Dialogs\VideoDedupDlg.resx">
       <DependentUpon>VideoDedupDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -212,34 +212,34 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="film.ico" />
+    <None Include="Images\film.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="film_error.ico" />
+    <None Include="Images\film_error.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="film_link.ico" />
+    <None Include="Images\film_link.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Loading.gif" />
+    <None Include="Images\Loading.gif" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="control_down_blue.png" />
+    <None Include="Images\control_down_blue.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="control_up_gray.png" />
+    <None Include="Images\control_up_gray.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="picture_cropped.png" />
+    <None Include="Images\picture_cropped.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="picture_greyscale.png" />
+    <None Include="Images\picture_greyscale.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="picture_size_down.png" />
+    <None Include="Images\picture_size_down.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="broken_image_icon.png" />
+    <None Include="Images\broken_image_icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
