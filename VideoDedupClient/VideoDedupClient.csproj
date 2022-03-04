@@ -83,6 +83,12 @@
     <Compile Include="..\Versioning\Versioning.cs">
       <Link>Versioning.cs</Link>
     </Compile>
+    <Compile Include="Controls\StatusInfo\StatusInfoCtl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\StatusInfo\StatusInfoCtl.Designer.cs">
+      <DependentUpon>StatusInfoCtl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\AboutDlg.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -145,6 +151,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WcfProxy.cs" />
+    <EmbeddedResource Include="Controls\StatusInfo\StatusInfoCtl.resx">
+      <DependentUpon>StatusInfoCtl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\AboutDlg.resx">
       <DependentUpon>AboutDlg.cs</DependentUpon>
     </EmbeddedResource>

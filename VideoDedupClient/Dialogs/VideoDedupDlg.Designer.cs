@@ -29,10 +29,7 @@ namespace VideoDedup
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VideoDedupDlg));
-            this.ProgressBar = new System.Windows.Forms.ProgressBar();
-            this.LblStatusInfo = new System.Windows.Forms.Label();
             this.BtnServerConfig = new System.Windows.Forms.Button();
-            this.LblTimer = new System.Windows.Forms.Label();
             this.BtnResolveDuplicates = new System.Windows.Forms.Button();
             this.MenuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -41,35 +38,14 @@ namespace VideoDedup
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.LblDuplicateCount = new System.Windows.Forms.Label();
             this.BtnDiscardDuplicates = new System.Windows.Forms.Button();
             this.BtnClientConfig = new System.Windows.Forms.Button();
             this.DgvLog = new System.Windows.Forms.DataGridView();
             this.DgcLogMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.StiProgress = new VideoDedup.StatusInfo.StatusInfoCtl();
             this.MenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DgvLog)).BeginInit();
-            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // ProgressBar
-            // 
-            this.ProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.ProgressBar.Location = new System.Drawing.Point(12, 29);
-            this.ProgressBar.MarqueeAnimationSpeed = 50;
-            this.ProgressBar.Name = "ProgressBar";
-            this.ProgressBar.Size = new System.Drawing.Size(795, 23);
-            this.ProgressBar.TabIndex = 5;
-            // 
-            // LblStatusInfo
-            // 
-            this.LblStatusInfo.AutoSize = true;
-            this.LblStatusInfo.Location = new System.Drawing.Point(9, 55);
-            this.LblStatusInfo.Name = "LblStatusInfo";
-            this.LblStatusInfo.Size = new System.Drawing.Size(49, 13);
-            this.LblStatusInfo.TabIndex = 6;
-            this.LblStatusInfo.Text = "Status:...";
             // 
             // BtnServerConfig
             // 
@@ -81,16 +57,6 @@ namespace VideoDedup
             this.BtnServerConfig.Text = "&Server Configuration";
             this.BtnServerConfig.UseVisualStyleBackColor = true;
             this.BtnServerConfig.Click += new System.EventHandler(this.BtnServerConfig_Click);
-            // 
-            // LblTimer
-            // 
-            this.LblTimer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.LblTimer.AutoSize = true;
-            this.LblTimer.Location = new System.Drawing.Point(3, 0);
-            this.LblTimer.Name = "LblTimer";
-            this.LblTimer.Size = new System.Drawing.Size(49, 13);
-            this.LblTimer.TabIndex = 9;
-            this.LblTimer.Text = "00:00:00";
             // 
             // BtnResolveDuplicates
             // 
@@ -161,15 +127,6 @@ namespace VideoDedup
             this.aboutToolStripMenuItem.Text = "&About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItem_Click);
             // 
-            // LblDuplicateCount
-            // 
-            this.LblDuplicateCount.AutoSize = true;
-            this.LblDuplicateCount.Location = new System.Drawing.Point(9, 70);
-            this.LblDuplicateCount.Name = "LblDuplicateCount";
-            this.LblDuplicateCount.Size = new System.Drawing.Size(99, 13);
-            this.LblDuplicateCount.TabIndex = 12;
-            this.LblDuplicateCount.Text = "Duplicates found: 0";
-            // 
             // BtnDiscardDuplicates
             // 
             this.BtnDiscardDuplicates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -207,12 +164,12 @@ namespace VideoDedup
             this.DgvLog.ColumnHeadersVisible = false;
             this.DgvLog.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.DgcLogMessage});
-            this.DgvLog.Location = new System.Drawing.Point(12, 87);
+            this.DgvLog.Location = new System.Drawing.Point(12, 149);
             this.DgvLog.MultiSelect = false;
             this.DgvLog.Name = "DgvLog";
             this.DgvLog.ReadOnly = true;
             this.DgvLog.RowHeadersVisible = false;
-            this.DgvLog.Size = new System.Drawing.Size(795, 251);
+            this.DgvLog.Size = new System.Drawing.Size(795, 189);
             this.DgvLog.TabIndex = 4;
             this.DgvLog.VirtualMode = true;
             this.DgvLog.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.DgvLog_CellValueNeeded);
@@ -224,37 +181,29 @@ namespace VideoDedup
             this.DgcLogMessage.Name = "DgcLogMessage";
             this.DgcLogMessage.ReadOnly = true;
             // 
-            // tableLayoutPanel1
+            // StiProgress
             // 
-            this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.tableLayoutPanel1.AutoSize = true;
-            this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tableLayoutPanel1.ColumnCount = 1;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Controls.Add(this.LblTimer, 0, 0);
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(752, 55);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.tableLayoutPanel1.RowCount = 1;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(55, 13);
-            this.tableLayoutPanel1.TabIndex = 13;
+            this.StiProgress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.StiProgress.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.StiProgress.DuplicateCount = 0;
+            this.StiProgress.Location = new System.Drawing.Point(12, 27);
+            this.StiProgress.Name = "StiProgress";
+            this.StiProgress.OperationInfo = null;
+            this.StiProgress.Size = new System.Drawing.Size(795, 116);
+            this.StiProgress.TabIndex = 12;
             // 
             // VideoDedupDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(819, 379);
-            this.Controls.Add(this.tableLayoutPanel1);
+            this.Controls.Add(this.StiProgress);
             this.Controls.Add(this.DgvLog);
             this.Controls.Add(this.BtnClientConfig);
             this.Controls.Add(this.BtnDiscardDuplicates);
-            this.Controls.Add(this.LblDuplicateCount);
             this.Controls.Add(this.BtnResolveDuplicates);
             this.Controls.Add(this.BtnServerConfig);
-            this.Controls.Add(this.LblStatusInfo);
-            this.Controls.Add(this.ProgressBar);
             this.Controls.Add(this.MenuStrip);
             this.DoubleBuffered = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -264,32 +213,26 @@ namespace VideoDedup
             this.MenuStrip.ResumeLayout(false);
             this.MenuStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DgvLog)).EndInit();
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-        private System.Windows.Forms.ProgressBar ProgressBar;
-        private System.Windows.Forms.Label LblStatusInfo;
         private System.Windows.Forms.Button BtnServerConfig;
-        private System.Windows.Forms.Label LblTimer;
         private System.Windows.Forms.Button BtnResolveDuplicates;
         private System.Windows.Forms.MenuStrip MenuStrip;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
-        private System.Windows.Forms.Label LblDuplicateCount;
         private System.Windows.Forms.Button BtnDiscardDuplicates;
         private System.Windows.Forms.ToolStripMenuItem ServerConfigurationToolStripMenuItem;
         private System.Windows.Forms.Button BtnClientConfig;
         private System.Windows.Forms.DataGridView DgvLog;
         private System.Windows.Forms.DataGridViewTextBoxColumn DgcLogMessage;
         private System.Windows.Forms.ToolStripMenuItem ClientConfigurationToolStripMenuItem;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private StatusInfo.StatusInfoCtl StiProgress;
     }
 }
 

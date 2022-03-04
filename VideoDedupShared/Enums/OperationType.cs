@@ -7,5 +7,8 @@ namespace VideoDedupShared
         Searching,
         Monitoring,
         Completed,
+        Initializing,
+        Error,
+        Connecting,
     }
 }
