@@ -31,23 +31,23 @@ namespace VideoDedup.StatusInfo
         {
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.LblDuplicateCount = new System.Windows.Forms.Label();
-            this.LblRemainingProgress = new System.Windows.Forms.Label();
-            this.LblCurrentProgress = new System.Windows.Forms.Label();
+            this.LblRemainingFileCount = new System.Windows.Forms.Label();
+            this.LblCurrentFileCount = new System.Windows.Forms.Label();
             this.LblElapsedTime = new System.Windows.Forms.Label();
             this.LblRemainingTime = new System.Windows.Forms.Label();
             this.ProgressBar = new System.Windows.Forms.ProgressBar();
-            this.LblCurrentProgressTitle = new System.Windows.Forms.Label();
+            this.LblCurrentFileCountTitle = new System.Windows.Forms.Label();
             this.LblStatusInfo = new System.Windows.Forms.Label();
-            this.LblRemainingProgressTitle = new System.Windows.Forms.Label();
+            this.LblRemainingFileCountTitle = new System.Windows.Forms.Label();
             this.LblDuplicateCountTitle = new System.Windows.Forms.Label();
-            this.LblProgressSpeedTitle = new System.Windows.Forms.Label();
+            this.LblFileCountSpeedTitle = new System.Windows.Forms.Label();
             this.LblDuplicateSpeedTitle = new System.Windows.Forms.Label();
             this.LblElapsedTimeTitle = new System.Windows.Forms.Label();
             this.LblRemainingTimeTitle = new System.Windows.Forms.Label();
-            this.LblProgressSpeed = new System.Windows.Forms.Label();
+            this.LblFileCountSpeed = new System.Windows.Forms.Label();
             this.LblDuplicateSpeed = new System.Windows.Forms.Label();
             this.LblDuplicateSpeedUnit = new System.Windows.Forms.Label();
-            this.LblProgressSpeedUnit = new System.Windows.Forms.Label();
+            this.LblFileCountSpeedUnit = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -62,23 +62,23 @@ namespace VideoDedup.StatusInfo
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.Controls.Add(this.LblDuplicateCount, 1, 4);
-            this.tableLayoutPanel1.Controls.Add(this.LblRemainingProgress, 1, 3);
-            this.tableLayoutPanel1.Controls.Add(this.LblCurrentProgress, 1, 2);
+            this.tableLayoutPanel1.Controls.Add(this.LblRemainingFileCount, 1, 3);
+            this.tableLayoutPanel1.Controls.Add(this.LblCurrentFileCount, 1, 2);
             this.tableLayoutPanel1.Controls.Add(this.LblElapsedTime, 6, 2);
             this.tableLayoutPanel1.Controls.Add(this.LblRemainingTime, 6, 3);
             this.tableLayoutPanel1.Controls.Add(this.ProgressBar, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.LblCurrentProgressTitle, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.LblCurrentFileCountTitle, 0, 2);
             this.tableLayoutPanel1.Controls.Add(this.LblStatusInfo, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.LblRemainingProgressTitle, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.LblRemainingFileCountTitle, 0, 3);
             this.tableLayoutPanel1.Controls.Add(this.LblDuplicateCountTitle, 0, 4);
-            this.tableLayoutPanel1.Controls.Add(this.LblProgressSpeedTitle, 2, 2);
+            this.tableLayoutPanel1.Controls.Add(this.LblFileCountSpeedTitle, 2, 2);
             this.tableLayoutPanel1.Controls.Add(this.LblDuplicateSpeedTitle, 2, 4);
             this.tableLayoutPanel1.Controls.Add(this.LblElapsedTimeTitle, 5, 2);
             this.tableLayoutPanel1.Controls.Add(this.LblRemainingTimeTitle, 5, 3);
-            this.tableLayoutPanel1.Controls.Add(this.LblProgressSpeed, 3, 2);
+            this.tableLayoutPanel1.Controls.Add(this.LblFileCountSpeed, 3, 2);
             this.tableLayoutPanel1.Controls.Add(this.LblDuplicateSpeed, 3, 4);
             this.tableLayoutPanel1.Controls.Add(this.LblDuplicateSpeedUnit, 4, 4);
-            this.tableLayoutPanel1.Controls.Add(this.LblProgressSpeedUnit, 4, 2);
+            this.tableLayoutPanel1.Controls.Add(this.LblFileCountSpeedUnit, 4, 2);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
@@ -103,27 +103,27 @@ namespace VideoDedup.StatusInfo
             this.LblDuplicateCount.TabIndex = 12;
             this.LblDuplicateCount.Text = "LblDuplicateCount";
             // 
-            // LblRemainingProgress
+            // LblRemainingFileCount
             // 
-            this.LblRemainingProgress.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.LblRemainingProgress.AutoSize = true;
-            this.LblRemainingProgress.Location = new System.Drawing.Point(60, 153);
-            this.LblRemainingProgress.Margin = new System.Windows.Forms.Padding(0, 4, 0, 4);
-            this.LblRemainingProgress.Name = "LblRemainingProgress";
-            this.LblRemainingProgress.Size = new System.Drawing.Size(112, 13);
-            this.LblRemainingProgress.TabIndex = 13;
-            this.LblRemainingProgress.Text = "LblRemainingProgress";
+            this.LblRemainingFileCount.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.LblRemainingFileCount.AutoSize = true;
+            this.LblRemainingFileCount.Location = new System.Drawing.Point(60, 153);
+            this.LblRemainingFileCount.Margin = new System.Windows.Forms.Padding(0, 4, 0, 4);
+            this.LblRemainingFileCount.Name = "LblRemainingFileCount";
+            this.LblRemainingFileCount.Size = new System.Drawing.Size(112, 13);
+            this.LblRemainingFileCount.TabIndex = 13;
+            this.LblRemainingFileCount.Text = "LblRemainingFileCount";
             // 
-            // LblCurrentProgress
+            // LblCurrentFileCount
             // 
-            this.LblCurrentProgress.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.LblCurrentProgress.AutoSize = true;
-            this.LblCurrentProgress.Location = new System.Drawing.Point(60, 110);
-            this.LblCurrentProgress.Margin = new System.Windows.Forms.Padding(0, 4, 0, 4);
-            this.LblCurrentProgress.Name = "LblCurrentProgress";
-            this.LblCurrentProgress.Size = new System.Drawing.Size(96, 13);
-            this.LblCurrentProgress.TabIndex = 6;
-            this.LblCurrentProgress.Text = "LblCurrentProgress";
+            this.LblCurrentFileCount.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.LblCurrentFileCount.AutoSize = true;
+            this.LblCurrentFileCount.Location = new System.Drawing.Point(60, 110);
+            this.LblCurrentFileCount.Margin = new System.Windows.Forms.Padding(0, 4, 0, 4);
+            this.LblCurrentFileCount.Name = "LblCurrentFileCount";
+            this.LblCurrentFileCount.Size = new System.Drawing.Size(96, 13);
+            this.LblCurrentFileCount.TabIndex = 6;
+            this.LblCurrentFileCount.Text = "LblCurrentFileCount";
             // 
             // LblElapsedTime
             // 
@@ -158,16 +158,16 @@ namespace VideoDedup.StatusInfo
             this.ProgressBar.Size = new System.Drawing.Size(593, 52);
             this.ProgressBar.TabIndex = 15;
             // 
-            // LblCurrentProgressTitle
+            // LblCurrentFileCountTitle
             // 
-            this.LblCurrentProgressTitle.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.LblCurrentProgressTitle.AutoSize = true;
-            this.LblCurrentProgressTitle.Location = new System.Drawing.Point(0, 110);
-            this.LblCurrentProgressTitle.Margin = new System.Windows.Forms.Padding(0, 4, 0, 4);
-            this.LblCurrentProgressTitle.Name = "LblCurrentProgressTitle";
-            this.LblCurrentProgressTitle.Size = new System.Drawing.Size(51, 13);
-            this.LblCurrentProgressTitle.TabIndex = 6;
-            this.LblCurrentProgressTitle.Text = "Progress:";
+            this.LblCurrentFileCountTitle.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.LblCurrentFileCountTitle.AutoSize = true;
+            this.LblCurrentFileCountTitle.Location = new System.Drawing.Point(0, 110);
+            this.LblCurrentFileCountTitle.Margin = new System.Windows.Forms.Padding(0, 4, 0, 4);
+            this.LblCurrentFileCountTitle.Name = "LblCurrentFileCountTitle";
+            this.LblCurrentFileCountTitle.Size = new System.Drawing.Size(51, 13);
+            this.LblCurrentFileCountTitle.TabIndex = 6;
+            this.LblCurrentFileCountTitle.Text = "Progress:";
             // 
             // LblStatusInfo
             // 
@@ -181,16 +181,16 @@ namespace VideoDedup.StatusInfo
             this.LblStatusInfo.TabIndex = 6;
             this.LblStatusInfo.Text = "LblStatusInfo";
             // 
-            // LblRemainingProgressTitle
+            // LblRemainingFileCountTitle
             // 
-            this.LblRemainingProgressTitle.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.LblRemainingProgressTitle.AutoSize = true;
-            this.LblRemainingProgressTitle.Location = new System.Drawing.Point(0, 153);
-            this.LblRemainingProgressTitle.Margin = new System.Windows.Forms.Padding(0, 4, 0, 4);
-            this.LblRemainingProgressTitle.Name = "LblRemainingProgressTitle";
-            this.LblRemainingProgressTitle.Size = new System.Drawing.Size(60, 13);
-            this.LblRemainingProgressTitle.TabIndex = 13;
-            this.LblRemainingProgressTitle.Text = "Remaining:";
+            this.LblRemainingFileCountTitle.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.LblRemainingFileCountTitle.AutoSize = true;
+            this.LblRemainingFileCountTitle.Location = new System.Drawing.Point(0, 153);
+            this.LblRemainingFileCountTitle.Margin = new System.Windows.Forms.Padding(0, 4, 0, 4);
+            this.LblRemainingFileCountTitle.Name = "LblRemainingFileCountTitle";
+            this.LblRemainingFileCountTitle.Size = new System.Drawing.Size(60, 13);
+            this.LblRemainingFileCountTitle.TabIndex = 13;
+            this.LblRemainingFileCountTitle.Text = "Remaining:";
             // 
             // LblDuplicateCountTitle
             // 
@@ -203,16 +203,16 @@ namespace VideoDedup.StatusInfo
             this.LblDuplicateCountTitle.TabIndex = 12;
             this.LblDuplicateCountTitle.Text = "Duplicates:";
             // 
-            // LblProgressSpeedTitle
+            // LblFileCountSpeedTitle
             // 
-            this.LblProgressSpeedTitle.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.LblProgressSpeedTitle.AutoSize = true;
-            this.LblProgressSpeedTitle.Location = new System.Drawing.Point(216, 110);
-            this.LblProgressSpeedTitle.Margin = new System.Windows.Forms.Padding(0, 4, 0, 4);
-            this.LblProgressSpeedTitle.Name = "LblProgressSpeedTitle";
-            this.LblProgressSpeedTitle.Size = new System.Drawing.Size(41, 13);
-            this.LblProgressSpeedTitle.TabIndex = 14;
-            this.LblProgressSpeedTitle.Text = "Speed:";
+            this.LblFileCountSpeedTitle.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.LblFileCountSpeedTitle.AutoSize = true;
+            this.LblFileCountSpeedTitle.Location = new System.Drawing.Point(216, 110);
+            this.LblFileCountSpeedTitle.Margin = new System.Windows.Forms.Padding(0, 4, 0, 4);
+            this.LblFileCountSpeedTitle.Name = "LblFileCountSpeedTitle";
+            this.LblFileCountSpeedTitle.Size = new System.Drawing.Size(41, 13);
+            this.LblFileCountSpeedTitle.TabIndex = 14;
+            this.LblFileCountSpeedTitle.Text = "Speed:";
             // 
             // LblDuplicateSpeedTitle
             // 
@@ -247,16 +247,16 @@ namespace VideoDedup.StatusInfo
             this.LblRemainingTimeTitle.TabIndex = 14;
             this.LblRemainingTimeTitle.Text = "Remaining:";
             // 
-            // LblProgressSpeed
+            // LblFileCountSpeed
             // 
-            this.LblProgressSpeed.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.LblProgressSpeed.AutoSize = true;
-            this.LblProgressSpeed.Location = new System.Drawing.Point(261, 110);
-            this.LblProgressSpeed.Margin = new System.Windows.Forms.Padding(0, 4, 0, 4);
-            this.LblProgressSpeed.Name = "LblProgressSpeed";
-            this.LblProgressSpeed.Size = new System.Drawing.Size(93, 13);
-            this.LblProgressSpeed.TabIndex = 14;
-            this.LblProgressSpeed.Text = "LblProgressSpeed";
+            this.LblFileCountSpeed.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.LblFileCountSpeed.AutoSize = true;
+            this.LblFileCountSpeed.Location = new System.Drawing.Point(261, 110);
+            this.LblFileCountSpeed.Margin = new System.Windows.Forms.Padding(0, 4, 0, 4);
+            this.LblFileCountSpeed.Name = "LblFileCountSpeed";
+            this.LblFileCountSpeed.Size = new System.Drawing.Size(93, 13);
+            this.LblFileCountSpeed.TabIndex = 14;
+            this.LblFileCountSpeed.Text = "LblFileCountSpeed";
             // 
             // LblDuplicateSpeed
             // 
@@ -280,16 +280,16 @@ namespace VideoDedup.StatusInfo
             this.LblDuplicateSpeedUnit.TabIndex = 14;
             this.LblDuplicateSpeedUnit.Text = "LblDuplicateSpeedUnit";
             // 
-            // LblProgressSpeedUnit
+            // LblFileCountSpeedUnit
             // 
-            this.LblProgressSpeedUnit.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.LblProgressSpeedUnit.AutoSize = true;
-            this.LblProgressSpeedUnit.Location = new System.Drawing.Point(354, 103);
-            this.LblProgressSpeedUnit.Margin = new System.Windows.Forms.Padding(0, 4, 0, 4);
-            this.LblProgressSpeedUnit.Name = "LblProgressSpeedUnit";
-            this.LblProgressSpeedUnit.Size = new System.Drawing.Size(81, 26);
-            this.LblProgressSpeedUnit.TabIndex = 14;
-            this.LblProgressSpeedUnit.Text = "LblProgressSpeedUnit";
+            this.LblFileCountSpeedUnit.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.LblFileCountSpeedUnit.AutoSize = true;
+            this.LblFileCountSpeedUnit.Location = new System.Drawing.Point(354, 103);
+            this.LblFileCountSpeedUnit.Margin = new System.Windows.Forms.Padding(0, 4, 0, 4);
+            this.LblFileCountSpeedUnit.Name = "LblFileCountSpeedUnit";
+            this.LblFileCountSpeedUnit.Size = new System.Drawing.Size(81, 26);
+            this.LblFileCountSpeedUnit.TabIndex = 14;
+            this.LblFileCountSpeedUnit.Text = "LblFileCountSpeedUnit";
             // 
             // StatusInfoCtl
             // 
@@ -310,21 +310,21 @@ namespace VideoDedup.StatusInfo
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Label LblStatusInfo;
         private System.Windows.Forms.Label LblDuplicateCount;
-        private System.Windows.Forms.Label LblRemainingProgress;
-        private System.Windows.Forms.Label LblCurrentProgress;
+        private System.Windows.Forms.Label LblRemainingFileCount;
+        private System.Windows.Forms.Label LblCurrentFileCount;
         private System.Windows.Forms.Label LblElapsedTime;
         private System.Windows.Forms.Label LblRemainingTime;
         private System.Windows.Forms.Label LblDuplicateSpeed;
-        private System.Windows.Forms.Label LblProgressSpeed;
+        private System.Windows.Forms.Label LblFileCountSpeed;
         private System.Windows.Forms.ProgressBar ProgressBar;
-        private System.Windows.Forms.Label LblCurrentProgressTitle;
-        private System.Windows.Forms.Label LblRemainingProgressTitle;
+        private System.Windows.Forms.Label LblCurrentFileCountTitle;
+        private System.Windows.Forms.Label LblRemainingFileCountTitle;
         private System.Windows.Forms.Label LblDuplicateCountTitle;
-        private System.Windows.Forms.Label LblProgressSpeedTitle;
+        private System.Windows.Forms.Label LblFileCountSpeedTitle;
         private System.Windows.Forms.Label LblDuplicateSpeedTitle;
         private System.Windows.Forms.Label LblElapsedTimeTitle;
         private System.Windows.Forms.Label LblRemainingTimeTitle;
         private System.Windows.Forms.Label LblDuplicateSpeedUnit;
-        private System.Windows.Forms.Label LblProgressSpeedUnit;
+        private System.Windows.Forms.Label LblFileCountSpeedUnit;
     }
 }

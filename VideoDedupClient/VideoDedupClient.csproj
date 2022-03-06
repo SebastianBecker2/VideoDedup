@@ -83,6 +83,7 @@
     <Compile Include="..\Versioning\Versioning.cs">
       <Link>Versioning.cs</Link>
     </Compile>
+    <Compile Include="CircularBuffer.cs" />
     <Compile Include="Controls\StatusInfo\StatusInfoCtl.cs">
       <SubType>UserControl</SubType>
     </Compile>

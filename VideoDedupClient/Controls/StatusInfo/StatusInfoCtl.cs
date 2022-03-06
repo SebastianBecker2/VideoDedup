@@ -1,5 +1,16 @@
 namespace VideoDedup.StatusInfo
 {
+    // Rename progress to files
+
+
+
+    // Calculate speed by recent items per recent time. instead of all items per all time.
+    // This way, even with sleep mode / hypernation or when switching to monitoring
+    // (as duplicate speed has the issue with that), the speed would normalize itself.
+    // Because the time frame from the sleep / hypernation / pre-monitor would move
+    // out of scope and would be ignored.
+
+
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -8,6 +19,7 @@ namespace VideoDedup.StatusInfo
     using Microsoft.WindowsAPICodePack.Taskbar;
     using VideoDedupShared;
     using VideoDedupShared.TimeSpanExtension;
+    using SpeedRingBuffer = CircularBuffer<(int value, System.DateTime stamp)>;
 
     public partial class StatusInfoCtl : UserControl
     {
@@ -54,7 +66,25 @@ namespace VideoDedup.StatusInfo
                 timespan => timespan.TotalMilliseconds),
         };
 
-        private (double, string) CalculateSpeed(
+        private static readonly int SpeedHistoryLenght = 60;
+
+        private readonly SpeedRingBuffer fileSpeedHistory =
+            new SpeedRingBuffer(SpeedHistoryLenght);
+
+        private readonly SpeedRingBuffer duplicateSpeedHistory =
+            new SpeedRingBuffer(SpeedHistoryLenght);
+
+        private (double speed, string unit) CalculateSpeed(SpeedRingBuffer buffer)
+        {
+            var (firstValue, firstStamp) = buffer.First();
+            var (lastValue, lastStamp) = buffer.Last();
+
+            return CalculateSpeed(
+                lastValue - firstValue,
+                lastStamp - firstStamp);
+        }
+
+        private (double speed, string unit) CalculateSpeed(
             int value,
             TimeSpan timeSpan)
         {
@@ -70,64 +100,59 @@ namespace VideoDedup.StatusInfo
             return (value / highestScale.Divisor(timeSpan), highestScale.Unit);
         }
 
-
-        public OperationInfo OperationInfo
+        public void UpdateStatusInfo(
+            OperationInfo operationInfo,
+            int duplicateCount = 0)
         {
-            get => operationInfo;
-            set
+            if (operationInfo == null)
             {
-                operationInfo = value;
-
-                if (operationInfo == null)
-                {
-                    return;
-                }
-
-                if (StartTime != DateTime.MinValue)
-                {
-                    Duration = DateTime.Now - StartTime;
-                }
-
-                if (Maximum != 0)
-                {
-                    Remaining = Maximum - Current;
-                }
-
-                LblStatusInfo.Text = OperationTypeTexts[Type];
-                SetProgressBar();
-                SetElapsedTime();
-                SetRemainingTime();
-                SetCurrentProgress();
-                SetRemainingProgress();
-                SetProgressSpeed();
-                SetDuplicateCount();
-                SetDuplicateSpeed();
+                return;
             }
-        }
-        public int DuplicateCount
-        {
-            get => duplicateCount;
-            set
+
+            OperationInfo = operationInfo;
+            DuplicateCount = duplicateCount;
+
+            // To clear the speed history, we keep the start time of the
+            // operation. If the operationInfo contains a new one, we know
+            // we have a different operation. Thus clearing the history.
+            if (StartTime != operationInfo.StartTime)
             {
-                duplicateCount = value;
-
-                SetDuplicateCount();
-                if (operationInfo == null)
-                {
-                    return;
-                }
-                SetDuplicateSpeed();
+                StartTime = operationInfo.StartTime;
+                fileSpeedHistory.Clear();
+                fileSpeedHistory.PushBack((0, StartTime));
+                duplicateSpeedHistory.Clear();
+                duplicateSpeedHistory.PushBack((0, StartTime));
             }
+
+            if (StartTime != DateTime.MinValue)
+            {
+                Duration = DateTime.Now - StartTime;
+            }
+
+            if (Maximum != 0)
+            {
+                Remaining = Maximum - Current;
+            }
+
+            LblStatusInfo.Text = OperationTypeTexts[Type];
+            SetProgressBar();
+            SetCurrentFileCount();
+            SetRemainingFileCount();
+            SetDuplicateCount();
+            SetFileSpeed();
+            SetDuplicateSpeed();
+            SetElapsedTime();
+            SetRemainingTime();
         }
 
-        private OperationInfo operationInfo;
-        private int duplicateCount;
+        private OperationInfo OperationInfo { get; set; }
+        private int DuplicateCount { get; set; }
 
         private OperationType Type => OperationInfo.OperationType;
         private int Current => OperationInfo.CurrentProgress;
         private int Maximum => OperationInfo.MaximumProgress;
         private ProgressStyle Style => OperationInfo.ProgressStyle;
-        private DateTime StartTime => OperationInfo.StartTime;
+        private DateTime StartTime { get; set; }
         private TimeSpan Duration { get; set; }
         private int Remaining { get; set; }
 
@@ -175,83 +200,113 @@ namespace VideoDedup.StatusInfo
             }
         }
 
-        private void SetCurrentProgress()
+        private void SetCurrentFileCount()
         {
             var visible = Maximum != 0;
 
             if (visible)
             {
-                LblCurrentProgress.Text = $"{Current} / {Maximum} " +
+                LblCurrentFileCount.Text = $"{Current} / {Maximum} " +
                     $"({(double)Current / Maximum * 100:0.00}%)";
             }
 
-            LblCurrentProgress.Visible = visible;
-            LblCurrentProgressTitle.Visible = visible;
+            LblCurrentFileCount.Visible = visible;
+            LblCurrentFileCountTitle.Visible = visible;
         }
 
-        private void SetRemainingProgress()
+        private void SetRemainingFileCount()
         {
             var visible = Maximum != 0;
 
             if (visible)
             {
                 var remaining = Maximum - Current;
-                LblRemainingProgress.Text = $"{remaining} / {Maximum} " +
+                LblRemainingFileCount.Text = $"{remaining} / {Maximum} " +
                     $"({(double)remaining / Maximum * 100:0.00}%)";
             }
 
-            LblRemainingProgress.Visible = visible;
-            LblRemainingProgressTitle.Visible = visible;
+            LblRemainingFileCount.Visible = visible;
+            LblRemainingFileCountTitle.Visible = visible;
         }
 
         private void SetDuplicateCount()
         {
-            var visible = duplicateCount != 0;
+            var visible = DuplicateCount != 0;
 
             if (visible)
             {
-                LblDuplicateCount.Text = $"{duplicateCount}";
+                LblDuplicateCount.Text = $"{DuplicateCount}";
             }
 
             LblDuplicateCount.Visible = visible;
             LblDuplicateCountTitle.Visible = visible;
         }
 
-
-        private void SetProgressSpeed()
+        private void SetFileSpeed()
         {
             var visible = StartTime != DateTime.MinValue && Current != 0;
-
-            if (visible)
+            try
             {
-                var (speed, unit) = CalculateSpeed(Current, Duration);
-                LblProgressSpeed.Text = $"{speed:0.00}";
-                LblProgressSpeedUnit.Text = $"Files/{unit}";
-            }
+                if (!visible)
+                {
+                    return;
+                }
 
-            LblProgressSpeed.Visible = visible;
-            LblProgressSpeedTitle.Visible = visible;
-            LblProgressSpeedUnit.Visible = visible;
+                fileSpeedHistory.PushBack((Current, DateTime.Now));
+                var (speed, unit) = CalculateSpeed(fileSpeedHistory);
+
+                visible = !double.IsInfinity(speed) && !double.IsNaN(speed);
+
+                if (!visible)
+                {
+                    return;
+                }
+
+                LblFileCountSpeed.Text = $"{speed:0.00}";
+                LblFileCountSpeedUnit.Text = $"Files/{unit}";
+            }
+            finally
+            {
+                LblFileCountSpeed.Visible = visible;
+                LblFileCountSpeedTitle.Visible = visible;
+                LblFileCountSpeedUnit.Visible = visible;
+            }
         }
 
         private void SetDuplicateSpeed()
         {
-            var visible = StartTime != DateTime.MinValue && duplicateCount != 0;
-            // For the special case that we are monitoring.
-            // Because monitoring resets the elapsed time but the duplicate
-            // count is not reset. So we get useless and ridiculous speed.
-            visible &= Maximum != 0;
-
-            if (visible)
+            var visible = StartTime != DateTime.MinValue && DuplicateCount != 0;
+            try
             {
-                var (speed, unit) = CalculateSpeed(DuplicateCount, Duration);
+                // For the special case that we are monitoring.
+                // Because monitoring resets the elapsed time but the duplicate
+                // count is not reset. So we get useless and ridiculous speed.
+                visible &= Maximum != 0;
+
+                if (!visible)
+                {
+                    return;
+                }
+
+                duplicateSpeedHistory.PushBack((DuplicateCount, DateTime.Now));
+                var (speed, unit) = CalculateSpeed(duplicateSpeedHistory);
+
+                visible = !double.IsInfinity(speed) && !double.IsNaN(speed);
+
+                if (!visible)
+                {
+                    return;
+                }
+
                 LblDuplicateSpeed.Text = $"{speed:0.00}";
                 LblDuplicateSpeedUnit.Text = $"Duplicates/{unit}";
             }
-
-            LblDuplicateSpeed.Visible = visible;
-            LblDuplicateSpeedTitle.Visible = visible;
-            LblDuplicateSpeedUnit.Visible = visible;
+            finally
+            {
+                LblDuplicateSpeed.Visible = visible;
+                LblDuplicateSpeedTitle.Visible = visible;
+                LblDuplicateSpeedUnit.Visible = visible;
+            }
         }
 
         private void SetElapsedTime()
@@ -272,19 +327,37 @@ namespace VideoDedup.StatusInfo
             var visible =
                 StartTime != DateTime.MinValue && Current != 0 && Maximum != 0;
 
-            if (visible)
+            try
             {
-                var remainingTime =
-               Duration.TotalSeconds
-               / Current
-               * Remaining;
+                if (!visible)
+                {
+                    return;
+                }
 
+                var (firstValue, firstStamp) = fileSpeedHistory.First();
+                var (lastValue, lastStamp) = fileSpeedHistory.Last();
+                var files = lastValue - firstValue;
+                var duration = lastStamp - firstStamp;
+
+                var timePerFile = duration.TotalSeconds / files;
+
+                visible = !double.IsInfinity(timePerFile)
+                    && !double.IsNaN(timePerFile);
+
+                if (!visible)
+                {
+                    return;
+                }
+
+                var remainingTime = timePerFile * Remaining;
                 LblRemainingTime.Text =
                     TimeSpan.FromSeconds(remainingTime).ToPrettyString();
             }
-
-            LblRemainingTime.Visible = visible;
-            LblRemainingTimeTitle.Visible = visible;
+            finally
+            {
+                LblRemainingTime.Visible = visible;
+                LblRemainingTimeTitle.Visible = visible;
+            }
         }
 
     }

@@ -75,11 +75,11 @@ namespace VideoDedup
             Settings = LoadConfig();
 
             StatusTimer = new SmartTimer.Timer(StatusTimerCallback);
-            StiProgress.OperationInfo = new OperationInfo
+            StiProgress.UpdateStatusInfo(new OperationInfo
             {
                 OperationType = OperationType.Connecting,
                 ProgressStyle = ProgressStyle.Marquee,
-            };
+            });
             _ = StatusTimer.StartSingle(0);
 
             base.OnLoad(e);
@@ -134,11 +134,8 @@ namespace VideoDedup
                             DgvLog.RowCount - 1;
                     }
 
-
-                    StiProgress.OperationInfo = status.Operation;
-
                     DuplicateCount = status.DuplicateCount;
-                    StiProgress.DuplicateCount = DuplicateCount;
+                    StiProgress.UpdateStatusInfo(status.Operation, DuplicateCount);
                     BtnResolveDuplicates.Enabled = DuplicateCount > 0;
                     BtnDiscardDuplicates.Enabled = DuplicateCount > 0;
                 });
@@ -152,11 +149,11 @@ namespace VideoDedup
                 this.InvokeIfRequired(() =>
                 {
                     BtnResolveDuplicates.Enabled = false;
-                    StiProgress.OperationInfo = new OperationInfo
+                    StiProgress.UpdateStatusInfo(new OperationInfo
                     {
                         OperationType = OperationType.Connecting,
                         ProgressStyle = ProgressStyle.Marquee,
-                    };
+                    });
                 });
             }
             finally
