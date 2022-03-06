@@ -7,6 +7,7 @@ namespace VideoDedup
     /// <inheritdoc/>
     /// <summary>
     /// Circular buffer.
+    /// From https://github.com/joaoportela/CircularBuffer-CSharp
     /// 
     /// When writing to a full buffer:
     /// PushBack -> removes this[0] / Front()
@@ -59,7 +60,8 @@ namespace VideoDedup
             if (capacity < 1)
             {
                 throw new ArgumentException(
-                    "Circular buffer cannot have negative or zero capacity.", nameof(capacity));
+                    "Circular buffer cannot have negative or zero capacity.",
+                    nameof(capacity));
             }
             if (items == null)
             {
@@ -68,7 +70,8 @@ namespace VideoDedup
             if (items.Length > capacity)
             {
                 throw new ArgumentException(
-                    "Too many items to fit circular buffer", nameof(items));
+                    "Too many items to fit circular buffer",
+                    nameof(items));
             }
 
             buffer = new T[capacity];
@@ -137,11 +140,16 @@ namespace VideoDedup
             {
                 if (IsEmpty)
                 {
-                    throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer is empty", index));
+                    throw new IndexOutOfRangeException(string.Format(
+                        "Cannot access index {0}. Buffer is empty",
+                        index));
                 }
                 if (index >= Size)
                 {
-                    throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer size is {1}", index, Size));
+                    throw new IndexOutOfRangeException(string.Format(
+                        "Cannot access index {0}. Buffer size is {1}",
+                        index,
+                        Size));
                 }
                 var actualIndex = InternalIndex(index);
                 return buffer[actualIndex];
@@ -150,11 +158,16 @@ namespace VideoDedup
             {
                 if (IsEmpty)
                 {
-                    throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer is empty", index));
+                    throw new IndexOutOfRangeException(string.Format(
+                        "Cannot access index {0}. Buffer is empty",
+                        index));
                 }
                 if (index >= Size)
                 {
-                    throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer size is {1}", index, Size));
+                    throw new IndexOutOfRangeException(string.Format(
+                        "Cannot access index {0}. Buffer size is {1}",
+                        index,
+                        Size));
                 }
                 var actualIndex = InternalIndex(index);
                 buffer[actualIndex] = value;
