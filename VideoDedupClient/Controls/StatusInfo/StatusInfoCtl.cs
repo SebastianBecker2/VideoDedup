@@ -1,16 +1,5 @@
 namespace VideoDedup.StatusInfo
 {
-    // Rename progress to files
-
-
-
-    // Calculate speed by recent items per recent time. instead of all items per all time.
-    // This way, even with sleep mode / hypernation or when switching to monitoring
-    // (as duplicate speed has the issue with that), the speed would normalize itself.
-    // Because the time frame from the sleep / hypernation / pre-monitor would move
-    // out of scope and would be ignored.
-
-
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -19,7 +8,8 @@ namespace VideoDedup.StatusInfo
     using Microsoft.WindowsAPICodePack.Taskbar;
     using VideoDedupShared;
     using VideoDedupShared.TimeSpanExtension;
-    using SpeedRingBuffer = CircularBuffer<(int value, System.DateTime stamp)>;
+    using SpeedRingBuffer =
+        CircularBuffer.CircularBuffer<(int value, System.DateTime stamp)>;
 
     public partial class StatusInfoCtl : UserControl
     {

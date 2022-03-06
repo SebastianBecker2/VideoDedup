@@ -55,6 +55,9 @@
     <ApplicationIcon>Images\film.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CircularBuffer, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CircularBuffer.1.2.1\lib\netstandard2.0\CircularBuffer.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\WindowsAPICodePack-Core.1.1.2\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
     </Reference>
@@ -83,7 +86,6 @@
     <Compile Include="..\Versioning\Versioning.cs">
       <Link>Versioning.cs</Link>
     </Compile>
-    <Compile Include="CircularBuffer.cs" />
     <Compile Include="Controls\StatusInfo\StatusInfoCtl.cs">
       <SubType>UserControl</SubType>
     </Compile>
