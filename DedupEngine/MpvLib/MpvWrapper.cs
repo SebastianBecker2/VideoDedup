@@ -14,7 +14,7 @@ namespace DedupEngine.MpvLib
     public class MpvWrapper : IDisposable
     {
         private const string LibPath = @"mpv-1.dll";
-        private static readonly TimeSpan GetEventIdTimeout =
+        private static readonly TimeSpan EventIdTimeout =
             TimeSpan.FromSeconds(10);
         private static readonly int MaxReadRetryCount = 10;
 
@@ -33,7 +33,7 @@ namespace DedupEngine.MpvLib
             {
                 while (true)
                 {
-                    var eventId = GetEventId(mpvHandle, GetEventIdTimeout);
+                    var eventId = GetEventId(mpvHandle, EventIdTimeout);
 
                     if (eventId == EventId.FileLoaded)
                     {
@@ -101,7 +101,7 @@ namespace DedupEngine.MpvLib
             {
                 while (true)
                 {
-                    var eventId = GetEventId(mpvHandle, GetEventIdTimeout);
+                    var eventId = GetEventId(mpvHandle, EventIdTimeout);
 
                     if (eventId == EventId.FileLoaded)
                     {
@@ -262,7 +262,7 @@ namespace DedupEngine.MpvLib
 
             while (true)
             {
-                var eventId = GetEventId(MpvHandle, GetEventIdTimeout);
+                var eventId = GetEventId(MpvHandle, EventIdTimeout);
 
                 if (cancelToken.HasValue
                     && cancelToken.Value.IsCancellationRequested)
@@ -351,7 +351,7 @@ namespace DedupEngine.MpvLib
 
             while (true)
             {
-                var eventId = GetEventId(MpvHandle, GetEventIdTimeout);
+                var eventId = GetEventId(MpvHandle, EventIdTimeout);
 
                 if (cancelToken.HasValue
                     && cancelToken.Value.IsCancellationRequested)
