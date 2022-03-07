@@ -636,6 +636,7 @@ namespace DedupEngine
                 {
                     OnLogged($"New file added to VideoFile-List: {newFile.FilePath}");
                     VideoFiles.Add(newFile);
+                    Datastore.InsertVideoFile(newFile);
                 }
                 else
                 {
