@@ -3,6 +3,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/ld6w3vd6m49spu27/branch/master?svg=true)](https://ci.appveyor.com/project/SebastianBecker2/videodedup/branch/master)
 
 Tool to deduplicate video files.
+A duplicate is defined as two videos that visually have the same content. For example if the videos show the same material with different encodings, frame rates and/or resolutions.
 
 This tool includes a server and client module. By default, the client looks for the server on localhost. Communication is achieved using [Microsofts WCF](https://docs.microsoft.com/en-us/dotnet/framework/wcf/whats-wcf).
 The server searches for duplicates of video files. Duplicates are determined by the following configurable settings:
