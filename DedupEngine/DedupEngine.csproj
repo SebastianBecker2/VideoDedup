@@ -102,6 +102,7 @@
     <Compile Include="MpvLib\Event.cs" />
     <Compile Include="MpvLib\EventId.cs" />
     <Compile Include="MpvLib\MpvException.cs" />
+    <Compile Include="MpvLib\MpvFileNotFoundException.cs" />
     <Compile Include="MpvLib\MpvInitializationException.cs" />
     <Compile Include="MpvLib\MpvOperationException.cs" />
     <Compile Include="MpvLib\MpvOutOfMemoryException.cs" />

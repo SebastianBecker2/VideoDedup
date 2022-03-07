@@ -20,6 +20,13 @@ namespace DedupEngine.MpvLib
 
         public static CodecInfo GetCodecInfo(string filePath)
         {
+            if (!File.Exists(filePath))
+            {
+                throw new MpvFileNotFoundException(
+                    "Unable to extract images. File not found.",
+                    filePath);
+            }
+
             var mpvHandle = PreparePropertyHandle(filePath);
 
             try
@@ -81,6 +88,13 @@ namespace DedupEngine.MpvLib
 
         public static TimeSpan GetDuration(string filePath)
         {
+            if (!File.Exists(filePath))
+            {
+                throw new MpvFileNotFoundException(
+                    "Unable to extract images. File not found.",
+                    filePath);
+            }
+
             var mpvHandle = PreparePropertyHandle(filePath);
 
             try
@@ -197,6 +211,13 @@ namespace DedupEngine.MpvLib
             int count,
             int divisionCount)
         {
+            if (!File.Exists(FilePath))
+            {
+                throw new MpvFileNotFoundException(
+                    "Unable to extract images. File not found.",
+                    FilePath);
+            }
+
             if (count <= 0)
             {
                 yield break;
@@ -298,6 +319,13 @@ namespace DedupEngine.MpvLib
             CancellationToken? cancelToken,
             IEnumerable<ImageIndex> indices)
         {
+            if (!File.Exists(FilePath))
+            {
+                throw new MpvFileNotFoundException(
+                    "Unable to extract images. File not found.",
+                    FilePath);
+            }
+
             if (indices is null)
             {
                 throw new ArgumentNullException(nameof(indices));
