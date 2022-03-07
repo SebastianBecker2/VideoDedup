@@ -18,16 +18,6 @@ namespace VideoDedupServer
 
     public class Service : IVideoDedupProvider, IDisposable
     {
-        private static readonly IReadOnlyDictionary<OperationType, string>
-            OperationTypeTexts = new Dictionary<OperationType, string>
-        {
-            { OperationType.Comparing, "Comparing: {0}/{1}" },
-            { OperationType.LoadingMedia, "Loading media info: {0}/{1}" },
-            { OperationType.Searching, "Searching for files..." },
-            { OperationType.Monitoring, "Monitoring for file changes..." },
-            { OperationType.Completed, "Finished comparison" },
-        };
-
         private readonly DedupEngine dedupper;
         private readonly CancellationTokenSource cancelTokenSource =
             new CancellationTokenSource();
@@ -65,7 +55,7 @@ namespace VideoDedupServer
             OperationInfo = new OperationInfo
             {
                 ProgressStyle = ProgressStyle.Marquee,
-                Message = "Initializing...",
+                OperationType = OperationType.Initializing,
             };
 
             initializationTask = Task.Factory.StartNew(() =>
@@ -79,7 +69,7 @@ namespace VideoDedupServer
                         OperationInfo = new OperationInfo
                         {
                             ProgressStyle = ProgressStyle.NoProgress,
-                            Message = exc.Message,
+                            OperationType = OperationType.Error,
                         };
                         AddLogEntry(exc.Message);
                     }
@@ -91,10 +81,7 @@ namespace VideoDedupServer
             OperationUpdateEventArgs e) =>
             OperationInfo = new OperationInfo
             {
-                Message = string.Format(
-                    OperationTypeTexts[e.Type],
-                    e.Counter,
-                    e.MaxCount),
+                OperationType = e.Type,
                 CurrentProgress = e.Counter,
                 MaximumProgress = e.MaxCount,
                 ProgressStyle = e.Style,
@@ -311,7 +298,7 @@ namespace VideoDedupServer
                 OperationInfo = new OperationInfo
                 {
                     ProgressStyle = ProgressStyle.NoProgress,
-                    Message = exc.Message,
+                    OperationType = OperationType.Error,
                 };
                 AddLogEntry(exc.Message);
             }
