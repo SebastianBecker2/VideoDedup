@@ -61,7 +61,9 @@
     <ComponentGroup Id="ClientComponents" Directory="CLIENTFOLDER">
       <Component Id="ClientComponent" Win64="$(var.Win64)" Guid="4C2F8BE9-80D7-4C41-A96A-E4F7734D9A95">
         <File Id="Client_VideoDedupClient.exe" Source="$(var.VideoDedupClient.TargetPath)" />
-        
+
+        <File Id="Client_CircularBuffer.dll"
+              Source="$(var.VideoDedupClient.TargetDir)CircularBuffer.dll" />
         <File Id="Client_Contracts.dll" 
               Source="$(var.Contracts.TargetPath)" />
         <File Id="Client_Microsoft.WindowsAPICodePack.dll" 
