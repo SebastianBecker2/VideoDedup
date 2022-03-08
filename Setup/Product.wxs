@@ -93,7 +93,15 @@
                  Guid="05AA6D44-9B24-42BB-8B04-2400BB10F96C">
         <File Id="Server_VideoDedupService.exe" 
               Source="$(var.VideoDedupService.TargetPath)" />
-        
+
+        <?if $(var.Platform) = x64 ?>
+          <File Id="Server_SQLite.Interop.dll"
+                Source="$(var.DuplicateManager.TargetDir)x64\SQLite.Interop.dll" />
+        <?else ?>
+          <File Id="Server_SQLite.Interop.dll"
+                Source="$(var.DuplicateManager.TargetDir)x86\SQLite.Interop.dll" />
+        <?endif ?>
+          
         <File Id="Server_Contracts.dll" 
               Source="$(var.Contracts.TargetPath)" />
         <File Id="Server_CustomComparisonManager.dll" 
@@ -102,12 +110,22 @@
               Source="$(var.DedupEngine.TargetPath)" />
         <File Id="Server_DuplicateManager.dll" 
               Source="$(var.DuplicateManager.TargetPath)" />
+        <File Id="Server_EntityFramework.dll"
+              Source="$(var.DedupEngine.TargetDir)EntityFramework.dll" />
+        <File Id="Server_EntityFramework.SqlServer.dll"
+              Source="$(var.DedupEngine.TargetDir)EntityFramework.SqlServer.dll" />
+        <File Id="Server_KGySoft.CoreLibraries.dll"
+              Source="$(var.DedupEngine.TargetDir)KGySoft.CoreLibraries.dll" />
+        <File Id="Server_KGySoft.Drawing.dll"
+              Source="$(var.DedupEngine.TargetDir)KGySoft.Drawing.dll" />
         <File Id="Server_mpv_1.dll" 
               Source="$(var.VideoDedupService.TargetDir)mpv-1.dll" />
         <File Id="Server_Newtonsoft.Json.dll" 
               Source="$(var.VideoDedupService.TargetDir)Newtonsoft.Json.dll" />
         <File Id="Server_SmartTimer.dll" 
               Source="$(var.SmartTimer.TargetPath)" />
+        <File Id="Server_System.Data.SQLite.dll"
+              Source="$(var.DedupEngine.TargetDir)System.Data.SQLite.dll" />
         <File Id="Server_VideoDedupServer.dll" 
               Source="$(var.VideoDedupServer.TargetPath)" />
         <File Id="Server_VideoDedupShared.dll" 
