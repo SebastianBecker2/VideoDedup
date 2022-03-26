@@ -3,7 +3,7 @@ namespace VideoDedupSharedLib.Interfaces
     using System;
     using VideoDedupGrpc;
 
-    public interface IVideoFile : IEquatable<IVideoFile>
+    public interface IVideoFile
     {
         string FilePath { get; }
         long FileSize { get; }

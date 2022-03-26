@@ -8,17 +8,35 @@ namespace DuplicateManager
 
     internal class ThumbnailManager
     {
-        private class VideoFileRefCounter
+        private class VideoFileRefCounter : IEqualityComparer<VideoFileRefCounter>
         {
             public VideoFileRefCounter(VideoFile videoFile) =>
                 VideoFile = videoFile;
 
             public VideoFile VideoFile { get; }
             public int RefCount { get; set; } = 1;
+
+
+            public bool Equals(VideoFileRefCounter? x, VideoFileRefCounter? y)
+            {
+                if (ReferenceEquals(x, y))
+                {
+                    return true;
+                }
+
+                if (x is null || y is null)
+                {
+                    return false;
+                }
+
+                return x.VideoFile.FilePath == y.VideoFile.FilePath;
+            }
+
+            public int GetHashCode(VideoFileRefCounter obj) =>
+                HashCode.Combine(VideoFile.FilePath);
         }
 
-        private readonly IDictionary<VideoFile, VideoFileRefCounter> uniqueVideoFiles =
-            new Dictionary<VideoFile, VideoFileRefCounter>();
+        private readonly HashSet<VideoFileRefCounter> uniqueVideoFiles = new();
 
         public ThumbnailSettings Settings { get; set; }
 
@@ -28,7 +46,9 @@ namespace DuplicateManager
 
         public VideoFile AddVideoFileReference(VideoFile videoFile)
         {
-            if (uniqueVideoFiles.TryGetValue(videoFile, out var refCounter))
+            if (uniqueVideoFiles.TryGetValue(
+                    new VideoFileRefCounter(videoFile),
+                    out var refCounter))
             {
                 refCounter.RefCount++;
                 return refCounter.VideoFile;
@@ -54,23 +74,24 @@ namespace DuplicateManager
             videoFile.Images.AddRange(
                 GetThumbnails().Select(ByteString.CopyFrom));
 
-            uniqueVideoFiles.Add(
-                videoFile,
-                new VideoFileRefCounter(videoFile));
+            uniqueVideoFiles.Add(new VideoFileRefCounter(videoFile));
             return videoFile;
         }
 
         public void RemoveVideoFileReference(VideoFile videoFile)
         {
-            var refCounter = uniqueVideoFiles[videoFile];
-
-            if (refCounter.RefCount == 1)
+            if (uniqueVideoFiles.TryGetValue(
+                    new VideoFileRefCounter(videoFile),
+                    out var refCounter))
             {
-                _ = uniqueVideoFiles.Remove(videoFile);
-                return;
-            }
+                if (refCounter.RefCount == 1)
+                {
+                    uniqueVideoFiles.Remove(refCounter);
+                    return;
+                }
 
-            refCounter.RefCount--;
+                refCounter.RefCount--;
+            }
         }
     }
 }
