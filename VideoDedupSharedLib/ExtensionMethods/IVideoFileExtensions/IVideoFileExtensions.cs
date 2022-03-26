@@ -131,8 +131,8 @@ namespace VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions
                 FilePath = videoFile.FilePath,
                 FileSize = videoFile.FileSize,
                 Duration = Duration.FromTimeSpan(videoFile.Duration),
-                LastWriteTime = Timestamp.FromDateTime(videoFile.LastWriteTime),
+                LastWriteTime = Timestamp.FromDateTime(
+                    videoFile.LastWriteTime.ToUniversalTime()),
             };
-
     }
 }

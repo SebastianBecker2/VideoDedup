@@ -208,7 +208,7 @@ namespace VideoDedupServer
                 CurrentProgress = e.Counter,
                 MaximumProgress = e.MaxCount,
                 ProgressStyle = e.Style,
-                StartTime = Timestamp.FromDateTime(e.StartTime),
+                StartTime = Timestamp.FromDateTime(e.StartTime.ToUniversalTime()),
             };
 
         private void DuplicateFoundCallback(
@@ -262,7 +262,7 @@ namespace VideoDedupServer
         public static ConfigurationSettings LoadConfiguration()
         {
             var excludedDirectories = JsonConvert.DeserializeObject<List<string>>(
-                Settings.Default.ExcludedDirectories);
+                Settings.Default.ExcludedDirectories) ?? new List<string>();
 
             var fileExtensions = JsonConvert.DeserializeObject<List<string>>(
                 Settings.Default.FileExtensions);
