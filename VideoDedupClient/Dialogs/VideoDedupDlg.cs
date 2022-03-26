@@ -25,7 +25,7 @@ namespace VideoDedupClient.Dialogs
                 lock (GrpcClientLock)
                 {
                     grpcChannel ??= GrpcChannel.ForAddress(
-                        $"http://{Settings.ServerAddress}:41721");
+                        $"http://{Settings.ServerAddress}:41722");
 
                     return new VideoDedupGrpcServiceClient(grpcChannel);
                 }
@@ -117,7 +117,6 @@ namespace VideoDedupClient.Dialogs
                 });
             }
             catch (RpcException ex)
-                when (ex.StatusCode == StatusCode.DeadlineExceeded)
             {
                 Debug.Print("Status request failed with: " + ex.Message);
                 this.InvokeIfRequired(() =>
