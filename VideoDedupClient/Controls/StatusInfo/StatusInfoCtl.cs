@@ -118,26 +118,31 @@ namespace VideoDedupClient.Controls.StatusInfo
             OperationInfo = operationInfo;
             DuplicateCount = duplicateCount;
 
-            // To clear the speed history, we keep the start time of the
-            // operation. If the operationInfo contains a new one, we know
-            // we have a different operation. Thus clearing the history.
-            if (StartTime != operationInfo.StartTime.ToDateTime())
+            if (OperationInfo.ProgressStyle == ProgressStyle.Continuous)
             {
-                StartTime = operationInfo.StartTime.ToDateTime();
-                fileSpeedHistory.Clear();
-                fileSpeedHistory.PushBack((0, StartTime));
-                duplicateSpeedHistory.Clear();
-                duplicateSpeedHistory.PushBack((0, StartTime));
-            }
+                Debug.Assert(OperationInfo.StartTime is not null);
 
-            if (StartTime != DateTime.MinValue)
-            {
-                Duration = DateTime.Now - StartTime;
-            }
+                // To clear the speed history, we keep the start time of the
+                // operation. If the operationInfo contains a new one, we know
+                // we have a different operation. Thus clearing the history.
+                if (StartTime != OperationInfo.StartTime.ToDateTime())
+                {
+                    StartTime = OperationInfo.StartTime.ToDateTime();
+                    fileSpeedHistory.Clear();
+                    fileSpeedHistory.PushBack((0, StartTime));
+                    duplicateSpeedHistory.Clear();
+                    duplicateSpeedHistory.PushBack((0, StartTime));
+                }
 
-            if (Maximum != 0)
-            {
-                Remaining = Maximum - Current;
+                if (StartTime != DateTime.MinValue)
+                {
+                    Duration = DateTime.Now - StartTime;
+                }
+
+                if (Maximum != 0)
+                {
+                    Remaining = Maximum - Current;
+                }
             }
 
             LblStatusInfo.Text = OperationTypeTexts[OperationInfo.OperationType];
