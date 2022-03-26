@@ -25,4 +25,8 @@
     <ProjectReference Include="..\VideoDedupServer\VideoDedupServer.csproj" />
   </ItemGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if $(PlatformName) == x64 (&#xD;&#xA;  xcopy &quot;$(SolutionDir)DedupEngine\Libs\libmpv\x64\mpv-1.dll&quot; &quot;$(TargetDir)&quot; /y&#xD;&#xA;) else (&#xD;&#xA;  xcopy &quot;$(SolutionDir)DedupEngine\Libs\libmpv\x86\mpv-1.dll&quot; &quot;$(TargetDir)&quot; /y&#xD;&#xA;)" />
+  </Target>
+
 </Project>
