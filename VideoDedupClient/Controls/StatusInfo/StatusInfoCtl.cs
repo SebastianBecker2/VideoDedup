@@ -7,6 +7,7 @@ namespace VideoDedupClient.Controls.StatusInfo
     using System.Linq;
     using System.Windows.Forms;
     using VideoDedupGrpc;
+    using VideoDedupSharedLib.ExtensionMethods.TimeSpanExtensions;
     using static VideoDedupGrpc.OperationInfo.Types;
     using SpeedRingBuffer =
         CircularBuffer.CircularBuffer<(int value, DateTime stamp)>;
@@ -313,7 +314,7 @@ namespace VideoDedupClient.Controls.StatusInfo
 
             if (visible)
             {
-                LblElapsedTime.Text = Duration.ToString();//.ToPrettyString();
+                LblElapsedTime.Text = Duration.ToPrettyString();
             }
 
             LblElapsedTime.Visible = visible;
@@ -349,7 +350,7 @@ namespace VideoDedupClient.Controls.StatusInfo
 
                 var remainingTime = timePerFile * Remaining;
                 LblRemainingTime.Text =
-                    TimeSpan.FromSeconds(remainingTime).ToString();//.ToPrettyString();
+                    TimeSpan.FromSeconds(remainingTime).ToPrettyString();
             }
             finally
             {
