@@ -297,12 +297,11 @@ namespace VideoDedupClient.Dialogs
                     }
 
                     using var dlg = new VideoComparisonDlg();
-                    DialogResult result;
                     dlg.LeftFile = duplicate.File1;
                     dlg.RightFile = duplicate.File2;
                     dlg.ServerSourcePath = duplicate.BasePath;
                     dlg.ClientSourcePath = Settings.ClientSourcePath;
-                    result = dlg.ShowDialog();
+                    var result = dlg.ShowDialog();
 
                     var resolveDuplicateRequest = new ResolveDuplicateRequest
                     {
@@ -313,6 +312,7 @@ namespace VideoDedupClient.Dialogs
                     {
                         resolveDuplicateRequest.ResolveOperation =
                             ResolveDuplicateRequest.Types.ResolveOperation.Cancel;
+                        return;
                     }
 
                     _ = GrpcClient.ResolveDuplicate(resolveDuplicateRequest);
