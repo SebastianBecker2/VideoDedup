@@ -74,7 +74,7 @@ namespace DuplicateManager
             videoFile.Images.AddRange(
                 GetThumbnails().Select(ByteString.CopyFrom));
 
-            uniqueVideoFiles.Add(new VideoFileRefCounter(videoFile));
+            _ = uniqueVideoFiles.Add(new VideoFileRefCounter(videoFile));
             return videoFile;
         }
 
@@ -86,7 +86,7 @@ namespace DuplicateManager
             {
                 if (refCounter.RefCount == 1)
                 {
-                    uniqueVideoFiles.Remove(refCounter);
+                    _ = uniqueVideoFiles.Remove(refCounter);
                     return;
                 }
 
