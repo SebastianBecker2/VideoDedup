@@ -45,7 +45,6 @@ namespace DedupEngine
         private FolderSettings folderSettings;
         private DurationComparisonSettings durationComparisonSettings;
         private VideoComparisonSettings videoComparisonSettings;
-        //private EngineSettings settings = new();
         private IList<VideoFile> videoFiles = new List<VideoFile>();
         private readonly EngineDatastore datastore;
 
@@ -92,8 +91,16 @@ namespace DedupEngine
         protected virtual void OnLogged(string format, params object?[] args) =>
             OnLogged(string.Format(CultureInfo.CurrentCulture, format, args));
 
-        private DedupEngine(string appDataFolder)
+        public DedupEngine(
+            string appDataFolder,
+            FolderSettings folderSettings,
+            DurationComparisonSettings durationComparisonSettings,
+            VideoComparisonSettings videoComparisonSettings)
         {
+            this.folderSettings = folderSettings;
+            this.durationComparisonSettings = durationComparisonSettings;
+            this.videoComparisonSettings = videoComparisonSettings;
+
             if (string.IsNullOrWhiteSpace(appDataFolder))
             {
                 throw new ArgumentException($"'{nameof(appDataFolder)}' cannot" +
@@ -110,15 +117,10 @@ namespace DedupEngine
             FileWatcher.Created += HandleFileWatcherCreatedEvent;
         }
 
-        public DedupEngine(string appDataFolder, FolderSettings folderSettings, DurationComparisonSettings durationComparisonSettings, VideoComparisonSettings videoComparisonSettings)
-            : this(appDataFolder)
-        {
-            this.folderSettings = folderSettings;
-            this.durationComparisonSettings = durationComparisonSettings;
-            this.videoComparisonSettings = videoComparisonSettings;
-        }
-
-        public void UpdateConfiguration(FolderSettings folderSettings, DurationComparisonSettings durationComparisonSettings, VideoComparisonSettings videoComparisonSettings)
+        public void UpdateConfiguration(
+            FolderSettings folderSettings,
+            DurationComparisonSettings durationComparisonSettings,
+            VideoComparisonSettings videoComparisonSettings)
         {
             Stop();
             this.folderSettings = folderSettings;

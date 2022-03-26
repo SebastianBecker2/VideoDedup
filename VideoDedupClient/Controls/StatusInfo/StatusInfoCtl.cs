@@ -56,7 +56,6 @@ namespace VideoDedupClient.Controls.StatusInfo
         private OperationInfo OperationInfo { get; set; }
         private int DuplicateCount { get; set; }
 
-        private OperationType Type => OperationInfo.OperationType;
         private int Current => OperationInfo.CurrentProgress;
         private int Maximum => OperationInfo.MaximumProgress;
         private ProgressStyle Style => OperationInfo.ProgressStyle;
@@ -99,6 +98,19 @@ namespace VideoDedupClient.Controls.StatusInfo
             return (value / highestScale.Divisor(timeSpan), highestScale.Unit);
         }
 
+        public StatusInfoCtl()
+        {
+            OperationInfo = new OperationInfo
+            {
+                CurrentProgress = 0,
+                MaximumProgress = 0,
+                OperationType = OperationType.Initializing,
+                ProgressStyle = ProgressStyle.NoProgress,
+            };
+
+            InitializeComponent();
+        }
+
         public void UpdateStatusInfo(
             OperationInfo operationInfo,
             int duplicateCount = 0)
@@ -128,7 +140,7 @@ namespace VideoDedupClient.Controls.StatusInfo
                 Remaining = Maximum - Current;
             }
 
-            LblStatusInfo.Text = OperationTypeTexts[Type];
+            LblStatusInfo.Text = OperationTypeTexts[OperationInfo.OperationType];
             SetProgressBar();
             SetCurrentFileCount();
             SetRemainingFileCount();
@@ -139,13 +151,11 @@ namespace VideoDedupClient.Controls.StatusInfo
             SetRemainingTime();
         }
 
-        public StatusInfoCtl() => InitializeComponent();
-
         private void SetProgressBar()
         {
             // Off (invalid configuration) [value = 0, max = 0]
             // Continuous (searching duplicates)
-            // Marquee (conecting, monitoring) [style = marquee, max = 1]
+            // Marquee (connecting, monitoring) [style = marquee, max = 1]
             if (Style == ProgressStyle.NoProgress)
             {
                 TaskbarManager.Instance.SetProgressState(

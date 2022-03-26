@@ -4,7 +4,6 @@ namespace VideoDedupClient.Dialogs
     using System.Collections.Concurrent;
     using System.Diagnostics;
     using System.Linq;
-    using System.Threading.Tasks;
     using System.Windows.Forms;
     using Google.Protobuf.WellKnownTypes;
     using Grpc.Core;
@@ -17,8 +16,6 @@ namespace VideoDedupClient.Dialogs
 
     public partial class VideoDedupDlg : Form
     {
-        private static readonly TimeSpan WcfTimeout = TimeSpan.FromSeconds(30);
-
         private static GrpcChannel? grpcChannel;
         private static readonly object GrpcClientLock = new();
         internal static VideoDedupGrpcServiceClient GrpcClient
@@ -40,14 +37,13 @@ namespace VideoDedupClient.Dialogs
 
         private int DuplicateCount { get; set; }
 
-        private SmartTimer.Timer StatusTimer { get; set; }
+        private SmartTimer.Timer StatusTimer { get; }
 
-        private static ConfigData Settings { get; set; }
+        private static ConfigData Settings { get; set; } = LoadConfig();
 
         public VideoDedupDlg()
         {
             InitializeComponent();
-            Settings = LoadConfig();
             StatusTimer = new SmartTimer.Timer(StatusTimerCallback);
         }
 
@@ -190,11 +186,7 @@ namespace VideoDedupClient.Dialogs
         {
             foreach (var index in Enumerable.Range(start, count))
             {
-                _ = LogEntries.TryAdd(index, new LogEntry
-                {
-                    Status = LogEntryStatus.Requested,
-                    Message = "",
-                });
+                _ = LogEntries.TryAdd(index, new LogEntry());
             }
 
             try
@@ -215,11 +207,7 @@ namespace VideoDedupClient.Dialogs
                 var logIndex = start;
                 foreach (var logEntry in logData.LogEntries)
                 {
-                    _ = LogEntries[logIndex++] = new LogEntry
-                    {
-                        Status = LogEntryStatus.Present,
-                        Message = logEntry,
-                    };
+                    _ = LogEntries[logIndex++] = new LogEntry(logEntry);
                 }
 
                 foreach (var index in Enumerable.Range(start, count))
@@ -314,7 +302,7 @@ namespace VideoDedupClient.Dialogs
                     dlg.LeftFile = duplicate.File1;
                     dlg.RightFile = duplicate.File2;
                     dlg.ServerSourcePath = duplicate.BasePath;
-                    dlg.Settings = Settings;
+                    dlg.ClientSourcePath = Settings.ClientSourcePath;
                     result = dlg.ShowDialog();
 
                     var resolveDuplicateRequest = new ResolveDuplicateRequest

@@ -6,7 +6,6 @@ namespace DedupEngine
     using System.IO;
     using global::DedupEngine.MpvLib;
     using VideoDedupGrpc;
-    using VideoDedupSharedLib;
     using VideoDedupSharedLib.Interfaces;
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
 

@@ -6,20 +6,19 @@ namespace VideoDedupClient.Dialogs
     using System.IO;
     using System.Windows.Forms;
     using Google.Protobuf.WellKnownTypes;
-    using VideoDedupClient;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.StringExtensions;
     using static VideoDedupGrpc.ResolveDuplicateRequest.Types;
 
     public partial class VideoComparisonDlg : Form
     {
-        private static readonly int MinimumSizeDifference = 100 * 1024; // 100 kB
+        private const int MinimumSizeDifference = 100 * 1024; // 100 kB
 
-        public VideoFile LeftFile { get; set; }
-        public VideoFile RightFile { get; set; }
-        public string ServerSourcePath { get; set; }
+        public VideoFile? LeftFile { get; set; }
+        public VideoFile? RightFile { get; set; }
 
-        public ConfigData Settings { get; set; }
+        public string? ServerSourcePath { get; set; }
+        public string? ClientSourcePath { get; set; }
 
         public ResolveOperation ResolveOperation { get; set; }
 
@@ -27,6 +26,21 @@ namespace VideoDedupClient.Dialogs
 
         protected override void OnLoad(EventArgs e)
         {
+            if (LeftFile is not null && RightFile is not null)
+            {
+                DisplayVideoFiles();
+            }
+
+            base.OnLoad(e);
+        }
+
+        private void DisplayVideoFiles()
+        {
+            if (LeftFile is null || RightFile is null)
+            {
+                return;
+            }
+
             SplitterContainer.SplitterDistance = SplitterContainer.Width / 2;
 
             var sizeDifference = LeftFile.FileSize - RightFile.FileSize;
@@ -58,8 +72,6 @@ namespace VideoDedupClient.Dialogs
 
                 FpvLeft.HighlightColor = Color.LightGreen;
             }
-
-            base.OnLoad(e);
         }
 
         private void BtnDeleteLeft_Click(object sender, EventArgs e)
@@ -77,14 +89,17 @@ namespace VideoDedupClient.Dialogs
         private void OpenFileInExplorer(VideoFile file)
         {
             var filePath = file.FilePath;
-            if (!string.IsNullOrWhiteSpace(Settings.ClientSourcePath))
+
+            if (!string.IsNullOrWhiteSpace(ClientSourcePath)
+                && !string.IsNullOrWhiteSpace(ServerSourcePath))
             {
                 var relFilePath = filePath.MakeRelativePath(ServerSourcePath);
 
                 filePath = Path.Combine(
-                    Settings.ClientSourcePath,
+                    ClientSourcePath,
                     relFilePath);
             }
+
             if (!File.Exists(filePath))
             {
                 _ = MessageBox.Show($"Can't find the file.{Environment.NewLine}" +
@@ -102,11 +117,25 @@ namespace VideoDedupClient.Dialogs
             _ = Process.Start("explorer.exe", argument);
         }
 
-        private void BtnShowRight_Click(object sender, EventArgs e) =>
-            OpenFileInExplorer(RightFile);
+        private void BtnShowRight_Click(object sender, EventArgs e)
+        {
+            if (RightFile is null)
+            {
+                return;
+            }
 
-        private void BtnShowLeft_Click(object sender, EventArgs e) =>
+            OpenFileInExplorer(RightFile);
+        }
+
+        private void BtnShowLeft_Click(object sender, EventArgs e)
+        {
+            if (LeftFile is null)
+            {
+                return;
+            }
+
             OpenFileInExplorer(LeftFile);
+        }
 
         private void BtnSkip_Click(object sender, EventArgs e)
         {
@@ -122,6 +151,11 @@ namespace VideoDedupClient.Dialogs
 
         private void BtnReviewComparison_Click(object sender, EventArgs e)
         {
+            if (LeftFile is null || RightFile is null)
+            {
+                return;
+            }
+
             using var dlg = new CustomVideoComparisonDlg
             {
                 VideoComparisonSettings =

@@ -387,9 +387,9 @@ namespace VideoDedupClient.Dialogs
                     DuplicateColor = DuplicateColor,
                     LoadedColor = LoadedColor,
                     NotLoadedColor = NotLoadedColor,
-                    LeftTimestamp = LeftVideoFile.Duration.ToTimeSpan().Multiply(
+                    LeftTimestamp = LeftVideoFile!.Duration.ToTimeSpan().Multiply(
                         icr.LeftImages.Index.Quotient),
-                    RightTimestamp = RightVideoFile.Duration.ToTimeSpan().Multiply(
+                    RightTimestamp = RightVideoFile!.Duration.ToTimeSpan().Multiply(
                         icr.RightImages.Index.Quotient),
                 };
 

@@ -127,31 +127,36 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
             TlpImageComparison.SuspendLayout();
             try
             {
+                if (ImageComparisonResult is null)
+                {
+                    return;
+                }
+
                 // Main View
                 TlpImageComparison.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.LeftImages?.Original));
+                    GetPictureBox(ImageComparisonResult.LeftImages.Original));
                 TlpImageComparison.Controls.Add(GetComparisonResult());
                 TlpImageComparison.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.RightImages?.Original));
+                    GetPictureBox(ImageComparisonResult.RightImages.Original));
 
                 // Detail View
                 TlpDetails.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.LeftImages?.Cropped));
+                    GetPictureBox(ImageComparisonResult.LeftImages.Cropped));
                 TlpDetails.Controls.Add(GetDetailInfo(DetailLevel.Crop));
                 TlpDetails.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.RightImages?.Cropped));
+                    GetPictureBox(ImageComparisonResult.RightImages.Cropped));
 
                 TlpDetails.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.LeftImages?.Resized));
+                    GetPictureBox(ImageComparisonResult.LeftImages.Resized));
                 TlpDetails.Controls.Add(GetDetailInfo(DetailLevel.Resize));
                 TlpDetails.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.RightImages?.Resized));
+                    GetPictureBox(ImageComparisonResult.RightImages.Resized));
 
                 TlpDetails.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.LeftImages?.Greyscaled));
+                    GetPictureBox(ImageComparisonResult.LeftImages.Greyscaled));
                 TlpDetails.Controls.Add(GetDetailInfo(DetailLevel.Greyscale));
                 TlpDetails.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.RightImages?.Greyscaled));
+                    GetPictureBox(ImageComparisonResult.RightImages.Greyscaled));
             }
             finally
             {
@@ -189,7 +194,7 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
             TlpDetails.Visible = false;
         }
 
-        private void HandleShowDetailsClickEvent(object sender, EventArgs e)
+        private void HandleShowDetailsClickEvent(object? sender, EventArgs e)
         {
             if ((bool)ShowDetailsLabel.Tag)
             {
@@ -276,7 +281,7 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
                     text += "Images have not been loaded.";
                 }
             }
-            else if (ImageComparisonResult.ComparisonResult
+            else if (ImageComparisonResult!.ComparisonResult
                      == ComparisonResult.NoResult)
             {
                 text += $"Unable to load image.{Environment.NewLine}" +
@@ -311,20 +316,20 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
                 }
                 return NotLoadedColor;
             }
-            else if (ImageComparisonResult.ComparisonResult
-                     == ComparisonResult.NoResult)
+
+            if (ImageComparisonResult!.ComparisonResult
+                == ComparisonResult.NoResult)
             {
                 return DifferentColor;
             }
-            else if (ImageComparisonResult.ComparisonResult
-                     == ComparisonResult.Different)
+
+            if (ImageComparisonResult!.ComparisonResult
+                == ComparisonResult.Different)
             {
                 return DifferentColor;
             }
-            else
-            {
-                return DuplicateColor;
-            }
+
+            return DuplicateColor;
         }
 
         private static PictureBox GetPictureBox(Image image) =>

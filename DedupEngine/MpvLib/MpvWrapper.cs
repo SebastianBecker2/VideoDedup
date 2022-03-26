@@ -9,7 +9,6 @@ namespace DedupEngine.MpvLib
     using System.Text;
     using System.Threading;
     using VideoDedupGrpc;
-    using VideoDedupSharedLib;
 
     public class MpvWrapper : IDisposable
     {

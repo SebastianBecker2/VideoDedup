@@ -1,7 +1,6 @@
 namespace VideoDedupClient.Dialogs
 {
     using System;
-    using System.Collections.Immutable;
     using System.Linq;
     using System.Windows.Forms;
     using Microsoft.WindowsAPICodePack.Dialogs;

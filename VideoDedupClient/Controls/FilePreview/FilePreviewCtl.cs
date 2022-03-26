@@ -2,7 +2,7 @@ namespace VideoDedupClient.Controls.FilePreview
 {
     using System.Drawing;
     using System.Windows.Forms;
-    using VideoDedupClient.Properties;
+    using Properties;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.ByteStringExtensions;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
@@ -43,9 +43,14 @@ namespace VideoDedupClient.Controls.FilePreview
 
         public void UpdateDisplay()
         {
-            DisplayInfo();
+            if (VideoFile is null)
+            {
+                return;
+            }
 
-            var resolution = GetVideoResolution(videoFile);
+            DisplayInfo(VideoFile);
+
+            var resolution = GetVideoResolution(VideoFile);
             SetThumbnailImageSize(resolution);
 
             if (VideoFile is null)
@@ -120,6 +125,7 @@ namespace VideoDedupClient.Controls.FilePreview
             }
         }
 
-        private void DisplayInfo() => TxtInfo.Text = VideoFile.GetInfoText();
+        private void DisplayInfo(VideoFile videoFile) =>
+            TxtInfo.Text = videoFile.GetInfoText();
     }
 }

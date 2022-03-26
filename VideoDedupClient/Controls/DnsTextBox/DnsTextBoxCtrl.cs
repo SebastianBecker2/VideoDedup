@@ -95,13 +95,17 @@ namespace VideoDedupClient.Controls.DnsTextBox
         private void GetHostAddressesCallback(IAsyncResult ar)
         {
             // Make sure the request was still relevant
-            if (ar.AsyncState as string != Text)
+            if ((ar.AsyncState as string) != Text)
             {
                 try
                 {
                     _ = Dns.EndGetHostAddresses(ar);
                 }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
+
                 return;
             }
 
