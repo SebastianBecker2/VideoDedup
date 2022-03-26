@@ -1,22 +1,26 @@
-namespace VideoDedup
+namespace VideoDedupClient.Dialogs
 {
     using System;
     using System.Windows.Forms;
+    using Controls.DnsTextBox;
     using Microsoft.WindowsAPICodePack.Dialogs;
-    using VideoDedup.DnsTextBox;
+    using VideoDedupClient;
 
     public partial class ClientConfigDlg : Form
     {
-        public ConfigData Settings { get; set; }
+        public ConfigData? Settings { get; set; }
 
         public ClientConfigDlg() => InitializeComponent();
 
         protected override void OnLoad(EventArgs e)
         {
-            TxtServerAddress.Text = Settings.ServerAddress;
-            NudStatusRequestInterval.Value =
-                (decimal)Settings.StatusRequestInterval.TotalMilliseconds;
-            TxtClientSourcePath.Text = Settings.ClientSourcePath;
+            if (Settings is not null)
+            {
+                TxtServerAddress.Text = Settings.ServerAddress;
+                NudStatusRequestInterval.Value =
+                    (decimal)Settings.StatusRequestInterval.TotalMilliseconds;
+                TxtClientSourcePath.Text = Settings.ClientSourcePath;
+            }
             base.OnLoad(e);
         }
 
@@ -34,10 +38,13 @@ namespace VideoDedup
                 return;
             }
 
+            Settings ??= new ConfigData();
+
             Settings.ServerAddress = TxtServerAddress.Text;
             Settings.StatusRequestInterval = TimeSpan.FromMilliseconds(
                 (int)NudStatusRequestInterval.Value);
             Settings.ClientSourcePath = TxtClientSourcePath.Text;
+
             DialogResult = DialogResult.OK;
         }
 
@@ -60,18 +67,17 @@ namespace VideoDedup
 
         private void BtnSelectClientSourcePath_Click(object sender, EventArgs e)
         {
-            using (var dlg = new CommonOpenFileDialog())
+            using var dlg = new CommonOpenFileDialog();
+
+            dlg.IsFolderPicker = true;
+            dlg.InitialDirectory = TxtClientSourcePath.Text;
+
+            if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
             {
-                dlg.IsFolderPicker = true;
-                dlg.InitialDirectory = TxtClientSourcePath.Text;
-
-                if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
-                {
-                    return;
-                }
-
-                TxtClientSourcePath.Text = dlg.FileName;
+                return;
             }
+
+            TxtClientSourcePath.Text = dlg.FileName;
         }
     }
 }

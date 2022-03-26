@@ -1,6 +1,5 @@
-namespace VideoDedup.StatusInfo
+namespace VideoDedupClient.Controls.StatusInfo
 {
-
     partial class StatusInfoCtl
     {
         /// <summary> 

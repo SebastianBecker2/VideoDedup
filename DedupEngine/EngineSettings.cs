@@ -2,75 +2,54 @@ namespace DedupEngine
 {
     using System;
     using System.Collections.Generic;
-    using VideoDedupShared;
+    using VideoDedupGrpc;
+    using static VideoDedupGrpc.DurationComparisonSettings.Types;
 
     internal class EngineSettings :
-        IDedupEngineSettings,
         IEquatable<EngineSettings>
     {
-        public EngineSettings()
+        private readonly FolderSettings folderSettings;
+        private readonly DurationComparisonSettings durationComparisonSettings;
+        private readonly VideoComparisonSettings videoComparisonSettings;
+
+        public EngineSettings(
+            FolderSettings folderSettings,
+            DurationComparisonSettings durationComparisonSettings,
+            VideoComparisonSettings videoComparisonSettings)
         {
+            this.folderSettings = folderSettings;
+            this.durationComparisonSettings = durationComparisonSettings;
+            this.videoComparisonSettings = videoComparisonSettings;
         }
 
-        public EngineSettings(IDedupEngineSettings settings)
-        {
-            BasePath = settings.BasePath;
-            ExcludedDirectories = settings.ExcludedDirectories;
-            FileExtensions = settings.FileExtensions;
-            Recursive = settings.Recursive;
-            MonitorChanges = settings.MonitorChanges;
-            DifferenceType = settings.DifferenceType;
-            MaxDurationDifferenceSeconds = settings.MaxDifferenceSeconds;
-            MaxDurationDifferencePercent = settings.MaxDifferencePercent;
-            MaxImageCompares = settings.MaxImageCompares;
-            MaxDifferentImages = settings.MaxDifferentImages;
-            MaxImageDifferencePercent = settings.MaxImageDifferencePercent;
-        }
+        public string BasePath => folderSettings.BasePath;
 
-        public string BasePath { get; set; }
+        public IEnumerable<string>? ExcludedDirectories => folderSettings.ExcludedDirectories;
 
-        public IEnumerable<string> ExcludedDirectories { get; set; }
+        public IEnumerable<string>? FileExtensions => folderSettings.FileExtensions;
 
-        public IEnumerable<string> FileExtensions { get; set; }
+        public bool Recursive => folderSettings.Recursive;
 
-        public bool Recursive { get; set; }
+        public bool MonitorChanges => folderSettings.MonitorChanges;
 
-        public bool MonitorChanges { get; set; }
+        public DurationDifferenceType DurationDifferenceType => durationComparisonSettings.DifferenceType;
 
-        public DurationDifferenceType DifferenceType { get; set; }
+        public int MaxDurationDifferenceSeconds => durationComparisonSettings.MaxDifference;
 
-        public int MaxDurationDifferenceSeconds { get; set; }
-        int IDurationComparisonSettings.MaxDifferenceSeconds =>
-            MaxDurationDifferenceSeconds;
+        public int MaxImageCompares => videoComparisonSettings.CompareCount;
 
-        public int MaxDurationDifferencePercent { get; set; }
-        int IDurationComparisonSettings.MaxDifferencePercent =>
-            MaxDurationDifferencePercent;
+        public int MaxDifferentImages => videoComparisonSettings.MaxDifferentImages;
 
-        public int MaxImageCompares { get; set; }
-        int IImageComparisonSettings.MaxImageCompares => MaxImageCompares;
+        public int MaxImageDifferencePercent => videoComparisonSettings.MaxDifference;
 
-        public int MaxDifferentImages { get; set; }
-
-        public int MaxImageDifferencePercent { get; set; }
-        int IImageComparisonSettings.MaxImageDifferencePercent =>
-            MaxImageDifferencePercent;
-
-        public override bool Equals(object obj) => Equals(obj as EngineSettings);
-        public bool Equals(EngineSettings other) =>
-            other != null
+        public override bool Equals(object? obj) => Equals(obj as EngineSettings);
+        public bool Equals(EngineSettings? other) =>
+            other is not null
             && BasePath == other.BasePath
             && MaxImageCompares == other.MaxImageCompares;
 
-        public override int GetHashCode()
-        {
-            var hashCode = 862207841;
-            hashCode = (hashCode * -1521134295)
-                + EqualityComparer<string>.Default.GetHashCode(BasePath);
-            hashCode = (hashCode * -1521134295)
-                + MaxImageCompares.GetHashCode();
-            return hashCode;
-        }
+        public override int GetHashCode() =>
+            HashCode.Combine(BasePath, MaxImageCompares);
 
         public static bool operator ==(
             EngineSettings left,

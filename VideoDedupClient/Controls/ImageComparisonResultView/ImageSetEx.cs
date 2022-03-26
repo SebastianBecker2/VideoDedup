@@ -1,10 +1,12 @@
-namespace VideoDedup.ImageComparisonResultView
+namespace VideoDedupClient.Controls.ImageComparisonResultView
 {
     using System.Drawing;
-    using System.IO;
-    using VideoDedup.Properties;
-    using VideoDedupShared;
-    using VideoDedupShared.ImageExtension;
+    using Google.Protobuf;
+    using Properties;
+    using VideoDedupGrpc;
+    using VideoDedupSharedLib.ExtensionMethods.ByteStringExtensions;
+    using VideoDedupSharedLib.ExtensionMethods.ImageExtensions;
+    using Size = Size;
 
     public class ImageSetEx
     {
@@ -18,15 +20,15 @@ namespace VideoDedup.ImageComparisonResultView
         }
 
         private static Image StreamToFittedImage(
-            MemoryStream stream,
+            ByteString? stream,
             Size containerSize) =>
             ResizeImageToFitContainer(StreamToImage(stream), containerSize);
 
-        private static Image StreamToImage(MemoryStream stream)
+        private static Image StreamToImage(ByteString? stream)
         {
-            if (stream != null)
+            if (stream is not null)
             {
-                return Image.FromStream(stream);
+                return stream.ToImage();
             }
             return Resources.BrokenImageIcon;
         }
@@ -70,6 +72,5 @@ namespace VideoDedup.ImageComparisonResultView
         public Image Cropped { get; set; }
         public Image Resized { get; set; }
         public Image Greyscaled { get; set; }
-        public byte[] Bytes => ImageSet.Bytes;
     }
 }

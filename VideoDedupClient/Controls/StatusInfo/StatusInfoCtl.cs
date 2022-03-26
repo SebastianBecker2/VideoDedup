@@ -1,29 +1,29 @@
-namespace VideoDedup.StatusInfo
+namespace VideoDedupClient.Controls.StatusInfo
 {
+    using Microsoft.WindowsAPICodePack.Taskbar;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using System.Windows.Forms;
-    using Microsoft.WindowsAPICodePack.Taskbar;
-    using VideoDedupShared;
-    using VideoDedupShared.TimeSpanExtension;
+    using VideoDedupGrpc;
+    using static VideoDedupGrpc.OperationInfo.Types;
     using SpeedRingBuffer =
-        CircularBuffer.CircularBuffer<(int value, System.DateTime stamp)>;
+        CircularBuffer.CircularBuffer<(int value, DateTime stamp)>;
 
     public partial class StatusInfoCtl : UserControl
     {
         private static readonly IReadOnlyDictionary<OperationType, string>
             OperationTypeTexts = new Dictionary<OperationType, string>
             {
-                { OperationType.Comparing, "Comparing files" },
-                { OperationType.LoadingMedia, "Loading media info" },
-                { OperationType.Searching, "Searching for files" },
-                { OperationType.Monitoring, "Monitoring for file changes" },
-                { OperationType.Completed, "Finished comparison" },
-                { OperationType.Initializing, "Initializing" },
-                { OperationType.Error, "Critical error occurred!" },
-                { OperationType.Connecting, "Connecting..." },
+            { OperationType.Comparing, "Comparing files" },
+            { OperationType.LoadingMedia, "Loading media info" },
+            { OperationType.Searching, "Searching for files" },
+            { OperationType.Monitoring, "Monitoring for file changes" },
+            { OperationType.Completed, "Finished comparison" },
+            { OperationType.Initializing, "Initializing" },
+            { OperationType.Error, "Critical error occurred!" },
+            { OperationType.Connecting, "Connecting..." },
             };
 
         private class SpeedScale
@@ -45,26 +45,35 @@ namespace VideoDedup.StatusInfo
 
         private static readonly IReadOnlyCollection<SpeedScale>
             SpeedScales = new List<SpeedScale>
-        {
-            new SpeedScale("d", 240, timespan => timespan.TotalDays),
-            new SpeedScale("h", 300, timespan => timespan.TotalHours),
-            new SpeedScale("m", 300, timespan => timespan.TotalMinutes),
-            new SpeedScale("s", 5000, timespan => timespan.TotalSeconds),
-            new SpeedScale(
-                "ms",
-                double.MaxValue,
-                timespan => timespan.TotalMilliseconds),
-        };
+            {
+            new("d", 240, timespan => timespan.TotalDays),
+            new("h", 300, timespan => timespan.TotalHours),
+            new("m", 300, timespan => timespan.TotalMinutes),
+            new("s", 5000, timespan => timespan.TotalSeconds),
+            new("ms", double.MaxValue, timespan => timespan.TotalMilliseconds),
+            };
 
-        private static readonly int SpeedHistoryLenght = 60;
+        private OperationInfo OperationInfo { get; set; }
+        private int DuplicateCount { get; set; }
+
+        private OperationType Type => OperationInfo.OperationType;
+        private int Current => OperationInfo.CurrentProgress;
+        private int Maximum => OperationInfo.MaximumProgress;
+        private ProgressStyle Style => OperationInfo.ProgressStyle;
+        private DateTime StartTime { get; set; }
+        private TimeSpan Duration { get; set; }
+        private int Remaining { get; set; }
+
+        private static readonly int SpeedHistoryLength = 60;
 
         private readonly SpeedRingBuffer fileSpeedHistory =
-            new SpeedRingBuffer(SpeedHistoryLenght);
+            new(SpeedHistoryLength);
 
         private readonly SpeedRingBuffer duplicateSpeedHistory =
-            new SpeedRingBuffer(SpeedHistoryLenght);
+            new(SpeedHistoryLength);
 
-        private (double speed, string unit) CalculateSpeed(SpeedRingBuffer buffer)
+        private static (double speed, string unit) CalculateSpeed(
+            SpeedRingBuffer buffer)
         {
             var (firstValue, firstStamp) = buffer.First();
             var (lastValue, lastStamp) = buffer.Last();
@@ -74,7 +83,7 @@ namespace VideoDedup.StatusInfo
                 lastStamp - firstStamp);
         }
 
-        private (double speed, string unit) CalculateSpeed(
+        private static (double speed, string unit) CalculateSpeed(
             int value,
             TimeSpan timeSpan)
         {
@@ -94,20 +103,15 @@ namespace VideoDedup.StatusInfo
             OperationInfo operationInfo,
             int duplicateCount = 0)
         {
-            if (operationInfo == null)
-            {
-                return;
-            }
-
             OperationInfo = operationInfo;
             DuplicateCount = duplicateCount;
 
             // To clear the speed history, we keep the start time of the
             // operation. If the operationInfo contains a new one, we know
             // we have a different operation. Thus clearing the history.
-            if (StartTime != operationInfo.StartTime)
+            if (StartTime != operationInfo.StartTime.ToDateTime())
             {
-                StartTime = operationInfo.StartTime;
+                StartTime = operationInfo.StartTime.ToDateTime();
                 fileSpeedHistory.Clear();
                 fileSpeedHistory.PushBack((0, StartTime));
                 duplicateSpeedHistory.Clear();
@@ -134,17 +138,6 @@ namespace VideoDedup.StatusInfo
             SetElapsedTime();
             SetRemainingTime();
         }
-
-        private OperationInfo OperationInfo { get; set; }
-        private int DuplicateCount { get; set; }
-
-        private OperationType Type => OperationInfo.OperationType;
-        private int Current => OperationInfo.CurrentProgress;
-        private int Maximum => OperationInfo.MaximumProgress;
-        private ProgressStyle Style => OperationInfo.ProgressStyle;
-        private DateTime StartTime { get; set; }
-        private TimeSpan Duration { get; set; }
-        private int Remaining { get; set; }
 
         public StatusInfoCtl() => InitializeComponent();
 
@@ -305,7 +298,7 @@ namespace VideoDedup.StatusInfo
 
             if (visible)
             {
-                LblElapsedTime.Text = Duration.ToPrettyString();
+                LblElapsedTime.Text = Duration.ToString();//.ToPrettyString();
             }
 
             LblElapsedTime.Visible = visible;
@@ -341,7 +334,7 @@ namespace VideoDedup.StatusInfo
 
                 var remainingTime = timePerFile * Remaining;
                 LblRemainingTime.Text =
-                    TimeSpan.FromSeconds(remainingTime).ToPrettyString();
+                    TimeSpan.FromSeconds(remainingTime).ToString();//.ToPrettyString();
             }
             finally
             {
@@ -349,6 +342,5 @@ namespace VideoDedup.StatusInfo
                 LblRemainingTimeTitle.Visible = visible;
             }
         }
-
     }
 }

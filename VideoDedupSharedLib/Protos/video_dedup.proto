@@ -1,0 +1,200 @@
+syntax = "proto3";
+
+option csharp_namespace = "VideoDedupGrpc";
+
+package video_dedup_grpc;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/Timestamp.proto";
+import "google/protobuf/Duration.proto";
+import "google/protobuf/wrappers.proto";
+
+service VideoDedupGrpcService {
+  rpc GetConfiguration (google.protobuf.Empty) returns (ConfigurationSettings);
+  rpc SetConfiguration (ConfigurationSettings) returns (google.protobuf.Empty);
+  rpc GetCurrentStatus (google.protobuf.Empty) returns (StatusData);
+  rpc ResolveDuplicate (ResolveDuplicateRequest) returns (google.protobuf.Empty);
+  rpc GetDuplicate (google.protobuf.Empty) returns (DuplicateData);
+  rpc DiscardDuplicates(google.protobuf.Empty) returns (google.protobuf.Empty);
+  rpc GetLogEntries (GetLogEntriesRequest) returns (GetLogEntriesResponse);
+  rpc StartCustomVideoComparison (CustomVideoComparisonConfiguration) returns (CustomVideoComparisonStatus);
+  rpc GetVideoComparisonStatus (CustomVideoComparisonStatusRequest) returns (CustomVideoComparisonStatus);
+  rpc CancelCustomVideoComparison (CancelCustomVideoComparisonRequest) returns (google.protobuf.Empty);
+}
+
+enum ComparisonResult {
+    NoResult = 0;
+    Duplicate = 1;
+    Different = 2;
+    Cancelled = 3;
+    Aborted = 4;
+}
+
+message CancelCustomVideoComparisonRequest {
+    string comparison_token = 1;
+}
+
+message CustomVideoComparisonStatusRequest {
+    string comparison_token = 1;
+    int32 image_comparison_index = 2;
+}
+
+message VideoComparisonResult {
+    int32 last_compared_index = 1;
+    ComparisonResult comparison_result = 2;
+    string reason = 3;
+}
+
+message ImageIndex {
+    int32 Numerator = 1;
+    int32 Denominator = 2;
+}
+
+message ImageSet {
+    ImageIndex index = 1;
+    google.protobuf.BytesValue original = 2;
+    google.protobuf.BytesValue cropped = 3;
+    google.protobuf.BytesValue resized = 4;
+    google.protobuf.BytesValue greyscaled = 5;
+    google.protobuf.BytesValue bytes = 6;
+}
+
+message ImageComparisonResult {
+    int32 index = 1;
+    ImageSet left_images = 2;
+    ImageSet right_images = 3;
+    double difference = 4;
+    int32 load_level = 5;
+    ComparisonResult comparison_result = 6;
+}
+
+message CustomVideoComparisonStatus {
+    string comparison_token = 1;
+    VideoFile left_file = 2;
+    VideoFile right_file = 3;
+    repeated ImageComparisonResult image_comparisons = 4;
+    VideoComparisonResult video_comparison_result = 5;
+}
+
+message CustomVideoComparisonConfiguration {
+    VideoComparisonSettings video_comparison_settings = 1;
+    string left_file_path = 2;
+    string right_file_path = 3;
+    bool force_loading_all_images = 4;
+}
+
+message GetLogEntriesRequest {
+    string log_token = 1;
+    int32 start = 2;
+    int32 count = 3;
+}
+
+message GetLogEntriesResponse {
+    repeated string log_entries = 1;
+}
+
+message Size {
+    int32 width = 1;
+    int32 height = 2;
+}
+
+message CodecInfo {
+    Size size = 1;
+    float frame_rate = 2;
+    google.protobuf.StringValue name = 3; 
+}
+
+message VideoFile {
+    string file_path = 1;
+    int64 file_size = 2;
+    google.protobuf.Duration duration = 3;
+    CodecInfo codec_info = 4;
+    google.protobuf.Timestamp last_write_time = 5;
+    repeated google.protobuf.BytesValue images = 6;
+}
+
+message DuplicateData {
+    string duplicate_id = 1;
+    VideoFile file1 = 2;
+    VideoFile file2 = 3;
+    string base_path = 4;
+}
+
+message ResolveDuplicateRequest {
+    enum ResolveOperation {
+        DeleteFile1 = 0;
+        DeleteFile2 = 1;
+        Skip = 2;
+        Discard = 3;
+        Cancel = 4;
+    }
+
+    string duplicate_id = 1;
+    ResolveOperation resolve_operation = 2;
+}
+
+message OperationInfo {
+    enum OperationType {
+        Comparing = 0;
+        LoadingMedia = 1;
+        Searching = 2;
+        Monitoring = 3;
+        Completed = 4;
+        Initializing = 5;
+        Error = 6;
+        Connecting = 7;
+    }
+    enum ProgressStyle {
+        Marquee = 0;
+        NoProgress = 1;
+        Continuous = 2;
+    }
+
+    OperationType operation_type = 1;
+    int32 CurrentProgress = 2;
+    int32 MaximumProgress = 3;
+    ProgressStyle progress_style = 4;
+    google.protobuf.Timestamp start_time = 5;
+}
+
+message StatusData {
+    OperationInfo operation_info = 1;
+    int32 duplicate_count = 2;
+    int32 log_count = 3;
+    string log_token = 4;
+}
+
+message FolderSettings {
+    string base_path = 1;
+    repeated string excluded_directories = 2;
+    repeated string file_extensions = 3;
+    bool recursive = 4;
+    bool monitor_changes = 5;
+}
+
+message DurationComparisonSettings {
+    enum DurationDifferenceType {
+        DURATION_DIFFERENCE_TYPE_SECONDS = 0;
+        DURATION_DIFFERENCE_TYPE_PERCENT = 1;
+    }
+
+    DurationDifferenceType difference_type = 1;
+    int32 max_difference = 2;
+}
+
+message VideoComparisonSettings {
+    int32 compare_count = 1;
+    int32 max_different_images = 2;
+    int32 max_difference = 3;
+}
+
+message ThumbnailSettings {
+    int32 image_count = 1;
+}
+
+message ConfigurationSettings {
+  FolderSettings folder_settings = 1;
+  DurationComparisonSettings duration_comparison_settings = 2;
+  VideoComparisonSettings video_comparison_settings = 3;
+  ThumbnailSettings thumbnail_settings = 4;
+}

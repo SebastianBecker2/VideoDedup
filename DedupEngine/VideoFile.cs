@@ -5,12 +5,13 @@ namespace DedupEngine
     using System.Configuration;
     using System.IO;
     using global::DedupEngine.MpvLib;
-    using VideoDedupShared;
+    using VideoDedupGrpc;
+    using VideoDedupSharedLib;
+    using VideoDedupSharedLib.Interfaces;
+    using static VideoDedupGrpc.DurationComparisonSettings.Types;
 
     public class VideoFile : IVideoFile
     {
-        internal VideoFile() { }
-
         public VideoFile(VideoFile other)
         {
             if (other is null)
@@ -34,7 +35,7 @@ namespace DedupEngine
             }
 
             ImageCount = other.ImageCount;
-            ImageBytes = new Dictionary<ImageIndex, byte[]>(other.ImageBytes);
+            ImageBytes = new Dictionary<ImageIndex, byte[]?>(other.ImageBytes);
         }
 
         public VideoFile(IVideoFile other)
@@ -84,7 +85,7 @@ namespace DedupEngine
                 return fileSize.Value;
             }
         }
-        private long? fileSize = null;
+        private long? fileSize;
 
         public DateTime LastWriteTime
         {
@@ -104,7 +105,7 @@ namespace DedupEngine
                 return lastWriteTime.Value;
             }
         }
-        private DateTime? lastWriteTime = null;
+        private DateTime? lastWriteTime;
 
         public TimeSpan Duration
         {
@@ -125,9 +126,9 @@ namespace DedupEngine
             }
             set => duration = value;
         }
-        private TimeSpan? duration = null;
+        private TimeSpan? duration;
 
-        public CodecInfo CodecInfo
+        public CodecInfo? CodecInfo
         {
             get
             {
@@ -142,25 +143,25 @@ namespace DedupEngine
                 return codecInfo;
             }
         }
-        private CodecInfo codecInfo = null;
+        private CodecInfo? codecInfo;
 
-        public IDictionary<ImageIndex, byte[]> ImageBytes { get; } =
-            new Dictionary<ImageIndex, byte[]>();
+        public IDictionary<ImageIndex, byte[]?> ImageBytes { get; } =
+            new Dictionary<ImageIndex, byte[]?>();
 
-        public int ImageCount { get; set; } = 0;
+        public int ImageCount { get; set; }
 
         public bool IsDurationEqual(
             IVideoFile other,
-            IDurationComparisonSettings settings)
+            DurationComparisonSettings settings)
         {
             var diff = Math.Abs((Duration - other.Duration).TotalSeconds);
             switch (settings.DifferenceType)
             {
                 case DurationDifferenceType.Seconds:
-                    return diff < settings.MaxDifferenceSeconds;
+                    return diff < settings.MaxDifference;
                 case DurationDifferenceType.Percent:
                     var max_diff = Duration.TotalSeconds / 100
-                        * settings.MaxDifferencePercent;
+                        * settings.MaxDifference;
                     return diff < max_diff;
                 default:
                     throw new ConfigurationErrorsException(
@@ -168,15 +169,14 @@ namespace DedupEngine
             }
         }
 
-        public int ErrorCount { get; set; } = 0;
+        public int ErrorCount { get; set; }
 
-        public override bool Equals(object obj) => Equals(obj as IVideoFile);
+        public override bool Equals(object? obj) => Equals(obj as IVideoFile);
 
-        public bool Equals(IVideoFile other) => other != null &&
-                   FilePath == other.FilePath;
+        public bool Equals(IVideoFile? other) =>
+            other != null && FilePath == other.FilePath;
 
-        public override int GetHashCode() =>
-            1230029444 + EqualityComparer<string>.Default.GetHashCode(FilePath);
+        public override int GetHashCode() => HashCode.Combine(FilePath);
 
         public static bool operator ==(VideoFile left, IVideoFile right) =>
             EqualityComparer<IVideoFile>.Default.Equals(left, right);

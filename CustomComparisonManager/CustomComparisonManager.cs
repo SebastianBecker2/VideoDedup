@@ -3,7 +3,7 @@ namespace CustomComparisonManager
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Wcf.Contracts.Data;
+    using VideoDedupGrpc;
 
     public class CustomComparisonManager : IDisposable
     {
@@ -13,14 +13,14 @@ namespace CustomComparisonManager
 
         private bool disposedValue;
 
-        private SmartTimer.Timer TimeoutTimer { get; set; }
+        private SmartTimer.Timer TimeoutTimer { get; }
 
-        private IDictionary<Guid, CustomComparison> CustomComparisons { get; set; }
+        private IDictionary<Guid, CustomComparison> CustomComparisons { get; }
             = new Dictionary<Guid, CustomComparison>();
-        private IDictionary<Guid, DateTime> LastRequests { get; set; } =
+        private IDictionary<Guid, DateTime> LastRequests { get; } =
             new Dictionary<Guid, DateTime>();
 
-        private object ComparisonsLock { get; } = new object();
+        private object ComparisonsLock { get; } = new();
 
         public CustomComparisonManager() =>
             TimeoutTimer = new SmartTimer.Timer(
@@ -28,37 +28,41 @@ namespace CustomComparisonManager
                 null,
                 TimeoutTimerInterval);
 
-        public CustomVideoComparisonStartData StartCustomComparison(
-            CustomVideoComparisonData customVideoComparisonData)
+        public CustomVideoComparisonStatus StartCustomComparison(
+            VideoComparisonSettings settings,
+            string leftFilePath,
+            string rightFilePath,
+            bool forceLoadingAllImages)
         {
             try
             {
                 var customComparison = new CustomComparison(
-                    customVideoComparisonData);
+                    settings,
+                    leftFilePath,
+                    rightFilePath,
+                    forceLoadingAllImages);
 
                 lock (ComparisonsLock)
                 {
-                    CustomComparisons.Add(
-                        customComparison.Token,
-                        customComparison);
+                    CustomComparisons.Add(customComparison.Token, customComparison);
                     LastRequests[customComparison.Token] = DateTime.Now;
+                    return customComparison.GetStatus();
                 }
-
-                return new CustomVideoComparisonStartData
-                {
-                    ComparisonToken = customComparison.Token,
-                };
             }
-            catch (Exception exc)
+            catch (InvalidDataException ex)
             {
-                return new CustomVideoComparisonStartData
+                return new CustomVideoComparisonStatus
                 {
-                    ErrorMessage = exc.Message,
+                    VideoComparisonResult = new VideoComparisonResult
+                    {
+                        ComparisonResult = ComparisonResult.Aborted,
+                        Reason = ex.Message,
+                    },
                 };
             }
         }
 
-        public CustomVideoComparisonStatusData GetStatus(
+        public CustomVideoComparisonStatus? GetStatus(
             Guid token,
             int imageComparisonIndex = 0)
         {
@@ -95,7 +99,7 @@ namespace CustomComparisonManager
             }
         }
 
-        private void HandleTimeoutTimerTick(object _)
+        private void HandleTimeoutTimerTick(object? sender)
         {
             var now = DateTime.Now;
             lock (ComparisonsLock)

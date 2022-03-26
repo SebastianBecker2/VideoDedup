@@ -1,5 +1,7 @@
-namespace VideoDedup
+namespace VideoDedupClient.Dialogs
 {
+    using Controls.FilePreview;
+
     partial class VideoComparisonDlg
     {
         /// <summary>
@@ -31,11 +33,11 @@ namespace VideoDedup
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VideoComparisonDlg));
             this.SplitterContainer = new System.Windows.Forms.SplitContainer();
             this.BtnShowLeft = new System.Windows.Forms.Button();
-            this.FpvLeft = new VideoDedup.FilePreview.FilePreviewCtl();
+            this.FpvLeft = new FilePreviewCtl();
             this.btnDeleteLeft = new System.Windows.Forms.Button();
             this.BtnShowRight = new System.Windows.Forms.Button();
             this.btnDeleteRight = new System.Windows.Forms.Button();
-            this.FpvRight = new VideoDedup.FilePreview.FilePreviewCtl();
+            this.FpvRight = new FilePreviewCtl();
             this.btnClose = new System.Windows.Forms.Button();
             this.BtnSkip = new System.Windows.Forms.Button();
             this.BtnDiscard = new System.Windows.Forms.Button();
@@ -211,8 +213,8 @@ namespace VideoDedup
 
         #endregion
         private System.Windows.Forms.SplitContainer SplitterContainer;
-        private FilePreview.FilePreviewCtl FpvLeft;
-        private FilePreview.FilePreviewCtl FpvRight;
+        private FilePreviewCtl FpvLeft;
+        private FilePreviewCtl FpvRight;
         private System.Windows.Forms.Button btnClose;
         private System.Windows.Forms.Button btnDeleteLeft;
         private System.Windows.Forms.Button btnDeleteRight;

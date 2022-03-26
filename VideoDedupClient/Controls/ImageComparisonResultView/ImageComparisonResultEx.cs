@@ -1,7 +1,7 @@
-namespace VideoDedup.ImageComparisonResultView
+namespace VideoDedupClient.Controls.ImageComparisonResultView
 {
-    using System.Drawing;
-    using VideoDedupShared;
+    using VideoDedupGrpc;
+    using Size = Size;
 
     public class ImageComparisonResultEx
     {

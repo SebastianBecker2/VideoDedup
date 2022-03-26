@@ -1,16 +1,17 @@
-namespace VideoDedup.FilePreview
+namespace VideoDedupClient.Controls.FilePreview
 {
     using System.Drawing;
-    using System.Linq;
     using System.Windows.Forms;
-    using VideoDedup.Properties;
-    using VideoDedupShared;
-    using VideoDedupShared.ExtensionMethods;
+    using VideoDedupClient.Properties;
+    using VideoDedupGrpc;
+    using VideoDedupSharedLib.ExtensionMethods.ByteStringExtensions;
+    using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
 
     public partial class FilePreviewCtl : UserControl
     {
-        private static readonly Size ThumbnailSize = new Size(256, 256);
-        private static readonly ColorDepth ThumbnailColorDepth = ColorDepth.Depth32Bit;
+        private static readonly System.Drawing.Size ThumbnailSize = new(256, 256);
+        private static readonly ColorDepth ThumbnailColorDepth =
+            ColorDepth.Depth32Bit;
 
         public Color HighlightColor
         {
@@ -18,7 +19,7 @@ namespace VideoDedup.FilePreview
             set => TxtInfo.BackColor = value;
         }
 
-        public VideoFile VideoFile
+        public VideoFile? VideoFile
         {
             get => videoFile;
             set
@@ -30,7 +31,7 @@ namespace VideoDedup.FilePreview
                 }
             }
         }
-        private VideoFile videoFile = null;
+        private VideoFile? videoFile;
 
         public FilePreviewCtl()
         {
@@ -47,16 +48,21 @@ namespace VideoDedup.FilePreview
             var resolution = GetVideoResolution(videoFile);
             SetThumbnailImageSize(resolution);
 
+            if (VideoFile is null)
+            {
+                return;
+            }
+
             var index = 0;
             foreach (var image in VideoFile.Images)
             {
-                if (image == null)
+                if (image is null)
                 {
                     ImlThumbnails.Images.Add(Resources.BrokenImageIcon);
                 }
                 else
                 {
-                    ImlThumbnails.Images.Add(image);
+                    ImlThumbnails.Images.Add(image.ToImage());
                 }
                 _ = LsvThumbnails.Items.Add(new ListViewItem
                 {
@@ -74,7 +80,7 @@ namespace VideoDedup.FilePreview
         /// </summary>
         /// <param name="file"></param>
         /// <returns></returns>
-        private static Size GetVideoResolution(VideoFile file)
+        private static System.Drawing.Size GetVideoResolution(VideoFile file)
         {
             if (file.CodecInfo != null)
             {
@@ -84,7 +90,7 @@ namespace VideoDedup.FilePreview
             var img = file.Images.FirstOrDefault(i => i != null);
             if (img != null)
             {
-                return img.Size;
+                return img.ToImage().Size;
             }
 
             return Resources.BrokenImageIcon.Size;
@@ -95,7 +101,7 @@ namespace VideoDedup.FilePreview
         /// but keeping the aspect ratio
         /// </summary>
         /// <param name="originalSize"></param>
-        private void SetThumbnailImageSize(Size originalSize)
+        private void SetThumbnailImageSize(System.Drawing.Size originalSize)
         {
             var width = originalSize.Width;
             var height = originalSize.Height;
@@ -103,12 +109,14 @@ namespace VideoDedup.FilePreview
             if (width > height)
             {
                 height = (int)(height / ((double)width / ThumbnailSize.Width));
-                ImlThumbnails.ImageSize = new Size(ThumbnailSize.Width, height);
+                ImlThumbnails.ImageSize =
+                    new System.Drawing.Size(ThumbnailSize.Width, height);
             }
             else
             {
                 width = (int)(width / ((double)height / ThumbnailSize.Height));
-                ImlThumbnails.ImageSize = new Size(width, ThumbnailSize.Height);
+                ImlThumbnails.ImageSize =
+                    new System.Drawing.Size(width, ThumbnailSize.Height);
             }
         }
 

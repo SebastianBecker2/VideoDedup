@@ -4,22 +4,21 @@ namespace DuplicateManager
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using VideoDedupShared;
-    using Wcf.Contracts.Data;
+    //using DedupEngine;
+    using EventArgs;
+    using KGySoft.CoreLibraries;
+    using VideoDedupGrpc;
+    using static VideoDedupGrpc.ResolveDuplicateRequest.Types;
 
     public class DuplicateManager
     {
-        private readonly ThumbnailManager thumbnailManager =
-            new ThumbnailManager();
+        private readonly ThumbnailManager thumbnailManager;
         private readonly ISet<DuplicateWrapper> duplicateList
             = new HashSet<DuplicateWrapper>();
-        private readonly object duplicateLock = new object();
+        private readonly object duplicateLock = new();
 
-        public IThumbnailSettings Settings
-        {
-            get => thumbnailManager.Settings;
-            set => thumbnailManager.Settings = value;
-        }
+        public ThumbnailSettings Settings => thumbnailManager.Settings;
+
         public int Count
         {
             get
@@ -31,38 +30,65 @@ namespace DuplicateManager
             }
         }
 
-        public event EventHandler<DuplicateAddedEventArgs> DuplicateAdded;
+        public event EventHandler<DuplicateAddedEventArgs>? DuplicateAdded;
         protected virtual void OnDuplicateAdded(DuplicateData duplicate) =>
-            DuplicateAdded?.Invoke(this, new DuplicateAddedEventArgs
-            {
-                Duplicate = duplicate,
-                DuplicateCount = Count,
-            });
+            DuplicateAdded?.Invoke(
+                this,
+                new DuplicateAddedEventArgs(duplicate, Count));
 
-        public event EventHandler<DuplicateRemovedEventArgs> DuplicateRemoved;
+        public event EventHandler<DuplicateRemovedEventArgs>? DuplicateRemoved;
+
         protected virtual void OnDuplicateRemoved(DuplicateData duplicate) =>
-            DuplicateRemoved?.Invoke(this, new DuplicateRemovedEventArgs
-            {
-                Duplicate = duplicate,
-                DuplicateCount = Count,
-            });
+            DuplicateRemoved?.Invoke(
+                this,
+                new DuplicateRemovedEventArgs(duplicate, Count));
 
-        public event EventHandler<DuplicateResolvedEventArgs> DuplicateResolved;
+        public event EventHandler<DuplicateResolvedEventArgs>? DuplicateResolved;
+
         protected virtual void OnDuplicateResolved(
             DuplicateData duplicate,
             ResolveOperation operation) =>
-            DuplicateResolved?.Invoke(this, new DuplicateResolvedEventArgs
-            {
-                Duplicate = duplicate,
-                Operation = operation,
-            });
+            DuplicateResolved?.Invoke(
+                this,
+                new DuplicateResolvedEventArgs(duplicate, operation));
 
         public DuplicateManager(
-            IThumbnailSettings settings) =>
-            Settings = settings
-                ?? throw new ArgumentNullException(nameof(settings));
+            ThumbnailSettings settings) =>
+            thumbnailManager = new ThumbnailManager(
+                settings ?? throw new ArgumentNullException(nameof(settings)));
 
-        public DuplicateData GetDuplicate()
+        public void UpdateSettings(
+            ThumbnailSettings settings,
+            UpdateSettingsResolution resolution =
+                UpdateSettingsResolution.DiscardDuplicates)
+        {
+            if (resolution == UpdateSettingsResolution.DiscardDuplicates)
+            {
+                DiscardAll();
+            }
+            else
+            {
+                lock (duplicateLock)
+                {
+                    foreach (var duplicate in duplicateList)
+                    {
+                        thumbnailManager.RemoveVideoFileReference(duplicate.File1);
+                        thumbnailManager.RemoveVideoFileReference(duplicate.File2);
+                    }
+
+                    var newDuplicateList = duplicateList.Select(d =>
+                        new DuplicateWrapper(
+                            thumbnailManager.AddVideoFileReference(new VideoFile(d.File1)),
+                            thumbnailManager.AddVideoFileReference(new VideoFile(d.File2)),
+                            d.DuplicateData.BasePath));
+                    duplicateList.Clear();
+                    duplicateList.AddRange(newDuplicateList);
+                }
+            }
+            thumbnailManager.Settings = settings;
+        }
+
+        public DuplicateData? GetDuplicate()
         {
             lock (duplicateLock)
             {
@@ -110,19 +136,16 @@ namespace DuplicateManager
         }
 
         public void AddDuplicate(
-            DedupEngine.VideoFile file1,
-            DedupEngine.VideoFile file2,
+            VideoFile file1,
+            VideoFile file2,
             string basePath)
         {
             var videoFilePreview1 = thumbnailManager.AddVideoFileReference(file1);
             var videoFilePreview2 = thumbnailManager.AddVideoFileReference(file2);
-            lock (duplicateLock)
-            {
-                AddDuplicate(new DuplicateWrapper(
-                    videoFilePreview1,
-                    videoFilePreview2,
-                    basePath));
-            }
+            AddDuplicate(new DuplicateWrapper(
+                videoFilePreview1,
+                videoFilePreview2,
+                basePath));
         }
 
         private void AddDuplicate(
@@ -135,15 +158,14 @@ namespace DuplicateManager
             OnDuplicateAdded(duplicate.DuplicateData);
         }
 
-        public void RemoveDuplicate(Guid duplicateId)
+        public void RemoveDuplicate(string duplicateId)
         {
             lock (duplicateLock)
             {
                 var duplicate = duplicateList
-                .FirstOrDefault(d =>
-                    d.DuplicateId == duplicateId);
+                .FirstOrDefault(d => d.DuplicateId == duplicateId);
 
-                if (duplicate == null)
+                if (duplicate is null)
                 {
                     return;
                 }
@@ -165,7 +187,7 @@ namespace DuplicateManager
         }
 
         public void ResolveDuplicate(
-            Guid duplicateId,
+            string duplicateId,
             ResolveOperation resolveOperation)
         {
             lock (duplicateLock)
@@ -174,12 +196,12 @@ namespace DuplicateManager
                     .FirstOrDefault(d =>
                         d.DuplicateId == duplicateId);
 
-                if (duplicate == null)
+                if (duplicate is null)
                 {
                     return;
                 }
 
-                void DeleteFile(string path)
+                static void DeleteFile(string path)
                 {
                     try
                     {

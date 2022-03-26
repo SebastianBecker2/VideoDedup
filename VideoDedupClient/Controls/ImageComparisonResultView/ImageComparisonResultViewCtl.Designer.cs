@@ -1,4 +1,4 @@
-namespace VideoDedup.ImageComparisonResultView
+namespace VideoDedupClient.Controls.ImageComparisonResultView
 {
 
     partial class ImageComparisonResultViewCtl

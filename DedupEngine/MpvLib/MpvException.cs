@@ -5,7 +5,7 @@ namespace DedupEngine.MpvLib
     [Serializable]
     public class MpvException : Exception
     {
-        public string VideoFilePath { get; set; }
+        public string? VideoFilePath { get; set; }
 
         public MpvException() { }
 

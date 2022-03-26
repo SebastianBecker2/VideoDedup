@@ -1,71 +1,72 @@
 namespace DuplicateManager
 {
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using DedupEngine.MpvLib;
-    using VideoDedupShared;
+    using Google.Protobuf;
+    using VideoDedupGrpc;
 
     internal class ThumbnailManager
     {
         private class VideoFileRefCounter
         {
-            public VideoFile VideoFile { get; set; }
-            public int RefCount { get; set; }
+            public VideoFileRefCounter(VideoFile videoFile) =>
+                VideoFile = videoFile;
+
+            public VideoFile VideoFile { get; }
+            public int RefCount { get; set; } = 1;
         }
 
-        private Dictionary<IVideoFile, VideoFileRefCounter> UniqueVideoFiles { get; } =
-            new Dictionary<IVideoFile, VideoFileRefCounter>();
+        private readonly IDictionary<VideoFile, VideoFileRefCounter> uniqueVideoFiles =
+            new Dictionary<VideoFile, VideoFileRefCounter>();
 
-        public IThumbnailSettings Settings { get; set; }
+        public ThumbnailSettings Settings { get; set; }
 
-        public VideoFile AddVideoFileReference(
-            DedupEngine.VideoFile videoFile)
+        public ThumbnailManager(ThumbnailSettings settings) =>
+            Settings = settings
+                ?? throw new ArgumentNullException(nameof(settings));
+
+        public VideoFile AddVideoFileReference(VideoFile videoFile)
         {
-            if (UniqueVideoFiles.TryGetValue(videoFile, out var refCounter))
+            if (uniqueVideoFiles.TryGetValue(videoFile, out var refCounter))
             {
                 refCounter.RefCount++;
                 return refCounter.VideoFile;
             }
 
-            IEnumerable<MemoryStream> GetTumbnails()
+            IEnumerable<byte[]?> GetThumbnails()
             {
                 try
                 {
-                    using (var mpv = new MpvWrapper(
+                    using var mpv = new MpvWrapper(
                         videoFile.FilePath,
-                        videoFile.Duration))
-                    {
-                        return mpv
-                            .GetImages(0, Settings.Count, Settings.Count)
-                            .ToList();
-                    }
+                        videoFile.Duration?.ToTimeSpan());
+                    return mpv
+                        .GetImages(0, Settings.ImageCount, Settings.ImageCount)
+                        .ToList();
                 }
                 catch (MpvOperationException)
                 {
-                    return new MemoryStream[Settings.Count];
+                    return new byte[Settings.ImageCount][];
                 }
             }
 
-            var videoFilePreview = new VideoFile(
+            videoFile.Images.AddRange(
+                GetThumbnails().Select(ByteString.CopyFrom));
+
+            uniqueVideoFiles.Add(
                 videoFile,
-                GetTumbnails());
-            UniqueVideoFiles.Add(videoFile, new VideoFileRefCounter
-            {
-                VideoFile = videoFilePreview,
-                RefCount = 1,
-            });
-            return videoFilePreview;
+                new VideoFileRefCounter(videoFile));
+            return videoFile;
         }
 
-        public void RemoveVideoFileReference(IVideoFile videoFile)
+        public void RemoveVideoFileReference(VideoFile videoFile)
         {
-            var refCounter = UniqueVideoFiles[videoFile];
+            var refCounter = uniqueVideoFiles[videoFile];
 
             if (refCounter.RefCount == 1)
             {
-                refCounter.VideoFile.Dispose();
-                _ = UniqueVideoFiles.Remove(videoFile);
+                _ = uniqueVideoFiles.Remove(videoFile);
                 return;
             }
 

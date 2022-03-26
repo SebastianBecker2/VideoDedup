@@ -1,16 +1,16 @@
-namespace VideoDedup.ImageComparisonResultView
+namespace VideoDedupClient.Controls.ImageComparisonResultView
 {
     using System;
     using System.Collections.Generic;
     using System.Drawing;
     using System.Windows.Forms;
-    using VideoDedup.Properties;
-    using VideoDedupShared;
-    using VideoDedupShared.TimeSpanExtension;
+    using Properties;
+    using VideoDedupGrpc;
+    using VideoDedupSharedLib.ExtensionMethods.TimeSpanExtensions;
 
     public partial class ImageComparisonResultViewCtl : UserControl
     {
-        public static readonly Size ThumbnailSize = new Size(256, 256);
+        public static readonly System.Drawing.Size ThumbnailSize = new(256, 256);
 
         private enum DetailLevel
         {
@@ -20,21 +20,33 @@ namespace VideoDedup.ImageComparisonResultView
         }
 
         private Dictionary<DetailLevel, Tuple<string, Image>> DetailInfo { get; } =
-            new Dictionary<DetailLevel, Tuple<string, Image>>
-        {
-            { DetailLevel.Crop, new Tuple<string, Image>(
-                $"Preparation step 1{Environment.NewLine}Cut off black bars",
-                Resources.PictureCropped) },
-            { DetailLevel.Resize, new Tuple<string, Image>(
-                $"Preparation step 2{Environment.NewLine}Resize to 16 x 16 pixel",
-                Resources.PictureSizeDown) },
-            { DetailLevel.Greyscale, new Tuple<string, Image>(
-                $"Preparation step 3{Environment.NewLine}Convert to greyscale",
-                Resources.PictureGreyscale) },
-        };
+            new()
+            {
+                {
+                    DetailLevel.Crop,
+                    new Tuple<string, Image>(
+                        $"Preparation step 1{Environment.NewLine}" +
+                        $"Cut off black bars",
+                        Resources.PictureCropped)
+                },
+                {
+                    DetailLevel.Resize,
+                    new Tuple<string, Image>(
+                        $"Preparation step 2{Environment.NewLine}" +
+                        $"Resize to 16 x 16 pixel",
+                        Resources.PictureSizeDown)
+                },
+                {
+                    DetailLevel.Greyscale,
+                    new Tuple<string, Image>(
+                        $"Preparation step 3{Environment.NewLine}" +
+                        $"Convert to greyscale",
+                        Resources.PictureGreyscale)
+                },
+            };
 
         public int ImageComparisonIndex { get; set; }
-        public ImageComparisonResultEx ImageComparisonResult { get; set; }
+        public ImageComparisonResultEx? ImageComparisonResult { get; set; }
         public bool ComparisonAlreadyFinished { get; set; }
         public bool ImageLoaded { get; set; }
         public int MaximumDifferencePercentage { get; set; }
@@ -265,7 +277,7 @@ namespace VideoDedup.ImageComparisonResultView
                 }
             }
             else if (ImageComparisonResult.ComparisonResult
-                    == ComparisonResult.NoResult)
+                     == ComparisonResult.NoResult)
             {
                 text += $"Unable to load image.{Environment.NewLine}" +
                     $"Comparison was skipped.";
@@ -300,12 +312,12 @@ namespace VideoDedup.ImageComparisonResultView
                 return NotLoadedColor;
             }
             else if (ImageComparisonResult.ComparisonResult
-                == ComparisonResult.NoResult)
+                     == ComparisonResult.NoResult)
             {
                 return DifferentColor;
             }
             else if (ImageComparisonResult.ComparisonResult
-                == ComparisonResult.Different)
+                     == ComparisonResult.Different)
             {
                 return DifferentColor;
             }
@@ -316,7 +328,7 @@ namespace VideoDedup.ImageComparisonResultView
         }
 
         private static PictureBox GetPictureBox(Image image) =>
-            new PictureBox
+            new()
             {
                 Image = image,
                 Size = image.Size,

@@ -1,12 +1,15 @@
-namespace VideoDedup
+namespace VideoDedupClient.Dialogs
 {
     using System;
     using System.Diagnostics;
     using System.Drawing;
     using System.IO;
     using System.Windows.Forms;
-    using VideoDedupShared;
-    using VideoDedupShared.StringExtension;
+    using Google.Protobuf.WellKnownTypes;
+    using VideoDedupClient;
+    using VideoDedupGrpc;
+    using VideoDedupSharedLib.ExtensionMethods.StringExtensions;
+    using static VideoDedupGrpc.ResolveDuplicateRequest.Types;
 
     public partial class VideoComparisonDlg : Form
     {
@@ -119,16 +122,16 @@ namespace VideoDedup
 
         private void BtnReviewComparison_Click(object sender, EventArgs e)
         {
-            using (var dlg = new CustomVideoComparisonDlg
+            using var dlg = new CustomVideoComparisonDlg
             {
-                ServerConfig = VideoDedupDlg.WcfProxy.GetConfig(),
+                VideoComparisonSettings =
+                    VideoDedupDlg.GrpcClient.GetConfiguration(new Empty()).
+                        VideoComparisonSettings,
                 LeftFilePath = LeftFile.FilePath,
                 RightFilePath = RightFile.FilePath,
                 CloseButtons = CustomVideoComparisonDlg.Buttons.Close,
-            })
-            {
-                _ = dlg.ShowDialog();
-            }
+            };
+            _ = dlg.ShowDialog();
         }
     }
 }

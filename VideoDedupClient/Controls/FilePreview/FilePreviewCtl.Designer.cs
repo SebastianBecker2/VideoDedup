@@ -1,4 +1,4 @@
-namespace VideoDedup.FilePreview
+namespace VideoDedupClient.Controls.FilePreview
 {
     partial class FilePreviewCtl
     {
