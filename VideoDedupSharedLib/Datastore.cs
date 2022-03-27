@@ -23,7 +23,7 @@ namespace VideoDedupSharedLib
 
         private bool isInitialized;
 
-        public Datastore(string filePath)
+        protected Datastore(string filePath)
         {
             // Validate argument filePath
             try
