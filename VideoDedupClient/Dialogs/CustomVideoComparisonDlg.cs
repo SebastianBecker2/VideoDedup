@@ -204,12 +204,12 @@ namespace VideoDedupClient.Dialogs
                 ForceLoadingAllImages = true,
                 LeftFilePath = LeftFilePath,
                 RightFilePath = RightFilePath,
-                VideoComparisonSettings =
-                    {
-                        CompareCount = (int)NumMaxImageComparison.Value,
-                        MaxDifferentImages = (int)NumMaxDifferentImages.Value,
-                        MaxDifference = (int)NumMaxDifferentPercentage.Value
-                    }
+                VideoComparisonSettings = new()
+                {
+                    CompareCount = (int)NumMaxImageComparison.Value,
+                    MaxDifferentImages = (int)NumMaxDifferentImages.Value,
+                    MaxDifference = (int)NumMaxDifferentPercentage.Value
+                }
             };
 
             var startData = VideoDedupDlg.GrpcClient.StartCustomVideoComparison(
