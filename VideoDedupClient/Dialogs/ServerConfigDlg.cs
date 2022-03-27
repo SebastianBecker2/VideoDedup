@@ -74,41 +74,39 @@ namespace VideoDedupClient.Dialogs
         private void BtnOkay_Click(object sender, EventArgs e)
         {
             ConfigurationSettings ??= new ConfigurationSettings();
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-            FolderSettings.BasePath = TxtSourcePath.Text;
-            FolderSettings.Recursive = ChbRecursive.Checked;
-            FolderSettings.MonitorChanges = ChbMonitorFileChanges.Checked;
+            FolderSettings!.BasePath = TxtSourcePath.Text;
+            FolderSettings!.Recursive = ChbRecursive.Checked;
+            FolderSettings!.MonitorChanges = ChbMonitorFileChanges.Checked;
 
-            FolderSettings.ExcludedDirectories.Clear();
-            FolderSettings.ExcludedDirectories.AddRange(
+            FolderSettings!.ExcludedDirectories.Clear();
+            FolderSettings!.ExcludedDirectories.AddRange(
                 LsbExcludedDirectories.Items.Cast<string>());
 
-            FolderSettings.FileExtensions.Clear();
-            FolderSettings.FileExtensions.AddRange(
+            FolderSettings!.FileExtensions.Clear();
+            FolderSettings!.FileExtensions.AddRange(
                 LsbFileExtensions.Items.Cast<string>().ToList());
 
-            VideoComparisonSettings.CompareCount =
+            VideoComparisonSettings!.CompareCount =
                 (int)NumMaxImageComparison.Value;
-            VideoComparisonSettings.MaxDifferentImages =
+            VideoComparisonSettings!.MaxDifferentImages =
                 (int)NumMaxDifferentImages.Value;
-            VideoComparisonSettings.MaxDifference =
+            VideoComparisonSettings!.MaxDifference =
                 (int)NumMaxDifferentPercentage.Value;
 
             if (RdbDurationDifferencePercent.Checked)
             {
-                DurationComparisonSettings.DifferenceType =
+                DurationComparisonSettings!.DifferenceType =
                     DurationDifferenceType.Percent;
             }
             else
             {
-                DurationComparisonSettings.DifferenceType =
+                DurationComparisonSettings!.DifferenceType =
                     DurationDifferenceType.Seconds;
             }
-            DurationComparisonSettings.MaxDifference =
+            DurationComparisonSettings!.MaxDifference =
                 (int)NumMaxDurationDifference.Value;
 
-            ThumbnailSettings.ImageCount = (int)NumThumbnailViewCount.Value;
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
+            ThumbnailSettings!.ImageCount = (int)NumThumbnailViewCount.Value;
 
             DialogResult = DialogResult.OK;
         }
