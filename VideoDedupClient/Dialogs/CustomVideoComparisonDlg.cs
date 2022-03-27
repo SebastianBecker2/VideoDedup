@@ -273,7 +273,7 @@ namespace VideoDedupClient.Dialogs
                 return;
             }
 
-            var task = Task.Factory.StartNew(() =>
+            var task = Task.Run(() =>
             {
                 var ex = ToImageComparisonResultEx(status.ImageComparisons);
                 return ex;

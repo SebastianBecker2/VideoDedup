@@ -72,7 +72,7 @@ namespace VideoDedupServer
                 OperationType = OperationType.Initializing,
             };
 
-            initializationTask = Task.Factory.StartNew(() =>
+            initializationTask = Task.Run(() =>
             {
                 try
                 {

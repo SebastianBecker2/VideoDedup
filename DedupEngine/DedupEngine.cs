@@ -149,9 +149,7 @@ namespace DedupEngine
             {
                 DedupTask?.Dispose();
                 CancelSource = new CancellationTokenSource();
-                DedupTask = Task.Factory.StartNew(
-                    ProcessFolder,
-                    CancelSource.Token);
+                DedupTask = Task.Run(ProcessFolder, CancelSource.Token);
             }
         }
 
@@ -187,9 +185,7 @@ namespace DedupEngine
                     return;
                 }
 
-                DedupTask = Task.Factory.StartNew(
-                    ProcessChanges,
-                    CancelSource.Token);
+                DedupTask = Task.Run(ProcessChanges, CancelSource.Token);
             }
         }
 
@@ -520,9 +516,7 @@ namespace DedupEngine
             {
                 if (newFiles.Any() || deletedFiles.Any())
                 {
-                    DedupTask = Task.Factory.StartNew(
-                        ProcessChanges,
-                        CancelSource.Token);
+                    DedupTask = Task.Run(ProcessChanges, CancelSource.Token);
                     return;
                 }
 

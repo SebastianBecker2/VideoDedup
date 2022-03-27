@@ -62,7 +62,7 @@ namespace CustomComparisonManager
             comparer.ImageCompared += HandleImageCompared;
             comparer.ComparisonFinished += HandleComparisonFinished;
 
-            comparerTask = Task.Factory.StartNew(Compare);
+            comparerTask = Task.Run(Compare);
         }
 
         public void CancelComparison() => cancelTokenSource.Cancel();

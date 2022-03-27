@@ -98,7 +98,7 @@ namespace VideoDedupSharedLib.ExtensionMethods.ImageExtensions
                 var width = image.Width;
                 var height = image.Height;
 
-                var leftBarTask = Task.Factory.StartNew(() =>
+                var leftBarTask = Task.Run(() =>
                 {
                     int? maybeLeftBar = null;
                     foreach (var x in Enumerable.Range(0, width / 2))
@@ -122,7 +122,7 @@ namespace VideoDedupSharedLib.ExtensionMethods.ImageExtensions
                     return maybeLeftBar ?? width / 2;
                 });
 
-                var rightBarTask = Task.Factory.StartNew(() =>
+                var rightBarTask = Task.Run(() =>
                 {
                     int? maybeRightBar = null;
                     foreach (var x in Enumerable
@@ -153,7 +153,7 @@ namespace VideoDedupSharedLib.ExtensionMethods.ImageExtensions
 
                 width = rightBar - leftBar + 1;
 
-                var topBarTask = Task.Factory.StartNew(() =>
+                var topBarTask = Task.Run(() =>
                 {
                     int? maybeTopBar = null;
                     foreach (var y in Enumerable.Range(0, height / 2))
@@ -177,7 +177,7 @@ namespace VideoDedupSharedLib.ExtensionMethods.ImageExtensions
                     return maybeTopBar ?? height / 2;
                 });
 
-                var bottomBarTask = Task.Factory.StartNew(() =>
+                var bottomBarTask = Task.Run(() =>
                 {
                     int? maybeBottomBar = null;
                     foreach (var y in Enumerable
