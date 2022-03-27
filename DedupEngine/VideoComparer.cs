@@ -85,7 +85,7 @@ namespace DedupEngine
                 };
 
             public ImageIndex Index { get; }
-            private MemoryStream Original { get; init; }
+            private MemoryStream? Original { get; init; }
             private MemoryStream? Cropped { get; set; }
             private MemoryStream? Resized { get; set; }
             private MemoryStream? Greyscaled { get; set; }
