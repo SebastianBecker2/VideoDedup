@@ -42,9 +42,9 @@ namespace DedupEngine
 
                 try
                 {
-                    using var stream = new MemoryStream(originalImage);
+                    var stream = new MemoryStream(originalImage);
                     using var image = (Bitmap)Image.FromStream(stream);
-                    using var cropped = image?.CropBlackBars();
+                    using var cropped = image.CropBlackBars();
                     using var small = cropped?.Resize(
                         DownscaleSize,
                         ScalingMode.NearestNeighbor,
@@ -85,10 +85,10 @@ namespace DedupEngine
                 };
 
             public ImageIndex Index { get; }
-            public MemoryStream? Original { get; set; }
-            public MemoryStream? Cropped { get; set; }
-            public MemoryStream? Resized { get; set; }
-            public MemoryStream? Greyscaled { get; set; }
+            private MemoryStream Original { get; init; }
+            private MemoryStream? Cropped { get; set; }
+            private MemoryStream? Resized { get; set; }
+            private MemoryStream? Greyscaled { get; set; }
             public byte[]? Bytes { get; set; }
             public bool Loaded { get; set; }
         }
