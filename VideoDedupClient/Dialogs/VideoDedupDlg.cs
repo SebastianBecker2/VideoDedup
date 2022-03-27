@@ -271,8 +271,7 @@ namespace VideoDedupClient.Dialogs
 
         private void BtnClientConfig_Click(object sender, EventArgs e)
         {
-            using var dlg = new ClientConfigDlg();
-            dlg.Settings = Settings;
+            using var dlg = new ClientConfigDlg { Settings = Settings, };
 
             if (dlg.ShowDialog() != DialogResult.OK)
             {
