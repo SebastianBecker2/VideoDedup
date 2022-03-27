@@ -132,12 +132,10 @@ namespace VideoDedupServer
             return Task.FromResult(new Empty());
         }
 
-        public override Task<DuplicateData> GetDuplicate(
+        public override Task<DuplicateData?> GetDuplicate(
             Empty request,
             ServerCallContext context) =>
-#pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
             Task.FromResult(duplicateManager.GetDuplicate());
-#pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
 
         public override Task<Empty> DiscardDuplicates(
             Empty request,
@@ -181,14 +179,12 @@ namespace VideoDedupServer
                 request.RightFilePath,
                 request.ForceLoadingAllImages));
 
-        public override Task<CustomVideoComparisonStatus> GetVideoComparisonStatus(
+        public override Task<CustomVideoComparisonStatus?> GetVideoComparisonStatus(
             CustomVideoComparisonStatusRequest request,
             ServerCallContext context) =>
-#pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
             Task.FromResult(comparisonManager.GetStatus(
                 Guid.Parse(request.ComparisonToken),
                 request.ImageComparisonIndex));
-#pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
 
         public override Task<Empty> CancelCustomVideoComparison(
             CancelCustomVideoComparisonRequest request,
