@@ -4,8 +4,7 @@ namespace VideoDedupGrpc
     using System.Collections.Generic;
     using System.Linq;
 
-    public sealed partial class ImageIndex :
-        IComparable<ImageIndex>
+    public sealed partial class ImageIndex
     {
         public double Quotient => Numerator / (double)Denominator;
 
@@ -43,53 +42,5 @@ namespace VideoDedupGrpc
 
             return CalculateGcd(b, a % b);
         }
-
-        public int CompareTo(ImageIndex? other)
-        {
-            if (other is null)
-            {
-                return 1;
-            }
-
-            if (Denominator < other.Denominator)
-            {
-                return -1;
-            }
-
-            if (Denominator > other.Denominator)
-            {
-                return 1;
-            }
-
-            if (Numerator < other.Numerator)
-            {
-                return -1;
-            }
-
-            if (Numerator > other.Numerator)
-            {
-                return 1;
-            }
-
-            return 0;
-        }
-
-        public static bool operator ==(ImageIndex left, ImageIndex right) =>
-            left.Equals(right);
-
-        public static bool operator !=(ImageIndex left, ImageIndex right) =>
-            !(left == right);
-
-        public static bool operator <(ImageIndex left, ImageIndex right) =>
-            left.CompareTo(right) < 0;
-
-        public static bool operator <=(ImageIndex left, ImageIndex right) =>
-             left.CompareTo(right) <= 0;
-
-        public static bool operator >(ImageIndex left, ImageIndex right) =>
-             left.CompareTo(right) > 0;
-
-        public static bool operator >=(ImageIndex left, ImageIndex right) =>
-             left.CompareTo(right) >= 0;
     }
 }

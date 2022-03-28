@@ -103,7 +103,8 @@ namespace DedupEngine
             {
                 indices = ImageIndex
                     .CreateImageIndices(imageCount)
-                    .OrderBy(i => i)
+                    .OrderBy(i => i.Denominator)
+                    .ThenBy(i => i.Numerator)
                     .ToList();
                 imageIndices = indices;
             }
