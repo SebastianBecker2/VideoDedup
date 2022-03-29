@@ -87,11 +87,11 @@ namespace VideoDedupClient.Dialogs
         {
             if (VideoComparisonSettings is not null)
             {
-                NumMaxDifferentPercentage.Value =
+                NumMaxImageComparison.Value =
                     VideoComparisonSettings.CompareCount;
                 NumMaxDifferentImages.Value =
                     VideoComparisonSettings.MaxDifferentImages;
-                NumMaxImageComparison.Value =
+                NumMaxDifferentPercentage.Value =
                     VideoComparisonSettings.MaxDifference;
             }
 
