@@ -1,5 +1,6 @@
 namespace VideoDedupService
 {
+    using System.IO.Compression;
     using VideoDedupServer;
 
     internal class Program
@@ -34,7 +35,11 @@ namespace VideoDedupService
                 Args = args,
             });
 
-            _ = builder.Services.AddGrpc();
+            _ = builder.Services.AddGrpc(options =>
+            {
+                options.ResponseCompressionAlgorithm = "gzip";
+                options.ResponseCompressionLevel = CompressionLevel.Optimal;
+            });
             _ = builder.Services.AddSingleton(
                 x => new VideoDedupService(GetLocalAppPath()));
 
@@ -43,7 +48,6 @@ namespace VideoDedupService
             var app = builder.Build();
 
             _ = app.MapGrpcService<VideoDedupService>();
-            //app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
 
             app.Run();
 
