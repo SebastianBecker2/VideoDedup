@@ -15,11 +15,6 @@ namespace CustomComparisonManager
     internal class CustomComparison : IDisposable
     {
         public Guid Token { get; }
-        public VideoComparisonSettings ComparisonSettings => comparer.Settings;
-        public bool ForceLoadingAllImages => comparer.ForceLoadingAllImages;
-        public string LeftFilePath => LeftVideoFile.FilePath;
-        public string RightFilePath => RightVideoFile.FilePath;
-
         private DedupEngine.VideoFile LeftVideoFile => comparer.LeftVideoFile;
         private DedupEngine.VideoFile RightVideoFile => comparer.RightVideoFile;
 
