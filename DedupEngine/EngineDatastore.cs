@@ -9,7 +9,6 @@ namespace DedupEngine
     using VideoDedupSharedLib.Interfaces;
     using VideoDedupSharedLib.ExtensionMethods.SqlDataReaderExtensions;
     using VideoDedupSharedLib.ExtensionMethods.DateTimeExtensions;
-    using VideoDedupGrpc;
 
     internal class EngineDatastore : Datastore
     {
@@ -207,11 +206,9 @@ namespace DedupEngine
             using var reader = command.ExecuteReader();
             while (reader.Read())
             {
-                var index = new ImageIndex
-                {
-                    Numerator = reader.GetInt32(0),
-                    Denominator = reader.GetInt32(1)
-                };
+                var index = new ImageIndex(
+                    reader.GetInt32(0),
+                    reader.GetInt32(1));
                 var size = reader.GetInt32(2);
                 var bytes = size > 0 ? reader.GetBytes(3, size) : null;
                 yield return (index, bytes);
