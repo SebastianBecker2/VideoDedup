@@ -44,6 +44,7 @@ namespace DedupEngine
                 {
                     var stream = new MemoryStream(originalImage);
                     using var image = (Bitmap)Image.FromStream(stream);
+                    stream.Position = 0;
                     using var cropped = image.CropBlackBars();
                     using var small = cropped?.Resize(
                         DownscaleSize,

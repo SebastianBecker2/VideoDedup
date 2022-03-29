@@ -238,6 +238,7 @@ namespace VideoDedupSharedLib.ExtensionMethods.ImageExtensions
         {
             var ms = new MemoryStream();
             image.Save(ms, format);
+            ms.Position = 0;
             return ms;
         }
 
