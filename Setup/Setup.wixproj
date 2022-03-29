@@ -45,6 +45,72 @@
       <Name>WixUIExtension</Name>
     </WixExtension>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CustomComparisonManager\CustomComparisonManager.csproj">
+      <Name>CustomComparisonManager</Name>
+      <Project>{ef86b28e-7402-468a-a19f-13994630e341}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\DedupEngine\DedupEngine.csproj">
+      <Name>DedupEngine</Name>
+      <Project>{ad1edf5f-7bff-4499-875b-e7af81890f21}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\DuplicateManager\DuplicateManager.csproj">
+      <Name>DuplicateManager</Name>
+      <Project>{ad082bb0-aec6-48a5-9c12-64bc2684b409}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\SmartTimer\SmartTimer.csproj">
+      <Name>SmartTimer</Name>
+      <Project>{4c4bd1d9-49d8-4abd-bc34-a0e21350df96}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\VideoDedupClient\VideoDedupClient.csproj">
+      <Name>VideoDedupClient</Name>
+      <Project>{edb509d9-c9fc-44c2-b9b9-0dc812ed8909}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\VideoDedupServer\VideoDedupServer.csproj">
+      <Name>VideoDedupServer</Name>
+      <Project>{98597eb4-280a-4f07-aaa5-605c4d68f618}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\VideoDedupService\VideoDedupService.csproj">
+      <Name>VideoDedupService</Name>
+      <Project>{63351b69-9b0a-4b87-acfb-905aba55bc71}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\VideoDedupSharedLib\VideoDedupSharedLib.csproj">
+      <Name>VideoDedupSharedLib</Name>
+      <Project>{b8fa0b95-26d9-41e6-a194-b67e09d62e15}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(WixTargetsPath)" Condition=" '$(WixTargetsPath)' != '' " />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets" Condition=" '$(WixTargetsPath)' == '' AND Exists('$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets') " />
   <Target Name="EnsureWixToolsetInstalled" Condition=" '$(WixTargetsImported)' != 'true' ">
