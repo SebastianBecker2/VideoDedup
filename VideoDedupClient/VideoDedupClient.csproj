@@ -21,10 +21,15 @@
     <ApplicationUseCompatibleTextRendering>false</ApplicationUseCompatibleTextRendering>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <NeutralLanguage>en-US</NeutralLanguage>
+    <ApplicationIcon>Images\film.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="..\Versioning\Versioning.cs" Link="Versioning.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Images\film.ico" />
   </ItemGroup>
 
   <ItemGroup>
