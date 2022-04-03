@@ -25,7 +25,7 @@ namespace VideoDedupClient.Dialogs
                 lock (GrpcClientLock)
                 {
                     grpcChannel ??= GrpcChannel.ForAddress(
-                        $"https://{Settings.ServerAddress}:41722",
+                        $"http://{Settings.ServerAddress}:41722",
                         new GrpcChannelOptions
                         {
                             MaxReceiveMessageSize = null,
