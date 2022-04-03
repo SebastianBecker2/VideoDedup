@@ -113,7 +113,7 @@
           <File Id="Server_SQLite.Interop.dll"
                 Source="$(var.VideoDedupService.TargetDir)x86\SQLite.Interop.dll" />
         <?endif ?>
-          
+
         <File Id="Server_Accessibility.dll"
               Source="$(var.VideoDedupService.TargetDir)Accessibility.dll" />
         <File Id="Server_appsettings.json"
@@ -145,7 +145,7 @@
         <File Id="Server_Microsoft.Extensions.Hosting.WindowsServices.dll"
               Source="$(var.VideoDedupService.TargetDir)Microsoft.Extensions.Hosting.WindowsServices.dll" />
         <File Id="Server_Microsoft.Win32.SystemEvents.dll"
-              Source="$(var.VideoDedupService.TargetDir)Microsoft.Win32.SystemEvents.dll" />
+              Source="$(var.VideoDedupService.TargetDir)runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll" />
         <File Id="Server_mpv_1.dll"
               Source="$(var.VideoDedupService.TargetDir)mpv-1.dll" />
         <File Id="Server_Newtonsoft.Json.dll"
@@ -167,7 +167,7 @@
         <File Id="Server_System.Deployment.dll"
               Source="$(var.VideoDedupService.TargetDir)System.Deployment.dll" />
         <File Id="Server_System.Drawing.Common.dll"
-              Source="$(var.VideoDedupService.TargetDir)System.Drawing.Common.dll" />
+              Source="$(var.VideoDedupService.TargetDir)runtimes\win\lib\net6.0\System.Drawing.Common.dll" />
         <File Id="Server_System.Runtime.Serialization.Formatters.Soap.dll"
               Source="$(var.VideoDedupService.TargetDir)System.Runtime.Serialization.Formatters.Soap.dll" />
         <File Id="Server_System.Security.Cryptography.ProtectedData.dll"
@@ -175,7 +175,7 @@
         <File Id="Server_System.Security.Permissions.dll"
               Source="$(var.VideoDedupService.TargetDir)System.Security.Permissions.dll" />
         <File Id="Server_System.ServiceProcess.ServiceController.dll"
-              Source="$(var.VideoDedupService.TargetDir)System.ServiceProcess.ServiceController.dll" />
+              Source="$(var.VideoDedupService.TargetDir)runtimes\win\lib\net6.0\System.ServiceProcess.ServiceController.dll" />
         <File Id="Server_System.Windows.Extensions.dll"
               Source="$(var.VideoDedupService.TargetDir)System.Windows.Extensions.dll" />
         <File Id="Server_System.Windows.Forms.dll"
