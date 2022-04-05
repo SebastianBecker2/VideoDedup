@@ -119,57 +119,6 @@ namespace DedupEngine
                 .Skip(loadLevel.ImageStartIndex)
                 .Take(loadLevel.ImageCount);
 
-        /*
-         private static ImageSet ToImageSet(
-            ImageIndex index,
-            byte[]? data,
-            bool provideIntermediateImages = false)
-        {
-            if (data is null)
-            {
-                return new ImageSet
-                {
-                    Index = index,
-                };
-            }
-
-            try
-            {
-                using var stream = new MemoryStream(data);
-                using var image = (Bitmap)Image.FromStream(stream);
-                using var cropped = image?.CropBlackBars();
-                using var small = cropped?.Resize(
-                    DownscaleSize,
-                    ScalingMode.NearestNeighbor,
-                    false);
-                using var greyscaled = small?.MakeGrayScale();
-                var imageSet = new ImageSet
-                {
-                    Index = index,
-                    Original = ByteString.FromStream(stream),
-                    Bytes = ByteString.CopyFrom(GetImageBytes(greyscaled))
-                };
-                if (provideIntermediateImages)
-                {
-                    imageSet.Cropped =
-                        ByteString.FromStream(cropped?.ToMemoryStream());
-                    imageSet.Resized =
-                        ByteString.FromStream(small?.ToMemoryStream());
-                    imageSet.Greyscaled =
-                        ByteString.FromStream(greyscaled?.ToMemoryStream());
-                }
-                return imageSet;
-            }
-            catch (ArgumentNullException)
-            {
-                return new ImageSet
-                {
-                    Index = index,
-                };
-            }
-        }
-        */
-
         private class LoadLevel
         {
             public int ImageCount { get; init; }
