@@ -44,7 +44,6 @@ namespace DedupEngine
                 {
                     var stream = new MemoryStream(originalImage);
                     using var image = (Bitmap)Image.FromStream(stream);
-                    stream.Position = 0;
                     using var cropped = image.CropBlackBars();
                     using var small = cropped?.Resize(
                         DownscaleSize,
@@ -58,14 +57,15 @@ namespace DedupEngine
                         Bytes = GetImageBytes(greyscaled),
                         Loaded = true,
                     };
-                    if (!provideIntermediateImages)
+
+                    if (provideIntermediateImages)
                     {
-                        return imageSet;
+                        imageSet.Cropped = cropped?.ToMemoryStream();
+                        imageSet.Resized = small?.ToMemoryStream();
+                        imageSet.Greyscaled = greyscaled?.ToMemoryStream();
                     }
 
-                    imageSet.Cropped = cropped?.ToMemoryStream();
-                    imageSet.Resized = small?.ToMemoryStream();
-                    imageSet.Greyscaled = greyscaled?.ToMemoryStream();
+                    imageSet.Original.Position = 0;
                     return imageSet;
                 }
                 catch (ArgumentNullException)
