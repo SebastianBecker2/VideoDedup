@@ -112,7 +112,7 @@ namespace VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions
             var durationFormat = duration.Hours >= 1 ? @"hh\:mm\:ss" : @"mm\:ss";
 
             var infoText = $"{videoFile.FilePath}{Environment.NewLine}" +
-                $"{fileSize / (1024 * 1024)}  MB{Environment.NewLine} + " +
+                $"{fileSize / (1024 * 1024)} MB{Environment.NewLine}" +
                 $"{duration.ToString(durationFormat, CultureInfo.CurrentCulture)}";
 
             if (codecInfo != null)
