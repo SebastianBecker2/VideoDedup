@@ -46,7 +46,7 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
             };
 
         public int ImageComparisonIndex { get; set; }
-        public ImageComparisonResultEx? ImageComparisonResult { get; set; }
+        public ImageComparisonResult? ImageComparisonResult { get; set; }
         public bool ComparisonAlreadyFinished { get; set; }
         public bool ImageLoaded { get; set; }
         public int MaximumDifferencePercentage { get; set; }

@@ -8,11 +8,11 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
     using VideoDedupSharedLib.ExtensionMethods.ImageExtensions;
     using Size = Size;
 
-    public class ImageSetEx
+    public class ImageSet
     {
-        public ImageSetEx(ImageSet imageSet, Size containerSize)
+        public ImageSet(VideoDedupGrpc.ImageSet imageSet, Size containerSize)
         {
-            ImageSet = imageSet;
+            InnerImageSet = imageSet;
             Original = StreamToFittedImage(imageSet.Original, containerSize);
             Cropped = StreamToFittedImage(imageSet.Cropped, containerSize);
             Resized = StreamToFittedImage(imageSet.Resized, containerSize);
@@ -66,8 +66,8 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
                 System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor);
         }
 
-        public ImageSet ImageSet { get; set; }
-        public ImageIndex Index => ImageSet.Index;
+        public VideoDedupGrpc.ImageSet InnerImageSet { get; set; }
+        public ImageIndex Index => InnerImageSet.Index;
         public Image Original { get; set; }
         public Image Cropped { get; set; }
         public Image Resized { get; set; }

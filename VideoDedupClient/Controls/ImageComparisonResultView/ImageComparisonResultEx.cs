@@ -1,33 +1,32 @@
 namespace VideoDedupClient.Controls.ImageComparisonResultView
 {
-    using VideoDedupGrpc;
     using Size = Size;
 
-    public class ImageComparisonResultEx
+    public class ImageComparisonResult
     {
-        public ImageComparisonResultEx(
-            ImageComparisonResult imageComparisonResult,
+        public ImageComparisonResult(
+            VideoDedupGrpc.ImageComparisonResult imageComparisonResult,
             Size containerSize)
         {
-            ImageComparisonResult = imageComparisonResult;
+            InnerResult = imageComparisonResult;
 
-            LeftImages = new ImageSetEx(
-                ImageComparisonResult.LeftImages,
+            LeftImages = new ImageSet(
+                InnerResult.LeftImages,
                 containerSize);
 
-            RightImages = new ImageSetEx(
-                ImageComparisonResult.RightImages,
+            RightImages = new ImageSet(
+                InnerResult.RightImages,
                 containerSize);
         }
 
-        public ImageComparisonResult ImageComparisonResult { get; set; }
-        public int Index => ImageComparisonResult.Index;
-        public ImageSetEx LeftImages { get; set; }
-        public ImageSetEx RightImages { get; set; }
-        public double Difference => ImageComparisonResult.Difference;
-        public int LoadLevel => ImageComparisonResult.LoadLevel;
-        public ComparisonResult ComparisonResult =>
-            ImageComparisonResult.ComparisonResult;
+        private VideoDedupGrpc.ImageComparisonResult InnerResult { get; }
+        public int Index => InnerResult.Index;
+        public ImageSet LeftImages { get; set; }
+        public ImageSet RightImages { get; set; }
+        public double Difference => InnerResult.Difference;
+        public int LoadLevel => InnerResult.LoadLevel;
+        public VideoDedupGrpc.ComparisonResult ComparisonResult =>
+            InnerResult.ComparisonResult;
 
     }
 }

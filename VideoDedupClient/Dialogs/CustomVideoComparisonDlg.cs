@@ -10,6 +10,7 @@ namespace VideoDedupClient.Dialogs
     using Microsoft.WindowsAPICodePack.Dialogs;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
+    using ImageComparisonResult = Controls.ImageComparisonResultView.ImageComparisonResult;
 
     public partial class CustomVideoComparisonDlg : Form
     {
@@ -55,7 +56,7 @@ namespace VideoDedupClient.Dialogs
         private int ImageComparisonIndex { get; set; }
         private int? FinishedInLoadLevel { get; set; }
 
-        private List<ImageComparisonResultEx> ImageComparisons { get; } = new();
+        private List<ImageComparisonResult> ImageComparisons { get; } = new();
         private VideoComparisonResult? VideoComparisonResult { get; set; }
 
         public CustomVideoComparisonDlg()
@@ -230,12 +231,12 @@ namespace VideoDedupClient.Dialogs
             StatusTimer.Start();
         }
 
-        private static IEnumerable<ImageComparisonResultEx> ToImageComparisonResultEx(
-            IEnumerable<ImageComparisonResult> icrs)
+        private static IEnumerable<ImageComparisonResult> ToImageComparisonResultEx(
+            IEnumerable<VideoDedupGrpc.ImageComparisonResult> icrs)
         {
             var size = ImageComparisonResultViewCtl.ThumbnailSize;
             return icrs
-                .Select(icr => new ImageComparisonResultEx(icr, size))
+                .Select(icr => new ImageComparisonResult(icr, size))
                 .ToList();
         }
 
@@ -359,7 +360,7 @@ namespace VideoDedupClient.Dialogs
 
         private void AddImageComparisonsToTableLayoutPanel(
             TableLayoutPanel tableLayoutPanel,
-            IEnumerable<ImageComparisonResultEx> imageComparisonResults)
+            IEnumerable<ImageComparisonResult> imageComparisonResults)
         {
             var lastComparedIndex = VideoComparisonResult?.LastComparedIndex;
             if (lastComparedIndex != null)
@@ -369,7 +370,7 @@ namespace VideoDedupClient.Dialogs
                     ?.LoadLevel ?? FinishedInLoadLevel;
             }
 
-            ImageComparisonResultViewCtl toView(ImageComparisonResultEx icr) =>
+            ImageComparisonResultViewCtl toView(ImageComparisonResult icr) =>
                 new()
                 {
                     ImageComparisonIndex = icr.Index,
