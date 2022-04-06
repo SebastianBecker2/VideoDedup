@@ -66,7 +66,7 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
                 System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor);
         }
 
-        public VideoDedupGrpc.ImageSet InnerImageSet { get; set; }
+        private VideoDedupGrpc.ImageSet InnerImageSet { get; set; }
         public ImageIndex Index => InnerImageSet.Index;
         public Image Original { get; set; }
         public Image Cropped { get; set; }
