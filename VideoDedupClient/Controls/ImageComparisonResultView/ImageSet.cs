@@ -8,8 +8,10 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
     using VideoDedupSharedLib.ExtensionMethods.ImageExtensions;
     using Size = Size;
 
-    public class ImageSet
+    public class ImageSet : IDisposable
     {
+        private bool disposedValue;
+
         public ImageSet(VideoDedupGrpc.ImageSet imageSet, Size containerSize)
         {
             InnerImageSet = imageSet;
@@ -72,5 +74,27 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
         public Image Cropped { get; set; }
         public Image Resized { get; set; }
         public Image Greyscaled { get; set; }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    Original.Dispose();
+                    Cropped.Dispose();
+                    Resized.Dispose();
+                    Greyscaled.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

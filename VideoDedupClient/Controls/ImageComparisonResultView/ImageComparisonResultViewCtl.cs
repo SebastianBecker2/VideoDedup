@@ -58,10 +58,10 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
         public Color LoadedColor { get; set; }
         public Color NotLoadedColor { get; set; }
 
-        private Label ShowDetailsLabel { get; set; }
-        private PictureBox LeftShowDetailArrow { get; set; }
-        private PictureBox RightShowDetailArrow { get; set; }
-        private TableLayoutPanel TlpDetails { get; set; }
+        private Label ShowDetailsLabel { get; }
+        private PictureBox LeftShowDetailArrow { get; }
+        private PictureBox RightShowDetailArrow { get; }
+        private TableLayoutPanel TlpDetails { get; }
 
         public ImageComparisonResultViewCtl()
         {
@@ -76,6 +76,7 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
                 Margin = new Padding { All = 0 },
             };
             ShowDetailsLabel.Click += HandleShowDetailsClickEvent;
+            Controls.Add(ShowDetailsLabel);
 
             LeftShowDetailArrow = new PictureBox
             {
@@ -85,6 +86,7 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
                 Margin = new Padding { All = 0 },
             };
             LeftShowDetailArrow.Click += HandleShowDetailsClickEvent;
+            Controls.Add(LeftShowDetailArrow);
 
             RightShowDetailArrow = new PictureBox
             {
@@ -94,6 +96,7 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
                 Margin = new Padding { All = 0 },
             };
             RightShowDetailArrow.Click += HandleShowDetailsClickEvent;
+            Controls.Add(RightShowDetailArrow);
 
             TlpDetails = new TableLayoutPanel
             {
@@ -120,6 +123,7 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
             });
             TlpImageComparison.Controls.Add(TlpDetails, 0, 1);
             TlpImageComparison.SetColumnSpan(TlpDetails, 3);
+            Controls.Add(TlpDetails);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -377,6 +381,20 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
             }, 0, 1);
 
             return tlpDetailInfo;
+        }
+
+        /// <summary> 
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+                ImageComparisonResult?.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

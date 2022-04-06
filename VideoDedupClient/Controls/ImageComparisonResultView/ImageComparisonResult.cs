@@ -2,8 +2,10 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
 {
     using Size = Size;
 
-    public class ImageComparisonResult
+    public class ImageComparisonResult : IDisposable
     {
+        private bool disposedValue;
+
         public ImageComparisonResult(
             VideoDedupGrpc.ImageComparisonResult imageComparisonResult,
             Size containerSize)
@@ -28,5 +30,24 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
         public VideoDedupGrpc.ComparisonResult ComparisonResult =>
             InnerResult.ComparisonResult;
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    LeftImages.Dispose();
+                    RightImages.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
     }
 }
