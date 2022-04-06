@@ -1,11 +1,11 @@
-namespace VideoDedupSharedLib.ExtensionMethods.SqlDataReaderExtensions
+namespace VideoDedupSharedLib.ExtensionMethods.SqliteDataReaderExtensions
 {
-    using System.Data.SQLite;
+    using Microsoft.Data.Sqlite;
 
-    public static class SqlDataReaderExtensions
+    public static class SqliteDataReaderExtensions
     {
         public static byte[] GetBytes(
-            this SQLiteDataReader reader,
+            this SqliteDataReader reader,
             int index,
             int length)
         {

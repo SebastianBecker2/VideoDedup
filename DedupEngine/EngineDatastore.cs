@@ -1,14 +1,13 @@
 namespace DedupEngine
 {
-    using System.Data.SQLite;
     using System.IO;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using VideoDedupSharedLib;
     using VideoDedupSharedLib.Interfaces;
-    using VideoDedupSharedLib.ExtensionMethods.SqlDataReaderExtensions;
     using VideoDedupSharedLib.ExtensionMethods.DateTimeExtensions;
+    using VideoDedupSharedLib.ExtensionMethods.SqliteDataReaderExtensions;
 
     internal class EngineDatastore : Datastore
     {
@@ -23,7 +22,7 @@ namespace DedupEngine
         private void CreateVideoFilesTable()
         {
             using var connection = OpenConnection();
-            using var command = new SQLiteCommand(connection);
+            var command = connection.CreateCommand();
             command.CommandText = "CREATE TABLE IF NOT EXISTS VideoFiles ("
                 + " VideoFileId INTEGER NOT NULL UNIQUE,"
                 + " FileName TEXT NOT NULL,"
@@ -41,7 +40,7 @@ namespace DedupEngine
         public void InsertVideoFile(IVideoFile videoFile)
         {
             using var connection = OpenConnection();
-            using var command = new SQLiteCommand(connection);
+            var command = connection.CreateCommand();
             command.CommandText = "INSERT INTO VideoFiles"
                 + " (FileName, FileSize, Duration, LastWriteTime)"
                 + " VALUES "
@@ -66,7 +65,7 @@ namespace DedupEngine
         public TimeSpan? GetVideoFileDuration(IVideoFile videoFile)
         {
             using var connection = OpenConnection();
-            using var command = new SQLiteCommand(connection);
+            var command = connection.CreateCommand();
             command.CommandText = "SELECT"
                 + " Duration FROM VideoFiles"
                 + " WHERE FileName IS (@FileName)"
@@ -95,7 +94,7 @@ namespace DedupEngine
         private void CreateImagesTable()
         {
             using var connection = OpenConnection();
-            using var command = new SQLiteCommand(connection);
+            var command = connection.CreateCommand();
             command.CommandText = "CREATE TABLE IF NOT EXISTS Images ("
                 + " Numerator INTEGER NOT NULL,"
                 + " Denominator INTEGER NOT NULL,"
@@ -117,7 +116,7 @@ namespace DedupEngine
             IVideoFile videoFile)
         {
             using var connection = OpenConnection();
-            using var command = new SQLiteCommand(connection);
+            var command = connection.CreateCommand();
             command.CommandText = "INSERT INTO Images"
                     + " (Numerator, Denominator, ImageSize, Data, VideoFileId)"
                     + " VALUES"
@@ -164,7 +163,7 @@ namespace DedupEngine
             }
 
             using var connection = OpenConnection();
-            using var command = new SQLiteCommand(connection);
+            var command = connection.CreateCommand();
             command.CommandText = "SELECT"
                 + " Numerator, Denominator, ImageSize, Data"
                 + " FROM Images"
