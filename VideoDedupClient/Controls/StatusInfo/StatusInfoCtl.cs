@@ -166,7 +166,7 @@ namespace VideoDedupClient.Controls.StatusInfo
             {
                 TaskbarManager.Instance.SetProgressState(
                     TaskbarProgressBarState.NoProgress,
-                    Handle);
+                    ParentForm!.Handle);
                 ProgressBar.Style = ProgressBarStyle.Continuous;
                 // Assignment order of max and value for ProgressBar is important!
                 ProgressBar.Maximum = 0;
@@ -176,8 +176,11 @@ namespace VideoDedupClient.Controls.StatusInfo
             {
                 TaskbarManager.Instance.SetProgressState(
                     TaskbarProgressBarState.Normal,
-                    Handle);
-                TaskbarManager.Instance.SetProgressValue(Current, Maximum, Handle);
+                    ParentForm!.Handle);
+                TaskbarManager.Instance.SetProgressValue(
+                    Current,
+                    Maximum,
+                    ParentForm!.Handle);
                 ProgressBar.Style = ProgressBarStyle.Continuous;
                 // Assignment order of max and value for ProgressBar is important!
                 ProgressBar.Maximum = Maximum;
@@ -187,7 +190,7 @@ namespace VideoDedupClient.Controls.StatusInfo
             {
                 TaskbarManager.Instance.SetProgressState(
                     TaskbarProgressBarState.Indeterminate,
-                    Handle);
+                    ParentForm!.Handle);
                 ProgressBar.Style = ProgressBarStyle.Marquee;
                 // Assignment order of max and value for ProgressBar is important!
                 ProgressBar.Maximum = 1;
