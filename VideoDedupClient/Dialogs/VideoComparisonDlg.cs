@@ -167,5 +167,11 @@ namespace VideoDedupClient.Dialogs
             };
             _ = dlg.ShowDialog();
         }
+
+        private void BtnClose_Click(object sender, EventArgs e)
+        {
+            ResolveOperation = ResolveOperation.Cancel;
+            DialogResult = DialogResult.Cancel;
+        }
     }
 }

@@ -303,21 +303,14 @@ namespace VideoDedupClient.Dialogs
                     dlg.RightFile = duplicate.File2;
                     dlg.ServerSourcePath = duplicate.BasePath;
                     dlg.ClientSourcePath = Settings.ClientSourcePath;
-                    var result = dlg.ShowDialog();
 
-                    var resolveDuplicateRequest = new ResolveDuplicateRequest
+                    _ = dlg.ShowDialog();
+
+                    _ = GrpcClient.ResolveDuplicate(new ResolveDuplicateRequest
                     {
                         DuplicateId = duplicate.DuplicateId,
-                    };
-
-                    if (result == DialogResult.Cancel)
-                    {
-                        resolveDuplicateRequest.ResolveOperation =
-                            ResolveDuplicateRequest.Types.ResolveOperation.Cancel;
-                        return;
-                    }
-
-                    _ = GrpcClient.ResolveDuplicate(resolveDuplicateRequest);
+                        ResolveOperation = dlg.ResolveOperation,
+                    });
                 }
             }
             catch (Exception)

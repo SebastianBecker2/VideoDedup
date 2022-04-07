@@ -32,16 +32,16 @@ namespace VideoDedupClient.Dialogs
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VideoComparisonDlg));
             this.SplitterContainer = new System.Windows.Forms.SplitContainer();
+            this.FpvLeft = new VideoDedupClient.Controls.FilePreview.FilePreviewCtl();
             this.BtnShowLeft = new System.Windows.Forms.Button();
             this.btnDeleteLeft = new System.Windows.Forms.Button();
+            this.FpvRight = new VideoDedupClient.Controls.FilePreview.FilePreviewCtl();
             this.BtnShowRight = new System.Windows.Forms.Button();
             this.btnDeleteRight = new System.Windows.Forms.Button();
-            this.btnClose = new System.Windows.Forms.Button();
+            this.BtnClose = new System.Windows.Forms.Button();
             this.BtnSkip = new System.Windows.Forms.Button();
             this.BtnDiscard = new System.Windows.Forms.Button();
             this.BtnReviewComparison = new System.Windows.Forms.Button();
-            this.FpvRight = new VideoDedupClient.Controls.FilePreview.FilePreviewCtl();
-            this.FpvLeft = new VideoDedupClient.Controls.FilePreview.FilePreviewCtl();
             ((System.ComponentModel.ISupportInitialize)(this.SplitterContainer)).BeginInit();
             this.SplitterContainer.Panel1.SuspendLayout();
             this.SplitterContainer.Panel2.SuspendLayout();
@@ -69,10 +69,23 @@ namespace VideoDedupClient.Dialogs
             this.SplitterContainer.Panel2.Controls.Add(this.BtnShowRight);
             this.SplitterContainer.Panel2.Controls.Add(this.btnDeleteRight);
             this.SplitterContainer.Size = new System.Drawing.Size(630, 467);
-            this.SplitterContainer.SplitterDistance = 311;
+            this.SplitterContainer.SplitterDistance = 310;
             this.SplitterContainer.SplitterWidth = 7;
             this.SplitterContainer.TabIndex = 0;
             this.SplitterContainer.TabStop = false;
+            // 
+            // FpvLeft
+            // 
+            this.FpvLeft.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.FpvLeft.HighlightColor = System.Drawing.SystemColors.Control;
+            this.FpvLeft.Location = new System.Drawing.Point(4, 3);
+            this.FpvLeft.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.FpvLeft.Name = "FpvLeft";
+            this.FpvLeft.Size = new System.Drawing.Size(302, 428);
+            this.FpvLeft.TabIndex = 3;
+            this.FpvLeft.VideoFile = null;
             // 
             // BtnShowLeft
             // 
@@ -98,10 +111,23 @@ namespace VideoDedupClient.Dialogs
             this.btnDeleteLeft.UseVisualStyleBackColor = true;
             this.btnDeleteLeft.Click += new System.EventHandler(this.BtnDeleteLeft_Click);
             // 
+            // FpvRight
+            // 
+            this.FpvRight.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.FpvRight.HighlightColor = System.Drawing.SystemColors.Control;
+            this.FpvRight.Location = new System.Drawing.Point(4, 3);
+            this.FpvRight.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.FpvRight.Name = "FpvRight";
+            this.FpvRight.Size = new System.Drawing.Size(302, 428);
+            this.FpvRight.TabIndex = 3;
+            this.FpvRight.VideoFile = null;
+            // 
             // BtnShowRight
             // 
             this.BtnShowRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnShowRight.Location = new System.Drawing.Point(195, 437);
+            this.BtnShowRight.Location = new System.Drawing.Point(193, 437);
             this.BtnShowRight.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.BtnShowRight.Name = "BtnShowRight";
             this.BtnShowRight.Size = new System.Drawing.Size(113, 27);
@@ -113,7 +139,7 @@ namespace VideoDedupClient.Dialogs
             // btnDeleteRight
             // 
             this.btnDeleteRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeleteRight.Location = new System.Drawing.Point(99, 437);
+            this.btnDeleteRight.Location = new System.Drawing.Point(97, 437);
             this.btnDeleteRight.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.btnDeleteRight.Name = "btnDeleteRight";
             this.btnDeleteRight.Size = new System.Drawing.Size(88, 27);
@@ -122,17 +148,17 @@ namespace VideoDedupClient.Dialogs
             this.btnDeleteRight.UseVisualStyleBackColor = true;
             this.btnDeleteRight.Click += new System.EventHandler(this.BtnDeleteRight_Click);
             // 
-            // btnClose
+            // BtnClose
             // 
-            this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnClose.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnClose.Location = new System.Drawing.Point(557, 487);
-            this.btnClose.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.btnClose.Name = "btnClose";
-            this.btnClose.Size = new System.Drawing.Size(88, 27);
-            this.btnClose.TabIndex = 4;
-            this.btnClose.Text = "&Close";
-            this.btnClose.UseVisualStyleBackColor = true;
+            this.BtnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnClose.Location = new System.Drawing.Point(557, 487);
+            this.BtnClose.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.BtnClose.Name = "BtnClose";
+            this.BtnClose.Size = new System.Drawing.Size(88, 27);
+            this.BtnClose.TabIndex = 4;
+            this.BtnClose.Text = "&Close";
+            this.BtnClose.UseVisualStyleBackColor = true;
+            this.BtnClose.Click += new System.EventHandler(this.BtnClose_Click);
             // 
             // BtnSkip
             // 
@@ -170,43 +196,17 @@ namespace VideoDedupClient.Dialogs
             this.BtnReviewComparison.UseVisualStyleBackColor = true;
             this.BtnReviewComparison.Click += new System.EventHandler(this.BtnReviewComparison_Click);
             // 
-            // FpvRight
-            // 
-            this.FpvRight.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.FpvRight.HighlightColor = System.Drawing.SystemColors.Control;
-            this.FpvRight.Location = new System.Drawing.Point(4, 3);
-            this.FpvRight.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.FpvRight.Name = "FpvRight";
-            this.FpvRight.Size = new System.Drawing.Size(304, 428);
-            this.FpvRight.TabIndex = 3;
-            this.FpvRight.VideoFile = null;
-            // 
-            // FpvLeft
-            // 
-            this.FpvLeft.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.FpvLeft.HighlightColor = System.Drawing.SystemColors.Control;
-            this.FpvLeft.Location = new System.Drawing.Point(4, 3);
-            this.FpvLeft.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.FpvLeft.Name = "FpvLeft";
-            this.FpvLeft.Size = new System.Drawing.Size(303, 428);
-            this.FpvLeft.TabIndex = 3;
-            this.FpvLeft.VideoFile = null;
-            // 
             // VideoComparisonDlg
             // 
             this.AcceptButton = this.BtnSkip;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.CancelButton = this.btnClose;
+            this.CancelButton = this.BtnClose;
             this.ClientSize = new System.Drawing.Size(658, 528);
             this.Controls.Add(this.BtnReviewComparison);
             this.Controls.Add(this.BtnDiscard);
             this.Controls.Add(this.BtnSkip);
-            this.Controls.Add(this.btnClose);
+            this.Controls.Add(this.BtnClose);
             this.Controls.Add(this.SplitterContainer);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
@@ -223,7 +223,7 @@ namespace VideoDedupClient.Dialogs
 
         #endregion
         private System.Windows.Forms.SplitContainer SplitterContainer;
-        private System.Windows.Forms.Button btnClose;
+        private System.Windows.Forms.Button BtnClose;
         private System.Windows.Forms.Button btnDeleteLeft;
         private System.Windows.Forms.Button btnDeleteRight;
         private System.Windows.Forms.Button BtnShowRight;
