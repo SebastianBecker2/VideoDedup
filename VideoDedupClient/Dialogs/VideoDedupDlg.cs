@@ -293,7 +293,7 @@ namespace VideoDedupClient.Dialogs
                 while (true)
                 {
                     var duplicate = GrpcClient.GetDuplicate(new Empty());
-                    if (duplicate == null)
+                    if (string.IsNullOrWhiteSpace(duplicate.DuplicateId))
                     {
                         return;
                     }

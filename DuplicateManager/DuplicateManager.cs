@@ -96,7 +96,7 @@ namespace DuplicateManager
                 {
                     if (!duplicateList.Any())
                     {
-                        return null;
+                        return new DuplicateData();
                     }
 
                     // OrderBy is stable, so we get the first if multiple
