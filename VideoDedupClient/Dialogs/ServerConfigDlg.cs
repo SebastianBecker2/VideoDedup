@@ -194,7 +194,9 @@ namespace VideoDedupClient.Dialogs
                 dlg.VideoComparisonSettings.MaxDifference;
         }
 
-        private void RdbDurationDifferenceSeconds_CheckedChanged(object sender, EventArgs e)
+        private void HandleDurationDifferenceTypeChanged(
+            object sender,
+            EventArgs e)
         {
             if (RdbDurationDifferenceSeconds.Checked)
             {

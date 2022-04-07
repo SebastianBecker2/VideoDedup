@@ -42,6 +42,7 @@ namespace VideoDedupClient.Dialogs
             this.label3 = new System.Windows.Forms.Label();
             this.RdbDurationDifferenceSeconds = new System.Windows.Forms.RadioButton();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.LblMaxDurationDifferenceUnit = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.RdbDurationDifferencePercent = new System.Windows.Forms.RadioButton();
             this.NumMaxDurationDifference = new System.Windows.Forms.NumericUpDown();
@@ -66,7 +67,6 @@ namespace VideoDedupClient.Dialogs
             this.label10 = new System.Windows.Forms.Label();
             this.ChbMonitorFileChanges = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.LblMaxDurationDifferenceUnit = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxImageComparison)).BeginInit();
@@ -238,7 +238,7 @@ namespace VideoDedupClient.Dialogs
             this.RdbDurationDifferenceSeconds.TabStop = true;
             this.RdbDurationDifferenceSeconds.Text = "Absolut difference in seconds";
             this.RdbDurationDifferenceSeconds.UseVisualStyleBackColor = true;
-            this.RdbDurationDifferenceSeconds.CheckedChanged += new System.EventHandler(this.RdbDurationDifferenceSeconds_CheckedChanged);
+            this.RdbDurationDifferenceSeconds.CheckedChanged += new System.EventHandler(this.HandleDurationDifferenceTypeChanged);
             // 
             // groupBox2
             // 
@@ -256,6 +256,17 @@ namespace VideoDedupClient.Dialogs
             this.groupBox2.TabIndex = 24;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Comparing Duration";
+            // 
+            // LblMaxDurationDifferenceUnit
+            // 
+            this.LblMaxDurationDifferenceUnit.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.LblMaxDurationDifferenceUnit.AutoSize = true;
+            this.LblMaxDurationDifferenceUnit.Location = new System.Drawing.Point(286, 106);
+            this.LblMaxDurationDifferenceUnit.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.LblMaxDurationDifferenceUnit.Name = "LblMaxDurationDifferenceUnit";
+            this.LblMaxDurationDifferenceUnit.Size = new System.Drawing.Size(51, 15);
+            this.LblMaxDurationDifferenceUnit.TabIndex = 16;
+            this.LblMaxDurationDifferenceUnit.Text = "Seconds";
             // 
             // label7
             // 
@@ -280,6 +291,7 @@ namespace VideoDedupClient.Dialogs
             this.RdbDurationDifferencePercent.TabStop = true;
             this.RdbDurationDifferencePercent.Text = "Relative difference in percent";
             this.RdbDurationDifferencePercent.UseVisualStyleBackColor = true;
+            this.RdbDurationDifferencePercent.CheckedChanged += new System.EventHandler(this.HandleDurationDifferenceTypeChanged);
             // 
             // NumMaxDurationDifference
             // 
@@ -588,17 +600,6 @@ namespace VideoDedupClient.Dialogs
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 18.98832F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(353, 513);
             this.tableLayoutPanel2.TabIndex = 0;
-            // 
-            // LblMaxDurationDifferenceUnit
-            // 
-            this.LblMaxDurationDifferenceUnit.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.LblMaxDurationDifferenceUnit.AutoSize = true;
-            this.LblMaxDurationDifferenceUnit.Location = new System.Drawing.Point(286, 106);
-            this.LblMaxDurationDifferenceUnit.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.LblMaxDurationDifferenceUnit.Name = "LblMaxDurationDifferenceUnit";
-            this.LblMaxDurationDifferenceUnit.Size = new System.Drawing.Size(51, 15);
-            this.LblMaxDurationDifferenceUnit.TabIndex = 16;
-            this.LblMaxDurationDifferenceUnit.Text = "Seconds";
             // 
             // ServerConfigDlg
             // 
