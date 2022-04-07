@@ -120,14 +120,14 @@ namespace VideoDedupClient.Dialogs
             this.FpvRight.Location = new System.Drawing.Point(4, 3);
             this.FpvRight.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.FpvRight.Name = "FpvRight";
-            this.FpvRight.Size = new System.Drawing.Size(302, 428);
+            this.FpvRight.Size = new System.Drawing.Size(299, 428);
             this.FpvRight.TabIndex = 3;
             this.FpvRight.VideoFile = null;
             // 
             // BtnShowRight
             // 
             this.BtnShowRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnShowRight.Location = new System.Drawing.Point(193, 437);
+            this.BtnShowRight.Location = new System.Drawing.Point(190, 437);
             this.BtnShowRight.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.BtnShowRight.Name = "BtnShowRight";
             this.BtnShowRight.Size = new System.Drawing.Size(113, 27);
@@ -139,7 +139,7 @@ namespace VideoDedupClient.Dialogs
             // btnDeleteRight
             // 
             this.btnDeleteRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeleteRight.Location = new System.Drawing.Point(97, 437);
+            this.btnDeleteRight.Location = new System.Drawing.Point(94, 437);
             this.btnDeleteRight.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.btnDeleteRight.Name = "btnDeleteRight";
             this.btnDeleteRight.Size = new System.Drawing.Size(88, 27);
@@ -151,6 +151,7 @@ namespace VideoDedupClient.Dialogs
             // BtnClose
             // 
             this.BtnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.BtnClose.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.BtnClose.Location = new System.Drawing.Point(557, 487);
             this.BtnClose.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.BtnClose.Name = "BtnClose";
@@ -158,7 +159,6 @@ namespace VideoDedupClient.Dialogs
             this.BtnClose.TabIndex = 4;
             this.BtnClose.Text = "&Close";
             this.BtnClose.UseVisualStyleBackColor = true;
-            this.BtnClose.Click += new System.EventHandler(this.BtnClose_Click);
             // 
             // BtnSkip
             // 

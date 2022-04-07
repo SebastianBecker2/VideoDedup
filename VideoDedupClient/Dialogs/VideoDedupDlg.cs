@@ -304,7 +304,18 @@ namespace VideoDedupClient.Dialogs
                     dlg.ServerSourcePath = duplicate.BasePath;
                     dlg.ClientSourcePath = Settings.ClientSourcePath;
 
-                    _ = dlg.ShowDialog();
+                    var result = dlg.ShowDialog();
+
+                    if (result == DialogResult.Cancel)
+                    {
+                        _ = GrpcClient.ResolveDuplicate(new ResolveDuplicateRequest
+                        {
+                            DuplicateId = duplicate.DuplicateId,
+                            ResolveOperation =
+                                ResolveDuplicateRequest.Types.ResolveOperation.Cancel,
+                        });
+                        return;
+                    }
 
                     _ = GrpcClient.ResolveDuplicate(new ResolveDuplicateRequest
                     {
