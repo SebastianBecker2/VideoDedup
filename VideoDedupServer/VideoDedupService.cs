@@ -22,7 +22,7 @@ namespace VideoDedupServer
         VideoDedupGrpcService.VideoDedupGrpcServiceBase,
         IDisposable
     {
-        private readonly DedupEngine dedupper;
+        private readonly DedupEngine dedupEngine;
         private readonly DuplicateManager duplicateManager;
         private readonly List<string> logEntries = new();
         private readonly object logEntriesLock = new();
@@ -55,14 +55,14 @@ namespace VideoDedupServer
 
             var settings = LoadConfiguration();
 
-            dedupper = new DedupEngine(
+            dedupEngine = new DedupEngine(
                 appDataFolder,
                 settings.FolderSettings,
                 settings.DurationComparisonSettings,
                 settings.VideoComparisonSettings);
-            dedupper.OperationUpdate += OperationUpdateCallback;
-            dedupper.DuplicateFound += DuplicateFoundCallback;
-            dedupper.Logged += LoggedCallback;
+            dedupEngine.OperationUpdate += OperationUpdateCallback;
+            dedupEngine.DuplicateFound += DuplicateFoundCallback;
+            dedupEngine.Logged += LoggedCallback;
 
             duplicateManager = new DuplicateManager(settings.ThumbnailSettings);
 
@@ -76,7 +76,7 @@ namespace VideoDedupServer
             {
                 try
                 {
-                    dedupper.Start();
+                    dedupEngine.Start();
                 }
                 catch (InvalidOperationException exc)
                 {
@@ -361,14 +361,14 @@ namespace VideoDedupServer
                 settings.ThumbnailSettings,
                 UpdateSettingsResolution.DiscardDuplicates);
 
-            dedupper.UpdateConfiguration(
+            dedupEngine.UpdateConfiguration(
                 settings.FolderSettings,
                 settings.DurationComparisonSettings,
                 settings.VideoComparisonSettings);
 
             try
             {
-                dedupper.Start();
+                dedupEngine.Start();
             }
             catch (InvalidOperationException exc)
             {
@@ -392,7 +392,7 @@ namespace VideoDedupServer
                     try
                     {
                         initializationTask.Wait();
-                        dedupper.Stop();
+                        dedupEngine.Stop();
                     }
                     catch (AggregateException exc)
                     {
