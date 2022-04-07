@@ -3,10 +3,7 @@ namespace DedupEngine
     using System.IO;
     using System;
     using System.Collections.Generic;
-    using System.Data;
     using System.Linq;
-    using System.Runtime.InteropServices.ComTypes;
-    using Microsoft.Data.Sqlite;
     using VideoDedupSharedLib;
     using VideoDedupSharedLib.Interfaces;
     using VideoDedupSharedLib.ExtensionMethods.DateTimeExtensions;
