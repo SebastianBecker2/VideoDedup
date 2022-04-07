@@ -3,11 +3,15 @@ namespace DedupEngine
     using System.IO;
     using System;
     using System.Collections.Generic;
+    using System.Data;
     using System.Linq;
+    using System.Runtime.InteropServices.ComTypes;
+    using Microsoft.Data.Sqlite;
     using VideoDedupSharedLib;
     using VideoDedupSharedLib.Interfaces;
     using VideoDedupSharedLib.ExtensionMethods.DateTimeExtensions;
     using VideoDedupSharedLib.ExtensionMethods.SqliteDataReaderExtensions;
+    using VideoDedupSharedLib.ExtensionMethods.SqliteParameterCollectionExtensions;
 
     internal class EngineDatastore : Datastore
     {
@@ -137,7 +141,7 @@ namespace DedupEngine
             _ = command.Parameters.AddWithValue(
                 "@ImageSize",
                 bytes?.Length ?? 0);
-            _ = command.Parameters.AddWithValue(
+            _ = command.Parameters.AddWithOptionalValue(
                 "@Data",
                 bytes);
             _ = command.Parameters.AddWithValue(
