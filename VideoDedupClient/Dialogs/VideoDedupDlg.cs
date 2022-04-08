@@ -7,7 +7,6 @@ namespace VideoDedupClient.Dialogs
     using System.Windows.Forms;
     using Google.Protobuf.WellKnownTypes;
     using Grpc.Core;
-    using Grpc.Net.Client;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.DataGridViewExtensions;
     using VideoDedupSharedLib.ExtensionMethods.ISynchronizeInvokeExtensions;
@@ -16,24 +15,8 @@ namespace VideoDedupClient.Dialogs
 
     public partial class VideoDedupDlg : Form
     {
-        private static GrpcChannel? grpcChannel;
-        private static readonly object GrpcClientLock = new();
-        internal static VideoDedupGrpcServiceClient GrpcClient
-        {
-            get
-            {
-                lock (GrpcClientLock)
-                {
-                    grpcChannel ??= GrpcChannel.ForAddress(
-                        $"http://{Settings.ServerAddress}:41722",
-                        new GrpcChannelOptions
-                        {
-                            MaxReceiveMessageSize = null,
-                        });
-                    return new VideoDedupGrpcServiceClient(grpcChannel);
-                }
-            }
-        }
+        private static VideoDedupGrpcServiceClient GrpcClient =>
+            Program.GrpcClient;
 
         private string? logToken;
         private ConcurrentDictionary<int, LogEntry> LogEntries { get; } = new();
@@ -41,8 +24,6 @@ namespace VideoDedupClient.Dialogs
         private int DuplicateCount { get; set; }
 
         private SmartTimer.Timer StatusTimer { get; }
-
-        private static ConfigData Settings { get; set; } = LoadConfig();
 
         private WindowGeometry? resolveDuplicateDlgGeometry;
 
@@ -62,24 +43,6 @@ namespace VideoDedupClient.Dialogs
             _ = StatusTimer.StartSingle(0);
 
             base.OnLoad(e);
-        }
-
-        private static ConfigData LoadConfig() => new()
-        {
-            ServerAddress = Properties.Settings.Default.ServerAddress,
-            StatusRequestInterval = TimeSpan.FromMilliseconds(
-                Properties.Settings.Default.StatusRequestInterval),
-            ClientSourcePath = Properties.Settings.Default.ClientSourcePath,
-        };
-
-        private static void SaveConfig(ConfigData settings)
-        {
-            Properties.Settings.Default.ServerAddress = settings.ServerAddress;
-            Properties.Settings.Default.StatusRequestInterval =
-                (int)settings.StatusRequestInterval.TotalMilliseconds;
-            Properties.Settings.Default.ClientSourcePath =
-                settings.ClientSourcePath;
-            Properties.Settings.Default.Save();
         }
 
         private void StatusTimerCallback(object? param)
@@ -136,7 +99,8 @@ namespace VideoDedupClient.Dialogs
             }
             finally
             {
-                _ = StatusTimer.StartSingle(Settings.StatusRequestInterval);
+                _ = StatusTimer.StartSingle(
+                    Program.Configuration.StatusRequestInterval);
             }
         }
 
@@ -276,16 +240,20 @@ namespace VideoDedupClient.Dialogs
 
         private void BtnClientConfig_Click(object sender, EventArgs e)
         {
-            using var dlg = new ClientConfigDlg { Settings = Settings, };
+            using var dlg = new ClientConfigDlg
+            {
+                Configuration = Program.Configuration,
+            };
 
             if (dlg.ShowDialog() != DialogResult.OK)
             {
                 return;
             }
 
-            Settings = dlg.Settings;
-            SaveConfig(Settings);
-            _ = StatusTimer.StartSingle(Settings.StatusRequestInterval);
+            Program.Configuration = dlg.Configuration;
+            Program.SaveConfig();
+            _ = StatusTimer.StartSingle(
+                Program.Configuration.StatusRequestInterval);
         }
 
         private void BtnResolveConflicts_Click(object sender, EventArgs e)
@@ -305,7 +273,7 @@ namespace VideoDedupClient.Dialogs
                     dlg.LeftFile = duplicate.File1;
                     dlg.RightFile = duplicate.File2;
                     dlg.ServerSourcePath = duplicate.BasePath;
-                    dlg.ClientSourcePath = Settings.ClientSourcePath;
+                    dlg.ClientSourcePath = Program.Configuration.ClientSourcePath;
 
                     var result = dlg.ShowDialog();
                     resolveDuplicateDlgGeometry = WindowGeometry.FromForm(dlg);

@@ -162,7 +162,7 @@ namespace VideoDedupClient.Dialogs
             using var dlg = new CustomVideoComparisonDlg
             {
                 VideoComparisonSettings =
-                    VideoDedupDlg.GrpcClient.GetConfiguration(new Empty()).
+                    Program.GrpcClient.GetConfiguration(new Empty()).
                         VideoComparisonSettings,
                 LeftFilePath = LeftFile.FilePath,
                 RightFilePath = RightFile.FilePath,

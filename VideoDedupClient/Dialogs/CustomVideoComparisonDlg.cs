@@ -10,10 +10,15 @@ namespace VideoDedupClient.Dialogs
     using Microsoft.WindowsAPICodePack.Dialogs;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
-    using ImageComparisonResult = Controls.ImageComparisonResultView.ImageComparisonResult;
+    using static VideoDedupGrpc.VideoDedupGrpcService;
+    using ImageComparisonResult =
+        Controls.ImageComparisonResultView.ImageComparisonResult;
 
     public partial class CustomVideoComparisonDlg : Form
     {
+        private static VideoDedupGrpcServiceClient GrpcClient =>
+            Program.GrpcClient;
+
         public enum Buttons
         {
             OkCancel,
@@ -116,7 +121,7 @@ namespace VideoDedupClient.Dialogs
             if (ComparisonToken is not null)
             {
                 StatusTimer.Stop();
-                _ = VideoDedupDlg.GrpcClient.CancelCustomVideoComparison(
+                _ = GrpcClient.CancelCustomVideoComparison(
                     new CancelCustomVideoComparisonRequest
                     {
                         ComparisonToken = ComparisonToken,
@@ -183,7 +188,7 @@ namespace VideoDedupClient.Dialogs
             if (ComparisonToken is not null)
             {
                 StatusTimer.Stop();
-                _ = VideoDedupDlg.GrpcClient.CancelCustomVideoComparison(
+                _ = GrpcClient.CancelCustomVideoComparison(
                     new CancelCustomVideoComparisonRequest
                     {
                         ComparisonToken = ComparisonToken,
@@ -213,8 +218,7 @@ namespace VideoDedupClient.Dialogs
                 }
             };
 
-            var startData = VideoDedupDlg.GrpcClient.StartCustomVideoComparison(
-                request);
+            var startData = GrpcClient.StartCustomVideoComparison(request);
 
             if (startData.ComparisonToken == null)
             {
@@ -243,7 +247,7 @@ namespace VideoDedupClient.Dialogs
         private void HandleStatusTimerTick(object sender, EventArgs e)
         {
             StatusTimer.Stop();
-            var status = VideoDedupDlg.GrpcClient.GetVideoComparisonStatus(
+            var status = GrpcClient.GetVideoComparisonStatus(
                 new CustomVideoComparisonStatusRequest
                 {
                     ComparisonToken = ComparisonToken,
@@ -303,7 +307,7 @@ namespace VideoDedupClient.Dialogs
                         var maxImages = (int)NumMaxImageComparison.Value;
                         if (ImageComparisonIndex >= maxImages)
                         {
-                            _ = VideoDedupDlg.GrpcClient.CancelCustomVideoComparison(
+                            _ = GrpcClient.CancelCustomVideoComparison(
                                 new CancelCustomVideoComparisonRequest
                                 {
                                     ComparisonToken = ComparisonToken,
