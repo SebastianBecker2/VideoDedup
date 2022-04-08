@@ -8,6 +8,7 @@ namespace VideoDedupClient.Controls.StatusInfo
     using System.Windows.Forms;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.TimeSpanExtensions;
+    using VideoDedupSharedLib.ExtensionMethods.TimestampExtensions;
     using static VideoDedupGrpc.OperationInfo.Types;
     using SpeedRingBuffer =
         CircularBuffer.CircularBuffer<(int value, DateTime stamp)>;
@@ -126,9 +127,9 @@ namespace VideoDedupClient.Controls.StatusInfo
                 // To clear the speed history, we keep the start time of the
                 // operation. If the operationInfo contains a new one, we know
                 // we have a different operation. Thus clearing the history.
-                if (StartTime != OperationInfo.StartTime.ToDateTime())
+                if (StartTime != OperationInfo.StartTime.ToLocalDateTime())
                 {
-                    StartTime = OperationInfo.StartTime.ToDateTime();
+                    StartTime = OperationInfo.StartTime.ToLocalDateTime();
                     fileSpeedHistory.Clear();
                     fileSpeedHistory.PushBack((0, StartTime));
                     duplicateSpeedHistory.Clear();
