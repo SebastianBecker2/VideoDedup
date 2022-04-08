@@ -10,7 +10,7 @@ namespace VideoDedupClient.Dialogs
     using VideoDedupSharedLib.ExtensionMethods.StringExtensions;
     using VideoDedupSharedLib.Interfaces;
 
-    public partial class VideoComparisonDlg : Form
+    public partial class ResolveDuplicateDlg : Form
     {
         private const int MinimumSizeDifference = 100 * 1024; // 100 kB
 
@@ -23,7 +23,7 @@ namespace VideoDedupClient.Dialogs
         public ResolveOperation ResolveOperation { get; set; }
         public VideoFile? FileToDelete { get; set; }
 
-        public VideoComparisonDlg() => InitializeComponent();
+        public ResolveDuplicateDlg() => InitializeComponent();
 
         protected override void OnLoad(EventArgs e)
         {

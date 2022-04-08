@@ -44,7 +44,7 @@ namespace VideoDedupClient.Dialogs
 
         private static ConfigData Settings { get; set; } = LoadConfig();
 
-        private WindowGeometry? videoComparisonDlgGeometry;
+        private WindowGeometry? ResolveDuplicateDlgGeometry;
 
         public VideoDedupDlg()
         {
@@ -300,15 +300,15 @@ namespace VideoDedupClient.Dialogs
                         return;
                     }
 
-                    using var dlg = new VideoComparisonDlg();
-                    videoComparisonDlgGeometry?.ApplyToForm(dlg);
+                    using var dlg = new ResolveDuplicateDlg();
+                    ResolveDuplicateDlgGeometry?.ApplyToForm(dlg);
                     dlg.LeftFile = duplicate.File1;
                     dlg.RightFile = duplicate.File2;
                     dlg.ServerSourcePath = duplicate.BasePath;
                     dlg.ClientSourcePath = Settings.ClientSourcePath;
 
                     var result = dlg.ShowDialog();
-                    videoComparisonDlgGeometry = WindowGeometry.FromForm(dlg);
+                    ResolveDuplicateDlgGeometry = WindowGeometry.FromForm(dlg);
 
                     if (result == DialogResult.Cancel)
                     {

@@ -2,7 +2,7 @@ namespace VideoDedupClient.Dialogs
 {
     using Controls.FilePreview;
 
-    partial class VideoComparisonDlg
+    partial class ResolveDuplicateDlg
     {
         /// <summary>
         /// Required designer variable.
@@ -30,7 +30,7 @@ namespace VideoDedupClient.Dialogs
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VideoComparisonDlg));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ResolveDuplicateDlg));
             this.SplitterContainer = new System.Windows.Forms.SplitContainer();
             this.FpvLeft = new VideoDedupClient.Controls.FilePreview.FilePreviewCtl();
             this.BtnShowLeft = new System.Windows.Forms.Button();
@@ -196,7 +196,7 @@ namespace VideoDedupClient.Dialogs
             this.BtnReviewComparison.UseVisualStyleBackColor = true;
             this.BtnReviewComparison.Click += new System.EventHandler(this.BtnReviewComparison_Click);
             // 
-            // VideoComparisonDlg
+            // ResolveDuplicateDlg
             // 
             this.AcceptButton = this.BtnSkip;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -210,8 +210,8 @@ namespace VideoDedupClient.Dialogs
             this.Controls.Add(this.SplitterContainer);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.Name = "VideoComparisonDlg";
-            this.Text = "File Comparison";
+            this.Name = "ResolveDuplicateDlg";
+            this.Text = "Resolve Duplicate";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.SplitterContainer.Panel1.ResumeLayout(false);
             this.SplitterContainer.Panel2.ResumeLayout(false);

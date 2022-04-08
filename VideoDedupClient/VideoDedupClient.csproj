@@ -66,7 +66,7 @@
     <Compile Update="Dialogs\ServerConfigDlg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Dialogs\VideoComparisonDlg.cs">
+    <Compile Update="Dialogs\ResolveDuplicateDlg.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Dialogs\VideoDedupDlg.cs">
