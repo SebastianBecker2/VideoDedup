@@ -63,12 +63,12 @@ namespace VideoDedupClient.Dialogs
             // 
             this.BtnResolveDuplicates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnResolveDuplicates.Enabled = false;
-            this.BtnResolveDuplicates.Location = new System.Drawing.Point(854, 397);
+            this.BtnResolveDuplicates.Location = new System.Drawing.Point(820, 397);
             this.BtnResolveDuplicates.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.BtnResolveDuplicates.Name = "BtnResolveDuplicates";
-            this.BtnResolveDuplicates.Size = new System.Drawing.Size(88, 27);
+            this.BtnResolveDuplicates.Size = new System.Drawing.Size(121, 27);
             this.BtnResolveDuplicates.TabIndex = 3;
-            this.BtnResolveDuplicates.Text = "&Resolve";
+            this.BtnResolveDuplicates.Text = "&Resolve Duplicates";
             this.BtnResolveDuplicates.UseVisualStyleBackColor = true;
             this.BtnResolveDuplicates.Click += new System.EventHandler(this.BtnResolveConflicts_Click);
             // 
@@ -135,7 +135,7 @@ namespace VideoDedupClient.Dialogs
             this.BtnDiscardDuplicates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnDiscardDuplicates.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.BtnDiscardDuplicates.Enabled = false;
-            this.BtnDiscardDuplicates.Location = new System.Drawing.Point(726, 397);
+            this.BtnDiscardDuplicates.Location = new System.Drawing.Point(691, 397);
             this.BtnDiscardDuplicates.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.BtnDiscardDuplicates.Name = "BtnDiscardDuplicates";
             this.BtnDiscardDuplicates.Size = new System.Drawing.Size(121, 27);
