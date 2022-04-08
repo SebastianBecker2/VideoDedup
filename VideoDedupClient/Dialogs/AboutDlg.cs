@@ -1,5 +1,6 @@
-namespace VideoDedup
+namespace VideoDedupClient.Dialogs
 {
+    using System.Globalization;
     using System.Reflection;
     using System.Windows.Forms;
 
@@ -8,17 +9,17 @@ namespace VideoDedup
         public AboutDlg()
         {
             InitializeComponent();
-            Text = string.Format("About {0}", AssemblyTitle);
+            Text = string.Format(CultureInfo.InvariantCulture, "About {0}", AssemblyTitle);
             labelProductName.Text = AssemblyProduct;
-            labelVersion.Text = string.Format("Version {0}", AssemblyVersion);
+            labelVersion.Text = string.Format(CultureInfo.InvariantCulture, "Version {0}", AssemblyVersion);
             labelCopyright.Text = AssemblyCopyright;
             labelCompanyName.Text = AssemblyCompany;
-            //textBoxDescription.Text = AssemblyDescription;
+            textBoxDescription.Text = AssemblyDescription;
         }
 
         #region Assembly Attribute Accessors
 
-        public string AssemblyTitle
+        public static string AssemblyTitle
         {
             get
             {
@@ -31,27 +32,22 @@ namespace VideoDedup
                         return titleAttribute.Title;
                     }
                 }
-                return System.IO.Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
+                return System.IO.Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location);
             }
         }
 
-        public string AssemblyVersion =>
-            Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        public static string? AssemblyVersion => Assembly.GetExecutingAssembly().GetName().Version?.ToString();
 
-        public string AssemblyDescription
+        public static string AssemblyDescription
         {
             get
             {
                 var attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false);
-                if (attributes.Length == 0)
-                {
-                    return "";
-                }
-                return ((AssemblyDescriptionAttribute)attributes[0]).Description;
+                return attributes.Length == 0 ? "" : ((AssemblyDescriptionAttribute)attributes[0]).Description;
             }
         }
 
-        public string AssemblyProduct
+        public static string AssemblyProduct
         {
             get
             {
@@ -64,7 +60,7 @@ namespace VideoDedup
             }
         }
 
-        public string AssemblyCopyright
+        public static string AssemblyCopyright
         {
             get
             {
@@ -77,7 +73,7 @@ namespace VideoDedup
             }
         }
 
-        public string AssemblyCompany
+        public static string AssemblyCompany
         {
             get
             {

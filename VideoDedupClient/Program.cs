@@ -1,13 +1,12 @@
-namespace VideoDedup
+namespace VideoDedupClient
 {
-    using System;
-    using System.Windows.Forms;
-    using VideoDedup.Properties;
+    using Dialogs;
+    using Properties;
 
     internal static class Program
     {
         /// <summary>
-        /// The main entry point for the application.
+        ///  The main entry point for the application.
         /// </summary>
         [STAThread]
         private static void Main()
@@ -19,8 +18,9 @@ namespace VideoDedup
                 Settings.Default.Save();
             }
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            // To customize application configuration such as set high DPI settings or default font,
+            // see https://aka.ms/applicationconfiguration.
+            ApplicationConfiguration.Initialize();
             Application.Run(new VideoDedupDlg());
         }
     }

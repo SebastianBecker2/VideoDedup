@@ -2,14 +2,14 @@ namespace DedupEngine.MpvLib
 {
     using System;
     using System.Collections.Generic;
-    using System.Drawing;
     using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading;
-    using VideoDedupShared;
+    using VideoDedupGrpc;
+    using ImageIndex = ImageIndex;
 
     public class MpvWrapper : IDisposable
     {
@@ -188,7 +188,7 @@ namespace DedupEngine.MpvLib
             _ = Directory.CreateDirectory(OutputPath + "/");
         }
 
-        public IEnumerable<MemoryStream> GetImages(
+        public IEnumerable<byte[]?> GetImages(
             int index,
             int count,
             int divisionCount) =>
@@ -196,7 +196,7 @@ namespace DedupEngine.MpvLib
                 () => GetImages(null, index, count, divisionCount),
                 FilePath);
 
-        public IEnumerable<MemoryStream> GetImages(
+        public IEnumerable<byte[]?> GetImages(
             int index,
             int count,
             int divisionCount,
@@ -205,7 +205,7 @@ namespace DedupEngine.MpvLib
                 () => GetImages(cancelToken, index, count, divisionCount),
                 FilePath);
 
-        private IEnumerable<MemoryStream> GetImages(
+        private IEnumerable<byte[]?> GetImages(
             CancellationToken? cancelToken,
             int index,
             int count,
@@ -306,16 +306,16 @@ namespace DedupEngine.MpvLib
             }
         }
 
-        public IEnumerable<MemoryStream> GetImages(
+        public IEnumerable<byte[]?> GetImages(
             IEnumerable<ImageIndex> indices) =>
             CheckForOutOfMemory(() => GetImages(null, indices), FilePath);
 
-        public IEnumerable<MemoryStream> GetImages(
+        public IEnumerable<byte[]?> GetImages(
             IEnumerable<ImageIndex> indices,
             CancellationToken cancelToken) =>
             CheckForOutOfMemory(() => GetImages(cancelToken, indices), FilePath);
 
-        private IEnumerable<MemoryStream> GetImages(
+        private IEnumerable<byte[]?> GetImages(
             CancellationToken? cancelToken,
             IEnumerable<ImageIndex> indices)
         {
@@ -544,7 +544,7 @@ namespace DedupEngine.MpvLib
             return value;
         }
 
-        private static string GetString(IntPtr handle, string name)
+        private static string? GetString(IntPtr handle, string name)
         {
             var valuePtr = mpv_get_property_string(handle, GetUtf8Bytes(name));
             if (valuePtr == IntPtr.Zero)
@@ -553,10 +553,7 @@ namespace DedupEngine.MpvLib
             }
             try
             {
-                // Replace with:
-                // Marshal.PtrToStringUTF8(lpBuffer);
-                // When converting to .NET 5.0
-                return Marshal.PtrToStringAnsi(valuePtr);
+                return Marshal.PtrToStringUTF8(valuePtr);
             }
             finally
             {
@@ -583,19 +580,21 @@ namespace DedupEngine.MpvLib
                 {
                     continue;
                 }
-                var @event = (Event)Marshal.PtrToStructure(
+                var @event = (Event?)Marshal.PtrToStructure(
                     eventPtr,
                     typeof(Event));
-                return (EventId)@event.Id;
+                return (EventId?)@event?.Id ?? EventId.None;
             }
         }
 
         private static CodecInfo ReadCodecInfo(IntPtr mpvHandle) =>
-            new CodecInfo()
+            new()
             {
-                Size = new Size(
-                    (int)GetLong(mpvHandle, "width"),
-                    (int)GetLong(mpvHandle, "height")),
+                Size = new Size
+                {
+                    Width = (int)GetLong(mpvHandle, "width"),
+                    Height = (int)GetLong(mpvHandle, "height"),
+                },
                 Name = GetString(mpvHandle, "video-codec"),
                 FrameRate = GetLong(mpvHandle, "container-fps"),
             };
@@ -617,8 +616,7 @@ namespace DedupEngine.MpvLib
         {
             if (result != 0)
             {
-                throw new MpvOperationException(
-                    message + " result: " + result.ToString());
+                throw new MpvOperationException($"{message} result: {result}");
             }
         }
 
@@ -665,13 +663,13 @@ namespace DedupEngine.MpvLib
             return rootPointer;
         }
 
-        private static MemoryStream ReadFileWithRetry(
+        private static byte[] ReadFileWithRetry(
             string filePath,
             int retryCount = 0)
         {
             try
             {
-                return new MemoryStream(File.ReadAllBytes(filePath));
+                return File.ReadAllBytes(filePath);
             }
             catch (IOException)
             {
@@ -684,7 +682,7 @@ namespace DedupEngine.MpvLib
             }
         }
 
-        private static MemoryStream GetExtractedImage(string outputPath)
+        private static byte[]? GetExtractedImage(string outputPath)
         {
             var filePath = Directory.GetFiles(outputPath).FirstOrDefault();
             if (filePath is null)

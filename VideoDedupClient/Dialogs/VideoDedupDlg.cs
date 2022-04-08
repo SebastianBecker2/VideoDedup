@@ -1,80 +1,57 @@
-namespace VideoDedup
+namespace VideoDedupClient.Dialogs
 {
     using System;
     using System.Collections.Concurrent;
     using System.Diagnostics;
     using System.Linq;
-    using System.ServiceModel;
-    using System.Threading.Tasks;
     using System.Windows.Forms;
-    using VideoDedupShared;
-    using VideoDedupShared.DataGridViewExtension;
-    using VideoDedupShared.ISynchronizeInvokeExtensions;
+    using Google.Protobuf.WellKnownTypes;
+    using Grpc.Core;
+    using Grpc.Net.Client;
+    using VideoDedupGrpc;
+    using VideoDedupSharedLib.ExtensionMethods.DataGridViewExtensions;
+    using VideoDedupSharedLib.ExtensionMethods.ISynchronizeInvokeExtensions;
+    using static VideoDedupGrpc.OperationInfo.Types;
+    using static VideoDedupGrpc.VideoDedupGrpcService;
 
     public partial class VideoDedupDlg : Form
     {
-        private static readonly TimeSpan WcfTimeout = TimeSpan.FromSeconds(30);
-
-        internal static WcfProxy WcfProxy
+        private static GrpcChannel? grpcChannel;
+        private static readonly object GrpcClientLock = new();
+        internal static VideoDedupGrpcServiceClient GrpcClient
         {
             get
             {
-                lock (WcfProxyLock)
+                lock (GrpcClientLock)
                 {
-                    // If server address changed
-                    // or connection issue occurred.
-                    if (wcfProxy != null
-                        && (wcfProxy.Endpoint.Address.Uri.Host
-                            != Settings.ServerAddress
-                        || wcfProxy.InnerChannel.State
-                            == CommunicationState.Faulted))
-                    {
-                        // https://stackoverflow.com/questions/2008382/how-to-heal-faulted-wcf-channels
-                        wcfProxy.Abort();
-                        wcfProxy = null;
-                    }
-
-                    if (wcfProxy == null)
-                    {
-                        var binding = new NetTcpBinding
+                    grpcChannel ??= GrpcChannel.ForAddress(
+                        $"http://{Settings.ServerAddress}:41722",
+                        new GrpcChannelOptions
                         {
-                            MaxReceivedMessageSize = int.MaxValue,
-                            MaxBufferSize = int.MaxValue,
-                            OpenTimeout = WcfTimeout,
-                            CloseTimeout = WcfTimeout,
-                            ReceiveTimeout = WcfTimeout,
-                            SendTimeout = WcfTimeout,
-                        };
-
-                        var baseAddress = new Uri(
-                            $"net.tcp://{Settings.ServerAddress}:41721/VideoDedup");
-                        var address = new EndpointAddress(baseAddress);
-                        wcfProxy = new WcfProxy(binding, address);
-                    }
-                    return wcfProxy;
+                            MaxReceiveMessageSize = null,
+                        });
+                    return new VideoDedupGrpcServiceClient(grpcChannel);
                 }
             }
         }
-        private static WcfProxy wcfProxy = null;
-        private static readonly object WcfProxyLock = new object();
 
-        private Guid? logToken;
-        private ConcurrentDictionary<int, LogEntry> LogEntries { get; } =
-            new ConcurrentDictionary<int, LogEntry>();
+        private string? logToken;
+        private ConcurrentDictionary<int, LogEntry> LogEntries { get; } = new();
 
-        private int DuplicateCount { get; set; } = 0;
+        private int DuplicateCount { get; set; }
 
-        private SmartTimer.Timer StatusTimer { get; set; } = null;
+        private SmartTimer.Timer StatusTimer { get; }
 
-        private static ConfigData Settings { get; set; }
+        private static ConfigData Settings { get; set; } = LoadConfig();
 
-        public VideoDedupDlg() => InitializeComponent();
+        public VideoDedupDlg()
+        {
+            InitializeComponent();
+            StatusTimer = new SmartTimer.Timer(StatusTimerCallback);
+        }
 
         protected override void OnLoad(EventArgs e)
         {
-            Settings = LoadConfig();
-
-            StatusTimer = new SmartTimer.Timer(StatusTimerCallback);
             StiProgress.UpdateStatusInfo(new OperationInfo
             {
                 OperationType = OperationType.Connecting,
@@ -85,7 +62,7 @@ namespace VideoDedup
             base.OnLoad(e);
         }
 
-        private static ConfigData LoadConfig() => new ConfigData
+        private static ConfigData LoadConfig() => new()
         {
             ServerAddress = Properties.Settings.Default.ServerAddress,
             StatusRequestInterval = TimeSpan.FromMilliseconds(
@@ -103,11 +80,11 @@ namespace VideoDedup
             Properties.Settings.Default.Save();
         }
 
-        private void StatusTimerCallback(object param)
+        private void StatusTimerCallback(object? param)
         {
             try
             {
-                var status = WcfProxy.GetCurrentStatus();
+                var status = GrpcClient.GetCurrentStatus(new Empty());
 
                 this.InvokeIfRequired(() =>
                 {
@@ -135,15 +112,14 @@ namespace VideoDedup
                     }
 
                     DuplicateCount = status.DuplicateCount;
-                    StiProgress.UpdateStatusInfo(status.Operation, DuplicateCount);
+                    StiProgress.UpdateStatusInfo(
+                        status.OperationInfo,
+                        DuplicateCount);
                     BtnResolveDuplicates.Enabled = DuplicateCount > 0;
                     BtnDiscardDuplicates.Enabled = DuplicateCount > 0;
                 });
             }
-            catch (Exception ex) when (
-                ex is EndpointNotFoundException
-                || ex is CommunicationException
-                || ex is TimeoutException)
+            catch (RpcException ex)
             {
                 Debug.Print("Status request failed with: " + ex.Message);
                 this.InvokeIfRequired(() =>
@@ -178,7 +154,7 @@ namespace VideoDedup
 
             e.Value = "";
 
-            if (!logToken.HasValue)
+            if (logToken is null)
             {
                 return;
             }
@@ -205,24 +181,25 @@ namespace VideoDedup
 
             var count = end - start + 1;
 
-            RequestLogEntries(logToken.Value, start, count);
+            RequestLogEntries(logToken, start, count);
         }
 
-        private async void RequestLogEntries(Guid logToken, int start, int count)
+        private async void RequestLogEntries(string logToken, int start, int count)
         {
             foreach (var index in Enumerable.Range(start, count))
             {
-                _ = LogEntries.TryAdd(index, new LogEntry
-                {
-                    Status = LogEntryStatus.Requested,
-                    Message = "",
-                });
+                _ = LogEntries.TryAdd(index, new LogEntry());
             }
 
             try
             {
-                var logData = await Task.Factory.StartNew(() =>
-                    WcfProxy.GetLogEntries(logToken, start, count));
+                var logData = await
+                    GrpcClient.GetLogEntriesAsync(new GetLogEntriesRequest
+                    {
+                        Count = count,
+                        LogToken = logToken,
+                        Start = start,
+                    });
 
                 if (start + count > DgvLog.RowCount)
                 {
@@ -232,11 +209,7 @@ namespace VideoDedup
                 var logIndex = start;
                 foreach (var logEntry in logData.LogEntries)
                 {
-                    _ = LogEntries[logIndex++] = new LogEntry
-                    {
-                        Status = LogEntryStatus.Present,
-                        Message = logEntry,
-                    };
+                    _ = LogEntries[logIndex++] = new LogEntry(logEntry);
                 }
 
                 foreach (var index in Enumerable.Range(start, count))
@@ -244,9 +217,7 @@ namespace VideoDedup
                     DgvLog.UpdateCellValue(0, index);
                 }
             }
-            catch (Exception ex) when (
-                ex is EndpointNotFoundException
-                || ex is CommunicationException)
+            catch (Exception)
             {
                 foreach (var index in Enumerable.Range(start, count))
                 {
@@ -257,50 +228,45 @@ namespace VideoDedup
 
         private void BtnServerConfig_Click(object sender, EventArgs e)
         {
-            using (var dlg = new ServerConfigDlg())
+            using var dlg = new ServerConfigDlg();
+            try
+            {
+                dlg.ConfigurationSettings =
+                    GrpcClient.GetConfiguration(new Empty());
+            }
+            catch (Exception)
+            {
+                _ = MessageBox.Show(
+                    "Unable to retrieve configuration from server.",
+                    "Connection Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return;
+            }
+
+            if (dlg.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            while (true)
             {
                 try
                 {
-                    dlg.ServerConfig = WcfProxy.GetConfig();
-                }
-                catch (Exception ex) when (
-                    ex is EndpointNotFoundException
-                    || ex is CommunicationException)
-                {
-                    _ = MessageBox.Show(
-                        "Unable to retrieve configuration from server.",
-                        "Connection Error",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                    _ = GrpcClient.SetConfiguration(dlg.ConfigurationSettings);
                     return;
                 }
-
-                if (dlg.ShowDialog() != DialogResult.OK)
+                catch (Exception)
                 {
-                    return;
-                }
-
-                while (true)
-                {
-                    try
-                    {
-                        WcfProxy.SetConfig(dlg.ServerConfig);
-                        return;
-                    }
-                    catch (Exception ex) when (
-                        ex is EndpointNotFoundException
-                        || ex is CommunicationException)
-                    {
-                        if (MessageBox.Show(
+                    if (MessageBox.Show(
                             $"Unable to send configuration to the server." +
-                                $"{Environment.NewLine}Do you want to try again?",
+                            $"{Environment.NewLine}Do you want to try again?",
                             "Connection Error",
                             MessageBoxButtons.YesNo,
                             MessageBoxIcon.Error)
-                            == DialogResult.No)
-                        {
-                            return;
-                        }
+                        == DialogResult.No)
+                    {
+                        return;
                     }
                 }
             }
@@ -308,19 +274,16 @@ namespace VideoDedup
 
         private void BtnClientConfig_Click(object sender, EventArgs e)
         {
-            using (var dlg = new ClientConfigDlg())
+            using var dlg = new ClientConfigDlg { Settings = Settings, };
+
+            if (dlg.ShowDialog() != DialogResult.OK)
             {
-                dlg.Settings = Settings;
-
-                if (dlg.ShowDialog() != DialogResult.OK)
-                {
-                    return;
-                }
-
-                Settings = dlg.Settings;
-                SaveConfig(Settings);
-                _ = StatusTimer.StartSingle(Settings.StatusRequestInterval);
+                return;
             }
+
+            Settings = dlg.Settings;
+            SaveConfig(Settings);
+            _ = StatusTimer.StartSingle(Settings.StatusRequestInterval);
         }
 
         private void BtnResolveConflicts_Click(object sender, EventArgs e)
@@ -329,41 +292,43 @@ namespace VideoDedup
             {
                 while (true)
                 {
-                    var duplicate = WcfProxy.GetDuplicate();
-                    if (duplicate == null)
+                    var duplicate = GrpcClient.GetDuplicate(new Empty());
+                    if (string.IsNullOrWhiteSpace(duplicate.DuplicateId))
                     {
                         return;
                     }
 
-                    using (var dlg = new VideoComparisonDlg())
-                    {
-                        DialogResult result;
-                        dlg.LeftFile = duplicate.File1;
-                        dlg.RightFile = duplicate.File2;
-                        dlg.ServerSourcePath = duplicate.BasePath;
-                        dlg.Settings = Settings;
-                        result = dlg.ShowDialog();
+                    using var dlg = new VideoComparisonDlg();
+                    dlg.LeftFile = duplicate.File1;
+                    dlg.RightFile = duplicate.File2;
+                    dlg.ServerSourcePath = duplicate.BasePath;
+                    dlg.ClientSourcePath = Settings.ClientSourcePath;
 
-                        if (result == DialogResult.Cancel)
+                    var result = dlg.ShowDialog();
+
+                    if (result == DialogResult.Cancel)
+                    {
+                        _ = GrpcClient.ResolveDuplicate(new ResolveDuplicateRequest
                         {
-                            WcfProxy.ResolveDuplicate(
-                                duplicate.DuplicateId,
-                                ResolveOperation.Cancel);
-                            return;
-                        }
-                        WcfProxy.ResolveDuplicate(
-                              duplicate.DuplicateId,
-                              dlg.ResolveOperation);
+                            DuplicateId = duplicate.DuplicateId,
+                            ResolveOperation =
+                                ResolveDuplicateRequest.Types.ResolveOperation.Cancel,
+                        });
+                        return;
                     }
+
+                    _ = GrpcClient.ResolveDuplicate(new ResolveDuplicateRequest
+                    {
+                        DuplicateId = duplicate.DuplicateId,
+                        ResolveOperation = dlg.ResolveOperation,
+                    });
                 }
             }
-            catch (Exception ex) when (
-                ex is EndpointNotFoundException
-                || ex is CommunicationException)
+            catch (Exception)
             {
                 _ = MessageBox.Show(
                     $"Unable to process duplicate.{Environment.NewLine}" +
-                        $"Connection to server failed.",
+                    $"Connection to server failed.",
                     "Connection Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
@@ -375,10 +340,8 @@ namespace VideoDedup
 
         private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (var dlg = new AboutDlg())
-            {
-                _ = dlg.ShowDialog();
-            }
+            using var dlg = new AboutDlg();
+            _ = dlg.ShowDialog();
         }
 
         private void ClientConfigurationToolStripMenuItem_Click(
@@ -395,7 +358,7 @@ namespace VideoDedup
         {
             var selection = MessageBox.Show(
                 $"There are {DuplicateCount} duplicates to resolve." +
-                    $"{Environment.NewLine}Are you sure you want to discard them?",
+                $"{Environment.NewLine}Are you sure you want to discard them?",
                 "Discard duplicates?",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning);
@@ -407,12 +370,14 @@ namespace VideoDedup
 
             try
             {
-                WcfProxy.DiscardDuplicates();
+                _ = GrpcClient.DiscardDuplicates(new Empty());
             }
-            catch (Exception ex) when (
-               ex is EndpointNotFoundException
-               || ex is CommunicationException)
-            { }
+            catch (Exception) { }
+        }
+
+        private void VideoDedupDlg_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -1,75 +1,97 @@
 namespace DuplicateManager
 {
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using DedupEngine.MpvLib;
-    using VideoDedupShared;
+    using Google.Protobuf;
+    using VideoDedupGrpc;
 
     internal class ThumbnailManager
     {
-        private class VideoFileRefCounter
+        private class VideoFileRefCounter : IEqualityComparer<VideoFileRefCounter>
         {
-            public VideoFile VideoFile { get; set; }
-            public int RefCount { get; set; }
+            public VideoFileRefCounter(VideoFile videoFile) =>
+                VideoFile = videoFile;
+
+            public VideoFile VideoFile { get; }
+            public int RefCount { get; set; } = 1;
+
+
+            public bool Equals(VideoFileRefCounter? x, VideoFileRefCounter? y)
+            {
+                if (ReferenceEquals(x, y))
+                {
+                    return true;
+                }
+
+                if (x is null || y is null)
+                {
+                    return false;
+                }
+
+                return x.VideoFile.FilePath == y.VideoFile.FilePath;
+            }
+
+            public int GetHashCode(VideoFileRefCounter obj) =>
+                HashCode.Combine(VideoFile.FilePath);
         }
 
-        private Dictionary<IVideoFile, VideoFileRefCounter> UniqueVideoFiles { get; } =
-            new Dictionary<IVideoFile, VideoFileRefCounter>();
+        private readonly HashSet<VideoFileRefCounter> uniqueVideoFiles = new();
 
-        public IThumbnailSettings Settings { get; set; }
+        public ThumbnailSettings Settings { get; set; }
 
-        public VideoFile AddVideoFileReference(
-            DedupEngine.VideoFile videoFile)
+        public ThumbnailManager(ThumbnailSettings settings) =>
+            Settings = settings
+                ?? throw new ArgumentNullException(nameof(settings));
+
+        public VideoFile AddVideoFileReference(VideoFile videoFile)
         {
-            if (UniqueVideoFiles.TryGetValue(videoFile, out var refCounter))
+            if (uniqueVideoFiles.TryGetValue(
+                    new VideoFileRefCounter(videoFile),
+                    out var refCounter))
             {
                 refCounter.RefCount++;
                 return refCounter.VideoFile;
             }
 
-            IEnumerable<MemoryStream> GetTumbnails()
+            IEnumerable<byte[]?> GetThumbnails()
             {
                 try
                 {
-                    using (var mpv = new MpvWrapper(
+                    using var mpv = new MpvWrapper(
                         videoFile.FilePath,
-                        videoFile.Duration))
-                    {
-                        return mpv
-                            .GetImages(0, Settings.Count, Settings.Count)
-                            .ToList();
-                    }
+                        videoFile.Duration?.ToTimeSpan());
+                    return mpv
+                        .GetImages(0, Settings.ImageCount, Settings.ImageCount)
+                        .ToList();
                 }
                 catch (MpvOperationException)
                 {
-                    return new MemoryStream[Settings.Count];
+                    return new byte[Settings.ImageCount][];
                 }
             }
 
-            var videoFilePreview = new VideoFile(
-                videoFile,
-                GetTumbnails());
-            UniqueVideoFiles.Add(videoFile, new VideoFileRefCounter
-            {
-                VideoFile = videoFilePreview,
-                RefCount = 1,
-            });
-            return videoFilePreview;
+            videoFile.Images.AddRange(
+                GetThumbnails().Select(ByteString.CopyFrom));
+
+            _ = uniqueVideoFiles.Add(new VideoFileRefCounter(videoFile));
+            return videoFile;
         }
 
-        public void RemoveVideoFileReference(IVideoFile videoFile)
+        public void RemoveVideoFileReference(VideoFile videoFile)
         {
-            var refCounter = UniqueVideoFiles[videoFile];
-
-            if (refCounter.RefCount == 1)
+            if (uniqueVideoFiles.TryGetValue(
+                    new VideoFileRefCounter(videoFile),
+                    out var refCounter))
             {
-                refCounter.VideoFile.Dispose();
-                _ = UniqueVideoFiles.Remove(videoFile);
-                return;
-            }
+                if (refCounter.RefCount == 1)
+                {
+                    _ = uniqueVideoFiles.Remove(refCounter);
+                    return;
+                }
 
-            refCounter.RefCount--;
+                refCounter.RefCount--;
+            }
         }
     }
 }

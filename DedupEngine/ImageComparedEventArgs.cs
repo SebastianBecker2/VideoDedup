@@ -1,14 +1,14 @@
 namespace DedupEngine
 {
     using System;
-    using VideoDedupShared;
+    using VideoDedupGrpc;
 
     public class ImageComparedEventArgs : EventArgs
     {
-        public VideoFile LeftVideoFile { get; set; }
-        public VideoFile RightVideoFile { get; set; }
-        public ImageSet LeftImages { get; set; }
-        public ImageSet RightImages { get; set; }
+        public VideoFile? LeftVideoFile { get; set; }
+        public VideoFile? RightVideoFile { get; set; }
+        public ImageSet? LeftImages { get; set; }
+        public ImageSet? RightImages { get; set; }
         public double Difference { get; set; }
         public int ImageLoadLevelIndex { get; set; }
         public int ImageComparisonIndex { get; set; }

@@ -1,5 +1,6 @@
-namespace VideoDedup
+namespace VideoDedupClient.Dialogs
 {
+    using Controls.DnsTextBox;
 
     partial class ClientConfigDlg
     {
@@ -36,7 +37,7 @@ namespace VideoDedup
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.TxtServerAddress = new VideoDedup.DnsTextBox.DnsTextBoxCtrl();
+            this.TxtServerAddress = new VideoDedupClient.Controls.DnsTextBox.DnsTextBoxCtrl();
             this.NudStatusRequestInterval = new System.Windows.Forms.NumericUpDown();
             this.TxtClientSourcePath = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -143,9 +144,9 @@ namespace VideoDedup
             this.TxtServerAddress.Resolving = false;
             this.TxtServerAddress.Size = new System.Drawing.Size(212, 20);
             this.TxtServerAddress.TabIndex = 0;
-            this.TxtServerAddress.ResolveStarted += new System.EventHandler<VideoDedup.DnsTextBox.ResolveStartedEventArgs>(this.TxtServerAddress_ResolveStarted);
-            this.TxtServerAddress.ResolveSuccessful += new System.EventHandler<VideoDedup.DnsTextBox.ResolveSuccessfulEventArgs>(this.TxtServerAddress_ResolveSuccessful);
-            this.TxtServerAddress.ResolveFailed += new System.EventHandler<VideoDedup.DnsTextBox.ResolveFailedEventArgs>(this.TxtServerAddress_ResolveFailed);
+            this.TxtServerAddress.ResolveStarted += new System.EventHandler<ResolveStartedEventArgs>(this.TxtServerAddress_ResolveStarted);
+            this.TxtServerAddress.ResolveSuccessful += new System.EventHandler<ResolveSuccessfulEventArgs>(this.TxtServerAddress_ResolveSuccessful);
+            this.TxtServerAddress.ResolveFailed += new System.EventHandler<ResolveFailedEventArgs>(this.TxtServerAddress_ResolveFailed);
             // 
             // NudStatusRequestInterval
             // 
@@ -258,7 +259,7 @@ namespace VideoDedup
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.PictureBox PibServerAddressLoading;
-        private DnsTextBox.DnsTextBoxCtrl TxtServerAddress;
+        private DnsTextBoxCtrl TxtServerAddress;
         private System.Windows.Forms.NumericUpDown NudStatusRequestInterval;
         private System.Windows.Forms.TextBox TxtClientSourcePath;
         private System.Windows.Forms.Label label3;

@@ -1,4 +1,4 @@
-namespace VideoDedup
+namespace VideoDedupClient.Dialogs
 {
 
     partial class CustomVideoComparisonDlg
@@ -154,7 +154,7 @@ namespace VideoDedup
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Image = global::VideoDedup.Properties.Resources.ArrowUpGray;
+            this.pictureBox1.Image = global::VideoDedupClient.Properties.Resources.ArrowUpGray;
             this.pictureBox1.Location = new System.Drawing.Point(3, 3);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(32, 32);
@@ -236,7 +236,7 @@ namespace VideoDedup
             // 
             // PibSecondLoadLevel
             // 
-            this.PibSecondLoadLevel.Image = global::VideoDedup.Properties.Resources.ArrowUpGray;
+            this.PibSecondLoadLevel.Image = global::VideoDedupClient.Properties.Resources.ArrowUpGray;
             this.PibSecondLoadLevel.Location = new System.Drawing.Point(3, 3);
             this.PibSecondLoadLevel.Name = "PibSecondLoadLevel";
             this.PibSecondLoadLevel.Size = new System.Drawing.Size(32, 32);
@@ -294,7 +294,7 @@ namespace VideoDedup
             // 
             // PibFirstLoadLevel
             // 
-            this.PibFirstLoadLevel.Image = global::VideoDedup.Properties.Resources.ArrowUpGray;
+            this.PibFirstLoadLevel.Image = global::VideoDedupClient.Properties.Resources.ArrowUpGray;
             this.PibFirstLoadLevel.Location = new System.Drawing.Point(3, 3);
             this.PibFirstLoadLevel.Name = "PibFirstLoadLevel";
             this.PibFirstLoadLevel.Size = new System.Drawing.Size(32, 32);

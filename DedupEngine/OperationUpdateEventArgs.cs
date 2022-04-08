@@ -1,7 +1,7 @@
 namespace DedupEngine
 {
     using System;
-    using VideoDedupShared;
+    using static VideoDedupGrpc.OperationInfo.Types;
 
     public class OperationUpdateEventArgs : EventArgs
     {

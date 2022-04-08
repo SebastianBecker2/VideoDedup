@@ -1,192 +1,37 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{AB076653-7E91-453A-A688-B415704D8FE8}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
-    <RootNamespace>VideoDedupService</RootNamespace>
-    <AssemblyName>VideoDedupService</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Platforms>x64;x86</Platforms>
+
+    <!-- Disable auto generating Assembly Info so we can use
+         our own project wide versioning schema.-->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Deterministic>false</Deterministic>
+    <Configurations>Debug;Release;DebugAsService</Configurations>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugAsService|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\DebugAsService\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugAsService|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\DebugAsService\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup>
-    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Configuration.Install" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Management" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.ServiceProcess" />
-    <Reference Include="System.Xml" />
+    <Compile Include="..\Versioning\Versioning.cs" Link="Versioning.cs" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="..\Versioning\Versioning.cs">
-      <Link>Versioning.cs</Link>
-    </Compile>
-    <Compile Include="Installer1.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Installer1.Designer.cs">
-      <DependentUpon>Installer1.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Service1.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Service1.Designer.cs">
-      <DependentUpon>Service1.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.44.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="6.0.0" />
   </ItemGroup>
+
   <ItemGroup>
-    <None Include="App.config" />
+    <ProjectReference Include="..\VideoDedupServer\VideoDedupServer.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Versioning\Versioning.csproj">
-      <Project>{80d1c901-fbd3-422a-b810-345c43edfc37}</Project>
-      <Name>Versioning</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\VideoDedupServer\VideoDedupServer.csproj">
-      <Project>{656cac8e-f9c2-4072-95de-7f2d6ac6353c}</Project>
-      <Name>VideoDedupServer</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Installer1.resx">
-      <DependentUpon>Installer1.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>echo Initializing developer command prompt
-if $(PlatformName) == x64 (
-  call "$(DevEnvDir)..\..\VC\Auxiliary\Build\vcvars64.bat"
-) else (
-  call "$(DevEnvDir)..\..\VC\Auxiliary\Build\vcvars32.bat"
-)
 
-sc query state=all | findstr /C:"SERVICE_NAME: VideoDedupService"
-if not ERRORLEVEL 1 (
-  echo Calling installutil.exe to uninstall
-  echo ******* Uninstall starting
-  installutil.exe /u "$(TargetPath)" 2&gt;nul
-  echo ******* Uninstall finished
-) else (
-  echo VideoDedupService is not installed
-)
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="echo Initializing developer command prompt&#xD;&#xA;if $(PlatformName) == x64 (&#xD;&#xA;  call &quot;$(DevEnvDir)..\..\VC\Auxiliary\Build\vcvars64.bat&quot;&#xD;&#xA;) else (&#xD;&#xA;  call &quot;$(DevEnvDir)..\..\VC\Auxiliary\Build\vcvars32.bat&quot;&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;echo.&#xD;&#xA;echo Copying mpv-1.dll for respective platform&#xD;&#xA;if $(PlatformName) == x64 (&#xD;&#xA;  xcopy &quot;$(SolutionDir)DedupEngine\Libs\libmpv\x64\mpv-1.dll&quot; &quot;$(TargetDir)&quot; /y&#xD;&#xA;) else (&#xD;&#xA;  xcopy &quot;$(SolutionDir)DedupEngine\Libs\libmpv\x86\mpv-1.dll&quot; &quot;$(TargetDir)&quot; /y&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;:EOF&#xD;&#xA;EXIT 0" />
+  </Target>
 
-echo.
-echo Copying mpv-1.dll for respective platform
-if $(PlatformName) == x64 (
-  xcopy "$(SolutionDir)DedupEngine\Libs\libmpv\x64\mpv-1.dll" "$(TargetDir)" /y
-) else (
-  xcopy "$(SolutionDir)DedupEngine\Libs\libmpv\x86\mpv-1.dll" "$(TargetDir)" /y
-)
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="sc query | findstr /C:&quot;SERVICE_NAME: VideoDedupService&quot;&#xD;&#xA;if not ERRORLEVEL 1 (&#xD;&#xA;  net stop VideoDedupService&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;EXIT 0&#xD;&#xA;" />
+  </Target>
 
-echo.
-echo.
-echo Checking configuration name for DebugAsService
-if not $(ConfigurationName) == DebugAsService (
-  echo Configuration does not require installation of service
-  goto EOF
-)
-
-echo.
-echo Preparing installation
-
-echo.
-echo Calling installutil.exe to install
-echo ******* Install starting
-installutil.exe "$(TargetPath)"
-echo ******* Install finished
-
-sc query state=all | findstr /C:"SERVICE_NAME: VideoDedupService"
-if not ERRORLEVEL 1 (
-  echo.
-  echo.
-  net start VideoDedupService
-)
-
-:EOF
-EXIT 0</PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent>sc query | findstr /C:"SERVICE_NAME: VideoDedupService"
-if not ERRORLEVEL 1 (
-  net stop VideoDedupService
-)
-
-EXIT 0</PreBuildEvent>
-  </PropertyGroup>
 </Project>

@@ -1,16 +1,16 @@
-namespace VideoDedup.ImageComparisonResultView
+namespace VideoDedupClient.Controls.ImageComparisonResultView
 {
     using System;
     using System.Collections.Generic;
     using System.Drawing;
     using System.Windows.Forms;
-    using VideoDedup.Properties;
-    using VideoDedupShared;
-    using VideoDedupShared.TimeSpanExtension;
+    using Properties;
+    using VideoDedupGrpc;
+    using VideoDedupSharedLib.ExtensionMethods.TimeSpanExtensions;
 
     public partial class ImageComparisonResultViewCtl : UserControl
     {
-        public static readonly Size ThumbnailSize = new Size(256, 256);
+        public static readonly System.Drawing.Size ThumbnailSize = new(256, 256);
 
         private enum DetailLevel
         {
@@ -20,21 +20,33 @@ namespace VideoDedup.ImageComparisonResultView
         }
 
         private Dictionary<DetailLevel, Tuple<string, Image>> DetailInfo { get; } =
-            new Dictionary<DetailLevel, Tuple<string, Image>>
-        {
-            { DetailLevel.Crop, new Tuple<string, Image>(
-                $"Preparation step 1{Environment.NewLine}Cut off black bars",
-                Resources.PictureCropped) },
-            { DetailLevel.Resize, new Tuple<string, Image>(
-                $"Preparation step 2{Environment.NewLine}Resize to 16 x 16 pixel",
-                Resources.PictureSizeDown) },
-            { DetailLevel.Greyscale, new Tuple<string, Image>(
-                $"Preparation step 3{Environment.NewLine}Convert to greyscale",
-                Resources.PictureGreyscale) },
-        };
+            new()
+            {
+                {
+                    DetailLevel.Crop,
+                    new Tuple<string, Image>(
+                        $"Preparation step 1{Environment.NewLine}" +
+                        $"Cut off black bars",
+                        Resources.PictureCropped)
+                },
+                {
+                    DetailLevel.Resize,
+                    new Tuple<string, Image>(
+                        $"Preparation step 2{Environment.NewLine}" +
+                        $"Resize to 16 x 16 pixel",
+                        Resources.PictureSizeDown)
+                },
+                {
+                    DetailLevel.Greyscale,
+                    new Tuple<string, Image>(
+                        $"Preparation step 3{Environment.NewLine}" +
+                        $"Convert to greyscale",
+                        Resources.PictureGreyscale)
+                },
+            };
 
         public int ImageComparisonIndex { get; set; }
-        public ImageComparisonResultEx ImageComparisonResult { get; set; }
+        public ImageComparisonResult? ImageComparisonResult { get; set; }
         public bool ComparisonAlreadyFinished { get; set; }
         public bool ImageLoaded { get; set; }
         public int MaximumDifferencePercentage { get; set; }
@@ -46,10 +58,10 @@ namespace VideoDedup.ImageComparisonResultView
         public Color LoadedColor { get; set; }
         public Color NotLoadedColor { get; set; }
 
-        private Label ShowDetailsLabel { get; set; }
-        private PictureBox LeftShowDetailArrow { get; set; }
-        private PictureBox RightShowDetailArrow { get; set; }
-        private TableLayoutPanel TlpDetails { get; set; }
+        private Label ShowDetailsLabel { get; }
+        private PictureBox LeftShowDetailArrow { get; }
+        private PictureBox RightShowDetailArrow { get; }
+        private TableLayoutPanel TlpDetails { get; }
 
         public ImageComparisonResultViewCtl()
         {
@@ -64,6 +76,7 @@ namespace VideoDedup.ImageComparisonResultView
                 Margin = new Padding { All = 0 },
             };
             ShowDetailsLabel.Click += HandleShowDetailsClickEvent;
+            Controls.Add(ShowDetailsLabel);
 
             LeftShowDetailArrow = new PictureBox
             {
@@ -73,6 +86,7 @@ namespace VideoDedup.ImageComparisonResultView
                 Margin = new Padding { All = 0 },
             };
             LeftShowDetailArrow.Click += HandleShowDetailsClickEvent;
+            Controls.Add(LeftShowDetailArrow);
 
             RightShowDetailArrow = new PictureBox
             {
@@ -82,6 +96,7 @@ namespace VideoDedup.ImageComparisonResultView
                 Margin = new Padding { All = 0 },
             };
             RightShowDetailArrow.Click += HandleShowDetailsClickEvent;
+            Controls.Add(RightShowDetailArrow);
 
             TlpDetails = new TableLayoutPanel
             {
@@ -108,6 +123,7 @@ namespace VideoDedup.ImageComparisonResultView
             });
             TlpImageComparison.Controls.Add(TlpDetails, 0, 1);
             TlpImageComparison.SetColumnSpan(TlpDetails, 3);
+            Controls.Add(TlpDetails);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -115,31 +131,36 @@ namespace VideoDedup.ImageComparisonResultView
             TlpImageComparison.SuspendLayout();
             try
             {
+                if (ImageComparisonResult is null)
+                {
+                    return;
+                }
+
                 // Main View
                 TlpImageComparison.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.LeftImages?.Original));
+                    GetPictureBox(ImageComparisonResult.LeftImages.Original));
                 TlpImageComparison.Controls.Add(GetComparisonResult());
                 TlpImageComparison.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.RightImages?.Original));
+                    GetPictureBox(ImageComparisonResult.RightImages.Original));
 
                 // Detail View
                 TlpDetails.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.LeftImages?.Cropped));
+                    GetPictureBox(ImageComparisonResult.LeftImages.Cropped));
                 TlpDetails.Controls.Add(GetDetailInfo(DetailLevel.Crop));
                 TlpDetails.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.RightImages?.Cropped));
+                    GetPictureBox(ImageComparisonResult.RightImages.Cropped));
 
                 TlpDetails.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.LeftImages?.Resized));
+                    GetPictureBox(ImageComparisonResult.LeftImages.Resized));
                 TlpDetails.Controls.Add(GetDetailInfo(DetailLevel.Resize));
                 TlpDetails.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.RightImages?.Resized));
+                    GetPictureBox(ImageComparisonResult.RightImages.Resized));
 
                 TlpDetails.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.LeftImages?.Greyscaled));
+                    GetPictureBox(ImageComparisonResult.LeftImages.Greyscaled));
                 TlpDetails.Controls.Add(GetDetailInfo(DetailLevel.Greyscale));
                 TlpDetails.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.RightImages?.Greyscaled));
+                    GetPictureBox(ImageComparisonResult.RightImages.Greyscaled));
             }
             finally
             {
@@ -177,7 +198,7 @@ namespace VideoDedup.ImageComparisonResultView
             TlpDetails.Visible = false;
         }
 
-        private void HandleShowDetailsClickEvent(object sender, EventArgs e)
+        private void HandleShowDetailsClickEvent(object? sender, EventArgs e)
         {
             if ((bool)ShowDetailsLabel.Tag)
             {
@@ -264,8 +285,8 @@ namespace VideoDedup.ImageComparisonResultView
                     text += "Images have not been loaded.";
                 }
             }
-            else if (ImageComparisonResult.ComparisonResult
-                    == ComparisonResult.NoResult)
+            else if (ImageComparisonResult!.ComparisonResult
+                     == ComparisonResult.NoResult)
             {
                 text += $"Unable to load image.{Environment.NewLine}" +
                     $"Comparison was skipped.";
@@ -299,24 +320,24 @@ namespace VideoDedup.ImageComparisonResultView
                 }
                 return NotLoadedColor;
             }
-            else if (ImageComparisonResult.ComparisonResult
+
+            if (ImageComparisonResult!.ComparisonResult
                 == ComparisonResult.NoResult)
             {
                 return DifferentColor;
             }
-            else if (ImageComparisonResult.ComparisonResult
+
+            if (ImageComparisonResult!.ComparisonResult
                 == ComparisonResult.Different)
             {
                 return DifferentColor;
             }
-            else
-            {
-                return DuplicateColor;
-            }
+
+            return DuplicateColor;
         }
 
         private static PictureBox GetPictureBox(Image image) =>
-            new PictureBox
+            new()
             {
                 Image = image,
                 Size = image.Size,
@@ -360,6 +381,20 @@ namespace VideoDedup.ImageComparisonResultView
             }, 0, 1);
 
             return tlpDetailInfo;
+        }
+
+        /// <summary> 
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+                ImageComparisonResult?.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

@@ -1,4 +1,4 @@
-namespace VideoDedup
+namespace VideoDedupClient.Dialogs
 {
     partial class VideoDedupDlg
     {
@@ -42,7 +42,7 @@ namespace VideoDedup
             this.BtnClientConfig = new System.Windows.Forms.Button();
             this.DgvLog = new System.Windows.Forms.DataGridView();
             this.DgcLogMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.StiProgress = new VideoDedup.StatusInfo.StatusInfoCtl();
+            this.StiProgress = new VideoDedupClient.Controls.StatusInfo.StatusInfoCtl();
             this.MenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DgvLog)).BeginInit();
             this.SuspendLayout();
@@ -50,9 +50,10 @@ namespace VideoDedup
             // BtnServerConfig
             // 
             this.BtnServerConfig.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.BtnServerConfig.Location = new System.Drawing.Point(133, 344);
+            this.BtnServerConfig.Location = new System.Drawing.Point(155, 397);
+            this.BtnServerConfig.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.BtnServerConfig.Name = "BtnServerConfig";
-            this.BtnServerConfig.Size = new System.Drawing.Size(115, 23);
+            this.BtnServerConfig.Size = new System.Drawing.Size(134, 27);
             this.BtnServerConfig.TabIndex = 1;
             this.BtnServerConfig.Text = "&Server Configuration";
             this.BtnServerConfig.UseVisualStyleBackColor = true;
@@ -62,9 +63,10 @@ namespace VideoDedup
             // 
             this.BtnResolveDuplicates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnResolveDuplicates.Enabled = false;
-            this.BtnResolveDuplicates.Location = new System.Drawing.Point(732, 344);
+            this.BtnResolveDuplicates.Location = new System.Drawing.Point(854, 397);
+            this.BtnResolveDuplicates.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.BtnResolveDuplicates.Name = "BtnResolveDuplicates";
-            this.BtnResolveDuplicates.Size = new System.Drawing.Size(75, 23);
+            this.BtnResolveDuplicates.Size = new System.Drawing.Size(88, 27);
             this.BtnResolveDuplicates.TabIndex = 3;
             this.BtnResolveDuplicates.Text = "&Resolve";
             this.BtnResolveDuplicates.UseVisualStyleBackColor = true;
@@ -77,7 +79,8 @@ namespace VideoDedup
             this.toolStripMenuItem1});
             this.MenuStrip.Location = new System.Drawing.Point(0, 0);
             this.MenuStrip.Name = "MenuStrip";
-            this.MenuStrip.Size = new System.Drawing.Size(819, 24);
+            this.MenuStrip.Padding = new System.Windows.Forms.Padding(7, 2, 0, 2);
+            this.MenuStrip.Size = new System.Drawing.Size(955, 24);
             this.MenuStrip.TabIndex = 11;
             this.MenuStrip.Text = "menuStrip1";
             // 
@@ -132,9 +135,10 @@ namespace VideoDedup
             this.BtnDiscardDuplicates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnDiscardDuplicates.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.BtnDiscardDuplicates.Enabled = false;
-            this.BtnDiscardDuplicates.Location = new System.Drawing.Point(622, 344);
+            this.BtnDiscardDuplicates.Location = new System.Drawing.Point(726, 397);
+            this.BtnDiscardDuplicates.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.BtnDiscardDuplicates.Name = "BtnDiscardDuplicates";
-            this.BtnDiscardDuplicates.Size = new System.Drawing.Size(104, 23);
+            this.BtnDiscardDuplicates.Size = new System.Drawing.Size(121, 27);
             this.BtnDiscardDuplicates.TabIndex = 2;
             this.BtnDiscardDuplicates.Text = "&Discard Duplicates";
             this.BtnDiscardDuplicates.UseVisualStyleBackColor = true;
@@ -143,9 +147,10 @@ namespace VideoDedup
             // BtnClientConfig
             // 
             this.BtnClientConfig.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.BtnClientConfig.Location = new System.Drawing.Point(12, 344);
+            this.BtnClientConfig.Location = new System.Drawing.Point(14, 397);
+            this.BtnClientConfig.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.BtnClientConfig.Name = "BtnClientConfig";
-            this.BtnClientConfig.Size = new System.Drawing.Size(115, 23);
+            this.BtnClientConfig.Size = new System.Drawing.Size(134, 27);
             this.BtnClientConfig.TabIndex = 0;
             this.BtnClientConfig.Text = "&Client Configuration";
             this.BtnClientConfig.UseVisualStyleBackColor = true;
@@ -164,12 +169,13 @@ namespace VideoDedup
             this.DgvLog.ColumnHeadersVisible = false;
             this.DgvLog.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.DgcLogMessage});
-            this.DgvLog.Location = new System.Drawing.Point(12, 149);
+            this.DgvLog.Location = new System.Drawing.Point(14, 172);
+            this.DgvLog.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.DgvLog.MultiSelect = false;
             this.DgvLog.Name = "DgvLog";
             this.DgvLog.ReadOnly = true;
             this.DgvLog.RowHeadersVisible = false;
-            this.DgvLog.Size = new System.Drawing.Size(795, 189);
+            this.DgvLog.Size = new System.Drawing.Size(927, 218);
             this.DgvLog.TabIndex = 4;
             this.DgvLog.VirtualMode = true;
             this.DgvLog.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.DgvLog_CellValueNeeded);
@@ -186,16 +192,17 @@ namespace VideoDedup
             this.StiProgress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.StiProgress.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.StiProgress.Location = new System.Drawing.Point(12, 27);
+            this.StiProgress.Location = new System.Drawing.Point(14, 27);
+            this.StiProgress.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.StiProgress.Name = "StiProgress";
-            this.StiProgress.Size = new System.Drawing.Size(795, 116);
+            this.StiProgress.Size = new System.Drawing.Size(927, 139);
             this.StiProgress.TabIndex = 12;
             // 
             // VideoDedupDlg
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(819, 379);
+            this.ClientSize = new System.Drawing.Size(955, 437);
             this.Controls.Add(this.StiProgress);
             this.Controls.Add(this.DgvLog);
             this.Controls.Add(this.BtnClientConfig);
@@ -206,8 +213,10 @@ namespace VideoDedup
             this.DoubleBuffered = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.MenuStrip;
+            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "VideoDedupDlg";
             this.Text = "Video Dedup Client";
+            this.Load += new System.EventHandler(this.VideoDedupDlg_Load);
             this.MenuStrip.ResumeLayout(false);
             this.MenuStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DgvLog)).EndInit();
@@ -230,7 +239,7 @@ namespace VideoDedup
         private System.Windows.Forms.DataGridView DgvLog;
         private System.Windows.Forms.DataGridViewTextBoxColumn DgcLogMessage;
         private System.Windows.Forms.ToolStripMenuItem ClientConfigurationToolStripMenuItem;
-        private StatusInfo.StatusInfoCtl StiProgress;
+        private Controls.StatusInfo.StatusInfoCtl StiProgress;
     }
 }
 

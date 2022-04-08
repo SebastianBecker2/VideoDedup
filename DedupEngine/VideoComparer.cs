@@ -7,29 +7,105 @@ namespace DedupEngine
     using System.IO;
     using System.Linq;
     using System.Threading;
-    using global::DedupEngine.MpvLib;
+    using Google.Protobuf;
+    using MpvLib;
     using KGySoft.Drawing;
-    using VideoDedupShared;
-    using VideoDedupShared.ImageExtension;
+    using VideoDedupGrpc;
+    using VideoDedupSharedLib.ExtensionMethods.ImageExtensions;
 
     public class VideoComparer
     {
-        private class CacheableImageSet : ImageSet
+        private class CacheableImageSet
         {
-            public bool Loaded { get; set; } = false;
+            private CacheableImageSet(ImageIndex index) =>
+                Index = index;
+
+            public static CacheableImageSet FromPreprocessedImage(
+                ImageIndex index,
+                byte[]? preprocessedImage,
+                bool loaded = false) =>
+                new(index)
+                {
+                    Bytes = preprocessedImage,
+                    Loaded = loaded
+                };
+
+            public static CacheableImageSet FromOriginalImage(
+                ImageIndex index,
+                byte[]? originalImage,
+                bool provideIntermediateImages = false)
+            {
+                if (originalImage is null)
+                {
+                    return new(index);
+                }
+
+                try
+                {
+                    var stream = new MemoryStream(originalImage);
+                    using var image = (Bitmap)Image.FromStream(stream);
+                    using var cropped = image.CropBlackBars();
+                    using var small = cropped?.Resize(
+                        DownscaleSize,
+                        ScalingMode.NearestNeighbor,
+                        false);
+                    using var greyscaled = small?.MakeGrayScale();
+
+                    var imageSet = new CacheableImageSet(index)
+                    {
+                        Original = stream,
+                        Bytes = GetImageBytes(greyscaled),
+                        Loaded = true,
+                    };
+
+                    if (provideIntermediateImages)
+                    {
+                        imageSet.Cropped = cropped?.ToMemoryStream();
+                        imageSet.Resized = small?.ToMemoryStream();
+                        imageSet.Greyscaled = greyscaled?.ToMemoryStream();
+                    }
+
+                    imageSet.Original.Position = 0;
+                    return imageSet;
+                }
+                catch (ArgumentNullException)
+                {
+                    return new(index);
+                }
+            }
+
+            public ImageSet ToImageSet() =>
+                new()
+                {
+                    Index = Index,
+                    Original = ByteString.FromStream(Original),
+                    Cropped = ByteString.FromStream(Cropped),
+                    Resized = ByteString.FromStream(Resized),
+                    Greyscaled = ByteString.FromStream(Greyscaled),
+                    Bytes = ByteString.CopyFrom(Bytes),
+                };
+
+            public ImageIndex Index { get; }
+            private MemoryStream? Original { get; init; }
+            private MemoryStream? Cropped { get; set; }
+            private MemoryStream? Resized { get; set; }
+            private MemoryStream? Greyscaled { get; set; }
+            public byte[]? Bytes { get; set; }
+            public bool Loaded { get; set; }
         }
 
-        private static IList<ImageIndex> imageIndices;
-        private static IList<ImageIndex> GetOrderedImageIndices(
+        private static IList<ImageIndex>? imageIndices;
+        private static IEnumerable<ImageIndex> GetOrderedImageIndices(
             int imageCount)
         {
             // Make local copy of the reference
             var indices = imageIndices;
-            if (indices is null || indices.Count() != imageCount)
+            if (indices is null || indices.Count != imageCount)
             {
                 indices = ImageIndex
                     .CreateImageIndices(imageCount)
-                    .OrderBy(i => i)
+                    .OrderBy(i => i.Denominator)
+                    .ThenBy(i => i.Numerator)
                     .ToList();
                 imageIndices = indices;
             }
@@ -43,74 +119,31 @@ namespace DedupEngine
                 .Skip(loadLevel.ImageStartIndex)
                 .Take(loadLevel.ImageCount);
 
-        private static ImageSet ToImageSet(
-            ImageIndex index,
-            MemoryStream stream,
-            bool provideIntermediateImages = false)
-        {
-            if (stream == null)
-            {
-                return new ImageSet { Index = index };
-            }
-
-            try
-            {
-                using (var image = (Bitmap)Image.FromStream(stream))
-                using (var cropped = image?.CropBlackBars())
-                using (var small = cropped?.Resize(
-                    DownscaleSize,
-                    ScalingMode.NearestNeighbor,
-                    false))
-                using (var greysaled = small?.MakeGrayScale())
-                {
-                    var imageSet = new ImageSet
-                    {
-                        Index = index,
-                        Original = stream,
-                        Bytes = GetImageBytes(greysaled),
-                    };
-                    if (provideIntermediateImages)
-                    {
-                        imageSet.Cropped = cropped?.ToMemoryStream();
-                        imageSet.Resized = small?.ToMemoryStream();
-                        imageSet.Greyscaled = greysaled?.ToMemoryStream();
-                    }
-                    return imageSet;
-                }
-            }
-            catch (ArgumentNullException)
-            {
-                return new ImageSet { Index = index };
-            }
-        }
-
         private class LoadLevel
         {
-            public int ImageCount { get; set; }
-            public int ImageStartIndex { get; set; }
+            public int ImageCount { get; init; }
+            public int ImageStartIndex { get; init; }
         }
 
-        private static readonly int LoadLevelCount = 3;
+        private const int LoadLevelCount = 3;
 
-        private static readonly Size DownscaleSize = new Size(16, 16);
+        private static readonly System.Drawing.Size DownscaleSize = new(16, 16);
         private const int ByteDifferenceThreshold = 3;
 
-        private static byte[] GetImageBytes(Bitmap image)
+        private static byte[]? GetImageBytes(Bitmap? image)
         {
+            if (image is null)
+            {
+                return null;
+            }
             unsafe
             {
-                if (image is null)
-                {
-                    return null;
-                }
-
                 var bitmapData = image.LockBits(
                     new Rectangle(new Point(0, 0), DownscaleSize),
                     ImageLockMode.ReadOnly,
                     image.PixelFormat);
                 var bytesPerPixel =
                     Image.GetPixelFormatSize(image.PixelFormat) / 8;
-                var widthInBytes = bitmapData.Width * bytesPerPixel;
 
                 return Enumerable
                     .Range(0, DownscaleSize.Height)
@@ -125,44 +158,44 @@ namespace DedupEngine
         }
 
         private static float GetDifferenceOfBytes(
-            byte[] left,
-            byte[] right,
+            IReadOnlyList<byte> left,
+            IReadOnlyList<byte> right,
             byte threshold = ByteDifferenceThreshold)
         {
             var diffBytes = Enumerable
-                .Range(0, left.Count())
+                .Range(0, left.Count)
                 .Aggregate((d, i) =>
                     Math.Abs(left[i] - right[i]) > threshold ? d + 1 : d);
 
             return diffBytes / 256f;
         }
 
-        public IImageComparisonSettings Settings { get; set; }
+        public VideoComparisonSettings Settings { get; }
 
-        public VideoFile LeftVideoFile { get; set; }
+        public VideoFile LeftVideoFile { get; }
 
-        public VideoFile RightVideoFile { get; set; }
+        public VideoFile RightVideoFile { get; }
 
-        public bool AlwaysLoadAllImages { get; set; } = false;
+        public bool ForceLoadingAllImages { get; set; }
 
-        public event EventHandler<ImageComparedEventArgs> ImageCompared;
+        public event EventHandler<ImageComparedEventArgs>? ImageCompared;
         protected virtual void OnImageCompared(
             Func<ImageComparedEventArgs> eventArgsCreator) =>
             ImageCompared?.Invoke(this, eventArgsCreator.Invoke());
         private ImageComparedEventArgs CreateImageComparedEventArgs(
             int imageComparisonIndex,
-            ImageSet leftImages,
-            ImageSet rightImages,
+            CacheableImageSet leftImages,
+            CacheableImageSet rightImages,
             ComparisonResult imageComparisonResult,
             ComparisonResult videoComparisonResult,
             double difference,
             int loadLevel) =>
-            new ImageComparedEventArgs
+            new()
             {
                 LeftVideoFile = LeftVideoFile,
                 RightVideoFile = RightVideoFile,
-                LeftImages = leftImages,
-                RightImages = rightImages,
+                LeftImages = leftImages.ToImageSet(),
+                RightImages = rightImages.ToImageSet(),
                 ImageComparisonResult = imageComparisonResult,
                 VideoComparisonResult = videoComparisonResult,
                 Difference = difference,
@@ -170,35 +203,44 @@ namespace DedupEngine
                 ImageComparisonIndex = imageComparisonIndex,
             };
 
-        public event EventHandler<ComparisonFinishedEventArgs> ComparisonFinished;
+        public event EventHandler<ComparisonFinishedEventArgs>? ComparisonFinished;
         protected virtual void OnComparisonFinished(
             Func<ComparisonFinishedEventArgs> eventArgsCreator) =>
             ComparisonFinished?.Invoke(this, eventArgsCreator.Invoke());
 
-        private readonly EngineDatastore engineDatastore;
+        private readonly EngineDatastore? engineDatastore;
 
-        public VideoComparer() { }
+        public VideoComparer(
+            VideoComparisonSettings settings,
+            VideoFile leftVideoFile,
+            VideoFile rightVideoFile)
+        {
+            Settings = settings;
+            LeftVideoFile = leftVideoFile;
+            RightVideoFile = rightVideoFile;
+        }
 
-        public VideoComparer(string datastoreFilePath)
-            : this(new EngineDatastore(datastoreFilePath))
-        { }
-
-        internal VideoComparer(EngineDatastore engineDatastore) : this() =>
+        internal VideoComparer(
+            VideoComparisonSettings settings,
+            EngineDatastore engineDatastore,
+            VideoFile leftVideoFile,
+            VideoFile rightVideoFile)
+            : this(settings, leftVideoFile, rightVideoFile) =>
             this.engineDatastore = engineDatastore;
 
         private static LoadLevel CalculateLoadLevel(
             int loadLevelIndex,
-            IImageComparisonSettings settings)
+            VideoComparisonSettings settings)
         {
-            if (loadLevelIndex <= 0 || loadLevelIndex >= 4)
+            if (loadLevelIndex is <= 0 or >= 4)
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(loadLevelIndex),
                     $"LoadLevel has to be between 1 and {LoadLevelCount}");
             }
 
-            var startIndex = 0;
-            var count = 0;
+            int startIndex;
+            int count;
             if (loadLevelIndex == 1)
             {
                 startIndex = 0;
@@ -207,25 +249,25 @@ namespace DedupEngine
             else if (loadLevelIndex == 2)
             {
                 startIndex = settings.MaxDifferentImages + 1;
-                count = settings.MaxImageCompares
+                count = settings.CompareCount
                     - (settings.MaxDifferentImages + 1)
                     - settings.MaxDifferentImages;
             }
-            else if (loadLevelIndex == 3)
+            else
             {
                 startIndex = Math.Max(
-                    settings.MaxImageCompares - settings.MaxDifferentImages,
+                    settings.CompareCount - settings.MaxDifferentImages,
                     settings.MaxDifferentImages + 1);
                 count = Math.Min(
                     settings.MaxDifferentImages,
-                    settings.MaxImageCompares - (settings.MaxDifferentImages + 1));
+                    settings.CompareCount - (settings.MaxDifferentImages + 1));
             }
 
             // Make sure we are between 0 and MaxImageCompares at all time
             count = Math.Max(count, 0);
-            count = Math.Min(count, settings.MaxImageCompares);
+            count = Math.Min(count, settings.CompareCount);
             startIndex = Math.Max(startIndex, 0);
-            startIndex = Math.Min(startIndex, settings.MaxImageCompares - 1);
+            startIndex = Math.Min(startIndex, settings.CompareCount - 1);
             return new LoadLevel
             {
                 ImageCount = count,
@@ -233,45 +275,39 @@ namespace DedupEngine
             };
         }
 
-        private IEnumerable<ImageSet> LoadImagesFromFile(
+        private IEnumerable<CacheableImageSet> LoadImagesFromFile(
             VideoFile videoFile,
             IEnumerable<ImageIndex> indices,
             CancellationToken cancelToken)
         {
             try
             {
-                using (var mpv = new MpvWrapper(
+                using var mpv = new MpvWrapper(
                    videoFile.FilePath,
-                   videoFile.Duration))
+                   videoFile.Duration);
+                var images = mpv.GetImages(indices, cancelToken)
+                    .ToList()
+                    .Zip(indices, (stream, index) => (index, stream))
+                    // Converting to image set including the intermediate
+                    // images if necessary.
+                    .Select(kvp => CacheableImageSet.FromOriginalImage(
+                        kvp.index,
+                        kvp.stream,
+                        ImageCompared != null));
+
+                foreach (var image in images)
                 {
-                    var images = mpv.GetImages(indices, cancelToken)
-                        .ToList()
-                        .Zip(indices, (stream, index) => (index, stream))
-                        // Converting to image set including the intermediate
-                        // images if necessary.
-                        .Select(kvp => ToImageSet(
-                            kvp.index,
-                            kvp.stream,
-                            ImageCompared != null));
+                    // Cache in memory
+                    videoFile.ImageBytes[image.Index] = image.Bytes;
 
-                    foreach (var image in images)
-                    {
-                        // Cache in memory
-                        videoFile.ImageBytes[image.Index] = image.Bytes;
-
-                        // Cache in DB if we have a DB cache
-                        if (engineDatastore is null)
-                        {
-                            continue;
-                        }
-                        engineDatastore.InsertImage(
-                            image.Index,
-                            image.Bytes,
-                            videoFile);
-                    }
-
-                    return images;
+                    // Cache in DB if we have a DB cache
+                    engineDatastore?.InsertImage(
+                        image.Index,
+                        image.Bytes,
+                        videoFile);
                 }
+
+                return images;
             }
             catch (MpvOperationException exc)
             {
@@ -279,19 +315,19 @@ namespace DedupEngine
             }
         }
 
-        private IEnumerable<ImageSet> GetImagesFromFile(
+        private IEnumerable<CacheableImageSet> GetImagesFromFile(
             VideoFile videoFile,
             LoadLevel loadLevel,
             CancellationToken cancelToken)
         {
-            if (videoFile.ImageCount != Settings.MaxImageCompares)
+            if (videoFile.ImageCount != Settings.CompareCount)
             {
                 videoFile.ImageBytes.Clear();
-                videoFile.ImageCount = Settings.MaxImageCompares;
+                videoFile.ImageCount = Settings.CompareCount;
             }
 
             var indices = GetOrderedImageIndices(
-                Settings.MaxImageCompares,
+                Settings.CompareCount,
                 loadLevel);
 
             // If we need to call the ImageCompared event, we
@@ -304,30 +340,27 @@ namespace DedupEngine
                 return LoadImagesFromFile(videoFile, indices, cancelToken);
             }
 
-            var images = indices
-                .Select(i => new CacheableImageSet { Index = i })
-                .ToList();
-            foreach (var image in images)
+            var images = indices.Select(index =>
             {
                 // Try to get image from memory cache
-                image.Loaded = videoFile.ImageBytes.TryGetValue(
-                    image.Index,
+                var loaded = videoFile.ImageBytes.TryGetValue(
+                    index,
                     out var bytes);
-                image.Bytes = bytes;
-            }
+                return CacheableImageSet.FromPreprocessedImage(index, bytes);
+            }).ToList();
 
             // Try to get the image from DB cache
-            if (images.Any(i => !i.Loaded))
+            if (engineDatastore is not null && images.Any(i => !i.Loaded))
             {
-                foreach (var dbImage in engineDatastore.GetImages(
+                foreach (var (index, bytes) in engineDatastore.GetImages(
                     images.Where(i => !i.Loaded).Select(i => i.Index),
                     videoFile))
                 {
-                    var image = images.First(i => i.Index == dbImage.Index);
-                    image.Bytes = dbImage.Bytes;
+                    var image = images.First(i => i.Index == index);
+                    image.Bytes = bytes;
                     image.Loaded = true;
                     // And advance the image into memory cache
-                    videoFile.ImageBytes[dbImage.Index] = dbImage.Bytes;
+                    videoFile.ImageBytes[index] = bytes;
                 }
             }
 
@@ -374,13 +407,14 @@ namespace DedupEngine
                     break;
                 }
 
-                var imageComparisonResult = ComparisonResult.NoResult;
+                ComparisonResult imageComparisonResult;
                 var diff = 0.0f;
 
+                var leftImageBytes = leftImages[index].Bytes;
+                var rightImageBytes = rightImages[index].Bytes;
                 // If we don't have either one of the images, we don't have
                 // a result, but consider them different.
-                if (leftImages[index].Bytes == null
-                    || rightImages[index].Bytes == null)
+                if (leftImageBytes == null || rightImageBytes == null)
                 {
                     imageComparisonResult = ComparisonResult.NoResult;
                     ++differenceCount;
@@ -394,17 +428,15 @@ namespace DedupEngine
                 }
                 else
                 {
-                    diff = GetDifferenceOfBytes(
-                        leftImages[index].Bytes,
-                        rightImages[index].Bytes);
+                    diff = GetDifferenceOfBytes(leftImageBytes, rightImageBytes);
 
-                    if (diff <= (double)Settings.MaxImageDifferencePercent / 100)
+                    if (diff <= (double)Settings.MaxDifference / 100)
                     {
                         imageComparisonResult = ComparisonResult.Duplicate;
 
                         // Early return when there are not enough images left to
                         // compare to exceed the MaxDifferentImages
-                        if ((Settings.MaxImageCompares - (index + loadLevel.ImageStartIndex + 1))
+                        if ((Settings.CompareCount - (index + loadLevel.ImageStartIndex + 1))
                             <= (Settings.MaxDifferentImages - differenceCount))
                         {
                             videoComparisonResult = ComparisonResult.Duplicate;
@@ -434,7 +466,7 @@ namespace DedupEngine
                     loadLevelIndex));
 
                 if (videoComparisonResult != ComparisonResult.NoResult
-                    && !AlwaysLoadAllImages)
+                    && !ForceLoadingAllImages)
                 {
                     break;
                 }
@@ -447,11 +479,15 @@ namespace DedupEngine
         {
             if (LeftVideoFile is null)
             {
-                throw new ArgumentNullException(nameof(LeftVideoFile));
+                throw new InvalidOperationException($"Object reference of " +
+                    $"{nameof(LeftVideoFile)} not set to an instance of an " +
+                    $"object.");
             }
             if (RightVideoFile is null)
             {
-                throw new ArgumentNullException(nameof(RightVideoFile));
+                throw new InvalidOperationException($"Object reference of " +
+                    $"{nameof(RightVideoFile)} not set to an instance of an " +
+                    $"object.");
             }
 
             var differenceCount = 0;
@@ -470,7 +506,7 @@ namespace DedupEngine
                     cancelToken);
 
                 if (comparisonResult != ComparisonResult.NoResult
-                    && !AlwaysLoadAllImages)
+                    && !ForceLoadingAllImages)
                 {
                     break;
                 }
@@ -484,10 +520,10 @@ namespace DedupEngine
                 comparisonResult = ComparisonResult.Duplicate;
             }
 
-            OnComparisonFinished(() => new ComparisonFinishedEventArgs
+            OnComparisonFinished(() => new ComparisonFinishedEventArgs(
+                LeftVideoFile,
+                RightVideoFile)
             {
-                LeftVideoFile = LeftVideoFile,
-                RightVideoFile = RightVideoFile,
                 ComparisonResult = comparisonResult,
             });
             return comparisonResult;

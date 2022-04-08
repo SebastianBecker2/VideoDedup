@@ -5,91 +5,81 @@ namespace CustomComparisonManager
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using DedupEngine;
-    using Wcf.Contracts.Data;
-    using VideoComparisonResult = VideoDedupShared.VideoComparisonResult;
-    using ImageComparisonResult = VideoDedupShared.ImageComparisonResult;
-    using ComparisonResult = VideoDedupShared.ComparisonResult;
     using System.IO;
+    using VideoComparer = DedupEngine.VideoComparer;
+    using ImageComparedEventArgs = DedupEngine.ImageComparedEventArgs;
+    using ComparisonFinishedEventArgs = DedupEngine.ComparisonFinishedEventArgs;
+    using VideoDedupGrpc;
+    using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
 
     internal class CustomComparison : IDisposable
     {
+        public Guid Token { get; }
+        private DedupEngine.VideoFile LeftVideoFile => comparer.LeftVideoFile;
+        private DedupEngine.VideoFile RightVideoFile => comparer.RightVideoFile;
+
         private bool disposedValue;
 
-        public Guid Token { get; set; }
-        private CustomVideoComparisonData Data { get; set; }
-        private VideoFile LeftVideoFile { get; set; }
-        private VideoFile RightVideoFile { get; set; }
-        private CancellationTokenSource CancelTokenSource { get; set; } =
-            new CancellationTokenSource();
-        private VideoComparer Comparer { get; set; }
-        private Task ComparerTask { get; set; }
+        private readonly CancellationTokenSource cancelTokenSource = new();
+        private readonly Task comparerTask;
+        private readonly VideoComparer comparer;
+        private readonly object statusLock = new();
 
-        private CustomVideoComparisonStatusData Status { get; set; } =
-            new CustomVideoComparisonStatusData();
-        private IList<ImageComparisonResult> ImageComparisons { get; set; } =
+        private VideoComparisonResult? comparisonResult;
+        private readonly IList<ImageComparisonResult> imageComparisons =
             new List<ImageComparisonResult>();
-        private object StatusLock { get; set; } = new object();
 
-        public CustomComparison(CustomVideoComparisonData data)
+        public CustomComparison(
+            VideoComparisonSettings settings,
+            string leftFilePath,
+            string rightFilePath,
+            bool forceLoadingAllImages)
         {
             Token = Guid.NewGuid();
-            Data = data;
-            Status.ImageComparisons = ImageComparisons;
 
-            if (!File.Exists(data.LeftFilePath))
+            if (!File.Exists(leftFilePath))
             {
                 throw new InvalidDataException("Left video file path invalid.");
             }
-            LeftVideoFile = new VideoFile(data.LeftFilePath);
-
-            if (!File.Exists(data.RightFilePath))
+            if (!File.Exists(rightFilePath))
             {
                 throw new InvalidDataException("Right video file path invalid.");
             }
-            RightVideoFile = new VideoFile(data.RightFilePath);
 
-            Comparer = new VideoComparer
+            comparer = new VideoComparer(
+                settings,
+                new DedupEngine.VideoFile(leftFilePath),
+                new DedupEngine.VideoFile(rightFilePath))
             {
-                LeftVideoFile = LeftVideoFile,
-                RightVideoFile = RightVideoFile,
-                Settings = Data,
-                AlwaysLoadAllImages = Data.AlwaysLoadAllImages,
+                ForceLoadingAllImages = forceLoadingAllImages,
             };
 
-            Comparer.ImageCompared += HandleImageCompared;
-            Comparer.ComparisonFinished += HandleComparisonFinished;
+            comparer.ImageCompared += HandleImageCompared;
+            comparer.ComparisonFinished += HandleComparisonFinished;
 
-            ComparerTask = Task.Factory.StartNew(Compare);
+            comparerTask = Task.Run(Compare);
         }
 
-        public void CancelComparison() => CancelTokenSource.Cancel();
+        public void CancelComparison() => cancelTokenSource.Cancel();
 
-        public CustomVideoComparisonStatusData GetStatus(
+        public CustomVideoComparisonStatus GetStatus(
             int imageComparisonIndex = 0)
         {
-            lock (StatusLock)
+            lock (statusLock)
             {
-                var statusData = new CustomVideoComparisonStatusData
+                var status = new CustomVideoComparisonStatus
                 {
-                    ImageComparisons =
-                        Status.ImageComparisons
-                            .Skip(imageComparisonIndex)
-                            .ToList(),
-                    ComparisonToken = Token,
-                    VideoComparisonResult = Status.VideoComparisonResult,
+                    ComparisonToken = Token.ToString(),
+                    LeftFile = LeftVideoFile.ToVideoFile(),
+                    RightFile = RightVideoFile.ToVideoFile(),
+                    VideoComparisonResult = comparisonResult,
                 };
-                if (LeftVideoFile != null)
-                {
-                    statusData.LeftVideoFile =
-                        new VideoDedupShared.VideoFile(LeftVideoFile);
-                }
-                if (RightVideoFile != null)
-                {
-                    statusData.RightVideoFile =
-                        new VideoDedupShared.VideoFile(RightVideoFile);
-                }
-                return statusData;
+
+                status.ImageComparisons.AddRange(imageComparisons
+                    .Skip(imageComparisonIndex)
+                    .ToList());
+
+                return status;
             }
         }
 
@@ -97,14 +87,14 @@ namespace CustomComparisonManager
         {
             try
             {
-                _ = Comparer.Compare(CancelTokenSource.Token);
+                _ = comparer.Compare(cancelTokenSource.Token);
             }
             catch (Exception exc)
             {
-                lock (StatusLock)
+                lock (statusLock)
                 {
-                    var last = ImageComparisons.LastOrDefault();
-                    Status.VideoComparisonResult = new VideoComparisonResult
+                    var last = imageComparisons.LastOrDefault();
+                    comparisonResult = new VideoComparisonResult
                     {
                         Reason = exc.Message,
                         ComparisonResult = ComparisonResult.Aborted,
@@ -115,24 +105,23 @@ namespace CustomComparisonManager
         }
 
         private void HandleComparisonFinished(
-            object sender,
+            object? sender,
             ComparisonFinishedEventArgs e)
         {
-            if (e.ComparisonResult
-                != ComparisonResult.Cancelled)
+            if (e.ComparisonResult != ComparisonResult.Cancelled)
             {
                 return;
             }
 
-            lock (StatusLock)
+            lock (statusLock)
             {
-                if (Status.VideoComparisonResult != null)
+                if (comparisonResult != null)
                 {
                     return;
                 }
 
-                var last = ImageComparisons.LastOrDefault();
-                Status.VideoComparisonResult = new VideoComparisonResult
+                var last = imageComparisons.LastOrDefault();
+                comparisonResult = new VideoComparisonResult
                 {
                     Reason = "Comparison cancelled",
                     ComparisonResult = ComparisonResult.Cancelled,
@@ -142,15 +131,15 @@ namespace CustomComparisonManager
         }
 
         private void HandleImageCompared(
-            object sender,
+            object? sender,
             ImageComparedEventArgs e)
         {
-            lock (StatusLock)
+            lock (statusLock)
             {
                 if (e.VideoComparisonResult != ComparisonResult.NoResult
-                    && Status.VideoComparisonResult == null)
+                    && comparisonResult == null)
                 {
-                    Status.VideoComparisonResult = new VideoComparisonResult
+                    comparisonResult = new VideoComparisonResult
                     {
                         Reason = "Comparison ran to completion",
                         ComparisonResult = e.VideoComparisonResult,
@@ -158,17 +147,15 @@ namespace CustomComparisonManager
                     };
                 }
 
-                Status.ComparisonToken = Token;
-                ImageComparisons.Add(
-                    new ImageComparisonResult
-                    {
-                        Index = e.ImageComparisonIndex,
-                        ComparisonResult = e.ImageComparisonResult,
-                        Difference = e.Difference,
-                        LoadLevel = e.ImageLoadLevelIndex,
-                        LeftImages = e.LeftImages,
-                        RightImages = e.RightImages,
-                    });
+                imageComparisons.Add(new ImageComparisonResult
+                {
+                    Index = e.ImageComparisonIndex,
+                    ComparisonResult = e.ImageComparisonResult,
+                    Difference = e.Difference,
+                    LoadLevel = e.ImageLoadLevelIndex,
+                    LeftImages = e.LeftImages,
+                    RightImages = e.RightImages,
+                });
             }
         }
 
@@ -178,10 +165,10 @@ namespace CustomComparisonManager
             {
                 if (disposing)
                 {
-                    CancelTokenSource?.Cancel();
-                    ComparerTask?.Wait();
-                    CancelTokenSource?.Dispose();
-                    ComparerTask?.Dispose();
+                    cancelTokenSource?.Cancel();
+                    comparerTask?.Wait();
+                    cancelTokenSource?.Dispose();
+                    comparerTask?.Dispose();
                 }
                 disposedValue = true;
             }

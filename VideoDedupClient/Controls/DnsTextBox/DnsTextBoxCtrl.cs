@@ -1,4 +1,4 @@
-namespace VideoDedup.DnsTextBox
+namespace VideoDedupClient.Controls.DnsTextBox
 {
     using System;
     using System.Collections.Generic;
@@ -8,7 +8,7 @@ namespace VideoDedup.DnsTextBox
     using System.Net;
     using System.Net.Sockets;
     using System.Windows.Forms;
-    using VideoDedupShared.ISynchronizeInvokeExtensions;
+    using VideoDedupSharedLib.ExtensionMethods.ISynchronizeInvokeExtensions;
 
     public class DnsTextBoxCtrl : TextBox
     {
@@ -30,39 +30,31 @@ namespace VideoDedup.DnsTextBox
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [Browsable(false)]
-        public IEnumerable<IPAddress> IpAddresses { get; set; }
+        public IEnumerable<IPAddress>? IpAddresses { get; set; }
 
         [Browsable(false)]
-        public bool Resolving { get; set; } = false;
+        public bool Resolving { get; set; }
 
         [Browsable(false)]
-        public bool ResolvedSuccessfully { get; set; } = false;
+        public bool ResolvedSuccessfully { get; set; }
 
-        public event EventHandler<ResolveStartedEventArgs> ResolveStarted;
+        public event EventHandler<ResolveStartedEventArgs>? ResolveStarted;
+
         protected virtual void OnResolveStarted(string dnsName) =>
-            ResolveStarted?.Invoke(this, new ResolveStartedEventArgs
-            {
-                DnsName = dnsName
-            });
+            ResolveStarted?.Invoke(this, new ResolveStartedEventArgs(dnsName));
 
-        public event EventHandler<ResolveSuccessfulEventArgs> ResolveSuccessful;
+        public event EventHandler<ResolveSuccessfulEventArgs>? ResolveSuccessful;
         protected virtual void OnResolveSuccessful(
             string dnsName,
             IEnumerable<IPAddress> ipAddresses) =>
-            ResolveSuccessful?.Invoke(this, new ResolveSuccessfulEventArgs
-            {
-                DnsName = dnsName,
-                IpAddress = ipAddresses,
-            });
+            ResolveSuccessful?.Invoke(this, new ResolveSuccessfulEventArgs(
+                dnsName,
+                ipAddresses));
 
-        public event EventHandler<ResolveFailedEventArgs> ResolveFailed;
+        public event EventHandler<ResolveFailedEventArgs>? ResolveFailed;
+
         protected virtual void OnResolveFailed(string dnsName) =>
-            ResolveFailed?.Invoke(this, new ResolveFailedEventArgs
-            {
-                DnsName = dnsName
-            });
-
-        public DnsTextBoxCtrl() { }
+            ResolveFailed?.Invoke(this, new ResolveFailedEventArgs(dnsName));
 
         protected override void OnTextChanged(EventArgs e)
         {
@@ -75,10 +67,7 @@ namespace VideoDedup.DnsTextBox
                 return;
             }
 
-            if (!DefaultForeColor.HasValue)
-            {
-                DefaultForeColor = ForeColor;
-            }
+            DefaultForeColor ??= ForeColor;
             ForeColor = DefaultForeColor.Value;
 
             if (Text.Length < MinimumLength || !IsDnsNameValid(Text))
@@ -112,7 +101,11 @@ namespace VideoDedup.DnsTextBox
                 {
                     _ = Dns.EndGetHostAddresses(ar);
                 }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
+
                 return;
             }
 
@@ -121,8 +114,8 @@ namespace VideoDedup.DnsTextBox
             try
             {
                 IpAddresses = Dns.EndGetHostAddresses(ar).Where(a =>
-                    a.AddressFamily == AddressFamily.InterNetwork
-                    || a.AddressFamily == AddressFamily.InterNetworkV6);
+                    a.AddressFamily is AddressFamily.InterNetwork
+                    or AddressFamily.InterNetworkV6);
             }
             catch (SocketException) { }
 
