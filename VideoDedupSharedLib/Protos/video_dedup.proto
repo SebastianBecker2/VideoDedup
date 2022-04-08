@@ -13,7 +13,7 @@ service VideoDedupGrpcService {
   rpc GetConfiguration (google.protobuf.Empty) returns (ConfigurationSettings);
   rpc SetConfiguration (ConfigurationSettings) returns (google.protobuf.Empty);
   rpc GetCurrentStatus (google.protobuf.Empty) returns (StatusData);
-  rpc ResolveDuplicate (ResolveDuplicateRequest) returns (google.protobuf.Empty);
+  rpc ResolveDuplicate (ResolveDuplicateRequest) returns (ResolveDuplicateResponse);
   rpc GetDuplicate (google.protobuf.Empty) returns (DuplicateData);
   rpc DiscardDuplicates(google.protobuf.Empty) returns (google.protobuf.Empty);
   rpc GetLogEntries (GetLogEntriesRequest) returns (GetLogEntriesResponse);
@@ -28,6 +28,13 @@ enum ComparisonResult {
     Different = 2;
     Cancelled = 3;
     Aborted = 4;
+}
+
+enum ResolveOperation {
+    DeleteFile = 0;
+    Skip = 1;
+    Discard = 2;
+    Cancel = 3;
 }
 
 message CancelCustomVideoComparisonRequest {
@@ -121,16 +128,16 @@ message DuplicateData {
 }
 
 message ResolveDuplicateRequest {
-    enum ResolveOperation {
-        DeleteFile1 = 0;
-        DeleteFile2 = 1;
-        Skip = 2;
-        Discard = 3;
-        Cancel = 4;
-    }
 
     string duplicate_id = 1;
     ResolveOperation resolve_operation = 2;
+    VideoFile file = 3;
+}
+
+message ResolveDuplicateResponse {
+    bool successful = 1;
+    string error_message = 2;
+    ResolveOperation resolve_operation = 3;
 }
 
 message OperationInfo {

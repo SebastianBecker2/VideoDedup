@@ -8,7 +8,7 @@ namespace VideoDedupClient.Dialogs
     using Google.Protobuf.WellKnownTypes;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.StringExtensions;
-    using static VideoDedupGrpc.ResolveDuplicateRequest.Types;
+    using VideoDedupSharedLib.Interfaces;
 
     public partial class VideoComparisonDlg : Form
     {
@@ -21,6 +21,7 @@ namespace VideoDedupClient.Dialogs
         public string? ClientSourcePath { get; set; }
 
         public ResolveOperation ResolveOperation { get; set; }
+        public VideoFile? FileToDelete { get; set; }
 
         public VideoComparisonDlg() => InitializeComponent();
 
@@ -76,17 +77,19 @@ namespace VideoDedupClient.Dialogs
 
         private void BtnDeleteLeft_Click(object sender, EventArgs e)
         {
-            ResolveOperation = ResolveOperation.DeleteFile1;
+            ResolveOperation = ResolveOperation.DeleteFile;
+            FileToDelete = LeftFile;
             DialogResult = DialogResult.OK;
         }
 
         private void BtnDeleteRight_Click(object sender, EventArgs e)
         {
-            ResolveOperation = ResolveOperation.DeleteFile2;
+            ResolveOperation = ResolveOperation.DeleteFile;
+            FileToDelete = RightFile;
             DialogResult = DialogResult.OK;
         }
 
-        private void OpenFileInExplorer(VideoFile file)
+        private void OpenFileInExplorer(IVideoFile file)
         {
             var filePath = file.FilePath;
 

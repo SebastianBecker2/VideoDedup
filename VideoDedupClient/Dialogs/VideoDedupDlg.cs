@@ -311,8 +311,7 @@ namespace VideoDedupClient.Dialogs
                         _ = GrpcClient.ResolveDuplicate(new ResolveDuplicateRequest
                         {
                             DuplicateId = duplicate.DuplicateId,
-                            ResolveOperation =
-                                ResolveDuplicateRequest.Types.ResolveOperation.Cancel,
+                            ResolveOperation = ResolveOperation.Cancel,
                         });
                         return;
                     }
@@ -321,6 +320,7 @@ namespace VideoDedupClient.Dialogs
                     {
                         DuplicateId = duplicate.DuplicateId,
                         ResolveOperation = dlg.ResolveOperation,
+                        File = dlg.FileToDelete,
                     });
                 }
             }

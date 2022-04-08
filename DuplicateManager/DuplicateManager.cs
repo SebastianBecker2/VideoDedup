@@ -4,11 +4,9 @@ namespace DuplicateManager
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    //using DedupEngine;
     using EventArgs;
     using KGySoft.CoreLibraries;
     using VideoDedupGrpc;
-    using static VideoDedupGrpc.ResolveDuplicateRequest.Types;
 
     public class DuplicateManager
     {
@@ -186,9 +184,36 @@ namespace DuplicateManager
             OnDuplicateRemoved(duplicate.DuplicateData);
         }
 
+        private void HandleDeleteFile(
+            DuplicateWrapper duplicate,
+            VideoFile? file)
+        {
+            if (file is null)
+            {
+                throw new InvalidOperationException(
+                    $"No file specified. Operation " +
+                    $"\"{ResolveOperation.DeleteFile}\" requires a file to be " +
+                    $"specified.");
+            }
+
+            if (file.FilePath != duplicate.File1.FilePath
+                && file.FilePath != duplicate.File2.FilePath)
+            {
+                throw new InvalidOperationException(
+                    $"Invalid file specified. Operation " +
+                    $"\"{ResolveOperation.DeleteFile}\" requires a file to be " +
+                    $"specified that matches either of the files of " +
+                    $"the duplicate.");
+            }
+
+            File.Delete(file.FilePath);
+            RemoveDuplicate(duplicate);
+        }
+
         public void ResolveDuplicate(
             string duplicateId,
-            ResolveOperation resolveOperation)
+            ResolveOperation resolveOperation,
+            VideoFile? file)
         {
             lock (duplicateLock)
             {
@@ -201,30 +226,12 @@ namespace DuplicateManager
                     return;
                 }
 
-                static void DeleteFile(string path)
-                {
-                    try
-                    {
-                        File.Delete(path);
-                    }
-                    catch (Exception)
-                    {
-                        // Would be nice to make a log entry here.
-                        // But since it would get lost in the ocean
-                        // of logs, it's almost pointless.
-                    }
-                }
-
                 switch (resolveOperation)
                 {
-                    case ResolveOperation.DeleteFile1:
-                        DeleteFile(duplicate.File1.FilePath);
-                        RemoveDuplicate(duplicate);
+                    case ResolveOperation.DeleteFile:
+                        HandleDeleteFile(duplicate, file);
                         break;
-                    case ResolveOperation.DeleteFile2:
-                        DeleteFile(duplicate.File2.FilePath);
-                        RemoveDuplicate(duplicate);
-                        break;
+
                     case ResolveOperation.Skip:
                         // Do nothing.
                         // The duplicate is kept in the list for later.

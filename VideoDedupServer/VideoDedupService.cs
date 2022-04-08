@@ -122,14 +122,32 @@ namespace VideoDedupServer
             return Task.FromResult(statusData);
         }
 
-        public override Task<Empty> ResolveDuplicate(
+        public override Task<ResolveDuplicateResponse> ResolveDuplicate(
             ResolveDuplicateRequest request,
             ServerCallContext context)
         {
-            duplicateManager.ResolveDuplicate(
-                request.DuplicateId,
-                request.ResolveOperation);
-            return Task.FromResult(new Empty());
+            try
+            {
+                duplicateManager.ResolveDuplicate(
+                    request.DuplicateId,
+                    request.ResolveOperation,
+                    request.File);
+            }
+            catch (Exception ex)
+            {
+                return Task.FromResult(new ResolveDuplicateResponse
+                {
+                    Successful = false,
+                    ErrorMessage = ex.Message,
+                    ResolveOperation = request.ResolveOperation,
+                });
+            }
+
+            return Task.FromResult(new ResolveDuplicateResponse
+            {
+                Successful = true,
+                ResolveOperation = request.ResolveOperation,
+            });
         }
 
         public override Task<DuplicateData?> GetDuplicate(

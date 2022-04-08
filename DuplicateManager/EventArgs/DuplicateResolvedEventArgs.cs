@@ -2,7 +2,6 @@ namespace DuplicateManager.EventArgs
 {
     using System;
     using VideoDedupGrpc;
-    using static VideoDedupGrpc.ResolveDuplicateRequest.Types;
 
     public class DuplicateResolvedEventArgs : EventArgs
     {
