@@ -1,6 +1,6 @@
+// ReSharper disable once CheckNamespace
 namespace VideoDedupGrpc
 {
-    using System;
     using VideoDedupSharedLib.Interfaces;
 
     public sealed partial class VideoFile : IVideoFile

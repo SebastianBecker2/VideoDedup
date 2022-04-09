@@ -1,9 +1,5 @@
 namespace DuplicateManager
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
     using EventArgs;
     using KGySoft.CoreLibraries;
     using VideoDedupGrpc;
@@ -86,7 +82,7 @@ namespace DuplicateManager
             thumbnailManager.Settings = settings;
         }
 
-        public DuplicateData? GetDuplicate()
+        public DuplicateData GetDuplicate()
         {
             lock (duplicateLock)
             {
@@ -191,19 +187,19 @@ namespace DuplicateManager
             if (file is null)
             {
                 throw new InvalidOperationException(
-                    $"No file specified. Operation " +
+                    "No file specified. Operation " +
                     $"\"{ResolveOperation.DeleteFile}\" requires a file to be " +
-                    $"specified.");
+                    "specified.");
             }
 
             if (file.FilePath != duplicate.File1.FilePath
                 && file.FilePath != duplicate.File2.FilePath)
             {
                 throw new InvalidOperationException(
-                    $"Invalid file specified. Operation " +
+                    "Invalid file specified. Operation " +
                     $"\"{ResolveOperation.DeleteFile}\" requires a file to be " +
-                    $"specified that matches either of the files of " +
-                    $"the duplicate.");
+                    "specified that matches either of the files of " +
+                    "the duplicate.");
             }
 
             File.Delete(file.FilePath);

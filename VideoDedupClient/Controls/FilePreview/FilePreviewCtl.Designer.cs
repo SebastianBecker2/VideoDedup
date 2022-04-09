@@ -1,11 +1,13 @@
 namespace VideoDedupClient.Controls.FilePreview
 {
+    using System.ComponentModel;
+
     partial class FilePreviewCtl
     {
         /// <summary> 
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary> 
         /// Clean up any resources being used.
@@ -80,8 +82,8 @@ namespace VideoDedupClient.Controls.FilePreview
         }
 
         #endregion
-        private System.Windows.Forms.ImageList ImlThumbnails;
-        private System.Windows.Forms.ListView LsvThumbnails;
-        private System.Windows.Forms.TextBox TxtInfo;
+        private ImageList ImlThumbnails;
+        private ListView LsvThumbnails;
+        private TextBox TxtInfo;
     }
 }

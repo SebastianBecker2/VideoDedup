@@ -1,10 +1,8 @@
 namespace VideoDedupClient.Dialogs
 {
-    using System;
-    using System.Windows.Forms;
     using Controls.DnsTextBox;
     using Microsoft.WindowsAPICodePack.Dialogs;
-    using VideoDedupClient;
+    using Properties;
 
     public partial class ClientConfigDlg : Form
     {
@@ -53,7 +51,7 @@ namespace VideoDedupClient.Dialogs
         {
             if (PibServerAddressLoading.Image == null)
             {
-                PibServerAddressLoading.Image = Properties.Resources.Loading;
+                PibServerAddressLoading.Image = Resources.Loading;
             }
         }
 

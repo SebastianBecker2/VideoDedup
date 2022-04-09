@@ -1,10 +1,8 @@
 namespace DedupEngine
 {
-    using System.IO;
-    using System;
     using VideoDedupSharedLib;
-    using VideoDedupSharedLib.Interfaces;
     using VideoDedupSharedLib.ExtensionMethods.DateTimeExtensions;
+    using VideoDedupSharedLib.Interfaces;
 
     internal class EngineDatastore : Datastore
     {

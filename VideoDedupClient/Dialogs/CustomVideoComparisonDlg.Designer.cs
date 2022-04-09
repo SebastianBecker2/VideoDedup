@@ -1,12 +1,14 @@
 namespace VideoDedupClient.Dialogs
 {
+    using System.ComponentModel;
+    using System.Windows.Forms;
 
     partial class CustomVideoComparisonDlg
     {
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -822,55 +824,55 @@ namespace VideoDedupClient.Dialogs
 
         #endregion
 
-        private System.Windows.Forms.TableLayoutPanel TlpResult;
-        private System.Windows.Forms.Panel PnlResult;
-        private System.Windows.Forms.GroupBox GrbFirstLoadLevel;
-        private System.Windows.Forms.TableLayoutPanel TlpFirstLoadLevelResult;
-        private System.Windows.Forms.GroupBox GrbSecondLoadLevel;
-        private System.Windows.Forms.TableLayoutPanel TlpSecondLoadLevelResult;
-        private System.Windows.Forms.Button BtnCancel;
-        private System.Windows.Forms.Button BtnOkay;
-        private System.Windows.Forms.TableLayoutPanel TlpSettings;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox TxtLeftFilePath;
-        private System.Windows.Forms.TextBox TxtRightFilePath;
-        private System.Windows.Forms.Button BtnSelectLeftFilePath;
-        private System.Windows.Forms.Button BtnSelectRightFilePath;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.NumericUpDown NumMaxImageComparison;
-        private System.Windows.Forms.NumericUpDown NumMaxDifferentImages;
-        private System.Windows.Forms.NumericUpDown NumMaxDifferentPercentage;
-        private System.Windows.Forms.GroupBox GrbResult;
-        private System.Windows.Forms.Label LblResult;
-        private System.Windows.Forms.GroupBox GrbThirdLoadLevel;
-        private System.Windows.Forms.TableLayoutPanel TlpThirdLoadLevelResult;
-        private System.Windows.Forms.Timer StatusTimer;
-        private System.Windows.Forms.Button BtnStartComparison;
-        private System.Windows.Forms.Button btnClose;
-        private System.Windows.Forms.TableLayoutPanel TlpProgress;
-        private System.Windows.Forms.ProgressBar PgbComparisonProgress;
-        private System.Windows.Forms.GroupBox GrbVideoTimeline;
-        private System.Windows.Forms.TableLayoutPanel TlpVideoTimeline;
-        private System.Windows.Forms.TrackBar TrbMaxImageComparison;
-        private System.Windows.Forms.RadioButton RdbSortByProcessingOrder;
-        private System.Windows.Forms.RadioButton RdbSortByTimeline;
-        private System.Windows.Forms.TrackBar TrbMaxDifferentImages;
-        private System.Windows.Forms.TrackBar TrbMaxDifferentPercentage;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.GroupBox GrbSettings;
-        private System.Windows.Forms.TableLayoutPanel TlpFirstLoadLevel;
-        private System.Windows.Forms.PictureBox PibFirstLoadLevel;
-        private System.Windows.Forms.Label LblFirstLoadLevel;
-        private System.Windows.Forms.TableLayoutPanel TlpSecondLoadLevel;
-        private System.Windows.Forms.Label LblSecondLoadLevel;
-        private System.Windows.Forms.PictureBox PibSecondLoadLevel;
-        private System.Windows.Forms.TableLayoutPanel TlpThirdLoadLevel;
-        private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.Label LblThirdLoadLevel;
-        private System.Windows.Forms.TextBox TxtLeftFileInfo;
-        private System.Windows.Forms.TextBox TxtRightFileInfo;
+        private TableLayoutPanel TlpResult;
+        private Panel PnlResult;
+        private GroupBox GrbFirstLoadLevel;
+        private TableLayoutPanel TlpFirstLoadLevelResult;
+        private GroupBox GrbSecondLoadLevel;
+        private TableLayoutPanel TlpSecondLoadLevelResult;
+        private Button BtnCancel;
+        private Button BtnOkay;
+        private TableLayoutPanel TlpSettings;
+        private Label label1;
+        private Label label2;
+        private TextBox TxtLeftFilePath;
+        private TextBox TxtRightFilePath;
+        private Button BtnSelectLeftFilePath;
+        private Button BtnSelectRightFilePath;
+        private Label label3;
+        private Label label4;
+        private Label label5;
+        private NumericUpDown NumMaxImageComparison;
+        private NumericUpDown NumMaxDifferentImages;
+        private NumericUpDown NumMaxDifferentPercentage;
+        private GroupBox GrbResult;
+        private Label LblResult;
+        private GroupBox GrbThirdLoadLevel;
+        private TableLayoutPanel TlpThirdLoadLevelResult;
+        private Timer StatusTimer;
+        private Button BtnStartComparison;
+        private Button btnClose;
+        private TableLayoutPanel TlpProgress;
+        private ProgressBar PgbComparisonProgress;
+        private GroupBox GrbVideoTimeline;
+        private TableLayoutPanel TlpVideoTimeline;
+        private TrackBar TrbMaxImageComparison;
+        private RadioButton RdbSortByProcessingOrder;
+        private RadioButton RdbSortByTimeline;
+        private TrackBar TrbMaxDifferentImages;
+        private TrackBar TrbMaxDifferentPercentage;
+        private Label label6;
+        private GroupBox GrbSettings;
+        private TableLayoutPanel TlpFirstLoadLevel;
+        private PictureBox PibFirstLoadLevel;
+        private Label LblFirstLoadLevel;
+        private TableLayoutPanel TlpSecondLoadLevel;
+        private Label LblSecondLoadLevel;
+        private PictureBox PibSecondLoadLevel;
+        private TableLayoutPanel TlpThirdLoadLevel;
+        private PictureBox pictureBox1;
+        private Label LblThirdLoadLevel;
+        private TextBox TxtLeftFileInfo;
+        private TextBox TxtRightFileInfo;
     }
 }

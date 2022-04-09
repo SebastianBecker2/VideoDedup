@@ -1,7 +1,5 @@
 namespace DedupEngine
 {
-    using System;
-    using System.Collections.Generic;
     using VideoDedupGrpc;
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
 

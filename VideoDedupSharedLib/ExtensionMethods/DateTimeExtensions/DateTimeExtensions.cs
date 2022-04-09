@@ -1,7 +1,5 @@
 namespace VideoDedupSharedLib.ExtensionMethods.DateTimeExtensions
 {
-    using System;
-
     public static class DateTimeExtensions
     {
         public static long ToUnixDate(this DateTime date)

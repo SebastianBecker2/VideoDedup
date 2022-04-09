@@ -39,7 +39,7 @@ namespace VideoComparer.MpvLib
                         catch (ApplicationException)
                         {
                             // Try again.
-                            // It seems, sometimes the hight property (or any
+                            // It seems, sometimes the height property (or any
                             // property) isn't available when the event comes
                             // in. So we either wait longer, wait for the next
                             // event or just try again.
@@ -161,7 +161,7 @@ namespace VideoComparer.MpvLib
             if (string.IsNullOrWhiteSpace(filePath))
             {
                 throw new ArgumentException($"'{nameof(filePath)}' cannot be" +
-                    $" null or whitespace", nameof(filePath));
+                    " null or whitespace", nameof(filePath));
             }
 
             FilePath = filePath;
@@ -237,7 +237,7 @@ namespace VideoComparer.MpvLib
             if (Duration == TimeSpan.Zero)
             {
                 throw new MpvOperationException(
-                    $"Extracting images failed. Unable to read video length.",
+                    "Extracting images failed. Unable to read video length.",
                     FilePath);
             }
             var stepping = Math.Max(
@@ -250,8 +250,7 @@ namespace VideoComparer.MpvLib
             {
                 var eventId = GetEventId(MpvHandle, EventIdTimeout);
 
-                if (cancelToken.HasValue
-                    && cancelToken.Value.IsCancellationRequested)
+                if (cancelToken is { IsCancellationRequested: true })
                 {
                     yield break;
                 }
@@ -327,7 +326,7 @@ namespace VideoComparer.MpvLib
             if (Duration == TimeSpan.Zero)
             {
                 throw new MpvOperationException(
-                    $"Extracting images failed. Unable to read video length.",
+                    "Extracting images failed. Unable to read video length.",
                     FilePath);
             }
             var seconds = Duration.TotalSeconds;
@@ -675,12 +674,10 @@ namespace VideoComparer.MpvLib
             {
                 return null;
             }
-            else
-            {
-                var file = ReadFileWithRetry(filePath);
-                File.Delete(filePath);
-                return file;
-            }
+
+            var file = ReadFileWithRetry(filePath);
+            File.Delete(filePath);
+            return file;
         }
 
         protected virtual void Dispose(bool disposing)

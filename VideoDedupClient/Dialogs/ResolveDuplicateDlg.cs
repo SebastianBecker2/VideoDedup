@@ -1,10 +1,7 @@
 namespace VideoDedupClient.Dialogs
 {
-    using System;
     using System.Diagnostics;
-    using System.Drawing;
     using System.IO;
-    using System.Windows.Forms;
     using Google.Protobuf.WellKnownTypes;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.StringExtensions;
@@ -106,7 +103,7 @@ namespace VideoDedupClient.Dialogs
             if (!File.Exists(filePath))
             {
                 _ = MessageBox.Show($"Can't find the file.{Environment.NewLine}" +
-                    $"Did you set the Client-Side Source Directory properly?",
+                    "Did you set the Client-Side Source Directory properly?",
                     "File not found",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);

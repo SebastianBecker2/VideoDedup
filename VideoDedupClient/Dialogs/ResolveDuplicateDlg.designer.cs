@@ -1,5 +1,6 @@
 namespace VideoDedupClient.Dialogs
 {
+    using System.ComponentModel;
     using Controls.FilePreview;
 
     partial class ResolveDuplicateDlg
@@ -7,7 +8,7 @@ namespace VideoDedupClient.Dialogs
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -222,15 +223,15 @@ namespace VideoDedupClient.Dialogs
         }
 
         #endregion
-        private System.Windows.Forms.SplitContainer SplitterContainer;
-        private System.Windows.Forms.Button BtnClose;
-        private System.Windows.Forms.Button btnDeleteLeft;
-        private System.Windows.Forms.Button btnDeleteRight;
-        private System.Windows.Forms.Button BtnShowRight;
-        private System.Windows.Forms.Button BtnShowLeft;
-        private System.Windows.Forms.Button BtnSkip;
-        private System.Windows.Forms.Button BtnDiscard;
-        private System.Windows.Forms.Button BtnReviewComparison;
+        private SplitContainer SplitterContainer;
+        private Button BtnClose;
+        private Button btnDeleteLeft;
+        private Button btnDeleteRight;
+        private Button BtnShowRight;
+        private Button BtnShowLeft;
+        private Button BtnSkip;
+        private Button BtnDiscard;
+        private Button BtnReviewComparison;
         private FilePreviewCtl FpvLeft;
         private FilePreviewCtl FpvRight;
     }

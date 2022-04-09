@@ -1,11 +1,13 @@
 namespace VideoDedupClient.Controls.StatusInfo
 {
+    using System.ComponentModel;
+
     partial class StatusInfoCtl
     {
         /// <summary> 
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary> 
         /// Clean up any resources being used.
@@ -306,24 +308,24 @@ namespace VideoDedupClient.Controls.StatusInfo
 
         #endregion
 
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.Label LblStatusInfo;
-        private System.Windows.Forms.Label LblDuplicateCount;
-        private System.Windows.Forms.Label LblRemainingFileCount;
-        private System.Windows.Forms.Label LblCurrentFileCount;
-        private System.Windows.Forms.Label LblElapsedTime;
-        private System.Windows.Forms.Label LblRemainingTime;
-        private System.Windows.Forms.Label LblDuplicateSpeed;
-        private System.Windows.Forms.Label LblFileCountSpeed;
-        private System.Windows.Forms.ProgressBar ProgressBar;
-        private System.Windows.Forms.Label LblCurrentFileCountTitle;
-        private System.Windows.Forms.Label LblRemainingFileCountTitle;
-        private System.Windows.Forms.Label LblDuplicateCountTitle;
-        private System.Windows.Forms.Label LblFileCountSpeedTitle;
-        private System.Windows.Forms.Label LblDuplicateSpeedTitle;
-        private System.Windows.Forms.Label LblElapsedTimeTitle;
-        private System.Windows.Forms.Label LblRemainingTimeTitle;
-        private System.Windows.Forms.Label LblDuplicateSpeedUnit;
-        private System.Windows.Forms.Label LblFileCountSpeedUnit;
+        private TableLayoutPanel tableLayoutPanel1;
+        private Label LblStatusInfo;
+        private Label LblDuplicateCount;
+        private Label LblRemainingFileCount;
+        private Label LblCurrentFileCount;
+        private Label LblElapsedTime;
+        private Label LblRemainingTime;
+        private Label LblDuplicateSpeed;
+        private Label LblFileCountSpeed;
+        private ProgressBar ProgressBar;
+        private Label LblCurrentFileCountTitle;
+        private Label LblRemainingFileCountTitle;
+        private Label LblDuplicateCountTitle;
+        private Label LblFileCountSpeedTitle;
+        private Label LblDuplicateSpeedTitle;
+        private Label LblElapsedTimeTitle;
+        private Label LblRemainingTimeTitle;
+        private Label LblDuplicateSpeedUnit;
+        private Label LblFileCountSpeedUnit;
     }
 }

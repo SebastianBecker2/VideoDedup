@@ -1,6 +1,5 @@
 namespace VideoDedupSharedLib.ExtensionMethods.TimeSpanExtensions
 {
-    using System;
     using System.Globalization;
 
     public static class TimeSpanExtensions

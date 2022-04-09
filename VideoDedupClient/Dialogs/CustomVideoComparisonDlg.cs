@@ -1,13 +1,8 @@
 namespace VideoDedupClient.Dialogs
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Drawing;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using System.Windows.Forms;
     using Controls.ImageComparisonResultView;
     using Microsoft.WindowsAPICodePack.Dialogs;
+    using Properties;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
     using static VideoDedupGrpc.VideoDedupGrpcService;
@@ -69,23 +64,23 @@ namespace VideoDedupClient.Dialogs
             InitializeComponent();
 
             TrbMaxDifferentPercentage.ValueChanged +=
-                (s, e) => NumMaxDifferentPercentage.Value =
+                (_, _) => NumMaxDifferentPercentage.Value =
                     TrbMaxDifferentPercentage.Value;
             TrbMaxDifferentImages.ValueChanged +=
-                (s, e) => NumMaxDifferentImages.Value =
+                (_, _) => NumMaxDifferentImages.Value =
                     TrbMaxDifferentImages.Value;
             TrbMaxImageComparison.ValueChanged +=
-                (s, e) => NumMaxImageComparison.Value =
+                (_, _) => NumMaxImageComparison.Value =
                     TrbMaxImageComparison.Value;
 
             NumMaxDifferentPercentage.ValueChanged +=
-                (s, e) => TrbMaxDifferentPercentage.Value =
+                (_, _) => TrbMaxDifferentPercentage.Value =
                     (int)NumMaxDifferentPercentage.Value;
             NumMaxDifferentImages.ValueChanged +=
-                (s, e) => TrbMaxDifferentImages.Value =
+                (_, _) => TrbMaxDifferentImages.Value =
                     (int)NumMaxDifferentImages.Value;
             NumMaxImageComparison.ValueChanged +=
-                (s, e) => TrbMaxImageComparison.Value =
+                (_, _) => TrbMaxImageComparison.Value =
                     (int)NumMaxImageComparison.Value;
         }
 
@@ -374,7 +369,7 @@ namespace VideoDedupClient.Dialogs
                     ?.LoadLevel ?? FinishedInLoadLevel;
             }
 
-            ImageComparisonResultViewCtl toView(ImageComparisonResult icr) =>
+            ImageComparisonResultViewCtl ToView(ImageComparisonResult icr) =>
                 new()
                 {
                     ImageComparisonIndex = icr.Index,
@@ -408,7 +403,7 @@ namespace VideoDedupClient.Dialogs
             tableLayoutPanel.SuspendLayout();
             tableLayoutPanel.Controls.AddRange(imageComparisonResults
                 .Where(icr => !resultViews.Any(view => view.ImageComparisonResult == icr))
-                .Select(icr => toView(icr))
+                .Select(icr => ToView(icr))
                 .ToArray());
             tableLayoutPanel.ResumeLayout();
 
@@ -441,16 +436,13 @@ namespace VideoDedupClient.Dialogs
         private Tuple<TableLayoutPanel, TableLayoutPanel> GetLoadLevelControls(
             int loadLevel)
         {
-            if (loadLevelControls == null)
-            {
-                loadLevelControls =
-                    new Dictionary<int, Tuple<TableLayoutPanel, TableLayoutPanel>>
-                    {
-                    { 1, Tuple.Create(TlpFirstLoadLevel, TlpFirstLoadLevelResult) },
-                    { 2, Tuple.Create(TlpSecondLoadLevel, TlpSecondLoadLevelResult) },
-                    { 3, Tuple.Create(TlpThirdLoadLevel, TlpThirdLoadLevelResult) },
-                    };
-            }
+            loadLevelControls ??=
+                new Dictionary<int, Tuple<TableLayoutPanel, TableLayoutPanel>>
+                {
+                    {1, Tuple.Create(TlpFirstLoadLevel, TlpFirstLoadLevelResult)},
+                    {2, Tuple.Create(TlpSecondLoadLevel, TlpSecondLoadLevelResult)},
+                    {3, Tuple.Create(TlpThirdLoadLevel, TlpThirdLoadLevelResult)},
+                };
             return loadLevelControls[loadLevel];
         }
 
@@ -514,7 +506,7 @@ namespace VideoDedupClient.Dialogs
             UpdateVideoComparisonResult(null);
             PgbComparisonProgress.Visible = false;
 
-            static void clearTableLayoutPanel(TableLayoutPanel tlp)
+            static void ClearTableLayoutPanel(TableLayoutPanel tlp)
             {
                 var localRef = tlp.Controls;
                 tlp.Controls.Clear();
@@ -526,16 +518,16 @@ namespace VideoDedupClient.Dialogs
                 tlp.RowCount = 0;
             }
 
-            clearTableLayoutPanel(TlpFirstLoadLevelResult);
+            ClearTableLayoutPanel(TlpFirstLoadLevelResult);
             TlpFirstLoadLevel.Visible = false;
 
-            clearTableLayoutPanel(TlpSecondLoadLevelResult);
+            ClearTableLayoutPanel(TlpSecondLoadLevelResult);
             TlpSecondLoadLevel.Visible = false;
 
-            clearTableLayoutPanel(TlpThirdLoadLevelResult);
+            ClearTableLayoutPanel(TlpThirdLoadLevelResult);
             TlpThirdLoadLevel.Visible = false;
 
-            clearTableLayoutPanel(TlpVideoTimeline);
+            ClearTableLayoutPanel(TlpVideoTimeline);
             GrbVideoTimeline.Visible = false;
         }
 
@@ -546,12 +538,12 @@ namespace VideoDedupClient.Dialogs
             if (TlpFirstLoadLevelResult.Visible)
             {
                 TlpFirstLoadLevelResult.Visible = false;
-                PibFirstLoadLevel.Image = Properties.Resources.ArrowDownBlue;
+                PibFirstLoadLevel.Image = Resources.ArrowDownBlue;
             }
             else
             {
                 TlpFirstLoadLevelResult.Visible = true;
-                PibFirstLoadLevel.Image = Properties.Resources.ArrowUpGray;
+                PibFirstLoadLevel.Image = Resources.ArrowUpGray;
             }
         }
 
@@ -562,12 +554,12 @@ namespace VideoDedupClient.Dialogs
             if (TlpSecondLoadLevelResult.Visible)
             {
                 TlpSecondLoadLevelResult.Visible = false;
-                PibSecondLoadLevel.Image = Properties.Resources.ArrowDownBlue;
+                PibSecondLoadLevel.Image = Resources.ArrowDownBlue;
             }
             else
             {
                 TlpSecondLoadLevelResult.Visible = true;
-                PibSecondLoadLevel.Image = Properties.Resources.ArrowUpGray;
+                PibSecondLoadLevel.Image = Resources.ArrowUpGray;
             }
         }
 
@@ -578,12 +570,12 @@ namespace VideoDedupClient.Dialogs
             if (TlpThirdLoadLevelResult.Visible)
             {
                 TlpThirdLoadLevelResult.Visible = false;
-                pictureBox1.Image = Properties.Resources.ArrowDownBlue;
+                pictureBox1.Image = Resources.ArrowDownBlue;
             }
             else
             {
                 TlpThirdLoadLevelResult.Visible = true;
-                pictureBox1.Image = Properties.Resources.ArrowUpGray;
+                pictureBox1.Image = Resources.ArrowUpGray;
             }
         }
 

@@ -28,7 +28,7 @@ namespace VideoDedupService
 
         private static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(new WebApplicationOptions()
+            var builder = WebApplication.CreateBuilder(new WebApplicationOptions
             {
                 // ContentRootPath is important for use as Windows Service.
                 ContentRootPath = AppContext.BaseDirectory,
@@ -41,7 +41,7 @@ namespace VideoDedupService
                 options.ResponseCompressionLevel = CompressionLevel.Optimal;
             });
             _ = builder.Services.AddSingleton(
-                x => new VideoDedupService(GetLocalAppPath()));
+                _ => new VideoDedupService(GetLocalAppPath()));
 
             _ = builder.Host.UseWindowsService();
 

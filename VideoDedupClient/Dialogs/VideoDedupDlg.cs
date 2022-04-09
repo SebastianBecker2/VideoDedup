@@ -1,12 +1,10 @@
 namespace VideoDedupClient.Dialogs
 {
-    using System;
     using System.Collections.Concurrent;
     using System.Diagnostics;
-    using System.Linq;
-    using System.Windows.Forms;
     using Google.Protobuf.WellKnownTypes;
     using Grpc.Core;
+    using SmartTimer;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.DataGridViewExtensions;
     using VideoDedupSharedLib.ExtensionMethods.ISynchronizeInvokeExtensions;
@@ -23,14 +21,14 @@ namespace VideoDedupClient.Dialogs
 
         private int DuplicateCount { get; set; }
 
-        private SmartTimer.Timer StatusTimer { get; }
+        private Timer StatusTimer { get; }
 
         private WindowGeometry? resolveDuplicateDlgGeometry;
 
         public VideoDedupDlg()
         {
             InitializeComponent();
-            StatusTimer = new SmartTimer.Timer(StatusTimerCallback);
+            StatusTimer = new Timer(StatusTimerCallback);
         }
 
         protected override void OnLoad(EventArgs e)
@@ -225,7 +223,7 @@ namespace VideoDedupClient.Dialogs
                 catch (Exception)
                 {
                     if (MessageBox.Show(
-                            $"Unable to send configuration to the server." +
+                            "Unable to send configuration to the server." +
                             $"{Environment.NewLine}Do you want to try again?",
                             "Connection Error",
                             MessageBoxButtons.YesNo,
@@ -300,7 +298,7 @@ namespace VideoDedupClient.Dialogs
             {
                 _ = MessageBox.Show(
                     $"Unable to process duplicate.{Environment.NewLine}" +
-                    $"Connection to server failed.",
+                    "Connection to server failed.",
                     "Connection Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);

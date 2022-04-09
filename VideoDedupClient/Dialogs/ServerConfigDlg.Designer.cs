@@ -1,11 +1,13 @@
 namespace VideoDedupClient.Dialogs
 {
+    using System.ComponentModel;
+
     partial class ServerConfigDlg
     {
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -638,43 +640,43 @@ namespace VideoDedupClient.Dialogs
         }
 
         #endregion
-        private System.Windows.Forms.Button BtnCancel;
-        private System.Windows.Forms.Button BtnOkay;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.RadioButton RdbDurationDifferenceSeconds;
-        private System.Windows.Forms.NumericUpDown NumMaxDifferentPercentage;
-        private System.Windows.Forms.NumericUpDown NumMaxDifferentImages;
-        private System.Windows.Forms.NumericUpDown NumMaxImageComparison;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.RadioButton RdbDurationDifferencePercent;
-        private System.Windows.Forms.NumericUpDown NumMaxDurationDifference;
-        private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.NumericUpDown NumThumbnailViewCount;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.Button BtnSelectSourcePath;
-        private System.Windows.Forms.TextBox TxtSourcePath;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox TxtFileExtension;
-        private System.Windows.Forms.ListBox LsbFileExtensions;
-        private System.Windows.Forms.Button BtnRemoveFileExtension;
-        private System.Windows.Forms.Button BtnAddFileExtension;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.ListBox LsbExcludedDirectories;
-        private System.Windows.Forms.Button BtnAddExcludedDirectory;
-        private System.Windows.Forms.Button BtnRemoveExcludedDirectory;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
-        private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.CheckBox ChbRecursive;
-        private System.Windows.Forms.CheckBox ChbMonitorFileChanges;
-        private System.Windows.Forms.Button BtnCustomVideoComparison;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
+        private Button BtnCancel;
+        private Button BtnOkay;
+        private GroupBox groupBox1;
+        private Label label6;
+        private Label label5;
+        private Label label3;
+        private RadioButton RdbDurationDifferenceSeconds;
+        private NumericUpDown NumMaxDifferentPercentage;
+        private NumericUpDown NumMaxDifferentImages;
+        private NumericUpDown NumMaxImageComparison;
+        private GroupBox groupBox2;
+        private Label label7;
+        private RadioButton RdbDurationDifferencePercent;
+        private NumericUpDown NumMaxDurationDifference;
+        private GroupBox groupBox4;
+        private Label label9;
+        private NumericUpDown NumThumbnailViewCount;
+        private TableLayoutPanel tableLayoutPanel1;
+        private GroupBox groupBox3;
+        private Button BtnSelectSourcePath;
+        private TextBox TxtSourcePath;
+        private Label label1;
+        private TextBox TxtFileExtension;
+        private ListBox LsbFileExtensions;
+        private Button BtnRemoveFileExtension;
+        private Button BtnAddFileExtension;
+        private Label label4;
+        private ListBox LsbExcludedDirectories;
+        private Button BtnAddExcludedDirectory;
+        private Button BtnRemoveExcludedDirectory;
+        private TableLayoutPanel tableLayoutPanel2;
+        private TableLayoutPanel tableLayoutPanel3;
+        private Label label10;
+        private CheckBox ChbRecursive;
+        private CheckBox ChbMonitorFileChanges;
+        private Button BtnCustomVideoComparison;
+        private TableLayoutPanel tableLayoutPanel4;
         private Label LblMaxDurationDifferenceUnit;
     }
 }

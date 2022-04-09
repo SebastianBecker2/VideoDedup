@@ -1,6 +1,5 @@
 namespace VideoDedupSharedLib.Interfaces
 {
-    using System;
     using VideoDedupGrpc;
 
     public interface IVideoFile

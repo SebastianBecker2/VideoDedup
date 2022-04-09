@@ -1,5 +1,6 @@
 namespace VideoDedupClient.Dialogs
 {
+    using System.ComponentModel;
     using Controls.DnsTextBox;
 
     partial class ClientConfigDlg
@@ -7,7 +8,7 @@ namespace VideoDedupClient.Dialogs
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -252,18 +253,18 @@ namespace VideoDedupClient.Dialogs
 
         #endregion
 
-        private System.Windows.Forms.Button BtnCancel;
-        private System.Windows.Forms.Button BtnOkay;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.PictureBox PibServerAddressLoading;
+        private Button BtnCancel;
+        private Button BtnOkay;
+        private GroupBox groupBox1;
+        private TableLayoutPanel tableLayoutPanel1;
+        private Label label1;
+        private Label label2;
+        private PictureBox PibServerAddressLoading;
         private DnsTextBoxCtrl TxtServerAddress;
-        private System.Windows.Forms.NumericUpDown NudStatusRequestInterval;
-        private System.Windows.Forms.TextBox TxtClientSourcePath;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Button BtnSelectClientSourcePath;
-        private System.Windows.Forms.Label label4;
+        private NumericUpDown NudStatusRequestInterval;
+        private TextBox TxtClientSourcePath;
+        private Label label3;
+        private Button BtnSelectClientSourcePath;
+        private Label label4;
     }
 }

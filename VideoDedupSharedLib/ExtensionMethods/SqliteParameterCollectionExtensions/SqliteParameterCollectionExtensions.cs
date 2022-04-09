@@ -1,6 +1,5 @@
 namespace VideoDedupSharedLib.ExtensionMethods.SqliteParameterCollectionExtensions
 {
-    using System;
     using Microsoft.Data.Sqlite;
 
     public static class SqliteParameterCollectionExtensions

@@ -67,7 +67,7 @@ namespace VideoComparer
                 }
                 catch (ArgumentNullException)
                 {
-                    return new(index);
+                    return new CacheableImageSet(index);
                 }
             }
 
@@ -476,15 +476,15 @@ namespace VideoComparer
         {
             if (LeftVideoFile is null)
             {
-                throw new InvalidOperationException($"Object reference of " +
+                throw new InvalidOperationException("Object reference of " +
                     $"{nameof(LeftVideoFile)} not set to an instance of an " +
-                    $"object.");
+                    "object.");
             }
             if (RightVideoFile is null)
             {
-                throw new InvalidOperationException($"Object reference of " +
+                throw new InvalidOperationException("Object reference of " +
                     $"{nameof(RightVideoFile)} not set to an instance of an " +
-                    $"object.");
+                    "object.");
             }
 
             var differenceCount = 0;

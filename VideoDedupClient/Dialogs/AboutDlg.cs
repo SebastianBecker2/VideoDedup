@@ -1,17 +1,23 @@
 namespace VideoDedupClient.Dialogs
 {
     using System.Globalization;
+    using System.IO;
     using System.Reflection;
-    using System.Windows.Forms;
 
     internal partial class AboutDlg : Form
     {
         public AboutDlg()
         {
             InitializeComponent();
-            Text = string.Format(CultureInfo.InvariantCulture, "About {0}", AssemblyTitle);
+            Text = string.Format(
+                CultureInfo.InvariantCulture,
+                "About {0}",
+                AssemblyTitle);
             labelProductName.Text = AssemblyProduct;
-            labelVersion.Text = string.Format(CultureInfo.InvariantCulture, "Version {0}", AssemblyVersion);
+            labelVersion.Text = string.Format(
+                CultureInfo.InvariantCulture,
+                "Version {0}",
+                AssemblyVersion);
             labelCopyright.Text = AssemblyCopyright;
             labelCompanyName.Text = AssemblyCompany;
             textBoxDescription.Text = AssemblyDescription;
@@ -23,7 +29,9 @@ namespace VideoDedupClient.Dialogs
         {
             get
             {
-                var attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
+                var attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(
+                    typeof(AssemblyTitleAttribute),
+                    false);
                 if (attributes.Length > 0)
                 {
                     var titleAttribute = (AssemblyTitleAttribute)attributes[0];
@@ -32,18 +40,24 @@ namespace VideoDedupClient.Dialogs
                         return titleAttribute.Title;
                     }
                 }
-                return System.IO.Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location);
+                return Path.GetFileNameWithoutExtension(
+                    Assembly.GetExecutingAssembly().Location);
             }
         }
 
-        public static string? AssemblyVersion => Assembly.GetExecutingAssembly().GetName().Version?.ToString();
+        public static string? AssemblyVersion =>
+            Assembly.GetExecutingAssembly().GetName().Version?.ToString();
 
         public static string AssemblyDescription
         {
             get
             {
-                var attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false);
-                return attributes.Length == 0 ? "" : ((AssemblyDescriptionAttribute)attributes[0]).Description;
+                var attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(
+                    typeof(AssemblyDescriptionAttribute),
+                    false);
+                return attributes.Length == 0
+                    ? ""
+                    : ((AssemblyDescriptionAttribute)attributes[0]).Description;
             }
         }
 
@@ -51,7 +65,9 @@ namespace VideoDedupClient.Dialogs
         {
             get
             {
-                var attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyProductAttribute), false);
+                var attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(
+                    typeof(AssemblyProductAttribute),
+                    false);
                 if (attributes.Length == 0)
                 {
                     return "";
@@ -64,7 +80,9 @@ namespace VideoDedupClient.Dialogs
         {
             get
             {
-                var attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false);
+                var attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(
+                    typeof(AssemblyCopyrightAttribute),
+                    false);
                 if (attributes.Length == 0)
                 {
                     return "";
@@ -77,7 +95,9 @@ namespace VideoDedupClient.Dialogs
         {
             get
             {
-                var attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCompanyAttribute), false);
+                var attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(
+                    typeof(AssemblyCompanyAttribute),
+                    false);
                 if (attributes.Length == 0)
                 {
                     return "";

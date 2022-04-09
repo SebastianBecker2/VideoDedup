@@ -1,7 +1,5 @@
 namespace DuplicateManager
 {
-    using System;
-    using System.Collections.Generic;
     using VideoDedupGrpc;
 
     internal class DuplicateWrapper : IEquatable<DuplicateWrapper>

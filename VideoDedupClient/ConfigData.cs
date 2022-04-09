@@ -1,7 +1,5 @@
 namespace VideoDedupClient
 {
-    using System;
-
     public class ConfigData
     {
         public string ServerAddress { get; set; } = "";

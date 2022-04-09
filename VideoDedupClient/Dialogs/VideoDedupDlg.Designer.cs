@@ -1,11 +1,14 @@
 namespace VideoDedupClient.Dialogs
 {
+    using System.ComponentModel;
+    using Controls.StatusInfo;
+
     partial class VideoDedupDlg
     {
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -226,20 +229,20 @@ namespace VideoDedupClient.Dialogs
         }
 
         #endregion
-        private System.Windows.Forms.Button BtnServerConfig;
-        private System.Windows.Forms.Button BtnResolveDuplicates;
-        private System.Windows.Forms.MenuStrip MenuStrip;
-        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
-        private System.Windows.Forms.Button BtnDiscardDuplicates;
-        private System.Windows.Forms.ToolStripMenuItem ServerConfigurationToolStripMenuItem;
-        private System.Windows.Forms.Button BtnClientConfig;
-        private System.Windows.Forms.DataGridView DgvLog;
-        private System.Windows.Forms.DataGridViewTextBoxColumn DgcLogMessage;
-        private System.Windows.Forms.ToolStripMenuItem ClientConfigurationToolStripMenuItem;
-        private Controls.StatusInfo.StatusInfoCtl StiProgress;
+        private Button BtnServerConfig;
+        private Button BtnResolveDuplicates;
+        private MenuStrip MenuStrip;
+        private ToolStripMenuItem fileToolStripMenuItem;
+        private ToolStripMenuItem closeToolStripMenuItem;
+        private ToolStripMenuItem toolStripMenuItem1;
+        private ToolStripMenuItem aboutToolStripMenuItem;
+        private Button BtnDiscardDuplicates;
+        private ToolStripMenuItem ServerConfigurationToolStripMenuItem;
+        private Button BtnClientConfig;
+        private DataGridView DgvLog;
+        private DataGridViewTextBoxColumn DgcLogMessage;
+        private ToolStripMenuItem ClientConfigurationToolStripMenuItem;
+        private StatusInfoCtl StiProgress;
     }
 }
 

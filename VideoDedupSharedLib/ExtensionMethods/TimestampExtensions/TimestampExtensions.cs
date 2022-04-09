@@ -1,6 +1,5 @@
 namespace VideoDedupSharedLib.ExtensionMethods.TimestampExtensions
 {
-    using System;
     using Google.Protobuf.WellKnownTypes;
 
     public static class TimestampExtensions

@@ -1,13 +1,11 @@
 namespace VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions
 {
-    using System;
     using System.Globalization;
-    using System.IO;
-    using System.Threading;
     using Google.Protobuf.WellKnownTypes;
-    using VideoDedupGrpc;
     using Interfaces;
+    using VideoDedupGrpc;
 
+    // ReSharper disable once InconsistentNaming
     public static class IVideoFileExtensions
     {
         /// <summary>
@@ -58,10 +56,7 @@ namespace VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions
                         FileAccess.Read,
                         FileShare.ReadWrite);
 
-                    if (stream != null)
-                    {
-                        return true;
-                    }
+                    return true;
                 }
                 catch (ArgumentOutOfRangeException) { throw; }
                 catch (ArgumentNullException) { return false; }
@@ -71,8 +66,7 @@ namespace VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions
                 catch (NotSupportedException) { return false; }
                 catch (Exception) { }
 
-                if (cancelToken.HasValue &&
-                    cancelToken.Value.IsCancellationRequested)
+                if (cancelToken is { IsCancellationRequested: true })
                 {
                     return false;
                 }

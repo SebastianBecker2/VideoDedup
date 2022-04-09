@@ -1,12 +1,13 @@
 namespace VideoDedupClient.Controls.ImageComparisonResultView
 {
+    using System.ComponentModel;
 
     partial class ImageComparisonResultViewCtl
     {
         /// <summary> 
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
 
         #region Component Designer generated code
 
@@ -51,6 +52,6 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
 
         #endregion
 
-        private System.Windows.Forms.TableLayoutPanel TlpImageComparison;
+        private TableLayoutPanel TlpImageComparison;
     }
 }

@@ -52,7 +52,7 @@ namespace VideoComparer
             if (string.IsNullOrWhiteSpace(filePath))
             {
                 throw new ArgumentException($"'{nameof(filePath)}' cannot be" +
-                    $" null or whitespace", nameof(filePath));
+                    " null or whitespace", nameof(filePath));
             }
 
             FilePath = filePath;

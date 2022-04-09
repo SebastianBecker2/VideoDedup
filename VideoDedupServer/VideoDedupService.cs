@@ -2,9 +2,6 @@
 
 namespace VideoDedupServer
 {
-    using System.Threading.Tasks;
-    using Google.Protobuf.WellKnownTypes;
-    using Grpc.Core;
 #if UseLogger
     using Microsoft.Extensions.Logging;
 #endif
@@ -12,12 +9,15 @@ namespace VideoDedupServer
     using DedupEngine;
     using DedupEngine.EventArgs;
     using DuplicateManager;
+    using Google.Protobuf.WellKnownTypes;
+    using Grpc.Core;
     using Newtonsoft.Json;
+    using VideoComparer.MpvLib;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
     using static VideoDedupGrpc.OperationInfo.Types;
-    using VideoComparer.MpvLib;
+    using Enum = Enum;
 
     public class VideoDedupService :
         VideoDedupGrpcService.VideoDedupGrpcServiceBase,
@@ -151,7 +151,7 @@ namespace VideoDedupServer
             });
         }
 
-        public override Task<DuplicateData?> GetDuplicate(
+        public override Task<DuplicateData> GetDuplicate(
             Empty request,
             ServerCallContext context) =>
             Task.FromResult(duplicateManager.GetDuplicate());
@@ -292,7 +292,7 @@ namespace VideoDedupServer
             }
 
             DurationDifferenceType durationDifferenceType;
-            if (System.Enum.TryParse(
+            if (Enum.TryParse(
                         Settings.Default.DurationDifferenceType,
                         true,
                         out DurationDifferenceType value))

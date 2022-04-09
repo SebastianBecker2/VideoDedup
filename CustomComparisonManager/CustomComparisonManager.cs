@@ -1,8 +1,6 @@
 namespace CustomComparisonManager
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
+    using SmartTimer;
     using VideoDedupGrpc;
 
     public class CustomComparisonManager : IDisposable
@@ -13,7 +11,7 @@ namespace CustomComparisonManager
 
         private bool disposedValue;
 
-        private SmartTimer.Timer TimeoutTimer { get; }
+        private Timer TimeoutTimer { get; }
 
         private IDictionary<Guid, CustomComparison> CustomComparisons { get; }
             = new Dictionary<Guid, CustomComparison>();
@@ -23,7 +21,7 @@ namespace CustomComparisonManager
         private object ComparisonsLock { get; } = new();
 
         public CustomComparisonManager() =>
-            TimeoutTimer = new SmartTimer.Timer(
+            TimeoutTimer = new Timer(
                 HandleTimeoutTimerTick,
                 null,
                 TimeoutTimerInterval);
@@ -120,7 +118,7 @@ namespace CustomComparisonManager
             {
                 if (disposing)
                 {
-                    TimeoutTimer?.Dispose();
+                    TimeoutTimer.Dispose();
                     lock (ComparisonsLock)
                     {
                         foreach (var comparison in CustomComparisons

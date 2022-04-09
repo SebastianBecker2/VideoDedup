@@ -3,20 +3,17 @@ namespace VideoDedupSharedLib.ExtensionMethods.ImageExtensions
     using System.Drawing;
     using System.Drawing.Drawing2D;
     using System.Drawing.Imaging;
-    using System.IO;
-    using System.Linq;
-    using System.Threading.Tasks;
 
     public static class ImageExtensions
     {
         private static readonly ColorMatrix GreyScaleColorMatrix =
-            new(new float[][]
+            new(new[]
             {
-                new float[] {.3f, .3f, .3f, 0, 0},
-                new float[] {.59f, .59f, .59f, 0, 0},
-                new float[] {.11f, .11f, .11f, 0, 0},
-                new float[] {0, 0, 0, 1, 0},
-                new float[] {0, 0, 0, 0, 1}
+                new[] {.3f, .3f, .3f, 0, 0},
+                new[] {.59f, .59f, .59f, 0, 0},
+                new[] {.11f, .11f, .11f, 0, 0},
+                new[] {0f, 0, 0, 1, 0},
+                new[] {0f, 0, 0, 0, 1}
             });
 
         private const int DefaultBlacknessThreshold = 30;
@@ -77,7 +74,7 @@ namespace VideoDedupSharedLib.ExtensionMethods.ImageExtensions
         {
             // Using ITU 709 to calculate luma and compare it with
             // a provided reference to determine blackness in bars.
-            // We take the avarage of luma of a line (either vertical or
+            // We take the average of luma of a line (either vertical or
             // horizontal, depending on the bar we inspecting) and
             // compare with the provided reference.
             // Using unsafe code to access bitmap to increase performance.

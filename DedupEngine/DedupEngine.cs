@@ -1,21 +1,15 @@
 namespace DedupEngine
 {
-    using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
-    using System.IO;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
     using EventArgs;
+    using VideoComparer;
     using VideoComparer.MpvLib;
     using VideoDedupGrpc;
-    using VideoDedupSharedLib.ExtensionMethods.TimeSpanExtensions;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
+    using VideoDedupSharedLib.ExtensionMethods.TimeSpanExtensions;
     using static VideoDedupGrpc.OperationInfo.Types;
-    using VideoComparer;
     using VideoFile = VideoComparer.VideoFile;
 
     public class DedupEngine : IDisposable
@@ -34,13 +28,11 @@ namespace DedupEngine
 
         private bool disposedValue; // For IDisposable
 
-        private object DedupLock { get; } = new object { };
+        private object DedupLock { get; } = new();
         private Task? DedupTask { get; set; }
-        private CancellationTokenSource CancelSource { get; set; }
-            = new CancellationTokenSource { };
+        private CancellationTokenSource CancelSource { get; set; } = new();
 
-        private FileSystemWatcher FileWatcher { get; }
-            = new FileSystemWatcher { };
+        private FileSystemWatcher FileWatcher { get; } = new();
 
         // ConcurrentDictionary is used as a hash set
         private readonly ConcurrentDictionary<VideoFile, byte> newFiles = new();
@@ -53,7 +45,7 @@ namespace DedupEngine
 
         public event EventHandler<StoppedEventArgs>? Stopped;
         protected virtual void OnStopped() =>
-            Stopped?.Invoke(this, new StoppedEventArgs { });
+            Stopped?.Invoke(this, new StoppedEventArgs());
 
         public event EventHandler<DuplicateFoundEventArgs>? DuplicateFound;
         protected virtual void OnDuplicateFound(
@@ -107,7 +99,7 @@ namespace DedupEngine
             if (string.IsNullOrWhiteSpace(appDataFolder))
             {
                 throw new ArgumentException($"'{nameof(appDataFolder)}' cannot" +
-                    $"be null or whitespace", nameof(appDataFolder));
+                    "be null or whitespace", nameof(appDataFolder));
             }
 
             datastore = new EngineDatastore(
@@ -183,7 +175,7 @@ namespace DedupEngine
             {
                 // If the task is still running,
                 // it will check for new files on it's own.
-                if (DedupTask != null && !DedupTask.IsCompleted)
+                if (DedupTask is { IsCompleted: false })
                 {
                     return;
                 }
@@ -293,13 +285,13 @@ namespace DedupEngine
         {
             if (Path.GetFileName(rootDirectory) == "$RECYCLE.BIN")
             {
-                return new List<string> { };
+                return new List<string>();
             }
 
-            IEnumerable<string> files = new List<string> { };
+            IEnumerable<string> files = new List<string>();
             if (excludedDirectories == null)
             {
-                excludedDirectories = new List<string> { };
+                excludedDirectories = new List<string>();
             }
 
             try
@@ -348,18 +340,19 @@ namespace DedupEngine
             CancellationToken cancelToken)
         {
             var counter = 0;
+            var fileCount = videoFiles.Count();
 
             operationStartTime = DateTime.Now;
             OnOperationUpdate(
                 OperationType.LoadingMedia,
                 counter,
-                videoFiles.Count());
+                fileCount);
 
             foreach (var file in videoFiles)
             {
                 OnOperationUpdate(OperationType.LoadingMedia,
                     ++counter,
-                    videoFiles.Count());
+                    fileCount);
 
                 var duration = datastore.GetVideoFileDuration(file);
                 if (duration.HasValue)
@@ -541,7 +534,6 @@ namespace DedupEngine
                     OperationType.Monitoring,
                     ProgressStyle.Marquee);
                 OnLogged("Monitoring for file changes...");
-                return;
             }
         }
 
@@ -553,14 +545,14 @@ namespace DedupEngine
             cancelToken.ThrowIfCancellationRequested();
 
             // Cancellable preload of files
-            OnLogged($"Starting preloading media info of " +
+            OnLogged("Starting preloading media info of " +
                 $"{videoFiles.Count} Files.");
             PreloadFiles(videoFiles, cancelToken);
             if (cancelToken.IsCancellationRequested)
             {
                 cancelToken.ThrowIfCancellationRequested();
             }
-            OnLogged($"Finished preloading media info of " +
+            OnLogged("Finished preloading media info of " +
                 $"{videoFiles.Count} Files.");
 
             // Remove invalid files
@@ -574,7 +566,7 @@ namespace DedupEngine
             {
                 cancelToken.ThrowIfCancellationRequested();
             }
-            OnLogged($"Finished searching for duplicates of " +
+            OnLogged("Finished searching for duplicates of " +
                 $"{videoFiles.Count} Files.");
 
             ProcessChangesIfAny();
@@ -595,7 +587,7 @@ namespace DedupEngine
                 }
                 else
                 {
-                    OnLogged($"Deleted file not in VideoFile-List: " +
+                    OnLogged("Deleted file not in VideoFile-List: " +
                         $"{deletedFile.FilePath}");
                 }
                 cancelToken.ThrowIfCancellationRequested();
@@ -664,10 +656,9 @@ namespace DedupEngine
                     {
                         exc.Handle(x => x is OperationCanceledException);
                     }
-                    CancelSource?.Dispose();
+                    CancelSource.Dispose();
                     DedupTask?.Dispose();
-                    FileWatcher?.Dispose();
-                    // TODO: dispose managed state (managed objects)
+                    FileWatcher.Dispose();
                 }
 
                 disposedValue = true;
@@ -676,7 +667,6 @@ namespace DedupEngine
 
         public void Dispose()
         {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }

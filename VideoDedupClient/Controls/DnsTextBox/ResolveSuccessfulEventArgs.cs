@@ -1,6 +1,5 @@
 namespace VideoDedupClient.Controls.DnsTextBox
 {
-    using System.Collections.Generic;
     using System.Net;
 
     public class ResolveSuccessfulEventArgs : EventArgs

@@ -1,11 +1,7 @@
 namespace VideoDedupClient.Controls.StatusInfo
 {
-    using Microsoft.WindowsAPICodePack.Taskbar;
-    using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
-    using System.Windows.Forms;
+    using Microsoft.WindowsAPICodePack.Taskbar;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.TimeSpanExtensions;
     using VideoDedupSharedLib.ExtensionMethods.TimestampExtensions;

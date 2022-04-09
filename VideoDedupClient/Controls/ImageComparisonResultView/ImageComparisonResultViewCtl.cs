@@ -26,21 +26,21 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
                     DetailLevel.Crop,
                     new Tuple<string, Image>(
                         $"Preparation step 1{Environment.NewLine}" +
-                        $"Cut off black bars",
+                        "Cut off black bars",
                         Resources.PictureCropped)
                 },
                 {
                     DetailLevel.Resize,
                     new Tuple<string, Image>(
                         $"Preparation step 2{Environment.NewLine}" +
-                        $"Resize to 16 x 16 pixel",
+                        "Resize to 16 x 16 pixel",
                         Resources.PictureSizeDown)
                 },
                 {
                     DetailLevel.Greyscale,
                     new Tuple<string, Image>(
                         $"Preparation step 3{Environment.NewLine}" +
-                        $"Convert to greyscale",
+                        "Convert to greyscale",
                         Resources.PictureGreyscale)
                 },
             };
@@ -289,12 +289,12 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
                      == ComparisonResult.NoResult)
             {
                 text += $"Unable to load image.{Environment.NewLine}" +
-                    $"Comparison was skipped.";
+                    "Comparison was skipped.";
             }
             else
             {
                 text += $"Images loaded and compared.{Environment.NewLine}"
-                    + $"Difference "
+                    + "Difference "
                     + $"{ImageComparisonResult.Difference * 100:0.00} is ";
                 if (ImageComparisonResult.ComparisonResult
                     == ComparisonResult.Different)
