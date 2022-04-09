@@ -6,7 +6,7 @@ namespace VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions
     using System.Threading;
     using Google.Protobuf.WellKnownTypes;
     using VideoDedupGrpc;
-    using VideoDedupSharedLib.Interfaces;
+    using Interfaces;
 
     public static class IVideoFileExtensions
     {
