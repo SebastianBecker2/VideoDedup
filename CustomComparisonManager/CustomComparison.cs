@@ -21,16 +21,14 @@ namespace CustomComparisonManager
         private VideoFile LeftVideoFile => comparer.LeftVideoFile;
         private VideoFile RightVideoFile => comparer.RightVideoFile;
 
-        private bool disposedValue;
-
         private readonly CancellationTokenSource cancelTokenSource = new();
         private readonly Task comparerTask;
         private readonly VideoComparer comparer;
         private readonly object statusLock = new();
-
-        private VideoComparisonResult? comparisonResult;
         private readonly IList<ImageComparisonResult> imageComparisons =
             new List<ImageComparisonResult>();
+        private bool disposedValue;
+        private VideoComparisonResult? comparisonResult;
 
         public CustomComparison(
             VideoComparisonSettings settings,
@@ -183,5 +181,4 @@ namespace CustomComparisonManager
             GC.SuppressFinalize(this);
         }
     }
-
 }
