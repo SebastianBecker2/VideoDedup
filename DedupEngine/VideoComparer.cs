@@ -7,6 +7,7 @@ namespace DedupEngine
     using System.IO;
     using System.Linq;
     using System.Threading;
+    using EventArgs;
     using Google.Protobuf;
     using MpvLib;
     using KGySoft.Drawing;

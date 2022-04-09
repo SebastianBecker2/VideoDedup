@@ -9,7 +9,8 @@ namespace DedupEngine
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using global::DedupEngine.MpvLib;
+    using EventArgs;
+    using MpvLib;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.TimeSpanExtensions;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;

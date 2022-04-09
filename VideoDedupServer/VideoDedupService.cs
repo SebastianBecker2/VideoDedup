@@ -10,6 +10,7 @@ namespace VideoDedupServer
 #endif
     using CustomComparisonManager;
     using DedupEngine;
+    using DedupEngine.EventArgs;
     using DedupEngine.MpvLib;
     using DuplicateManager;
     using Newtonsoft.Json;

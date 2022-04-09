@@ -1,7 +1,8 @@
-namespace DedupEngine
+namespace DedupEngine.EventArgs
 {
     using System;
     using VideoDedupGrpc;
+    using VideoFile = VideoFile;
 
     public class ImageComparedEventArgs : EventArgs
     {

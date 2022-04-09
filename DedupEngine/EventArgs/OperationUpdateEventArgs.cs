@@ -1,4 +1,4 @@
-namespace DedupEngine
+namespace DedupEngine.EventArgs
 {
     using System;
     using static VideoDedupGrpc.OperationInfo.Types;

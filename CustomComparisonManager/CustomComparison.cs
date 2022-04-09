@@ -7,8 +7,9 @@ namespace CustomComparisonManager
     using System.Threading.Tasks;
     using System.IO;
     using VideoComparer = DedupEngine.VideoComparer;
-    using ImageComparedEventArgs = DedupEngine.ImageComparedEventArgs;
-    using ComparisonFinishedEventArgs = DedupEngine.ComparisonFinishedEventArgs;
+    using ImageComparedEventArgs = DedupEngine.EventArgs.ImageComparedEventArgs;
+    using ComparisonFinishedEventArgs =
+        DedupEngine.EventArgs.ComparisonFinishedEventArgs;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
 
