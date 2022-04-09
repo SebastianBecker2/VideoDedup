@@ -10,11 +10,13 @@ namespace DedupEngine
     using System.Threading;
     using System.Threading.Tasks;
     using EventArgs;
-    using MpvLib;
+    using VideoComparer.MpvLib;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.TimeSpanExtensions;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
     using static VideoDedupGrpc.OperationInfo.Types;
+    using VideoComparer;
+    using VideoFile = VideoComparer.VideoFile;
 
     public class DedupEngine : IDisposable
     {
@@ -474,8 +476,11 @@ namespace DedupEngine
         {
             try
             {
-                var comparer =
-                    new VideoComparer(videoComparisonSettings, datastore, left, right);
+                var comparer = new VideoComparer(
+                        videoComparisonSettings,
+                        datastore.DatastoreFilePath,
+                        left,
+                        right);
                 if (comparer.Compare(cancelToken)
                     != ComparisonResult.Duplicate)
                 {

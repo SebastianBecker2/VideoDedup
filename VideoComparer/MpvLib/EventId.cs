@@ -1,4 +1,4 @@
-namespace DedupEngine.MpvLib
+namespace VideoComparer.MpvLib
 {
     internal enum EventId
     {

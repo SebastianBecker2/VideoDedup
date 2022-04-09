@@ -1,4 +1,4 @@
-namespace DedupEngine.EventArgs
+namespace VideoComparer.EventArgs
 {
     using System;
     using VideoDedupGrpc;

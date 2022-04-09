@@ -1,4 +1,4 @@
-namespace DedupEngine.MpvLib
+namespace VideoComparer.MpvLib
 {
     using System;
     using System.Runtime.InteropServices;

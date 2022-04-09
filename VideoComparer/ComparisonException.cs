@@ -1,4 +1,4 @@
-namespace DedupEngine
+namespace VideoComparer
 {
     using System;
 

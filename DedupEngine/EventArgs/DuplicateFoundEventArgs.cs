@@ -1,6 +1,7 @@
 namespace DedupEngine.EventArgs
 {
     using System;
+    using VideoComparer;
 
     public class DuplicateFoundEventArgs : EventArgs
     {

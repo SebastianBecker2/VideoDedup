@@ -6,7 +6,7 @@ namespace VideoDedupSharedLib
 
     public abstract class Datastore
     {
-        protected string DatastoreFilePath { get; private set; }
+        public string DatastoreFilePath { get; }
 
         protected string ConnectionString =>
             $"Data Source={DatastoreFilePath}; Cache=Shared; Foreign Keys=true";

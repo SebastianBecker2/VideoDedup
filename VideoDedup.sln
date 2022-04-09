@@ -32,6 +32,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DuplicateManager", "Duplica
 		{B8FA0B95-26D9-41E6-A194-B67E09D62E15} = {B8FA0B95-26D9-41E6-A194-B67E09D62E15}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoComparer", "VideoComparer\VideoComparer.csproj", "{51D87BA9-44D4-4F19-963A-4C18A03E3D56}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -116,6 +118,14 @@ Global
 		{AD082BB0-AEC6-48A5-9C12-64BC2684B409}.Release|x64.Build.0 = Release|x64
 		{AD082BB0-AEC6-48A5-9C12-64BC2684B409}.Release|x86.ActiveCfg = Release|x86
 		{AD082BB0-AEC6-48A5-9C12-64BC2684B409}.Release|x86.Build.0 = Release|x86
+		{51D87BA9-44D4-4F19-963A-4C18A03E3D56}.Debug|x64.ActiveCfg = Debug|x64
+		{51D87BA9-44D4-4F19-963A-4C18A03E3D56}.Debug|x64.Build.0 = Debug|x64
+		{51D87BA9-44D4-4F19-963A-4C18A03E3D56}.Debug|x86.ActiveCfg = Debug|x86
+		{51D87BA9-44D4-4F19-963A-4C18A03E3D56}.Debug|x86.Build.0 = Debug|x86
+		{51D87BA9-44D4-4F19-963A-4C18A03E3D56}.Release|x64.ActiveCfg = Release|x64
+		{51D87BA9-44D4-4F19-963A-4C18A03E3D56}.Release|x64.Build.0 = Release|x64
+		{51D87BA9-44D4-4F19-963A-4C18A03E3D56}.Release|x86.ActiveCfg = Release|x86
+		{51D87BA9-44D4-4F19-963A-4C18A03E3D56}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

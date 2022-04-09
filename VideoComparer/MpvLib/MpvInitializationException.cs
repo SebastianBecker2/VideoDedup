@@ -1,31 +1,31 @@
-namespace DedupEngine.MpvLib
+namespace VideoComparer.MpvLib
 {
     using System;
 
     [Serializable]
-    public class MpvFileNotFoundException : MpvException
+    public class MpvInitializationException : MpvException
     {
         private static readonly string ErrorText =
-            "Operation failed. File not found.";
+            "Unable to initialize libmpv handle.";
 
-        public MpvFileNotFoundException() : base(ErrorText) { }
+        public MpvInitializationException() : base(ErrorText) { }
 
-        public MpvFileNotFoundException(string videoFilePath)
+        public MpvInitializationException(string videoFilePath)
             : base(ErrorText, videoFilePath) { }
 
-        public MpvFileNotFoundException(string message, string videoFilePath)
+        public MpvInitializationException(string message, string videoFilePath)
             : base(message, videoFilePath) { }
 
-        public MpvFileNotFoundException(string videoFilePath, Exception inner)
+        public MpvInitializationException(string videoFilePath, Exception inner)
             : base(ErrorText, videoFilePath, inner) { }
 
-        public MpvFileNotFoundException(
+        public MpvInitializationException(
             string message,
             string videoFilePath,
             Exception inner)
             : base(message, videoFilePath, inner) { }
 
-        protected MpvFileNotFoundException(
+        protected MpvInitializationException(
           System.Runtime.Serialization.SerializationInfo info,
           System.Runtime.Serialization.StreamingContext context)
             : base(info, context) { }

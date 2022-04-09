@@ -6,18 +6,20 @@ namespace CustomComparisonManager
     using System.Threading;
     using System.Threading.Tasks;
     using System.IO;
-    using VideoComparer = DedupEngine.VideoComparer;
-    using ImageComparedEventArgs = DedupEngine.EventArgs.ImageComparedEventArgs;
+    using VideoComparer;
+    using ImageComparedEventArgs =
+        VideoComparer.EventArgs.ImageComparedEventArgs;
     using ComparisonFinishedEventArgs =
-        DedupEngine.EventArgs.ComparisonFinishedEventArgs;
+        VideoComparer.EventArgs.ComparisonFinishedEventArgs;
+    using VideoFile = VideoComparer.VideoFile;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
 
     internal class CustomComparison : IDisposable
     {
         public Guid Token { get; }
-        private DedupEngine.VideoFile LeftVideoFile => comparer.LeftVideoFile;
-        private DedupEngine.VideoFile RightVideoFile => comparer.RightVideoFile;
+        private VideoFile LeftVideoFile => comparer.LeftVideoFile;
+        private VideoFile RightVideoFile => comparer.RightVideoFile;
 
         private bool disposedValue;
 
@@ -49,8 +51,8 @@ namespace CustomComparisonManager
 
             comparer = new VideoComparer(
                 settings,
-                new DedupEngine.VideoFile(leftFilePath),
-                new DedupEngine.VideoFile(rightFilePath))
+                new VideoFile(leftFilePath),
+                new VideoFile(rightFilePath))
             {
                 ForceLoadingAllImages = forceLoadingAllImages,
             };

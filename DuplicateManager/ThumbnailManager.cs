@@ -2,8 +2,8 @@ namespace DuplicateManager
 {
     using System.Collections.Generic;
     using System.Linq;
-    using DedupEngine.MpvLib;
     using Google.Protobuf;
+    using VideoComparer.MpvLib;
     using VideoDedupGrpc;
 
     internal class ThumbnailManager

@@ -11,13 +11,13 @@ namespace VideoDedupServer
     using CustomComparisonManager;
     using DedupEngine;
     using DedupEngine.EventArgs;
-    using DedupEngine.MpvLib;
     using DuplicateManager;
     using Newtonsoft.Json;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
     using static VideoDedupGrpc.OperationInfo.Types;
+    using VideoComparer.MpvLib;
 
     public class VideoDedupService :
         VideoDedupGrpcService.VideoDedupGrpcServiceBase,

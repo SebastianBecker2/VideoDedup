@@ -1,31 +1,31 @@
-namespace DedupEngine.MpvLib
+namespace VideoComparer.MpvLib
 {
     using System;
 
     [Serializable]
-    public class MpvInitializationException : MpvException
+    public class MpvOutOfMemoryException : MpvException
     {
         private static readonly string ErrorText =
-            "Unable to initialize libmpv handle.";
+            "Out of memory. Presumably due to bug in libmpv.";
 
-        public MpvInitializationException() : base(ErrorText) { }
+        public MpvOutOfMemoryException() : base(ErrorText) { }
 
-        public MpvInitializationException(string videoFilePath)
+        public MpvOutOfMemoryException(string videoFilePath)
             : base(ErrorText, videoFilePath) { }
 
-        public MpvInitializationException(string message, string videoFilePath)
+        public MpvOutOfMemoryException(string message, string videoFilePath)
             : base(message, videoFilePath) { }
 
-        public MpvInitializationException(string videoFilePath, Exception inner)
+        public MpvOutOfMemoryException(string videoFilePath, Exception inner)
             : base(ErrorText, videoFilePath, inner) { }
 
-        public MpvInitializationException(
+        public MpvOutOfMemoryException(
             string message,
             string videoFilePath,
             Exception inner)
             : base(message, videoFilePath, inner) { }
 
-        protected MpvInitializationException(
+        protected MpvOutOfMemoryException(
           System.Runtime.Serialization.SerializationInfo info,
           System.Runtime.Serialization.StreamingContext context)
             : base(info, context) { }

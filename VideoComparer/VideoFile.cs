@@ -1,8 +1,7 @@
-namespace DedupEngine
+namespace VideoComparer
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.IO;
     using MpvLib;
     using VideoDedupGrpc;
@@ -163,7 +162,7 @@ namespace DedupEngine
                         * settings.MaxDifference;
                     return diff < max_diff;
                 default:
-                    throw new ConfigurationErrorsException(
+                    throw new InvalidOperationException(
                         "DurationDifferenceType has not valid value");
             }
         }

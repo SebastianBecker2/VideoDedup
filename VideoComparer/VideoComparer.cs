@@ -1,4 +1,4 @@
-namespace DedupEngine
+namespace VideoComparer
 {
     using System;
     using System.Collections.Generic;
@@ -209,7 +209,7 @@ namespace DedupEngine
             Func<ComparisonFinishedEventArgs> eventArgsCreator) =>
             ComparisonFinished?.Invoke(this, eventArgsCreator.Invoke());
 
-        private readonly EngineDatastore? engineDatastore;
+        private readonly ComparerDatastore? comparerDatastore;
 
         public VideoComparer(
             VideoComparisonSettings settings,
@@ -221,13 +221,13 @@ namespace DedupEngine
             RightVideoFile = rightVideoFile;
         }
 
-        internal VideoComparer(
+        public VideoComparer(
             VideoComparisonSettings settings,
-            EngineDatastore engineDatastore,
+            string datastorePath,
             VideoFile leftVideoFile,
             VideoFile rightVideoFile)
             : this(settings, leftVideoFile, rightVideoFile) =>
-            this.engineDatastore = engineDatastore;
+            comparerDatastore = new ComparerDatastore(datastorePath);
 
         private static LoadLevel CalculateLoadLevel(
             int loadLevelIndex,
@@ -302,7 +302,7 @@ namespace DedupEngine
                     videoFile.ImageBytes[image.Index] = image.Bytes;
 
                     // Cache in DB if we have a DB cache
-                    engineDatastore?.InsertImage(
+                    comparerDatastore?.InsertImage(
                         image.Index,
                         image.Bytes,
                         videoFile);
@@ -351,9 +351,9 @@ namespace DedupEngine
             }).ToList();
 
             // Try to get the image from DB cache
-            if (engineDatastore is not null && images.Any(i => !i.Loaded))
+            if (comparerDatastore is not null && images.Any(i => !i.Loaded))
             {
-                foreach (var (index, bytes) in engineDatastore.GetImages(
+                foreach (var (index, bytes) in comparerDatastore.GetImages(
                     images.Where(i => !i.Loaded).Select(i => i.Index),
                     videoFile))
                 {
