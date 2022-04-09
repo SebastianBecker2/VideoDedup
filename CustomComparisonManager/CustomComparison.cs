@@ -1,34 +1,27 @@
 namespace CustomComparisonManager
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.IO;
     using VideoComparer;
-    using ImageComparedEventArgs =
-        VideoComparer.EventArgs.ImageComparedEventArgs;
-    using ComparisonFinishedEventArgs =
-        VideoComparer.EventArgs.ComparisonFinishedEventArgs;
-    using VideoFile = VideoComparer.VideoFile;
+    using VideoComparer.EventArgs;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
+    using VideoFile = VideoComparer.VideoFile;
 
     internal class CustomComparison : IDisposable
     {
         public Guid Token { get; }
+
         private VideoFile LeftVideoFile => comparer.LeftVideoFile;
         private VideoFile RightVideoFile => comparer.RightVideoFile;
 
         private readonly CancellationTokenSource cancelTokenSource = new();
-        private readonly Task comparerTask;
         private readonly VideoComparer comparer;
-        private readonly object statusLock = new();
+        private readonly Task comparerTask;
         private readonly IList<ImageComparisonResult> imageComparisons =
             new List<ImageComparisonResult>();
-        private bool disposedValue;
+        private readonly object statusLock = new();
+
         private VideoComparisonResult? comparisonResult;
+        private bool disposedValue;
 
         public CustomComparison(
             VideoComparisonSettings settings,
@@ -42,6 +35,7 @@ namespace CustomComparisonManager
             {
                 throw new InvalidDataException("Left video file path invalid.");
             }
+
             if (!File.Exists(rightFilePath))
             {
                 throw new InvalidDataException("Right video file path invalid.");
@@ -171,6 +165,7 @@ namespace CustomComparisonManager
                     cancelTokenSource?.Dispose();
                     comparerTask?.Dispose();
                 }
+
                 disposedValue = true;
             }
         }
