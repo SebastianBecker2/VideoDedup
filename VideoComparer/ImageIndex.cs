@@ -1,9 +1,6 @@
 namespace VideoComparer
 {
-    using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
 
     [DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
     public class ImageIndex : IEquatable<ImageIndex>

@@ -1,13 +1,8 @@
 namespace VideoComparer.MpvLib
 {
-    using System;
-    using System.Collections.Generic;
     using System.Globalization;
-    using System.IO;
-    using System.Linq;
     using System.Runtime.InteropServices;
     using System.Text;
-    using System.Threading;
     using VideoDedupGrpc;
     using ImageIndex = ImageIndex;
 
@@ -150,10 +145,7 @@ namespace VideoComparer.MpvLib
         {
             get
             {
-                if (!duration.HasValue)
-                {
-                    duration = GetDuration(FilePath);
-                }
+                duration ??= GetDuration(FilePath);
                 return duration.Value;
             }
             private set => duration = value;
@@ -229,19 +221,13 @@ namespace VideoComparer.MpvLib
                     $"{nameof(divisionCount)} cannot be less than zero.");
             }
 
-            if (count < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(count),
-                    $"{nameof(count)} cannot be less than zero.");
-            }
-
             if (index < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(index),
                     $"{nameof(index)} cannot be less than zero.");
             }
 
-            if (index + count > divisionCount || count < 0)
+            if (index + count > divisionCount)
             {
                 throw new ArgumentOutOfRangeException(nameof(count),
                     $"{nameof(index)} and {nameof(count)} must refer to a " +
@@ -334,6 +320,7 @@ namespace VideoComparer.MpvLib
             var indicesIt = indices.GetEnumerator();
             if (!indicesIt.MoveNext())
             {
+                indicesIt.Dispose();
                 yield break;
             }
 
@@ -353,8 +340,7 @@ namespace VideoComparer.MpvLib
             {
                 var eventId = GetEventId(MpvHandle, EventIdTimeout);
 
-                if (cancelToken.HasValue
-                    && cancelToken.Value.IsCancellationRequested)
+                if (cancelToken is { IsCancellationRequested: true })
                 {
                     yield break;
                 }

@@ -1,8 +1,5 @@
 namespace VideoComparer
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
     using MpvLib;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.Interfaces;

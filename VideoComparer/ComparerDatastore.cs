@@ -1,13 +1,10 @@
 namespace VideoComparer
 {
-    using System.IO;
-    using System.Collections.Generic;
-    using System.Linq;
     using VideoDedupSharedLib;
-    using VideoDedupSharedLib.Interfaces;
     using VideoDedupSharedLib.ExtensionMethods.DateTimeExtensions;
     using VideoDedupSharedLib.ExtensionMethods.SqliteDataReaderExtensions;
     using VideoDedupSharedLib.ExtensionMethods.SqliteParameterCollectionExtensions;
+    using VideoDedupSharedLib.Interfaces;
 
     internal class ComparerDatastore : Datastore
     {

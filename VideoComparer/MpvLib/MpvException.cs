@@ -1,6 +1,6 @@
 namespace VideoComparer.MpvLib
 {
-    using System;
+    using System.Runtime.Serialization;
 
     [Serializable]
     public class MpvException : Exception
@@ -26,8 +26,8 @@ namespace VideoComparer.MpvLib
             VideoFilePath = videoFilePath;
 
         protected MpvException(
-          System.Runtime.Serialization.SerializationInfo info,
-          System.Runtime.Serialization.StreamingContext context)
+          SerializationInfo info,
+          StreamingContext context)
             : base(info, context) { }
     }
 }

@@ -1,18 +1,14 @@
 namespace VideoComparer
 {
-    using System;
-    using System.Collections.Generic;
     using System.Drawing;
     using System.Drawing.Imaging;
-    using System.IO;
-    using System.Linq;
-    using System.Threading;
     using EventArgs;
     using Google.Protobuf;
-    using MpvLib;
     using KGySoft.Drawing;
+    using MpvLib;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.ImageExtensions;
+    using Size = System.Drawing.Size;
 
     public class VideoComparer
     {
@@ -128,7 +124,7 @@ namespace VideoComparer
 
         private const int LoadLevelCount = 3;
 
-        private static readonly System.Drawing.Size DownscaleSize = new(16, 16);
+        private static readonly Size DownscaleSize = new(16, 16);
         private const int ByteDifferenceThreshold = 3;
 
         private static byte[]? GetImageBytes(Bitmap? image)
@@ -344,7 +340,7 @@ namespace VideoComparer
             var images = indices.Select(index =>
             {
                 // Try to get image from memory cache
-                var loaded = videoFile.ImageBytes.TryGetValue(
+                _ = videoFile.ImageBytes.TryGetValue(
                     index,
                     out var bytes);
                 return CacheableImageSet.FromPreprocessedImage(index, bytes);
