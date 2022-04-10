@@ -10,7 +10,7 @@
          our own project wide versioning schema.-->
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Deterministic>false</Deterministic>
-    <Configurations>Debug;Release;DebugAsService</Configurations>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,11 +18,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Grpc.AspNetCore" Version="2.44.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Versioning\Versioning.csproj">
+      <TreatAsUsed>true</TreatAsUsed>
+    </ProjectReference>
     <ProjectReference Include="..\VideoDedupServer\VideoDedupServer.csproj" />
   </ItemGroup>
 

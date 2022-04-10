@@ -34,13 +34,14 @@
 
   <ItemGroup>
     <PackageReference Include="CircularBuffer" Version="1.2.1" />
-    <PackageReference Include="Microsoft-WindowsAPICodePack-Core" Version="1.1.4" />
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.4" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SmartTimer\SmartTimer.csproj" />
-    <ProjectReference Include="..\Versioning\Versioning.csproj" />
+    <ProjectReference Include="..\Versioning\Versioning.csproj">
+      <TreatAsUsed>true</TreatAsUsed>
+    </ProjectReference>
     <ProjectReference Include="..\VideoDedupSharedLib\VideoDedupSharedLib.csproj" />
   </ItemGroup>
 
