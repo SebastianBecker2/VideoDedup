@@ -59,7 +59,7 @@
   <!-- File actions -->
   <Fragment>
     <ComponentGroup Id="ClientComponents" Directory="CLIENTFOLDER">
-      <Component Id="ClientComponent" Win64="$(var.Win64)" Guid="4C2F8BE9-80D7-4C41-A96A-E4F7734D9A95">
+      <Component Id="ClientComponent" Win64="$(var.Win64)" Guid="3378ED6E-B4A9-49D2-B7A3-F768FE027DB6">
         <File Id="Client_VideoDedupClient.exe"
               Source="$(var.VideoDedupClient.TargetDir)VideoDedupClient.exe" />
 
@@ -102,17 +102,9 @@
                     Directory="SERVERFOLDER">
       <Component Id="ServerComponent" 
                  Win64="$(var.Win64)" 
-                 Guid="05AA6D44-9B24-42BB-8B04-2400BB10F96C">
+                 Guid="B3034FC0-CCFB-44AC-A9B3-7E912B885254">
         <File Id="Server_VideoDedupService.exe" 
               Source="$(var.VideoDedupService.TargetDir)VideoDedupService.exe" />
-
-        <?if $(var.Platform) = x64 ?>
-          <File Id="Server_SQLite.Interop.dll"
-                Source="$(var.VideoDedupService.TargetDir)x64\SQLite.Interop.dll" />
-        <?else ?>
-          <File Id="Server_SQLite.Interop.dll"
-                Source="$(var.VideoDedupService.TargetDir)x86\SQLite.Interop.dll" />
-        <?endif ?>
 
         <File Id="Server_Accessibility.dll"
               Source="$(var.VideoDedupService.TargetDir)Accessibility.dll" />
@@ -124,10 +116,8 @@
               Source="$(var.DedupEngine.TargetPath)" />
         <File Id="Server_DuplicateManager.dll"
               Source="$(var.DuplicateManager.TargetPath)" />
-        <File Id="Server_EntityFramework.dll"
-              Source="$(var.VideoDedupService.TargetDir)EntityFramework.dll" />
-        <File Id="Server_EntityFramework.SqlServer.dll"
-              Source="$(var.VideoDedupService.TargetDir)EntityFramework.SqlServer.dll" />
+        <File Id="Server_e_sqlite3.dll"
+              Source="$(var.VideoDedupService.TargetDir)runtimes\win-$(var.Platform)\native\e_sqlite3.dll" />
         <File Id="Server_Google.Protobuf.dll"
               Source="$(var.VideoDedupService.TargetDir)Google.Protobuf.dll" />
         <File Id="Server_Grpc.AspNetCore.Server.ClientFactory.dll"
@@ -136,34 +126,38 @@
               Source="$(var.VideoDedupService.TargetDir)Grpc.AspNetCore.Server.dll" />
         <File Id="Server_Grpc.Core.Api.dll"
               Source="$(var.VideoDedupService.TargetDir)Grpc.Core.Api.dll" />
+        <File Id="Server_Grpc.Net.Client.dll"
+              Source="$(var.VideoDedupService.TargetDir)Grpc.Net.Client.dll" />
+        <File Id="Server_Grpc.Net.ClientFactory.dll"
+              Source="$(var.VideoDedupService.TargetDir)Grpc.Net.ClientFactory.dll" />
         <File Id="Server_Grpc.Net.Common.dll"
               Source="$(var.VideoDedupService.TargetDir)Grpc.Net.Common.dll" />
         <File Id="Server_KGySoft.CoreLibraries.dll"
               Source="$(var.VideoDedupService.TargetDir)KGySoft.CoreLibraries.dll" />
         <File Id="Server_KGySoft.Drawing.dll"
               Source="$(var.VideoDedupService.TargetDir)KGySoft.Drawing.dll" />
+        <File Id="Server_Microsoft.Data.Sqlite.dll"
+              Source="$(var.VideoDedupService.TargetDir)Microsoft.Data.Sqlite.dll" />
         <File Id="Server_Microsoft.Extensions.Hosting.WindowsServices.dll"
               Source="$(var.VideoDedupService.TargetDir)Microsoft.Extensions.Hosting.WindowsServices.dll" />
         <File Id="Server_Microsoft.Win32.SystemEvents.dll"
               Source="$(var.VideoDedupService.TargetDir)runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll" />
         <File Id="Server_mpv_1.dll"
               Source="$(var.VideoDedupService.TargetDir)mpv-1.dll" />
+        <File Id="Server_MpvLib.dll"
+              Source="$(var.MpvLib.TargetPath)" />
         <File Id="Server_Newtonsoft.Json.dll"
               Source="$(var.VideoDedupService.TargetDir)Newtonsoft.Json.dll" />
         <File Id="Server_SmartTimer.dll"
               Source="$(var.SmartTimer.TargetPath)" />
-        <File Id="Server_System.CodeDom.dll"
-              Source="$(var.VideoDedupService.TargetDir)System.CodeDom.dll" />
+        <File Id="Server_SQLitePCLRaw.batteries_v2.dll"
+              Source="$(var.VideoDedupService.TargetDir)SQLitePCLRaw.batteries_v2.dll" />
+        <File Id="Server_SQLitePCLRaw.core.dll"
+              Source="$(var.VideoDedupService.TargetDir)SQLitePCLRaw.core.dll" />
+        <File Id="Server_SQLitePCLRaw.provider.e_sqlite3.dll"
+              Source="$(var.VideoDedupService.TargetDir)SQLitePCLRaw.provider.e_sqlite3.dll" />
         <File Id="Server_System.Configuration.ConfigurationManager.dll"
               Source="$(var.VideoDedupService.TargetDir)System.Configuration.ConfigurationManager.dll" />
-        <File Id="Server_System.Data.SqlClient.dll"
-              Source="$(var.VideoDedupService.TargetDir)System.Data.SqlClient.dll" />
-        <File Id="Server_System.Data.SQLite.dll"
-              Source="$(var.VideoDedupService.TargetDir)System.Data.SQLite.dll" />
-        <File Id="Server_System.Data.SQLite.EF6.dll"
-              Source="$(var.VideoDedupService.TargetDir)System.Data.SQLite.EF6.dll" />
-        <File Id="Server_System.Data.SQLite.Linq.dll"
-              Source="$(var.VideoDedupService.TargetDir)System.Data.SQLite.Linq.dll" />
         <File Id="Server_System.Deployment.dll"
               Source="$(var.VideoDedupService.TargetDir)System.Deployment.dll" />
         <File Id="Server_System.Drawing.Common.dll"
@@ -180,6 +174,8 @@
               Source="$(var.VideoDedupService.TargetDir)System.Windows.Extensions.dll" />
         <File Id="Server_System.Windows.Forms.dll"
               Source="$(var.VideoDedupService.TargetDir)System.Windows.Forms.dll" />
+        <File Id="Server_VideoComparer.dll"
+              Source="$(var.VideoComparer.TargetPath)" />
         <File Id="Server_VideoDedupServer.dll"
               Source="$(var.VideoDedupServer.TargetDir)VideoDedupServer.dll" />
         <File Id="Server_VideoDedupService.dll"
@@ -189,7 +185,7 @@
         <File Id="Server_VideoDedupSharedLib.dll"
               Source="$(var.VideoDedupSharedLib.TargetPath)" />
 
-        <ServiceInstall Id="InstallServer"
+        <ServiceInstall Id="InstallService"
                         Name="$(var.ServerComponent)"
                         Description="Backend for VideoDedup. Allows background deduplication and monitoring."
                         Type ="ownProcess"
