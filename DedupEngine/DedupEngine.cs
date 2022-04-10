@@ -5,7 +5,6 @@ namespace DedupEngine
     using System.Globalization;
     using EventArgs;
     using VideoComparer;
-    using VideoComparer.MpvLib;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
     using VideoDedupSharedLib.ExtensionMethods.TimeSpanExtensions;
@@ -496,11 +495,6 @@ namespace DedupEngine
                 {
                     OnLogged(LogComparisonFailed, exc.VideoFile.FilePath);
                 }
-            }
-            catch (MpvException exc)
-            {
-                OnLogged(LogCriticalError, $"{exc.Message} {exc.VideoFilePath}");
-                throw;
             }
             catch (Exception exc)
             {

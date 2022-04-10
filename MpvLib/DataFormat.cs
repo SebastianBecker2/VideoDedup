@@ -1,4 +1,4 @@
-namespace VideoComparer.MpvLib
+namespace MpvLib
 {
     internal enum DataFormat
     {

@@ -1,10 +1,10 @@
-namespace VideoComparer.MpvLib
+namespace MpvLib
 {
     using System.Globalization;
     using System.Runtime.InteropServices;
     using System.Text;
+    using Exceptions;
     using VideoDedupGrpc;
-    using ImageIndex = ImageIndex;
 
     public class MpvWrapper : IDisposable
     {

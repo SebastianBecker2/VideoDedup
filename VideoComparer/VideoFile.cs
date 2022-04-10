@@ -1,9 +1,11 @@
 namespace VideoComparer
 {
     using MpvLib;
+    using MpvLib.Exceptions;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.Interfaces;
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
+    using ImageIndex = MpvLib.ImageIndex;
 
     public class VideoFile : IVideoFile
     {

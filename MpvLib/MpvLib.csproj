@@ -8,7 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MpvLib\MpvLib.csproj" />
+    <None Remove="Libs\libmpv\x64\mpv-1.dll" />
+    <None Remove="Libs\libmpv\x86\mpv-1.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Libs\libmpv\x64\mpv-1.dll" />
+    <Content Include="Libs\libmpv\x86\mpv-1.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\VideoDedupSharedLib\VideoDedupSharedLib.csproj" />
   </ItemGroup>
 

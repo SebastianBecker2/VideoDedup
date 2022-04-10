@@ -1,7 +1,8 @@
 namespace DuplicateManager
 {
     using Google.Protobuf;
-    using VideoComparer.MpvLib;
+    using MpvLib;
+    using MpvLib.Exceptions;
     using VideoDedupGrpc;
 
     internal class ThumbnailManager

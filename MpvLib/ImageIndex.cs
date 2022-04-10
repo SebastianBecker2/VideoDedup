@@ -1,4 +1,4 @@
-namespace VideoComparer
+namespace MpvLib
 {
     using System.Diagnostics;
 
@@ -11,7 +11,7 @@ namespace VideoComparer
         public double Quotient => Numerator / (double)Denominator;
 
         public string ToPrettyString() =>
-            $"{Numerator}/{Denominator}";
+            $"{Numerator}/{Denominator}={Quotient}";
 
         private string GetDebuggerDisplay() => ToPrettyString();
 

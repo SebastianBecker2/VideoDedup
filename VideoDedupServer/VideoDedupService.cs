@@ -12,7 +12,6 @@ namespace VideoDedupServer
     using Google.Protobuf.WellKnownTypes;
     using Grpc.Core;
     using Newtonsoft.Json;
-    using VideoComparer.MpvLib;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
@@ -236,17 +235,6 @@ namespace VideoDedupServer
                     e.File1.ToVideoFile(),
                     e.File2.ToVideoFile(),
                     e.BasePath);
-            }
-            catch (MpvException exc)
-            {
-                lock (logEntriesLock)
-                {
-                    AddLogEntry($"{exc.Message} {exc.VideoFilePath}");
-                    if (exc.InnerException != null)
-                    {
-                        AddLogEntry(exc.InnerException.Message);
-                    }
-                }
             }
             catch (Exception exc)
             {

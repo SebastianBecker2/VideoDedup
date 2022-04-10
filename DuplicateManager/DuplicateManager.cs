@@ -1,15 +1,15 @@
 namespace DuplicateManager
 {
     using EventArgs;
-    using KGySoft.CoreLibraries;
     using VideoDedupGrpc;
 
     public class DuplicateManager
     {
         private readonly ThumbnailManager thumbnailManager;
-        private readonly ISet<DuplicateWrapper> duplicateList
-            = new HashSet<DuplicateWrapper>();
         private readonly object duplicateLock = new();
+
+        private ISet<DuplicateWrapper> duplicateList
+            = new HashSet<DuplicateWrapper>();
 
         public ThumbnailSettings Settings => thumbnailManager.Settings;
 
@@ -31,14 +31,12 @@ namespace DuplicateManager
                 new DuplicateAddedEventArgs(duplicate, Count));
 
         public event EventHandler<DuplicateRemovedEventArgs>? DuplicateRemoved;
-
         protected virtual void OnDuplicateRemoved(DuplicateData duplicate) =>
             DuplicateRemoved?.Invoke(
                 this,
                 new DuplicateRemovedEventArgs(duplicate, Count));
 
         public event EventHandler<DuplicateResolvedEventArgs>? DuplicateResolved;
-
         protected virtual void OnDuplicateResolved(
             DuplicateData duplicate,
             ResolveOperation operation) =>
@@ -56,30 +54,29 @@ namespace DuplicateManager
             UpdateSettingsResolution resolution =
                 UpdateSettingsResolution.DiscardDuplicates)
         {
+            thumbnailManager.Settings = settings;
             if (resolution == UpdateSettingsResolution.DiscardDuplicates)
             {
                 DiscardAll();
+                return;
             }
-            else
-            {
-                lock (duplicateLock)
-                {
-                    foreach (var duplicate in duplicateList)
-                    {
-                        thumbnailManager.RemoveVideoFileReference(duplicate.File1);
-                        thumbnailManager.RemoveVideoFileReference(duplicate.File2);
-                    }
 
-                    var newDuplicateList = duplicateList.Select(d =>
-                        new DuplicateWrapper(
-                            thumbnailManager.AddVideoFileReference(new VideoFile(d.File1)),
-                            thumbnailManager.AddVideoFileReference(new VideoFile(d.File2)),
-                            d.DuplicateData.BasePath));
-                    duplicateList.Clear();
-                    duplicateList.AddRange(newDuplicateList);
+            lock (duplicateLock)
+            {
+                var oldDuplicateList = duplicateList;
+
+                foreach (var d in duplicateList)
+                {
+                    thumbnailManager.RemoveVideoFileReference(d.File1);
+                    thumbnailManager.RemoveVideoFileReference(d.File2);
                 }
+
+                duplicateList = new HashSet<DuplicateWrapper>(
+                    oldDuplicateList.Select(d => new DuplicateWrapper(
+                        thumbnailManager.AddVideoFileReference(d.File1),
+                        thumbnailManager.AddVideoFileReference(d.File2),
+                        d.DuplicateData.BasePath)));
             }
-            thumbnailManager.Settings = settings;
         }
 
         public DuplicateData GetDuplicate()

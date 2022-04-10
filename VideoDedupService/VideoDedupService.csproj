@@ -27,11 +27,6 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="echo Initializing developer command prompt&#xD;&#xA;if $(PlatformName) == x64 (&#xD;&#xA;  call &quot;$(DevEnvDir)..\..\VC\Auxiliary\Build\vcvars64.bat&quot;&#xD;&#xA;) else (&#xD;&#xA;  call &quot;$(DevEnvDir)..\..\VC\Auxiliary\Build\vcvars32.bat&quot;&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;echo.&#xD;&#xA;echo Copying mpv-1.dll for respective platform&#xD;&#xA;if $(PlatformName) == x64 (&#xD;&#xA;  xcopy &quot;$(SolutionDir)DedupEngine\Libs\libmpv\x64\mpv-1.dll&quot; &quot;$(TargetDir)&quot; /y&#xD;&#xA;) else (&#xD;&#xA;  xcopy &quot;$(SolutionDir)DedupEngine\Libs\libmpv\x86\mpv-1.dll&quot; &quot;$(TargetDir)&quot; /y&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;:EOF&#xD;&#xA;EXIT 0" />
+    <Exec Command="echo Initializing developer command prompt&#xD;&#xA;if $(PlatformName) == x64 (&#xD;&#xA;  call &quot;$(DevEnvDir)..\..\VC\Auxiliary\Build\vcvars64.bat&quot;&#xD;&#xA;) else (&#xD;&#xA;  call &quot;$(DevEnvDir)..\..\VC\Auxiliary\Build\vcvars32.bat&quot;&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;echo.&#xD;&#xA;echo Copying mpv-1.dll for respective platform&#xD;&#xA;if $(PlatformName) == x64 (&#xD;&#xA;  echo copy from &quot;$(SolutionDir)MpvLib\Libs\libmpv\x64\mpv-1.dll&quot; to &quot;$(TargetDir)&quot;&#xD;&#xA;  xcopy &quot;$(SolutionDir)MpvLib\Libs\libmpv\x64\mpv-1.dll&quot; &quot;$(TargetDir)&quot; /y&#xD;&#xA;) else (&#xD;&#xA;  echo copy from &quot;$(SolutionDir)MpvLib\Libs\libmpv\x86\mpv-1.dll&quot; to &quot;$(TargetDir)&quot;&#xD;&#xA;  xcopy &quot;$(SolutionDir)MpvLib\Libs\libmpv\x86\mpv-1.dll&quot; &quot;$(TargetDir)&quot; /y&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;:EOF&#xD;&#xA;EXIT 0" />
   </Target>
-
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="sc query | findstr /C:&quot;SERVICE_NAME: VideoDedupService&quot;&#xD;&#xA;if not ERRORLEVEL 1 (&#xD;&#xA;  net stop VideoDedupService&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;EXIT 0&#xD;&#xA;" />
-  </Target>
-
 </Project>

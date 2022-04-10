@@ -1,5 +1,6 @@
 namespace VideoComparer
 {
+    using MpvLib;
     using VideoDedupSharedLib;
     using VideoDedupSharedLib.ExtensionMethods.DateTimeExtensions;
     using VideoDedupSharedLib.ExtensionMethods.SqliteDataReaderExtensions;

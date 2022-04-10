@@ -1,4 +1,4 @@
-namespace VideoComparer.MpvLib
+namespace MpvLib.Exceptions
 {
     using System.Runtime.Serialization;
 

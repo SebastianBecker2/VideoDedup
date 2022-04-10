@@ -6,8 +6,10 @@ namespace VideoComparer
     using Google.Protobuf;
     using KGySoft.Drawing;
     using MpvLib;
+    using MpvLib.Exceptions;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.ImageExtensions;
+    using ImageIndex = MpvLib.ImageIndex;
     using Size = System.Drawing.Size;
 
     public class VideoComparer
@@ -306,7 +308,7 @@ namespace VideoComparer
 
                 return images;
             }
-            catch (MpvOperationException exc)
+            catch (MpvException exc)
             {
                 throw new ComparisonException(exc.Message, videoFile, exc);
             }
