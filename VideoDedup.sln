@@ -5,8 +5,6 @@ VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "Setup", "Setup\Setup.wixproj", "{52D36AE6-B21D-4BCE-A675-9024F6C8BAC5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Versioning", "Versioning\Versioning.csproj", "{80D1C901-FBD3-422A-B810-345C43EDFC37}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{962EAB92-A167-49A8-8E02-87D72AA00603}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -36,6 +34,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoComparer", "VideoCompa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MpvLib", "MpvLib\MpvLib.csproj", "{E739AEF1-DBCB-4C2E-99A2-14596D0799F2}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Versioning", "Versioning\Versioning.csproj", "{688F63A1-4A77-4029-9681-02F25CCCD458}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -48,14 +48,6 @@ Global
 		{52D36AE6-B21D-4BCE-A675-9024F6C8BAC5}.Debug|x86.ActiveCfg = Debug|x86
 		{52D36AE6-B21D-4BCE-A675-9024F6C8BAC5}.Release|x64.ActiveCfg = Release|x64
 		{52D36AE6-B21D-4BCE-A675-9024F6C8BAC5}.Release|x86.ActiveCfg = Release|x86
-		{80D1C901-FBD3-422A-B810-345C43EDFC37}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{80D1C901-FBD3-422A-B810-345C43EDFC37}.Debug|x64.Build.0 = Debug|Any CPU
-		{80D1C901-FBD3-422A-B810-345C43EDFC37}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{80D1C901-FBD3-422A-B810-345C43EDFC37}.Debug|x86.Build.0 = Debug|Any CPU
-		{80D1C901-FBD3-422A-B810-345C43EDFC37}.Release|x64.ActiveCfg = Release|Any CPU
-		{80D1C901-FBD3-422A-B810-345C43EDFC37}.Release|x64.Build.0 = Release|Any CPU
-		{80D1C901-FBD3-422A-B810-345C43EDFC37}.Release|x86.ActiveCfg = Release|Any CPU
-		{80D1C901-FBD3-422A-B810-345C43EDFC37}.Release|x86.Build.0 = Release|Any CPU
 		{EDB509D9-C9FC-44C2-B9B9-0DC812ED8909}.Debug|x64.ActiveCfg = Debug|x64
 		{EDB509D9-C9FC-44C2-B9B9-0DC812ED8909}.Debug|x64.Build.0 = Debug|x64
 		{EDB509D9-C9FC-44C2-B9B9-0DC812ED8909}.Debug|x86.ActiveCfg = Debug|x86
@@ -136,6 +128,14 @@ Global
 		{E739AEF1-DBCB-4C2E-99A2-14596D0799F2}.Release|x64.Build.0 = Release|x64
 		{E739AEF1-DBCB-4C2E-99A2-14596D0799F2}.Release|x86.ActiveCfg = Release|x86
 		{E739AEF1-DBCB-4C2E-99A2-14596D0799F2}.Release|x86.Build.0 = Release|x86
+		{688F63A1-4A77-4029-9681-02F25CCCD458}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{688F63A1-4A77-4029-9681-02F25CCCD458}.Debug|x64.Build.0 = Debug|Any CPU
+		{688F63A1-4A77-4029-9681-02F25CCCD458}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{688F63A1-4A77-4029-9681-02F25CCCD458}.Debug|x86.Build.0 = Debug|Any CPU
+		{688F63A1-4A77-4029-9681-02F25CCCD458}.Release|x64.ActiveCfg = Release|Any CPU
+		{688F63A1-4A77-4029-9681-02F25CCCD458}.Release|x64.Build.0 = Release|Any CPU
+		{688F63A1-4A77-4029-9681-02F25CCCD458}.Release|x86.ActiveCfg = Release|Any CPU
+		{688F63A1-4A77-4029-9681-02F25CCCD458}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
