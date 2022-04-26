@@ -52,6 +52,33 @@ namespace CustomSelectFileDialog
             base.OnLoad(e);
         }
 
+        private DataGridViewRow ItemToRow(Item item)
+        {
+            var row = new DataGridViewRow { Tag = item, };
+
+#pragma warning disable CA1305 // Specify IFormatProvider
+            row.Cells.AddRange(
+                new DataGridViewImageCell
+                {
+                    Value = item.GetIcon(),
+                    ImageLayout = DataGridViewImageCellLayout.Zoom,
+                    Style = new DataGridViewCellStyle()
+                    {
+
+                    }
+                },
+                new DataGridViewTextBoxCell { Value = item.Name, },
+                new DataGridViewTextBoxCell
+                {
+                    Value = item.DateModified?.ToString(),
+                },
+                new DataGridViewTextBoxCell { Value = item.MimeType, },
+                new DataGridViewTextBoxCell { Value = item.Size, });
+#pragma warning restore CA1305 // Specify IFormatProvider
+
+            return row;
+        }
+
         public void SetContent(IEnumerable<Item> items)
         {
             updatingSelectedPath = true;
@@ -67,28 +94,7 @@ namespace CustomSelectFileDialog
                 DgvContent.Rows.AddRange(content
                     .OrderBy(i => (int)i.Type)
                     .ThenBy(i => i.Name)
-                    .Select(i =>
-                    {
-                        var row = new DataGridViewRow { Tag = i, };
-
-#pragma warning disable CA1305 // Specify IFormatProvider
-                        row.Cells.AddRange(
-                            new DataGridViewImageCell
-                            {
-                                Value = i.GetIcon(),
-                                ImageLayout = DataGridViewImageCellLayout.Zoom,
-                            },
-                            new DataGridViewTextBoxCell { Value = i.Name, },
-                            new DataGridViewTextBoxCell
-                            {
-                                Value = i.DateModified?.ToString(),
-                            },
-                            new DataGridViewTextBoxCell { Value = i.MimeType, },
-                            new DataGridViewTextBoxCell { Value = i.Size, });
-#pragma warning restore CA1305 // Specify IFormatProvider
-
-                        return row;
-                    })
+                    .Select(ItemToRow)
                     .ToArray());
 
                 DgvContent.ClearSelection();
