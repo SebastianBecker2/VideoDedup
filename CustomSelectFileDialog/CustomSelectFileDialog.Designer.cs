@@ -129,6 +129,7 @@
             this.DgvContent.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.DgvContent.BackgroundColor = System.Drawing.SystemColors.Window;
             this.DgvContent.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
             this.DgvContent.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.DgvContent.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
