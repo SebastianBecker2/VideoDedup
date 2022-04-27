@@ -1,5 +1,6 @@
 namespace CustomSelectFileDialog
 {
+    using System.ComponentModel;
     using System.Diagnostics;
     using System.Windows.Forms;
     using EventArgs;
@@ -49,6 +50,7 @@ namespace CustomSelectFileDialog
         protected override void OnLoad(System.EventArgs e)
         {
             OnContentRequested();
+            DgvContent.Sort(DgvContent.Columns[1], ListSortDirection.Ascending);
             base.OnLoad(e);
         }
 
@@ -151,6 +153,19 @@ namespace CustomSelectFileDialog
             {
                 updatingSelectedPath = false;
             }
+        }
+
+        private void HandleDgvContentSortCompare(
+            object sender,
+            DataGridViewSortCompareEventArgs e)
+        {
+            var item1 = DgvContent.Rows[e.RowIndex1].Tag as Item;
+            Debug.Assert(item1 is not null);
+            var item2 = DgvContent.Rows[e.RowIndex2].Tag as Item;
+            Debug.Assert(item2 is not null);
+
+            e.Handled = item1.Type != item2.Type;
+            e.SortResult = item1.Type == ItemType.Folder ? -1 : 1;
         }
 
         private void HandleBtnOkClick(object sender, System.EventArgs e)

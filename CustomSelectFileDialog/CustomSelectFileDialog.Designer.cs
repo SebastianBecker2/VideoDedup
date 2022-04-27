@@ -1,4 +1,4 @@
-﻿namespace CustomSelectFileDialog
+namespace CustomSelectFileDialog
 {
     partial class CustomSelectFileDialog
     {
@@ -36,13 +36,13 @@
             this.BtnCancel = new System.Windows.Forms.Button();
             this.BtnOk = new System.Windows.Forms.Button();
             this.DgvContent = new System.Windows.Forms.DataGridView();
-            this.TxtSelectedFileName = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.DgcIcon = new System.Windows.Forms.DataGridViewImageColumn();
             this.DgcName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.DgcDateModified = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.DgcType = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.DgcSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.TxtSelectedFileName = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.DgvContent)).BeginInit();
             this.SuspendLayout();
             // 
@@ -150,28 +150,8 @@
             this.DgvContent.TabIndex = 14;
             this.DgvContent.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.HandleDgvContentCellDoubleClick);
             this.DgvContent.SelectionChanged += new System.EventHandler(this.HandleDgvContentSelectionChanged);
+            this.DgvContent.SortCompare += new System.Windows.Forms.DataGridViewSortCompareEventHandler(this.HandleDgvContentSortCompare);
             this.DgvContent.KeyDown += new System.Windows.Forms.KeyEventHandler(this.HandleDgvContentKeyDown);
-            // 
-            // TxtSelectedFileName
-            // 
-            this.TxtSelectedFileName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.TxtSelectedFileName.Location = new System.Drawing.Point(79, 415);
-            this.TxtSelectedFileName.Name = "TxtSelectedFileName";
-            this.TxtSelectedFileName.Size = new System.Drawing.Size(547, 23);
-            this.TxtSelectedFileName.TabIndex = 15;
-            this.TxtSelectedFileName.TextChanged += new System.EventHandler(this.HandleTxtSelectedFileNameTextChanged);
-            this.TxtSelectedFileName.KeyDown += new System.Windows.Forms.KeyEventHandler(this.HandleTxtSelectedFileNameKeyDown);
-            // 
-            // label1
-            // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 419);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(61, 15);
-            this.label1.TabIndex = 16;
-            this.label1.Text = "File name:";
             // 
             // DgcIcon
             // 
@@ -208,6 +188,27 @@
             this.DgcSize.HeaderText = "Size";
             this.DgcSize.Name = "DgcSize";
             // 
+            // TxtSelectedFileName
+            // 
+            this.TxtSelectedFileName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.TxtSelectedFileName.Location = new System.Drawing.Point(79, 415);
+            this.TxtSelectedFileName.Name = "TxtSelectedFileName";
+            this.TxtSelectedFileName.Size = new System.Drawing.Size(547, 23);
+            this.TxtSelectedFileName.TabIndex = 15;
+            this.TxtSelectedFileName.TextChanged += new System.EventHandler(this.HandleTxtSelectedFileNameTextChanged);
+            this.TxtSelectedFileName.KeyDown += new System.Windows.Forms.KeyEventHandler(this.HandleTxtSelectedFileNameKeyDown);
+            // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 419);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(61, 15);
+            this.label1.TabIndex = 16;
+            this.label1.Text = "File name:";
+            // 
             // CustomSelectFileDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -225,6 +226,8 @@
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.BtnOk);
             this.Name = "CustomSelectFileDialog";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
             this.Text = "CustomSelectFileDialog";
             ((System.ComponentModel.ISupportInitialize)(this.DgvContent)).EndInit();
             this.ResumeLayout(false);
