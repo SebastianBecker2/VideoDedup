@@ -1,16 +1,13 @@
 namespace CustomSelectFileDialog
 {
     using System;
-    using System.DirectoryServices;
-    using System.Globalization;
-    using System.Resources;
-    using global::CustomSelectFileDialog.Properties;
+    using Properties;
 
     public class Item
     {
         public string Name { get; set; }
         public ItemType Type { get; set; } = ItemType.File;
-        public int? Size { get; set; }
+        public long? Size { get; set; }
         public DateTime? DateModified { get; set; }
         public string? MimeType { get; set; }
 
