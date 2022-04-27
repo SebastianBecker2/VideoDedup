@@ -62,10 +62,6 @@ namespace CustomSelectFileDialog
                 {
                     Value = item.GetIcon(),
                     ImageLayout = DataGridViewImageCellLayout.Zoom,
-                    Style = new DataGridViewCellStyle()
-                    {
-
-                    }
                 },
                 new DataGridViewTextBoxCell { Value = item.Name, },
                 new DataGridViewTextBoxCell
