@@ -4,7 +4,6 @@ namespace CustomSelectFileDialog
     using System.Diagnostics;
     using System.Windows.Forms;
     using EventArgs;
-    using Properties;
 
     public partial class CustomSelectFileDialog : Form
     {
