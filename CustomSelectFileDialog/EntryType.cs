@@ -1,6 +1,6 @@
 namespace CustomSelectFileDialog
 {
-    public enum ItemType
+    public enum EntryType
     {
         Folder = 0,
         File = 1,

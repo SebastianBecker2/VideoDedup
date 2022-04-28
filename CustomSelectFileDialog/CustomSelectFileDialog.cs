@@ -10,11 +10,11 @@ namespace CustomSelectFileDialog
         private string? currentPath;
         private bool updatingSelectedPath;
         private bool applyingHistory;
-        private IEnumerable<Item>? content;
+        private IEnumerable<Entry>? content;
         private List<string> pathHistory = new();
         private int pathHistoryIndex = -1;
 
-        public ItemType ItemType { get; set; } = ItemType.File;
+        public EntryType EntryType { get; set; } = EntryType.File;
         public string? CurrentPath
         {
             get => currentPath;
@@ -54,45 +54,45 @@ namespace CustomSelectFileDialog
             base.OnLoad(e);
         }
 
-        private DataGridViewRow ItemToRow(Item item)
+        private DataGridViewRow EntryToRow(Entry entry)
         {
-            var row = new DataGridViewRow { Tag = item, };
+            var row = new DataGridViewRow { Tag = entry, };
 
 #pragma warning disable CA1305 // Specify IFormatProvider
             row.Cells.AddRange(
                 new DataGridViewImageCell
                 {
-                    Value = item.GetIcon(),
+                    Value = entry.GetIcon(),
                     ImageLayout = DataGridViewImageCellLayout.Zoom,
                 },
-                new DataGridViewTextBoxCell { Value = item.Name, },
+                new DataGridViewTextBoxCell { Value = entry.Name, },
                 new DataGridViewTextBoxCell
                 {
-                    Value = item.DateModified?.ToString(),
-                    ToolTipText = item.DateModified?.ToString(),
+                    Value = entry.DateModified?.ToString(),
+                    ToolTipText = entry.DateModified?.ToString(),
                 },
                 new DataGridViewTextBoxCell
                 {
-                    Value = item.MimeType,
-                    ToolTipText = item.MimeType,
+                    Value = entry.MimeType,
+                    ToolTipText = entry.MimeType,
                 },
                 new DataGridViewTextBoxCell
                 {
-                    Value = item.Size,
-                    ToolTipText = item.Size?.ToString()
+                    Value = entry.Size,
+                    ToolTipText = entry.Size?.ToString()
                 });
 #pragma warning restore CA1305 // Specify IFormatProvider
 
             return row;
         }
 
-        public void SetContent(IEnumerable<Item> items)
+        public void SetContent(IEnumerable<Entry> entries)
         {
             updatingSelectedPath = true;
 
             try
             {
-                content = items.ToList();
+                content = entries.ToList();
 
                 SelectedPath = string.Empty;
                 TxtSelectedFileName.Text = string.Empty;
@@ -101,7 +101,7 @@ namespace CustomSelectFileDialog
                 DgvContent.Rows.AddRange(content
                     .OrderBy(i => (int)i.Type)
                     .ThenBy(i => i.Name)
-                    .Select(ItemToRow)
+                    .Select(EntryToRow)
                     .ToArray());
 
                 DgvContent.ClearSelection();
@@ -152,11 +152,11 @@ namespace CustomSelectFileDialog
                     return;
                 }
 
-                var item = DgvContent.SelectedRows[0].Tag as Item;
-                Debug.Assert(item is not null);
+                var entry = DgvContent.SelectedRows[0].Tag as Entry;
+                Debug.Assert(entry is not null);
 
-                TxtSelectedFileName.Text = item.Name;
-                SelectedPath = Path.Combine(CurrentPath ?? "", item.Name);
+                TxtSelectedFileName.Text = entry.Name;
+                SelectedPath = Path.Combine(CurrentPath ?? "", entry.Name);
             }
             finally
             {
@@ -168,13 +168,13 @@ namespace CustomSelectFileDialog
             object sender,
             DataGridViewSortCompareEventArgs e)
         {
-            var item1 = DgvContent.Rows[e.RowIndex1].Tag as Item;
-            Debug.Assert(item1 is not null);
-            var item2 = DgvContent.Rows[e.RowIndex2].Tag as Item;
-            Debug.Assert(item2 is not null);
+            var entry1 = DgvContent.Rows[e.RowIndex1].Tag as Entry;
+            Debug.Assert(entry1 is not null);
+            var entry2 = DgvContent.Rows[e.RowIndex2].Tag as Entry;
+            Debug.Assert(entry2 is not null);
 
-            e.Handled = item1.Type != item2.Type;
-            e.SortResult = item1.Type == ItemType.Folder ? -1 : 1;
+            e.Handled = entry1.Type != entry2.Type;
+            e.SortResult = entry1.Type == EntryType.Folder ? -1 : 1;
         }
 
         private void HandleDgvContentKeyDown(object sender, KeyEventArgs e)
@@ -198,13 +198,13 @@ namespace CustomSelectFileDialog
                 return;
             }
 
-            var selectedItem = content?
+            var selectedEntry = content?
                 .FirstOrDefault(c => c.Name == TxtSelectedFileName.Text);
 
-            if (selectedItem is not null
-                && selectedItem.Type == ItemType.Folder)
+            if (selectedEntry is not null
+                && selectedEntry.Type == EntryType.Folder)
             {
-                CurrentPath = Path.Combine(CurrentPath ?? "", selectedItem.Name);
+                CurrentPath = Path.Combine(CurrentPath ?? "", selectedEntry.Name);
                 return;
             }
 
@@ -253,9 +253,9 @@ namespace CustomSelectFileDialog
                     .OfType<DataGridViewRow>()
                     .FirstOrDefault(row =>
                     {
-                        var item = row.Tag as Item;
-                        Debug.Assert(item is not null);
-                        return item.Name == TxtSelectedFileName.Text;
+                        var entry = row.Tag as Entry;
+                        Debug.Assert(entry is not null);
+                        return entry.Name == TxtSelectedFileName.Text;
                     });
                 if (rowToSelect is not null)
                 {

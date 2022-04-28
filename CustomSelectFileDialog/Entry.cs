@@ -3,15 +3,15 @@ namespace CustomSelectFileDialog
     using System;
     using Properties;
 
-    public class Item
+    public class Entry
     {
         public string Name { get; set; }
-        public ItemType Type { get; set; } = ItemType.File;
+        public EntryType Type { get; set; } = EntryType.File;
         public long? Size { get; set; }
         public DateTime? DateModified { get; set; }
         public string? MimeType { get; set; }
 
-        public Item(string name)
+        public Entry(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -25,7 +25,7 @@ namespace CustomSelectFileDialog
 
         public Image GetIcon()
         {
-            if (Type == ItemType.Folder)
+            if (Type == EntryType.Folder)
             {
                 return Resources.folder;
             }
