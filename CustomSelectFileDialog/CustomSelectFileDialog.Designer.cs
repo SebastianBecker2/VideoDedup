@@ -131,6 +131,7 @@ namespace CustomSelectFileDialog
             | System.Windows.Forms.AnchorStyles.Right)));
             this.DgvContent.BackgroundColor = System.Drawing.SystemColors.Window;
             this.DgvContent.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
+            this.DgvContent.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.DgvContent.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.DgvContent.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.DgcIcon,
