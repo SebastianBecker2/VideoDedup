@@ -69,9 +69,18 @@ namespace CustomSelectFileDialog
                 new DataGridViewTextBoxCell
                 {
                     Value = item.DateModified?.ToString(),
+                    ToolTipText = item.DateModified?.ToString(),
                 },
-                new DataGridViewTextBoxCell { Value = item.MimeType, },
-                new DataGridViewTextBoxCell { Value = item.Size, });
+                new DataGridViewTextBoxCell
+                {
+                    Value = item.MimeType,
+                    ToolTipText = item.MimeType,
+                },
+                new DataGridViewTextBoxCell
+                {
+                    Value = item.Size,
+                    ToolTipText = item.Size?.ToString()
+                });
 #pragma warning restore CA1305 // Specify IFormatProvider
 
             return row;
