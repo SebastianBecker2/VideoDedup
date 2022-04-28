@@ -53,7 +53,7 @@ namespace CustomSelectFileDialog
             this.BtnRefresh.Location = new System.Drawing.Point(751, 12);
             this.BtnRefresh.Name = "BtnRefresh";
             this.BtnRefresh.Size = new System.Drawing.Size(37, 23);
-            this.BtnRefresh.TabIndex = 13;
+            this.BtnRefresh.TabIndex = 8;
             this.BtnRefresh.UseVisualStyleBackColor = true;
             this.BtnRefresh.Click += new System.EventHandler(this.HandleBtnRefreshClick);
             // 
@@ -64,7 +64,7 @@ namespace CustomSelectFileDialog
             this.TxtCurrentPath.Location = new System.Drawing.Point(141, 12);
             this.TxtCurrentPath.Name = "TxtCurrentPath";
             this.TxtCurrentPath.Size = new System.Drawing.Size(604, 23);
-            this.TxtCurrentPath.TabIndex = 12;
+            this.TxtCurrentPath.TabIndex = 7;
             this.TxtCurrentPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.HandleTxtCurrentPathKeyDown);
             // 
             // BtnUp
@@ -73,7 +73,7 @@ namespace CustomSelectFileDialog
             this.BtnUp.Location = new System.Drawing.Point(98, 12);
             this.BtnUp.Name = "BtnUp";
             this.BtnUp.Size = new System.Drawing.Size(37, 23);
-            this.BtnUp.TabIndex = 11;
+            this.BtnUp.TabIndex = 6;
             this.BtnUp.UseVisualStyleBackColor = true;
             this.BtnUp.Click += new System.EventHandler(this.HandleBtnUpClick);
             // 
@@ -84,7 +84,7 @@ namespace CustomSelectFileDialog
             this.BtnForward.Location = new System.Drawing.Point(55, 12);
             this.BtnForward.Name = "BtnForward";
             this.BtnForward.Size = new System.Drawing.Size(37, 23);
-            this.BtnForward.TabIndex = 10;
+            this.BtnForward.TabIndex = 5;
             this.BtnForward.UseVisualStyleBackColor = true;
             this.BtnForward.Click += new System.EventHandler(this.BtnForward_Click);
             // 
@@ -95,7 +95,7 @@ namespace CustomSelectFileDialog
             this.BtnBack.Location = new System.Drawing.Point(12, 12);
             this.BtnBack.Name = "BtnBack";
             this.BtnBack.Size = new System.Drawing.Size(37, 23);
-            this.BtnBack.TabIndex = 9;
+            this.BtnBack.TabIndex = 4;
             this.BtnBack.UseVisualStyleBackColor = true;
             this.BtnBack.Click += new System.EventHandler(this.HandleBtnBackClick);
             // 
@@ -106,7 +106,7 @@ namespace CustomSelectFileDialog
             this.BtnCancel.Location = new System.Drawing.Point(713, 415);
             this.BtnCancel.Name = "BtnCancel";
             this.BtnCancel.Size = new System.Drawing.Size(75, 23);
-            this.BtnCancel.TabIndex = 8;
+            this.BtnCancel.TabIndex = 3;
             this.BtnCancel.Text = "&Cancel";
             this.BtnCancel.UseVisualStyleBackColor = true;
             // 
@@ -116,7 +116,7 @@ namespace CustomSelectFileDialog
             this.BtnOk.Location = new System.Drawing.Point(632, 415);
             this.BtnOk.Name = "BtnOk";
             this.BtnOk.Size = new System.Drawing.Size(75, 23);
-            this.BtnOk.TabIndex = 7;
+            this.BtnOk.TabIndex = 2;
             this.BtnOk.Text = "&OK";
             this.BtnOk.UseVisualStyleBackColor = true;
             this.BtnOk.Click += new System.EventHandler(this.HandleBtnOkClick);
@@ -147,7 +147,7 @@ namespace CustomSelectFileDialog
             this.DgvContent.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.DgvContent.ShowEditingIcon = false;
             this.DgvContent.Size = new System.Drawing.Size(776, 368);
-            this.DgvContent.TabIndex = 14;
+            this.DgvContent.TabIndex = 0;
             this.DgvContent.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.HandleDgvContentCellDoubleClick);
             this.DgvContent.SelectionChanged += new System.EventHandler(this.HandleDgvContentSelectionChanged);
             this.DgvContent.SortCompare += new System.Windows.Forms.DataGridViewSortCompareEventHandler(this.HandleDgvContentSortCompare);
@@ -195,7 +195,7 @@ namespace CustomSelectFileDialog
             this.TxtSelectedFileName.Location = new System.Drawing.Point(79, 415);
             this.TxtSelectedFileName.Name = "TxtSelectedFileName";
             this.TxtSelectedFileName.Size = new System.Drawing.Size(547, 23);
-            this.TxtSelectedFileName.TabIndex = 15;
+            this.TxtSelectedFileName.TabIndex = 1;
             this.TxtSelectedFileName.TextChanged += new System.EventHandler(this.HandleTxtSelectedFileNameTextChanged);
             this.TxtSelectedFileName.KeyDown += new System.Windows.Forms.KeyEventHandler(this.HandleTxtSelectedFileNameKeyDown);
             // 
