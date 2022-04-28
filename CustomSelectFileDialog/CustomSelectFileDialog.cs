@@ -168,6 +168,20 @@ namespace CustomSelectFileDialog
             e.SortResult = item1.Type == ItemType.Folder ? -1 : 1;
         }
 
+        private void HandleDgvContentKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode is Keys.Return or Keys.Enter)
+            {
+                BtnOk.PerformClick();
+                return;
+            }
+
+            if (e.KeyCode is Keys.Back)
+            {
+                BtnUp.PerformClick();
+            }
+        }
+
         private void HandleBtnOkClick(object sender, System.EventArgs e)
         {
             if (string.IsNullOrEmpty(TxtSelectedFileName.Text))
@@ -244,14 +258,6 @@ namespace CustomSelectFileDialog
             finally
             {
                 updatingSelectedPath = false;
-            }
-        }
-
-        private void HandleDgvContentKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode is Keys.Return or Keys.Enter)
-            {
-                BtnOk.PerformClick();
             }
         }
 
