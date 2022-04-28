@@ -28,6 +28,7 @@ namespace CustomSelectFileDialog
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.BtnRefresh = new System.Windows.Forms.Button();
             this.TxtCurrentPath = new System.Windows.Forms.TextBox();
             this.BtnUp = new System.Windows.Forms.Button();
@@ -132,6 +133,14 @@ namespace CustomSelectFileDialog
             this.DgvContent.BackgroundColor = System.Drawing.SystemColors.Window;
             this.DgvContent.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
             this.DgvContent.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.DgvContent.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             this.DgvContent.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.DgvContent.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.DgcIcon,
@@ -140,6 +149,7 @@ namespace CustomSelectFileDialog
             this.DgcType,
             this.DgcSize});
             this.DgvContent.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
+            this.DgvContent.EnableHeadersVisualStyles = false;
             this.DgvContent.Location = new System.Drawing.Point(12, 41);
             this.DgvContent.MultiSelect = false;
             this.DgvContent.Name = "DgvContent";
