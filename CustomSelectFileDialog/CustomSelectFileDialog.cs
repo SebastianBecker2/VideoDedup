@@ -4,6 +4,7 @@ namespace CustomSelectFileDialog
     using System.Diagnostics;
     using System.Windows.Forms;
     using EventArgs;
+    using Properties;
 
     public partial class CustomSelectFileDialog : Form
     {
@@ -13,7 +14,18 @@ namespace CustomSelectFileDialog
         private IEnumerable<Entry>? content;
         private List<string> pathHistory = new();
         private int pathHistoryIndex = -1;
+        private IconStyle entryIconStyle = IconStyle.NoFallbackOnNull;
 
+        public IconStyle EntryIconStyle
+        {
+            get => entryIconStyle;
+            set
+            {
+                entryIconStyle = value;
+                DgvContent.Columns[0].Visible =
+                    entryIconStyle != IconStyle.NoIcon;
+            }
+        }
         public EntryType EntryType { get; set; } = EntryType.File;
         public string? CurrentPath
         {
@@ -62,7 +74,7 @@ namespace CustomSelectFileDialog
             row.Cells.AddRange(
                 new DataGridViewImageCell
                 {
-                    Value = entry.GetIcon(),
+                    Value = entry.GetIcon(EntryIconStyle),
                     ImageLayout = DataGridViewImageCellLayout.Zoom,
                 },
                 new DataGridViewTextBoxCell { Value = entry.Name, },

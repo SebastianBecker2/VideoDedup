@@ -5,6 +5,7 @@ namespace CustomSelectFileDialog
 
     public class Entry
     {
+        public Image? Icon { get; set; }
         public string Name { get; set; }
         public EntryType Type { get; set; } = EntryType.File;
         public long? Size { get; set; }
@@ -23,26 +24,40 @@ namespace CustomSelectFileDialog
             Name = name;
         }
 
-        public Image GetIcon()
+        public Image? GetIcon(IconStyle iconStyle)
         {
+            if (iconStyle == IconStyle.NoIcon)
+            {
+                return null;
+            }
+
+            if (Icon is not null
+                || iconStyle == IconStyle.NoFallbackOnNull)
+            {
+                return Icon;
+            }
+
             if (Type == EntryType.Folder)
             {
                 return Resources.folder;
             }
 
-            var ext = Path.GetExtension(Name);
-            if (string.IsNullOrWhiteSpace(ext))
+            if (iconStyle == IconStyle.FallbackToExtensionSpecificIcons)
             {
-                return Resources.file_generic;
-            }
+                var ext = Path.GetExtension(Name);
+                if (string.IsNullOrWhiteSpace(ext))
+                {
+                    return Resources.file_generic;
+                }
 
-            var resourceObject = Resources.ResourceManager.GetObject(
-                $"file_extension_{ext[1..]}",
-                Resources.Culture);
+                var resourceObject = Resources.ResourceManager.GetObject(
+                    $"file_extension_{ext[1..]}",
+                    Resources.Culture);
 
-            if (resourceObject is Image icon)
-            {
-                return icon;
+                if (resourceObject is Image icon)
+                {
+                    return icon;
+                }
             }
 
             return Resources.file_generic;
