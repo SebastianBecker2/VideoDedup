@@ -252,8 +252,24 @@ namespace CustomSelectFileDialog
             DialogResult = DialogResult.OK;
         }
 
-        private void HandleBtnUpClick(object sender, System.EventArgs e) =>
-            CurrentPath = Directory.GetParent(CurrentPath ?? "")?.FullName;
+        private void HandleBtnUpClick(object sender, System.EventArgs e)
+        {
+            var previousPath = CurrentPath;
+            CurrentPath = Path.GetDirectoryName(CurrentPath ?? "") ?? "";
+
+            if (CurrentPath != Path.GetDirectoryName(previousPath))
+            {
+                return;
+            }
+
+            var previousFolderName = Path.GetFileName(previousPath);
+            if (string.IsNullOrWhiteSpace(previousFolderName))
+            {
+                return;
+            }
+
+            SelectEntry(previousFolderName);
+        }
 
         private void HandleBtnRefreshClick(object sender, System.EventArgs e) =>
             OnContentRequested();
@@ -290,20 +306,7 @@ namespace CustomSelectFileDialog
             {
                 DgvContent.ClearSelection();
 
-                var rowToSelect = DgvContent.Rows
-                    .OfType<DataGridViewRow>()
-                    .FirstOrDefault(row =>
-                    {
-                        var entry = row.Tag as Entry;
-                        Debug.Assert(entry is not null);
-                        return entry.Name == TxtSelectedFileName.Text;
-                    });
-                if (rowToSelect is not null)
-                {
-                    rowToSelect.Selected = true;
-                }
-
-                SelectedPath = TxtSelectedFileName.Text;
+                SelectEntry(TxtSelectedFileName.Text);
             }
             finally
             {
@@ -321,9 +324,23 @@ namespace CustomSelectFileDialog
             applyingHistory = true;
             try
             {
+                var previousPath = CurrentPath;
                 pathHistoryIndex--;
                 CurrentPath = pathHistory[pathHistoryIndex];
                 UpdateHistoryButtons();
+
+                if (CurrentPath != Path.GetDirectoryName(previousPath))
+                {
+                    return;
+                }
+
+                var previousFolderName = Path.GetFileName(previousPath);
+                if (string.IsNullOrWhiteSpace(previousFolderName))
+                {
+                    return;
+                }
+
+                SelectEntry(previousFolderName);
             }
             finally
             {
@@ -349,6 +366,23 @@ namespace CustomSelectFileDialog
             {
                 applyingHistory = false;
             }
+        }
+
+        private void SelectEntry(string name)
+        {
+            var rowToSelect = DgvContent.Rows
+                .OfType<DataGridViewRow>()
+                .FirstOrDefault(row =>
+                {
+                    var entry = row.Tag as Entry;
+                    Debug.Assert(entry is not null);
+                    return entry.Name == name;
+                });
+            if (rowToSelect is not null)
+            {
+                rowToSelect.Selected = true;
+            }
+            SelectedPath = name;
         }
     }
 }
