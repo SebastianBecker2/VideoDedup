@@ -129,6 +129,23 @@ namespace CustomSelectFileDialog
             BtnForward.Enabled = pathHistoryIndex < pathHistory.Count - 1;
         }
 
+        private void SelectEntry(string name)
+        {
+            var rowToSelect = DgvContent.Rows
+                .OfType<DataGridViewRow>()
+                .FirstOrDefault(row =>
+                {
+                    var entry = row.Tag as Entry;
+                    Debug.Assert(entry is not null);
+                    return entry.Name == name;
+                });
+            if (rowToSelect is not null)
+            {
+                rowToSelect.Selected = true;
+            }
+            SelectedPath = name;
+        }
+
         private void HandleDgvContentCellDoubleClick(
             object sender,
             DataGridViewCellEventArgs e)
@@ -366,23 +383,6 @@ namespace CustomSelectFileDialog
             {
                 applyingHistory = false;
             }
-        }
-
-        private void SelectEntry(string name)
-        {
-            var rowToSelect = DgvContent.Rows
-                .OfType<DataGridViewRow>()
-                .FirstOrDefault(row =>
-                {
-                    var entry = row.Tag as Entry;
-                    Debug.Assert(entry is not null);
-                    return entry.Name == name;
-                });
-            if (rowToSelect is not null)
-            {
-                rowToSelect.Selected = true;
-            }
-            SelectedPath = name;
         }
     }
 }
