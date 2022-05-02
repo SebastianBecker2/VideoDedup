@@ -88,7 +88,7 @@ namespace CustomSelectFileDialog
             this.BtnForward.Size = new System.Drawing.Size(37, 23);
             this.BtnForward.TabIndex = 5;
             this.BtnForward.UseVisualStyleBackColor = true;
-            this.BtnForward.Click += new System.EventHandler(this.BtnForward_Click);
+            this.BtnForward.Click += new System.EventHandler(this.HandleBtnForwardClick);
             // 
             // BtnBack
             // 

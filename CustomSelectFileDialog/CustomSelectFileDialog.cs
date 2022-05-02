@@ -348,7 +348,7 @@ namespace CustomSelectFileDialog
             }
         }
 
-        private void BtnForward_Click(object sender, System.EventArgs e)
+        private void HandleBtnForwardClick(object sender, System.EventArgs e)
         {
             if (pathHistoryIndex >= pathHistory.Count - 1)
             {
