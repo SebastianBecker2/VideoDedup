@@ -143,6 +143,16 @@ namespace CustomSelectFileDialog
                 return;
             }
 
+            var selectedEntry = DgvContent.SelectedRows[0].Tag as Entry;
+            Debug.Assert(selectedEntry is not null);
+
+            if (selectedEntry.Type == EntryType.Folder)
+            {
+                CurrentPath =
+                    Path.Combine(CurrentPath ?? "", selectedEntry.Name);
+                return;
+            }
+
             BtnOk.PerformClick();
         }
 
@@ -192,6 +202,16 @@ namespace CustomSelectFileDialog
         {
             if (e.KeyCode is Keys.Return or Keys.Enter)
             {
+                var selectedEntry = DgvContent.SelectedRows[0].Tag as Entry;
+                Debug.Assert(selectedEntry is not null);
+
+                if (selectedEntry.Type == EntryType.Folder)
+                {
+                    CurrentPath =
+                        Path.Combine(CurrentPath ?? "", selectedEntry.Name);
+                    return;
+                }
+
                 BtnOk.PerformClick();
                 return;
             }
@@ -212,11 +232,21 @@ namespace CustomSelectFileDialog
             var selectedEntry = content?
                 .FirstOrDefault(c => c.Name == TxtSelectedFileName.Text);
 
-            if (selectedEntry is not null
-                && selectedEntry.Type == EntryType.Folder)
+            if (selectedEntry is not null)
             {
-                CurrentPath = Path.Combine(CurrentPath ?? "", selectedEntry.Name);
-                return;
+                if (EntryType == EntryType.File
+                    && selectedEntry.Type == EntryType.Folder)
+                {
+                    CurrentPath =
+                        Path.Combine(CurrentPath ?? "", selectedEntry.Name);
+                    return;
+                }
+
+                if (EntryType == EntryType.Folder
+                    && selectedEntry.Type != EntryType.Folder)
+                {
+                    return;
+                }
             }
 
             DialogResult = DialogResult.OK;
