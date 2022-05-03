@@ -238,6 +238,21 @@ namespace CustomSelectFileDialog
                 BtnUp.PerformClick();
             }
         }
+        
+        private void HandleDgvContentMouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.XButton1)
+            {
+                BtnBack.PerformClick();
+                return;
+            }
+
+            if (e.Button == MouseButtons.XButton2)
+            {
+                BtnForward.PerformClick();
+                return;
+            }
+        }
 
         private void HandleBtnOkClick(object sender, System.EventArgs e)
         {
