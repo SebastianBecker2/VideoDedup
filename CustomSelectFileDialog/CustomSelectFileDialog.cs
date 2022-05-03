@@ -238,7 +238,7 @@ namespace CustomSelectFileDialog
                 BtnUp.PerformClick();
             }
         }
-        
+
         private void HandleDgvContentMouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.XButton1)
