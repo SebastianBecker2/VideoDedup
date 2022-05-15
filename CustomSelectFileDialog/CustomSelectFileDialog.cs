@@ -11,8 +11,7 @@ namespace CustomSelectFileDialog
         private bool updatingSelectedPath;
         private bool applyingHistory;
         private IEnumerable<Entry>? content;
-        private List<string> pathHistory = new();
-        private int pathHistoryIndex = -1;
+        private readonly History pathHistory = new();
         private IconStyle entryIconStyle = IconStyle.NoFallbackOnNull;
 
         public IconStyle EntryIconStyle
@@ -32,16 +31,10 @@ namespace CustomSelectFileDialog
             set
             {
                 currentPath = value;
-                if (!applyingHistory && value is not null)
+                if (!applyingHistory && currentPath is not null)
                 {
-                    if (pathHistoryIndex < pathHistory.Count)
-                    {
-                        pathHistory = pathHistory
-                            .Take(pathHistoryIndex + 1)
-                            .ToList();
-                    }
-                    pathHistory.Add(value);
-                    pathHistoryIndex++;
+                    pathHistory.SetSelection(GetSelectedEntry());
+                    pathHistory.Add(currentPath);
                     UpdateHistoryButtons();
                 }
                 TxtCurrentPath.Text = value;
@@ -123,10 +116,27 @@ namespace CustomSelectFileDialog
             }
         }
 
+        /// <summary>
+        /// Set the CurrentPath to a new, proposed path.
+        /// </summary>
+        /// <param name="proposedPath">
+        /// The path to be set as the CurrentPath.
+        /// </param>
+        /// <returns>
+        /// True - When the proposed path was accepted by the content provider.
+        /// <br/> False - When the proposed path was overwritten by the content
+        /// provider.
+        /// </returns>
+        public bool SetCurrentPath(string? proposedPath)
+        {
+            CurrentPath = proposedPath;
+            return CurrentPath == proposedPath;
+        }
+
         private void UpdateHistoryButtons()
         {
-            BtnBack.Enabled = pathHistoryIndex > 0;
-            BtnForward.Enabled = pathHistoryIndex < pathHistory.Count - 1;
+            BtnBack.Enabled = pathHistory.CanMoveBackward();
+            BtnForward.Enabled = pathHistory.CanMoveForward();
         }
 
         private void SelectEntry(string name)
@@ -146,6 +156,18 @@ namespace CustomSelectFileDialog
             SelectedPath = name;
         }
 
+        private Entry? GetSelectedEntry()
+        {
+            if (DgvContent.SelectedRows.Count == 0)
+            {
+                return null;
+            }
+
+            var entry = DgvContent.SelectedRows[0].Tag as Entry;
+            Debug.Assert(entry is not null);
+            return entry;
+        }
+
         private void HandleDgvContentCellDoubleClick(
             object sender,
             DataGridViewCellEventArgs e)
@@ -160,7 +182,7 @@ namespace CustomSelectFileDialog
                 return;
             }
 
-            var selectedEntry = DgvContent.SelectedRows[0].Tag as Entry;
+            var selectedEntry = GetSelectedEntry();
             Debug.Assert(selectedEntry is not null);
 
             if (selectedEntry.Type == EntryType.Folder)
@@ -185,13 +207,11 @@ namespace CustomSelectFileDialog
 
             try
             {
-                if (DgvContent.SelectedRows.Count == 0)
+                var entry = GetSelectedEntry();
+                if (entry is null)
                 {
                     return;
                 }
-
-                var entry = DgvContent.SelectedRows[0].Tag as Entry;
-                Debug.Assert(entry is not null);
 
                 TxtSelectedFileName.Text = entry.Name;
                 SelectedPath = Path.Combine(CurrentPath ?? "", entry.Name);
@@ -219,8 +239,11 @@ namespace CustomSelectFileDialog
         {
             if (e.KeyCode is Keys.Return or Keys.Enter)
             {
-                var selectedEntry = DgvContent.SelectedRows[0].Tag as Entry;
-                Debug.Assert(selectedEntry is not null);
+                var selectedEntry = GetSelectedEntry();
+                if (selectedEntry is null)
+                {
+                    return;
+                }
 
                 if (selectedEntry.Type == EntryType.Folder)
                 {
@@ -287,9 +310,7 @@ namespace CustomSelectFileDialog
         private void HandleBtnUpClick(object sender, System.EventArgs e)
         {
             var previousPath = CurrentPath;
-            CurrentPath = Path.GetDirectoryName(CurrentPath ?? "") ?? "";
-
-            if (CurrentPath != Path.GetDirectoryName(previousPath))
+            if (!SetCurrentPath(Path.GetDirectoryName(CurrentPath)))
             {
                 return;
             }
@@ -348,7 +369,7 @@ namespace CustomSelectFileDialog
 
         private void HandleBtnBackClick(object sender, System.EventArgs e)
         {
-            if (pathHistoryIndex <= 0)
+            if (!pathHistory.CanMoveBackward())
             {
                 return;
             }
@@ -356,33 +377,27 @@ namespace CustomSelectFileDialog
             applyingHistory = true;
             try
             {
-                var previousPath = CurrentPath;
-                pathHistoryIndex--;
-                CurrentPath = pathHistory[pathHistoryIndex];
-                UpdateHistoryButtons();
-
-                if (CurrentPath != Path.GetDirectoryName(previousPath))
+                pathHistory.SetSelection(GetSelectedEntry());
+                var (path, selectedEntry) = pathHistory.MoveBackward();
+                if (!SetCurrentPath(path))
                 {
                     return;
                 }
-
-                var previousFolderName = Path.GetFileName(previousPath);
-                if (string.IsNullOrWhiteSpace(previousFolderName))
+                if (selectedEntry is not null)
                 {
-                    return;
+                    SelectEntry(selectedEntry.Name);
                 }
-
-                SelectEntry(previousFolderName);
             }
             finally
             {
+                UpdateHistoryButtons();
                 applyingHistory = false;
             }
         }
 
         private void HandleBtnForwardClick(object sender, System.EventArgs e)
         {
-            if (pathHistoryIndex >= pathHistory.Count - 1)
+            if (!pathHistory.CanMoveForward())
             {
                 return;
             }
@@ -390,12 +405,20 @@ namespace CustomSelectFileDialog
             applyingHistory = true;
             try
             {
-                pathHistoryIndex++;
-                CurrentPath = pathHistory[pathHistoryIndex];
-                UpdateHistoryButtons();
+                pathHistory.SetSelection(GetSelectedEntry());
+                var (path, selectedEntry) = pathHistory.MoveForward();
+                if (!SetCurrentPath(path))
+                {
+                    return;
+                }
+                if (selectedEntry is not null)
+                {
+                    SelectEntry(selectedEntry.Name);
+                }
             }
             finally
             {
+                UpdateHistoryButtons();
                 applyingHistory = false;
             }
         }
