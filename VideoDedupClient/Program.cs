@@ -244,7 +244,9 @@ namespace VideoDedupClient
                 var dlg = new CustomSelectFileDialog
                 {
                     CurrentPath = "C:\\",
-                    EntryIconStyle = IconStyle.NoFallbackOnNull
+                    EntryIconStyle = IconStyle.FallbackToSimpleIcons,
+                    EntryType = EntryType.File,
+                    ButtonUpEnabled = ButtonUpEnabledWhen.Always,
                 };
                 dlg.ContentRequested += (s, e) =>
                 {
