@@ -11,6 +11,7 @@ namespace VideoDedupClient
     using Properties;
     using Dialogs;
     using static VideoDedupGrpc.VideoDedupGrpcService;
+    using System.Collections.Concurrent;
 
     internal static class Program
     {
@@ -20,7 +21,7 @@ namespace VideoDedupClient
         [SuppressMessage("ReSharper", "InconsistentNaming")]
         [SuppressMessage("ReSharper", "IdentifierTypo")]
 #pragma warning restore IDE0079 // Remove unnecessary suppression
-        public static class MimeTypeProvider
+        public static class FileInfoProvider
         {
             [StructLayout(LayoutKind.Sequential)]
             private struct SHFILEINFO
@@ -76,6 +77,21 @@ namespace VideoDedupClient
                     return info.szTypeName;
                 }
                 return null;
+            }
+
+            private static readonly ConcurrentDictionary<string, Bitmap?>
+                IconCache = new();
+
+            public static Bitmap? GetIcon(string file)
+            {
+                var extension = Path.GetExtension(file);
+                if (IconCache.TryGetValue(extension, out var icon))
+                {
+                    return icon;
+                }
+                icon = Icon.ExtractAssociatedIcon(file)?.ToBitmap();
+                _ = IconCache.TryAdd(extension, icon);
+                return icon;
             }
         }
 #endif
@@ -199,10 +215,10 @@ namespace VideoDedupClient
 
                 return new Entry(Path.GetFileName(entry))
                 {
-                    Icon = Icon.ExtractAssociatedIcon(entry)?.ToBitmap(),
+                    Icon = FileInfoProvider.GetIcon(entry),
                     Size = info.Length,
                     DateModified = info.LastWriteTimeUtc,
-                    MimeType = MimeTypeProvider.GetMimeType(entry),
+                    MimeType = FileInfoProvider.GetMimeType(entry),
                     Type = EntryType.File,
                 };
             }
