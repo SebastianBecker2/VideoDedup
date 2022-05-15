@@ -258,9 +258,19 @@ namespace VideoDedupClient
                         return;
                     }
 
-                    dlg.SetContent(Directory
-                        .GetFileSystemEntries(e.Path)
-                        .Select(EntryFromFile));
+                    try
+                    {
+                        dlg.SetContent(Directory
+                            .GetFileSystemEntries(e.Path)
+                            .Select(EntryFromFile));
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        Debug.Print(
+                            "Not authorized to access folder," +
+                            " setting it back to C:\\");
+                        dlg.CurrentPath = "C:\\";
+                    }
                 };
 
                 var result = dlg.ShowDialog();
