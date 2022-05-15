@@ -13,6 +13,7 @@ namespace CustomSelectFileDialog
         private IEnumerable<Entry>? content;
         private readonly History pathHistory = new();
         private IconStyle entryIconStyle = IconStyle.NoFallbackOnNull;
+        private ButtonUpEnabledWhen buttonUpEnabled = ButtonUpEnabledWhen.NotInRootDirectory;
 
         public IconStyle EntryIconStyle
         {
@@ -25,6 +26,15 @@ namespace CustomSelectFileDialog
             }
         }
         public EntryType EntryType { get; set; } = EntryType.File;
+        public ButtonUpEnabledWhen ButtonUpEnabled
+        {
+            get => buttonUpEnabled;
+            set
+            {
+                buttonUpEnabled = value;
+                UpdateButtonUp();
+            }
+        }
         public string? CurrentPath
         {
             get => currentPath;
@@ -38,6 +48,7 @@ namespace CustomSelectFileDialog
                     UpdateHistoryButtons();
                 }
                 TxtCurrentPath.Text = value;
+                UpdateButtonUp();
                 OnContentRequested();
             }
         }
@@ -132,6 +143,10 @@ namespace CustomSelectFileDialog
             CurrentPath = proposedPath;
             return CurrentPath == proposedPath;
         }
+
+        private void UpdateButtonUp() =>
+            BtnUp.Enabled = ButtonUpEnabled == ButtonUpEnabledWhen.Always ||
+                Path.GetDirectoryName(currentPath) != null;
 
         private void UpdateHistoryButtons()
         {
