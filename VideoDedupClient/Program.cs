@@ -12,10 +12,95 @@ namespace VideoDedupClient
     using Dialogs;
     using static VideoDedupGrpc.VideoDedupGrpcService;
     using System.Collections.Concurrent;
+    using CustomSelectFileDialog.Exceptions;
 
     internal static class Program
     {
 #if DEBUG
+        private static readonly string RootPath = @"H:\";
+        internal class EntryElement
+        {
+            public EntryElement(string path)
+            {
+                Entry = EntryFromFile(path);
+                try
+                {
+                    SubEntries = Directory.GetFileSystemEntries(path).Select(p => new EntryElement(p)).ToList();
+                }
+                catch (IOException)
+                {
+                    SubEntries = new List<EntryElement>();
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    SubEntries = new List<EntryElement>();
+                }
+            }
+
+            public Entry Entry { get; set; }
+            public List<EntryElement> SubEntries { get; set; }
+
+            public static Entry EntryFromFile(string entry)
+            {
+                var attr = File.GetAttributes(entry);
+                var info = new FileInfo(entry);
+
+                if (attr.HasFlag(FileAttributes.Directory))
+                {
+                    return new Entry(entry.Length <= 3 ? entry : Path.GetFileName(entry))
+                    {
+                        Size = null,
+                        DateModified = info.LastWriteTimeUtc,
+                        MimeType = "File folder",
+                        Type = EntryType.Folder,
+                    };
+                }
+
+                return new Entry(Path.GetFileName(entry))
+                {
+                    Icon = FileInfoProvider.GetIcon(entry),
+                    Size = info.Length,
+                    DateModified = info.LastWriteTimeUtc,
+                    MimeType = FileInfoProvider.GetMimeType(entry),
+                    Type = EntryType.File,
+                };
+            }
+
+            public EntryElement? FindEntryElement(string path)
+            {
+                if (!path.StartsWith(
+                        Entry.Name,
+                        StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return null;
+                }
+
+                path = path[Entry.Name.Length..];
+                while (path.StartsWith(Path.DirectorySeparatorChar)
+                       || path.StartsWith(Path.AltDirectorySeparatorChar))
+                {
+                    path = path[1..];
+                }
+
+                var sepIndex = path.IndexOfAny(new[]
+                {
+                    Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar
+                });
+                if (sepIndex == -1)
+                {
+                    if (string.IsNullOrEmpty(path))
+                    {
+                        return this;
+                    }
+                    return SubEntries.FirstOrDefault(e => e.Entry.Name == path);
+                }
+
+                return SubEntries
+                    .FirstOrDefault(e => e.Entry.Name == path[0..sepIndex])
+                    ?.FindEntryElement(path);
+            }
+        }
+
         // https://stackoverflow.com/a/1437451/2347040
 #pragma warning disable IDE0079 // Remove unnecessary suppression
         [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -196,35 +281,9 @@ namespace VideoDedupClient
             ApplicationConfiguration.Initialize();
 
 #if DEBUG
-            static Entry EntryFromFile(string entry)
-            {
-                var attr = File.GetAttributes(entry);
-                var info = new FileInfo(entry);
-
-                if (attr.HasFlag(FileAttributes.Directory))
-                {
-                    return new Entry(Path.GetFileName(entry))
-                    {
-                        //Icon = Icon.ExtractAssociatedIcon(entry)?.ToBitmap(),
-                        Size = null,
-                        DateModified = info.LastWriteTimeUtc,
-                        MimeType = "File folder",
-                        Type = EntryType.Folder,
-                    };
-                }
-
-                return new Entry(Path.GetFileName(entry))
-                {
-                    Icon = FileInfoProvider.GetIcon(entry),
-                    Size = info.Length,
-                    DateModified = info.LastWriteTimeUtc,
-                    MimeType = FileInfoProvider.GetMimeType(entry),
-                    Type = EntryType.File,
-                };
-            }
-
             foreach (var i in Enumerable.Range(0, 100))
             {
+                EntryElement rootElement = new(RootPath);
                 if (false)
                 {
 #pragma warning disable CS0162 // Unreachable code detected
@@ -243,7 +302,7 @@ namespace VideoDedupClient
                 }
                 var dlg = new CustomSelectFileDialog
                 {
-                    CurrentPath = "C:\\",
+                    CurrentPath = RootPath,
                     EntryIconStyle = IconStyle.FallbackToSimpleIcons,
                     EntryType = EntryType.File,
                     ButtonUpEnabled = ButtonUpEnabledWhen.Always,
@@ -255,24 +314,28 @@ namespace VideoDedupClient
                     {
                         Debug.Print(
                             "Path is null or white space," +
-                            " setting it back to C:\\");
-                        dlg.CurrentPath = "C:\\";
+                            $" setting it back to {RootPath}");
+                        dlg.CurrentPath = RootPath;
                         return;
                     }
 
-                    try
+                    var entryElement = rootElement.FindEntryElement(e.Path);
+
+                    if (entryElement == null)
                     {
-                        dlg.SetContent(Directory
-                            .GetFileSystemEntries(e.Path)
-                            .Select(EntryFromFile));
+                        throw new InvalidContentRequestException();
                     }
-                    catch (UnauthorizedAccessException)
+
+                    if (e.Path == RootPath + @"_Test\Test3")
                     {
-                        Debug.Print(
-                            "Not authorized to access folder," +
-                            " setting it back to C:\\");
-                        dlg.CurrentPath = "C:\\";
+                        var testElement =
+                            rootElement.FindEntryElement(RootPath + @"_Test");
+                        testElement!.SubEntries.Remove(entryElement);
                     }
+
+                    dlg.SetContent(
+                        (entryElement?.SubEntries ?? new List<EntryElement>())
+                        .Select(se => se.Entry));
                 };
 
                 var result = dlg.ShowDialog();
