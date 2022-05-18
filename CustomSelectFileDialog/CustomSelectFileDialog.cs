@@ -4,6 +4,8 @@ namespace CustomSelectFileDialog
     using System.Diagnostics;
     using System.Windows.Forms;
     using EventArgs;
+    using Exceptions;
+    using Properties;
 
     public partial class CustomSelectFileDialog : Form
     {
@@ -54,9 +56,31 @@ namespace CustomSelectFileDialog
         }
         public string SelectedPath { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Event raised when content is requested.<br/>Provide content for
+        /// currently for provided path or throw InvalidContentRequestException
+        /// to display an error to the user.
+        /// </summary>
         public event EventHandler<ContentRequestedEventArgs>? ContentRequested;
-        protected virtual void OnContentRequested(string? path) =>
-            ContentRequested?.Invoke(this, new ContentRequestedEventArgs(path));
+        protected virtual void OnContentRequested(string? path)
+        {
+            try
+            {
+                ContentRequested?.Invoke(
+                    this,
+                    new ContentRequestedEventArgs(path));
+            }
+            catch (InvalidContentRequestException exc)
+            {
+                _ = MessageBox.Show(
+                    exc.Message,
+                    Resources.InvalidContentRequestExceptionTitle,
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                SetContent(Array.Empty<Entry>());
+            }
+        }
+
         protected virtual void OnContentRequested() =>
             OnContentRequested(CurrentPath);
 

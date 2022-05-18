@@ -430,6 +430,12 @@
   <data name="folders_explorer" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Images\folders_explorer.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="InvalidContentRequestExceptionDefaultMessage" xml:space="preserve">
+    <value>Unable to retrieve the content of this path.</value>
+  </data>
+  <data name="InvalidContentRequestExceptionTitle" xml:space="preserve">
+    <value>Unable to display folder content</value>
+  </data>
   <data name="update" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Images\update.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>

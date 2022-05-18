@@ -1101,6 +1101,24 @@ namespace CustomSelectFileDialog.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to retrieve the content of this path..
+        /// </summary>
+        internal static string InvalidContentRequestExceptionDefaultMessage {
+            get {
+                return ResourceManager.GetString("InvalidContentRequestExceptionDefaultMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to display folder content.
+        /// </summary>
+        internal static string InvalidContentRequestExceptionTitle {
+            get {
+                return ResourceManager.GetString("InvalidContentRequestExceptionTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap update {
