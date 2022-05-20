@@ -45,11 +45,11 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
             if (width > height)
             {
                 height = (int)(height / ((double)width / containerSize.Width));
-                return new Size(containerSize.Width, height);
+                return containerSize with { Height = height };
             }
 
             width = (int)(width / ((double)height / containerSize.Height));
-            return new Size(width, containerSize.Height);
+            return containerSize with { Width = width };
         }
 
         private static Image ResizeImageToFitContainer(
