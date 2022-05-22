@@ -1,15 +1,15 @@
-[0mSetting top to                           :[0m [32m/opt/mpv[0m 
-[0mSetting out to                           :[0m [32m/opt/mpv/build[0m 
+[0mSetting top to                           :[0m [32m/opt/x64/mpv[0m 
+[0mSetting out to                           :[0m [32m/opt/x64/mpv/build[0m 
 [0mChecking for waf version in 1.8.4-2.1.0  :[0m [32mok[0m 
-[0mChecking for program 'x86_64-w64-mingw32.static-gcc' :[0m [32m/opt/mxe/usr/bin/x86_64-w64-mingw32.static-gcc[0m 
-[0mChecking for program 'x86_64-w64-mingw32.static-pkg-config' :[0m [32m/opt/mxe/usr/bin/x86_64-w64-mingw32.static-pkg-config[0m 
-[0mChecking for program 'x86_64-w64-mingw32.static-ar'         :[0m [32m/opt/mxe/usr/bin/x86_64-w64-mingw32.static-ar[0m 
+[0mChecking for program 'x86_64-w64-mingw32.static-gcc' :[0m [32m/opt/x64/mxe/usr/bin/x86_64-w64-mingw32.static-gcc[0m 
+[0mChecking for program 'x86_64-w64-mingw32.static-pkg-config' :[0m [32m/opt/x64/mxe/usr/bin/x86_64-w64-mingw32.static-pkg-config[0m 
+[0mChecking for program 'x86_64-w64-mingw32.static-ar'         :[0m [32m/opt/x64/mxe/usr/bin/x86_64-w64-mingw32.static-ar[0m 
 [0mChecking for program 'rst2html'                             :[0m [33mnot found[0m 
 [0mChecking for program 'rst2man'                              :[0m [33mnot found[0m 
 [0mChecking for program 'rst2pdf'                              :[0m [33mnot found[0m 
-[0mChecking for program 'x86_64-w64-mingw32.static-windres'    :[0m [32m/opt/mxe/usr/bin/x86_64-w64-mingw32.static-windres[0m 
+[0mChecking for program 'x86_64-w64-mingw32.static-windres'    :[0m [32m/opt/x64/mxe/usr/bin/x86_64-w64-mingw32.static-windres[0m 
 [0mChecking for program 'perl'                                 :[0m [32m/usr/bin/perl[0m 
-[0mChecking for 'gcc' (C compiler)                             :[0m [32m/opt/mxe/usr/bin/x86_64-w64-mingw32.static-gcc[0m 
+[0mChecking for 'gcc' (C compiler)                             :[0m [32m/opt/x64/mxe/usr/bin/x86_64-w64-mingw32.static-gcc[0m 
 [0mDetected target OS:                                         :[0m [32mos-win32[0m 
 [0mChecking for compiler flags -std=c11                        :[0m [32myes[0m 
 [0mChecking for compiler flags -Werror -Werror=implicit-function-declaration :[0m [32myes[0m 
@@ -23,7 +23,7 @@
 [0mChecking for compiler flags -Werror -Wno-redundant-decls                  :[0m [32myes[0m 
 [0mChecking for compiler flags -Werror -Wvla                                 :[0m [32myes[0m 
 [0mChecking for compiler flags -Werror -Wno-format-truncation                :[0m [32myes[0m 
-[0mChecking for compiler flags -Werror -Wimplicit-fallthrough                :[0m [33mno[0m 
+[0mChecking for compiler flags -Werror -Wimplicit-fallthrough                :[0m [32myes[0m 
 [0mChecking for compiler flags -Werror -fno-math-errno                       :[0m [32myes[0m 
 [0mChecking for LGPL (version 2.1 or later) build                            :[0m [32myes[0m 
 [0mChecking for GPL (version 2 or later) build                               :[0m [33mlgpl found[0m 
@@ -42,6 +42,7 @@
 [0mChecking for dynamic loader                                               :[0m [32myes[0m 
 [0mChecking for C plugins                                                    :[0m [33mos-win32 found[0m 
 [0mChecking for inline assembly (currently without effect)                   :[0m [32myes[0m 
+[0mChecking for GCC vector instructions                                      :[0m [32myes[0m 
 [0mChecking for generate a clang compilation database                        :[0m [33mdisabled[0m 
 [0mChecking for static Swift linking                                         :[0m [33mdisabled[0m 
 [0mChecking for compiler support for noexecstack                             :[0m [01;31mno[0m 
@@ -93,8 +94,9 @@
 [0mChecking for SDL2 gamepad input                                           :[0m [33msdl2 not found[0m 
 [0mChecking for FFmpeg library                                               :[0m [32myes[0m 
 [0mChecking for libavdevice                                                  :[0m [32myes[0m 
-[0mChecking for Disable all known FFmpeg ABI violations                      :[0m [33mdisabled[0m 
+[0mChecking for FFmpeg AVIOContext bytes_read statistic field                :[0m [32myes[0m 
 [0mChecking for SDL2 audio output                                            :[0m [33msdl2 not found[0m 
+[0mChecking for OSSv4 audio output                                           :[0m [33mposix not found[0m 
 [0mChecking for PulseAudio audio output                                      :[0m [01;31mno ('libpulse >= 1.0' not found)[0m 
 [0mChecking for JACK audio output                                            :[0m [33mgpl not found[0m 
 [0mChecking for OpenAL audio output                                          :[0m [33mdisabled[0m 
@@ -146,7 +148,7 @@
 [0mChecking for iOS OpenGL ES hardware decoding interop support              :[0m [01;31mno[0m 
 [0mChecking for OpenGL without platform-specific code (e.g. for libmpv)      :[0m [32myes[0m 
 [0mChecking for OpenGL context support                                       :[0m [32myes[0m 
-[0mChecking for libplacebo support                                           :[0m [01;31mno ('libplacebo >= 1.18.0' not found)[0m 
+[0mChecking for libplacebo support                                           :[0m [01;31mno ('libplacebo >= 3.104.0' not found)[0m 
 [0mChecking for Vulkan context support                                       :[0m [33mlibplacebo not found[0m 
 [0mChecking for VAAPI Vulkan                                                 :[0m [33mvaapi not found[0m 
 [0mChecking for EGL helper functions                                         :[0m [33megl not found[0m 
@@ -168,4 +170,4 @@
 [0mChecking for macOS Media Player support                                   :[0m [33mmacos-10-12-2-features not found[0m 
 [0mChecking for macOS libmpv backend                                         :[0m [33mcocoa not found[0m 
 [0mWriting configuration header:                                             :[0m [35mconfig.h[0m 
-'configure' finished successfully (5.565s)
+'configure' finished successfully (4.144s)

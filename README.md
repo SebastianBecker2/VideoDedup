@@ -31,12 +31,12 @@ VidepDedup is using the following tools and libraries:
 - The amazing [FatCow IconPack](https://www.fatcow.com/free-icons)
 - [WiX Toolset](https://wixtoolset.org)
 
-libmpv 0.33 was cross-compiled with LGPL flag from the "release/0.33" branch using MXE for x64 and x86 with:  
+libmpv 0.33 was cross-compiled with LGPL flag from the "tags/v0.34.1" branch using MXE for x64 and x86 with:  
 
     DEST_OS=win32 TARGET=x86_64-w64-mingw32.static ./waf configure --enable-libmpv-shared --disable-cplayer --enable-lgpl --disable-debug-build --disable-lua
 and:  
 
     DEST_OS=win32 TARGET=i686-w64-mingw32.static ./waf configure --enable-libmpv-shared --disable-cplayer --enable-lgpl --disable-debug-build --disable-lua
 respectively.  
-For detailed configuration check [x64 libmpv_build_config](./DedupEngine/Libs/libmpv/x64/libmpv_build_config) and [x86 libmpv_build_config](./DedupEngine/Libs/libmpv/x86/libmpv_build_config) respectively.  
+For detailed configuration check [x64 libmpv_build_config](./MpvLib/Libs/libmpv/x64/libmpv_build_config) and [x86 libmpv_build_config](./MpvLib/Libs/libmpv/x86/libmpv_build_config) respectively.  
 For information on how to build libmpv check out [mpv-players windows compilation guide](https://github.com/mpv-player/mpv/blob/master/DOCS/compile-windows.md).
