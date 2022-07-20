@@ -21,7 +21,7 @@ namespace CustomSelectFileDialog
                     nameof(name));
             }
 
-            Name = name;
+            Name = name.TrimEnd('\\').Trim('/');
         }
 
         public Image? GetIcon(IconStyle iconStyle)
