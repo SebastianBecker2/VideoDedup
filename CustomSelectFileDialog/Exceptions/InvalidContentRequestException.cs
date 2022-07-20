@@ -1,4 +1,4 @@
-namespace CustomSelectFileDialog.Exceptions
+namespace CustomSelectFileDlg.Exceptions
 {
     using System.Runtime.Serialization;
     using Properties;

@@ -1,4 +1,4 @@
-namespace CustomSelectFileDialog
+namespace CustomSelectFileDlg
 {
     using System.ComponentModel;
     using System.Diagnostics;
@@ -49,7 +49,7 @@ namespace CustomSelectFileDialog
                     pathHistory.Add(currentPath);
                     UpdateHistoryButtons();
                 }
-                TxtCurrentPath.Text = value;
+                PabCurrentPath.CurrentPath = value;
                 UpdateButtonUp();
                 OnContentRequested();
             }
@@ -366,14 +366,6 @@ namespace CustomSelectFileDialog
         private void HandleBtnRefreshClick(object sender, System.EventArgs e) =>
             OnContentRequested();
 
-        private void HandleTxtCurrentPathKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode is Keys.Return or Keys.Enter)
-            {
-                CurrentPath = TxtCurrentPath.Text;
-            }
-        }
-
         private void HandleTxtSelectedFileNameKeyDown(
             object sender,
             KeyEventArgs e)
@@ -460,6 +452,35 @@ namespace CustomSelectFileDialog
                 UpdateHistoryButtons();
                 applyingHistory = false;
             }
+        }
+
+        private void HandlePabCurrentPathCurrentPathChanged(
+            object sender,
+            CurrentPathChangedEventArgs e)
+        {
+            if (CurrentPath != e.Path)
+            {
+                CurrentPath = e.Path;
+            }
+
+        }
+
+        private void HandleCustomSelectFileDialogKeyDown(
+            object sender,
+            KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Escape)
+            {
+                return;
+            }
+
+            if (PabCurrentPath.DisplayStyle == PathDisplayStyle.TextBox)
+            {
+                PabCurrentPath.DisplayStyle = PathDisplayStyle.Buttons;
+                return;
+            }
+
+            DialogResult = BtnCancel.DialogResult;
         }
     }
 }

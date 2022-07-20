@@ -1,4 +1,4 @@
-namespace CustomSelectFileDialog
+namespace CustomSelectFileDlg
 {
     partial class CustomSelectFileDialog
     {
@@ -31,7 +31,6 @@ namespace CustomSelectFileDialog
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.BtnRefresh = new System.Windows.Forms.Button();
-            this.TxtCurrentPath = new System.Windows.Forms.TextBox();
             this.BtnUp = new System.Windows.Forms.Button();
             this.BtnForward = new System.Windows.Forms.Button();
             this.BtnBack = new System.Windows.Forms.Button();
@@ -45,36 +44,27 @@ namespace CustomSelectFileDialog
             this.DgcSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.TxtSelectedFileName = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.PabCurrentPath = new CustomSelectFileDlg.PathBox();
             ((System.ComponentModel.ISupportInitialize)(this.DgvContent)).BeginInit();
             this.SuspendLayout();
             // 
             // BtnRefresh
             // 
             this.BtnRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnRefresh.Image = global::CustomSelectFileDialog.Properties.Resources.update;
-            this.BtnRefresh.Location = new System.Drawing.Point(751, 12);
+            this.BtnRefresh.Image = global::CustomSelectFileDlg.Properties.Resources.update;
+            this.BtnRefresh.Location = new System.Drawing.Point(566, 12);
             this.BtnRefresh.Name = "BtnRefresh";
-            this.BtnRefresh.Size = new System.Drawing.Size(37, 23);
+            this.BtnRefresh.Size = new System.Drawing.Size(37, 27);
             this.BtnRefresh.TabIndex = 8;
             this.BtnRefresh.UseVisualStyleBackColor = true;
             this.BtnRefresh.Click += new System.EventHandler(this.HandleBtnRefreshClick);
             // 
-            // TxtCurrentPath
-            // 
-            this.TxtCurrentPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.TxtCurrentPath.Location = new System.Drawing.Point(141, 12);
-            this.TxtCurrentPath.Name = "TxtCurrentPath";
-            this.TxtCurrentPath.Size = new System.Drawing.Size(604, 23);
-            this.TxtCurrentPath.TabIndex = 7;
-            this.TxtCurrentPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.HandleTxtCurrentPathKeyDown);
-            // 
             // BtnUp
             // 
-            this.BtnUp.Image = global::CustomSelectFileDialog.Properties.Resources.bullet_arrow_up;
+            this.BtnUp.Image = global::CustomSelectFileDlg.Properties.Resources.bullet_arrow_up;
             this.BtnUp.Location = new System.Drawing.Point(98, 12);
             this.BtnUp.Name = "BtnUp";
-            this.BtnUp.Size = new System.Drawing.Size(37, 23);
+            this.BtnUp.Size = new System.Drawing.Size(37, 27);
             this.BtnUp.TabIndex = 6;
             this.BtnUp.UseVisualStyleBackColor = true;
             this.BtnUp.Click += new System.EventHandler(this.HandleBtnUpClick);
@@ -82,10 +72,10 @@ namespace CustomSelectFileDialog
             // BtnForward
             // 
             this.BtnForward.Enabled = false;
-            this.BtnForward.Image = global::CustomSelectFileDialog.Properties.Resources.bullet_arrow_right;
+            this.BtnForward.Image = global::CustomSelectFileDlg.Properties.Resources.bullet_arrow_right;
             this.BtnForward.Location = new System.Drawing.Point(55, 12);
             this.BtnForward.Name = "BtnForward";
-            this.BtnForward.Size = new System.Drawing.Size(37, 23);
+            this.BtnForward.Size = new System.Drawing.Size(37, 27);
             this.BtnForward.TabIndex = 5;
             this.BtnForward.UseVisualStyleBackColor = true;
             this.BtnForward.Click += new System.EventHandler(this.HandleBtnForwardClick);
@@ -93,10 +83,10 @@ namespace CustomSelectFileDialog
             // BtnBack
             // 
             this.BtnBack.Enabled = false;
-            this.BtnBack.Image = global::CustomSelectFileDialog.Properties.Resources.bullet_arrow_left;
+            this.BtnBack.Image = global::CustomSelectFileDlg.Properties.Resources.bullet_arrow_left;
             this.BtnBack.Location = new System.Drawing.Point(12, 12);
             this.BtnBack.Name = "BtnBack";
-            this.BtnBack.Size = new System.Drawing.Size(37, 23);
+            this.BtnBack.Size = new System.Drawing.Size(37, 27);
             this.BtnBack.TabIndex = 4;
             this.BtnBack.UseVisualStyleBackColor = true;
             this.BtnBack.Click += new System.EventHandler(this.HandleBtnBackClick);
@@ -105,7 +95,7 @@ namespace CustomSelectFileDialog
             // 
             this.BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.BtnCancel.Location = new System.Drawing.Point(713, 415);
+            this.BtnCancel.Location = new System.Drawing.Point(528, 322);
             this.BtnCancel.Name = "BtnCancel";
             this.BtnCancel.Size = new System.Drawing.Size(75, 23);
             this.BtnCancel.TabIndex = 3;
@@ -115,7 +105,7 @@ namespace CustomSelectFileDialog
             // BtnOk
             // 
             this.BtnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnOk.Location = new System.Drawing.Point(632, 415);
+            this.BtnOk.Location = new System.Drawing.Point(447, 322);
             this.BtnOk.Name = "BtnOk";
             this.BtnOk.Size = new System.Drawing.Size(75, 23);
             this.BtnOk.TabIndex = 2;
@@ -151,7 +141,7 @@ namespace CustomSelectFileDialog
             this.DgcSize});
             this.DgvContent.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.DgvContent.EnableHeadersVisualStyles = false;
-            this.DgvContent.Location = new System.Drawing.Point(12, 41);
+            this.DgvContent.Location = new System.Drawing.Point(12, 45);
             this.DgvContent.MultiSelect = false;
             this.DgvContent.Name = "DgvContent";
             this.DgvContent.RowHeadersVisible = false;
@@ -159,7 +149,7 @@ namespace CustomSelectFileDialog
             this.DgvContent.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.DgvContent.ShowCellToolTips = false;
             this.DgvContent.ShowEditingIcon = false;
-            this.DgvContent.Size = new System.Drawing.Size(776, 368);
+            this.DgvContent.Size = new System.Drawing.Size(591, 271);
             this.DgvContent.TabIndex = 0;
             this.DgvContent.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.HandleDgvContentCellDoubleClick);
             this.DgvContent.SelectionChanged += new System.EventHandler(this.HandleDgvContentSelectionChanged);
@@ -209,9 +199,9 @@ namespace CustomSelectFileDialog
             // 
             this.TxtSelectedFileName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.TxtSelectedFileName.Location = new System.Drawing.Point(79, 415);
+            this.TxtSelectedFileName.Location = new System.Drawing.Point(79, 322);
             this.TxtSelectedFileName.Name = "TxtSelectedFileName";
-            this.TxtSelectedFileName.Size = new System.Drawing.Size(547, 23);
+            this.TxtSelectedFileName.Size = new System.Drawing.Size(362, 23);
             this.TxtSelectedFileName.TabIndex = 1;
             this.TxtSelectedFileName.TextChanged += new System.EventHandler(this.HandleTxtSelectedFileNameTextChanged);
             this.TxtSelectedFileName.KeyDown += new System.Windows.Forms.KeyEventHandler(this.HandleTxtSelectedFileNameKeyDown);
@@ -220,32 +210,44 @@ namespace CustomSelectFileDialog
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 419);
+            this.label1.Location = new System.Drawing.Point(12, 326);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(61, 15);
             this.label1.TabIndex = 16;
             this.label1.Text = "File name:";
             // 
+            // PabCurrentPath
+            // 
+            this.PabCurrentPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.PabCurrentPath.Location = new System.Drawing.Point(141, 12);
+            this.PabCurrentPath.MaximumSize = new System.Drawing.Size(999999999, 923);
+            this.PabCurrentPath.Name = "PabCurrentPath";
+            this.PabCurrentPath.Size = new System.Drawing.Size(419, 27);
+            this.PabCurrentPath.TabIndex = 17;
+            this.PabCurrentPath.CurrentPathChanged += new System.EventHandler<CustomSelectFileDlg.EventArgs.CurrentPathChangedEventArgs>(this.HandlePabCurrentPathCurrentPathChanged);
+            // 
             // CustomSelectFileDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.CancelButton = this.BtnCancel;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(615, 357);
+            this.Controls.Add(this.PabCurrentPath);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.TxtSelectedFileName);
             this.Controls.Add(this.DgvContent);
             this.Controls.Add(this.BtnRefresh);
-            this.Controls.Add(this.TxtCurrentPath);
             this.Controls.Add(this.BtnUp);
             this.Controls.Add(this.BtnForward);
             this.Controls.Add(this.BtnBack);
             this.Controls.Add(this.BtnCancel);
             this.Controls.Add(this.BtnOk);
+            this.KeyPreview = true;
             this.Name = "CustomSelectFileDialog";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.Text = "CustomSelectFileDialog";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.HandleCustomSelectFileDialogKeyDown);
             ((System.ComponentModel.ISupportInitialize)(this.DgvContent)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -255,7 +257,6 @@ namespace CustomSelectFileDialog
         #endregion
 
         private Button BtnRefresh;
-        private TextBox TxtCurrentPath;
         private Button BtnUp;
         private Button BtnForward;
         private Button BtnBack;
@@ -269,5 +270,6 @@ namespace CustomSelectFileDialog
         private DataGridViewTextBoxColumn DgcDateModified;
         private DataGridViewTextBoxColumn DgcType;
         private DataGridViewTextBoxColumn DgcSize;
+        private PathBox PabCurrentPath;
     }
 }

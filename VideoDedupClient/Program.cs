@@ -4,7 +4,7 @@ namespace VideoDedupClient
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Runtime.InteropServices;
-    using CustomSelectFileDialog;
+    using CustomSelectFileDlg;
     using Grpc.Core;
     using Grpc.Net.Client;
     using Grpc.Net.Client.Configuration;
@@ -12,7 +12,7 @@ namespace VideoDedupClient
     using Dialogs;
     using static VideoDedupGrpc.VideoDedupGrpcService;
     using System.Collections.Concurrent;
-    using CustomSelectFileDialog.Exceptions;
+    using CustomSelectFileDlg.Exceptions;
 
     internal static class Program
     {
@@ -302,7 +302,7 @@ namespace VideoDedupClient
                 }
                 var dlg = new CustomSelectFileDialog
                 {
-                    CurrentPath = RootPath,
+                    CurrentPath = @"H:\_Test\Test6\Test5\Test4\Test3\Test2\Test1",
                     EntryIconStyle = IconStyle.FallbackToSimpleIcons,
                     EntryType = EntryType.File,
                     ButtonUpEnabled = ButtonUpEnabledWhen.Always,

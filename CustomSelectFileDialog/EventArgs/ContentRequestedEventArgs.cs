@@ -1,4 +1,4 @@
-namespace CustomSelectFileDialog.EventArgs
+namespace CustomSelectFileDlg.EventArgs
 {
     using System;
 

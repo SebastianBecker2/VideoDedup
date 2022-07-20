@@ -1,4 +1,4 @@
-namespace CustomSelectFileDialog
+namespace CustomSelectFileDlg
 {
     using System;
     using Properties;

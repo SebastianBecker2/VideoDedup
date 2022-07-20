@@ -1,4 +1,4 @@
-namespace CustomSelectFileDialog
+namespace CustomSelectFileDlg
 {
     public enum ButtonUpEnabledWhen
     {

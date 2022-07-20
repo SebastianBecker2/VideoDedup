@@ -38,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CustomSelectFileDialog\CustomSelectFileDialog.csproj" />
+    <ProjectReference Include="..\CustomSelectFileDialog\CustomSelectFileDlg.csproj" />
     <ProjectReference Include="..\SmartTimer\SmartTimer.csproj" />
     <ProjectReference Include="..\Versioning\Versioning.csproj">
       <TreatAsUsed>true</TreatAsUsed>

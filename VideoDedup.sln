@@ -36,7 +36,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MpvLib", "MpvLib\MpvLib.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Versioning", "Versioning\Versioning.csproj", "{688F63A1-4A77-4029-9681-02F25CCCD458}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomSelectFileDialog", "CustomSelectFileDialog\CustomSelectFileDialog.csproj", "{3929CCF2-5BBA-4A1C-AA12-FFF50141AA4F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomSelectFileDlg", "CustomSelectFileDialog\CustomSelectFileDlg.csproj", "{3929CCF2-5BBA-4A1C-AA12-FFF50141AA4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
