@@ -1,4 +1,4 @@
-﻿namespace CustomSelectFileDlg
+namespace CustomSelectFileDlg
 {
     partial class ResizableTextBox
     {
@@ -39,6 +39,7 @@
             this.TxtInnerTextBox.Name = "TxtInnerTextBox";
             this.TxtInnerTextBox.Size = new System.Drawing.Size(100, 16);
             this.TxtInnerTextBox.TabIndex = 0;
+            this.TxtInnerTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnTxtInnerTextBoxKeyDown);
             // 
             // ResizableTextBox
             // 

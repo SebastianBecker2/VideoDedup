@@ -21,5 +21,8 @@ namespace CustomSelectFileDlg
         }
 
         public void SelectAll() => TxtInnerTextBox.SelectAll();
+
+        private void OnTxtInnerTextBoxKeyDown(object sender, KeyEventArgs e) =>
+            OnKeyDown(e);
     }
 }
