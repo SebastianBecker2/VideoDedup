@@ -23,18 +23,18 @@ service VideoDedupGrpcService {
 }
 
 enum ComparisonResult {
-    NoResult = 0;
-    Duplicate = 1;
-    Different = 2;
-    Cancelled = 3;
-    Aborted = 4;
+    NO_RESULT = 0;
+    DUPLICATE = 1;
+    DIFFERENT = 2;
+    CANCELLED = 3;
+    ABORTED = 4;
 }
 
 enum ResolveOperation {
-    DeleteFile = 0;
-    Skip = 1;
-    Discard = 2;
-    Cancel = 3;
+    DELETE_FILE = 0;
+    SKIP = 1;
+    DISCARD = 2;
+    CANCEL = 3;
 }
 
 message CancelCustomVideoComparisonRequest {
@@ -53,8 +53,8 @@ message VideoComparisonResult {
 }
 
 message ImageIndex {
-    int32 Numerator = 1;
-    int32 Denominator = 2;
+    int32 numerator = 1;
+    int32 denominator = 2;
 }
 
 message ImageSet {
@@ -142,24 +142,24 @@ message ResolveDuplicateResponse {
 
 message OperationInfo {
     enum OperationType {
-        Comparing = 0;
-        LoadingMedia = 1;
-        Searching = 2;
-        Monitoring = 3;
-        Completed = 4;
-        Initializing = 5;
-        Error = 6;
-        Connecting = 7;
+        COMPARING = 0;
+        LOADING_MEDIA = 1;
+        SEARCHING = 2;
+        MONITORING = 3;
+        COMPLETED = 4;
+        INITIALIZING = 5;
+        ERROR = 6;
+        CONNECTING = 7;
     }
     enum ProgressStyle {
-        Marquee = 0;
-        NoProgress = 1;
-        Continuous = 2;
+        MARQUEE = 0;
+        NO_PROGRESS = 1;
+        CONTINUOUS = 2;
     }
 
     OperationType operation_type = 1;
-    int32 CurrentProgress = 2;
-    int32 MaximumProgress = 3;
+    int32 current_progress = 2;
+    int32 maximum_progress = 3;
     ProgressStyle progress_style = 4;
     google.protobuf.Timestamp start_time = 5;
 }
