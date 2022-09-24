@@ -43,6 +43,7 @@ namespace CustomSelectFileDlg
             Visible = false,
         };
         private IEnumerable<Element>? elements;
+        private readonly ButtonListDlg buttonList = new();
 
         public IEnumerable<Element>? Elements
         {
@@ -61,6 +62,24 @@ namespace CustomSelectFileDlg
 
         public ResizableButtonArray()
         {
+            squashButton.Click += (_, _) =>
+            {
+                var location = squashButton.PointToScreen(Point.Empty);
+                location.Y += squashButton.Size.Height;
+                ShowDropDownList(
+                    TlpArray.Controls
+                        .Cast<Button>()
+                        .Where(b => b != squashButton)
+                        .Where(b => !b.Visible)
+                        .Select(b => new ButtonListDlg.Element(b.Text, b.Tag))
+                        .Reverse()
+                        .ToList(),
+                    location);
+            };
+
+            buttonList.ElementClick += (_, args) =>
+                OnElementClicked((args.Element.Tag as Element)!);
+
             ResizeRedraw = true;
             InitializeComponent();
         }
@@ -120,6 +139,13 @@ namespace CustomSelectFileDlg
                 return;
             }
 
+            if (buttons.Count == 1)
+            {
+                buttons.First().Visible = true;
+                squashButton.Visible = false;
+                return;
+            }
+
             var collectiveButtonWidth = buttons
                 .Where(b => b.Visible)
                 .Sum(b => b.Width);
@@ -159,7 +185,7 @@ namespace CustomSelectFileDlg
 
             Debug.Print($"New button width {collectiveButtonWidth} after removing");
             foreach (var buttonIndex in
-                     Enumerable.Range(0, buttons.Count - 1).Reverse())
+                     Enumerable.Range(0, buttons.Count).Reverse())
             {
                 var button = buttons[buttonIndex];
                 if (button!.Visible)
@@ -193,5 +219,14 @@ namespace CustomSelectFileDlg
 
         private void HandleTlpArrayClick(object sender, System.EventArgs e) =>
             OnClick(e);
+
+        private void ShowDropDownList(
+            IList<ButtonListDlg.Element> entries,
+            Point location)
+        {
+            buttonList.Location = location;
+            buttonList.Entries = entries;
+            buttonList.Show();
+        }
     }
 }
