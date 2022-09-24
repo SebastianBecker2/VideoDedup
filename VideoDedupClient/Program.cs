@@ -18,11 +18,18 @@ namespace VideoDedupClient
     {
 #if DEBUG
         private static readonly string RootPath = @"H:\";
+
         internal class EntryElement
         {
             public EntryElement(string path)
             {
                 Entry = EntryFromFile(path);
+
+                if (!Directory.Exists(path))
+                {
+                    return;
+                }
+
                 try
                 {
                     SubEntries = Directory.GetFileSystemEntries(path).Select(p => new EntryElement(p)).ToList();
@@ -38,7 +45,7 @@ namespace VideoDedupClient
             }
 
             public Entry Entry { get; set; }
-            public List<EntryElement> SubEntries { get; set; }
+            public List<EntryElement>? SubEntries { get; set; }
 
             public static Entry EntryFromFile(string entry)
             {
@@ -302,7 +309,7 @@ namespace VideoDedupClient
                 }
                 var dlg = new CustomSelectFileDialog
                 {
-                    CurrentPath = @"H:\_Test\Test6\Test5\Test4\Test3\Test2\Test1",
+                    CurrentPath = @"H:\_Test\Test6\Test5\Test4\Test3\Test2\Test1\Test1\Test2\Test3\Test4\Test5\Test6",
                     EntryIconStyle = IconStyle.FallbackToSimpleIcons,
                     EntryType = EntryType.File,
                     ButtonUpEnabled = ButtonUpEnabledWhen.Always,
