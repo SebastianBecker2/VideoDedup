@@ -13,6 +13,7 @@ namespace VideoDedupServer
     using Grpc.Core;
     using Newtonsoft.Json;
     using VideoDedupGrpc;
+    using VideoDedupSharedLib;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
     using static VideoDedupGrpc.OperationInfo.Types;
@@ -211,6 +212,43 @@ namespace VideoDedupServer
             _ = comparisonManager.CancelCustomComparison(
                 Guid.Parse(request.ComparisonToken));
             return Task.FromResult(new Empty());
+        }
+
+        public override Task<GetFolderContentResponse> GetFolderContent(
+            GetFolderContentRequest request,
+            ServerCallContext context)
+        {
+            var result = new GetFolderContentResponse();
+            if (string.IsNullOrWhiteSpace(request.Path)
+                || !Directory.Exists(request.Path))
+            {
+                result.RequestFailed = true;
+                return Task.FromResult(result);
+            }
+
+            result.Files.AddRange(
+                Directory.GetFileSystemEntries(request.Path)
+                    .Select(path =>
+                    {
+                        var attr = File.GetAttributes(path);
+                        var isFolder = attr.HasFlag(FileAttributes.Directory);
+                        var info = new FileInfo(path);
+                        var size = isFolder ? 0 : info.Length;
+                        var mimeType = isFolder
+                            ? "File folder"
+                            : FileInfoProvider.GetMimeType(path) ?? "";
+                        var dateModified =
+                            Timestamp.FromDateTime(info.LastWriteTimeUtc);
+                        return new GetFolderContentResponse.Types.FileAttributes
+                        {
+                            Name = Path.GetFileName(path),
+                            Size = size,
+                            IsFolder = isFolder,
+                            DateModified = dateModified,
+                            MimeType = mimeType,
+                        };
+                    }));
+            return Task.FromResult(result);
         }
 
         private void OperationUpdateCallback(

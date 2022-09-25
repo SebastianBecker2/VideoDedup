@@ -20,6 +20,7 @@ service VideoDedupGrpcService {
   rpc StartCustomVideoComparison (CustomVideoComparisonConfiguration) returns (CustomVideoComparisonStatus);
   rpc GetVideoComparisonStatus (CustomVideoComparisonStatusRequest) returns (CustomVideoComparisonStatus);
   rpc CancelCustomVideoComparison (CancelCustomVideoComparisonRequest) returns (google.protobuf.Empty);
+  rpc GetFolderContent (GetFolderContentRequest) returns (GetFolderContentResponse);
 }
 
 enum ComparisonResult {
@@ -35,6 +36,23 @@ enum ResolveOperation {
     SKIP = 1;
     DISCARD = 2;
     CANCEL = 3;
+}
+
+message GetFolderContentResponse {
+    message FileAttributes {
+        string name = 1;
+        bool is_folder = 2;
+        int64 size = 3;
+        google.protobuf.Timestamp date_modified = 4;
+        string mime_type = 5;
+    }
+
+    repeated FileAttributes files = 1;
+    bool request_failed = 2;
+}
+
+message GetFolderContentRequest {
+    string path = 1;
 }
 
 message CancelCustomVideoComparisonRequest {

@@ -1,11 +1,17 @@
 namespace VideoDedupClient.Dialogs
 {
+    using CustomSelectFileDlg;
+    using CustomSelectFileDlg.Exceptions;
     using Microsoft.WindowsAPICodePack.Dialogs;
     using VideoDedupGrpc;
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
+    using static VideoDedupGrpc.VideoDedupGrpcService;
 
     public partial class ServerConfigDlg : Form
     {
+        private static VideoDedupGrpcServiceClient GrpcClient =>
+            Program.GrpcClient;
+
         private FolderSettings? FolderSettings =>
             ConfigurationSettings?.FolderSettings;
         private DurationComparisonSettings? DurationComparisonSettings =>
@@ -112,16 +118,35 @@ namespace VideoDedupClient.Dialogs
 
         private void BtnSelectSourcePath_Click(object sender, EventArgs e)
         {
-            using var dlg = new CommonOpenFileDialog();
-            dlg.IsFolderPicker = true;
-            dlg.InitialDirectory = TxtSourcePath.Text;
+            using var dlg = new CustomSelectFileDialog();
+            dlg.IsFolderSelector = true;
+            dlg.CurrentPath = TxtSourcePath.Text;
+            dlg.ButtonUpEnabled = ButtonUpEnabledWhen.NotInRootDirectory;
+            dlg.EntryIconStyle = IconStyle.FallbackToExtensionSpecificIcons;
+            dlg.ContentRequested += (_, args) =>
+            {
+                var content = GrpcClient.GetFolderContent(
+                    new GetFolderContentRequest { Path = args.Path, });
+                if (content.RequestFailed)
+                {
+                    throw new InvalidContentRequestException();
+                }
+                // ReSharper disable once AccessToDisposedClosure
+                dlg.SetContent(content.Files.Select(f => new Entry(f.Name)
+                {
+                    DateModified = f.DateModified.ToDateTime(),
+                    Size = f.IsFolder ? null : f.Size,
+                    Type = f.IsFolder ? EntryType.Folder : EntryType.File,
+                    MimeType = f.MimeType,
+                }));
+            };
 
-            if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
+            if (dlg.ShowDialog() != DialogResult.OK)
             {
                 return;
             }
 
-            TxtSourcePath.Text = dlg.FileName;
+            TxtSourcePath.Text = dlg.SelectedPath;
         }
 
         private void BtnAddExcludedDirectory_Click(object sender, EventArgs e)

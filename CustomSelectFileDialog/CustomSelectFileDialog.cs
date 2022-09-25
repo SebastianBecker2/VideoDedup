@@ -27,7 +27,7 @@ namespace CustomSelectFileDlg
                     entryIconStyle != IconStyle.NoIcon;
             }
         }
-        public EntryType EntryType { get; set; } = EntryType.File;
+        public bool IsFolderSelector { get; set; }
         public ButtonUpEnabledWhen ButtonUpEnabled
         {
             get => buttonUpEnabled;
@@ -328,7 +328,7 @@ namespace CustomSelectFileDlg
 
             if (selectedEntry is not null)
             {
-                if (EntryType == EntryType.File
+                if (!IsFolderSelector
                     && selectedEntry.Type == EntryType.Folder)
                 {
                     CurrentPath =
@@ -336,7 +336,7 @@ namespace CustomSelectFileDlg
                     return;
                 }
 
-                if (EntryType == EntryType.Folder
+                if (IsFolderSelector
                     && selectedEntry.Type != EntryType.Folder)
                 {
                     return;
