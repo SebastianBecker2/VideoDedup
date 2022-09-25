@@ -1,17 +1,14 @@
 namespace VideoDedupClient.Dialogs
 {
+    using System.Globalization;
     using CustomSelectFileDlg;
     using CustomSelectFileDlg.Exceptions;
     using Microsoft.WindowsAPICodePack.Dialogs;
     using VideoDedupGrpc;
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
-    using static VideoDedupGrpc.VideoDedupGrpcService;
 
     public partial class ServerConfigDlg : Form
     {
-        private static VideoDedupGrpcServiceClient GrpcClient =>
-            Program.GrpcClient;
-
         private FolderSettings? FolderSettings =>
             ConfigurationSettings?.FolderSettings;
         private DurationComparisonSettings? DurationComparisonSettings =>
@@ -36,13 +33,13 @@ namespace VideoDedupClient.Dialogs
                 if (FolderSettings.ExcludedDirectories != null)
                 {
                     LsbExcludedDirectories.Items.AddRange(
-                        FolderSettings.ExcludedDirectories.ToArray());
+                        FolderSettings.ExcludedDirectories.ToArray<object>());
                 }
 
                 if (FolderSettings.FileExtensions != null)
                 {
                     LsbFileExtensions.Items.AddRange(
-                        FolderSettings.FileExtensions.ToArray());
+                        FolderSettings.FileExtensions.ToArray<object>());
                 }
             }
 
@@ -118,35 +115,25 @@ namespace VideoDedupClient.Dialogs
 
         private void BtnSelectSourcePath_Click(object sender, EventArgs e)
         {
-            using var dlg = new CustomSelectFileDialog();
-            dlg.IsFolderSelector = true;
-            dlg.CurrentPath = TxtSourcePath.Text;
-            dlg.ButtonUpEnabled = ButtonUpEnabledWhen.NotInRootDirectory;
-            dlg.EntryIconStyle = IconStyle.FallbackToExtensionSpecificIcons;
-            dlg.ContentRequested += (_, args) =>
+            static string? ShowFolderSelection(string initialFolder)
             {
-                var content = GrpcClient.GetFolderContent(
-                    new GetFolderContentRequest { Path = args.Path, });
-                if (content.RequestFailed)
+                var serverAddress = Program.Configuration.ServerAddress.ToLower(
+                    CultureInfo.InvariantCulture);
+                if (serverAddress is "localhost" or "127.0.0.1")
                 {
-                    throw new InvalidContentRequestException();
+                    return ShowFolderSelectionLocally(initialFolder);
                 }
-                // ReSharper disable once AccessToDisposedClosure
-                dlg.SetContent(content.Files.Select(f => new Entry(f.Name)
-                {
-                    DateModified = f.DateModified.ToDateTime(),
-                    Size = f.IsFolder ? null : f.Size,
-                    Type = f.IsFolder ? EntryType.Folder : EntryType.File,
-                    MimeType = f.MimeType,
-                }));
-            };
 
-            if (dlg.ShowDialog() != DialogResult.OK)
+                return ShowFolderSelectionRemove(initialFolder);
+            }
+
+            var newPath = ShowFolderSelection(TxtSourcePath.Text);
+            if (newPath is null)
             {
                 return;
             }
 
-            TxtSourcePath.Text = dlg.SelectedPath;
+            TxtSourcePath.Text = newPath;
         }
 
         private void BtnAddExcludedDirectory_Click(object sender, EventArgs e)
@@ -228,6 +215,53 @@ namespace VideoDedupClient.Dialogs
             {
                 LblMaxDurationDifferenceUnit.Text = "Percent";
             }
+        }
+
+        private static string? ShowFolderSelectionLocally(string initialPath)
+        {
+            using var dlg = new CommonOpenFileDialog();
+            dlg.IsFolderPicker = true;
+            dlg.InitialDirectory = initialPath;
+
+            if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
+            {
+                return null;
+            }
+
+            return dlg.FileName;
+        }
+
+        private static string? ShowFolderSelectionRemove(string initialPath)
+        {
+            using var dlg = new CustomSelectFileDialog();
+            dlg.IsFolderSelector = true;
+            dlg.CurrentPath = initialPath;
+            dlg.ButtonUpEnabled = ButtonUpEnabledWhen.NotInRootDirectory;
+            dlg.EntryIconStyle = IconStyle.FallbackToExtensionSpecificIcons;
+            dlg.ContentRequested += (_, args) =>
+            {
+                var content = Program.GrpcClient.GetFolderContent(
+                    new GetFolderContentRequest { Path = args.Path, });
+                if (content.RequestFailed)
+                {
+                    throw new InvalidContentRequestException();
+                }
+                // ReSharper disable once AccessToDisposedClosure
+                dlg.SetContent(content.Files.Select(f => new Entry(f.Name)
+                {
+                    DateModified = f.DateModified.ToDateTime(),
+                    Size = f.IsFolder ? null : f.Size,
+                    Type = f.IsFolder ? EntryType.Folder : EntryType.File,
+                    MimeType = f.MimeType,
+                }));
+            };
+
+            if (dlg.ShowDialog() != DialogResult.OK)
+            {
+                return null;
+            }
+
+            return dlg.SelectedPath;
         }
     }
 }
