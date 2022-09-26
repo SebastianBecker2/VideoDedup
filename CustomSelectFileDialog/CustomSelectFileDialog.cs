@@ -15,7 +15,8 @@ namespace CustomSelectFileDlg
         private IEnumerable<Entry>? content;
         private readonly History pathHistory = new();
         private IconStyle entryIconStyle = IconStyle.NoFallbackOnNull;
-        private ButtonUpEnabledWhen buttonUpEnabled = ButtonUpEnabledWhen.NotInRootDirectory;
+        private ButtonUpEnabledWhen buttonUpEnabled =
+            ButtonUpEnabledWhen.NotInRootDirectory;
 
         public IconStyle EntryIconStyle
         {
