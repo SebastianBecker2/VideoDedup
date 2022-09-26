@@ -350,7 +350,7 @@ namespace CustomSelectFileDlg
         private void HandleBtnUpClick(object sender, System.EventArgs e)
         {
             var previousPath = CurrentPath;
-            if (!SetCurrentPath(Path.GetDirectoryName(CurrentPath)))
+            if (!SetCurrentPath(Path.GetDirectoryName(CurrentPath) ?? ""))
             {
                 return;
             }
