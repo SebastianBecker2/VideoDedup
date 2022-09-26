@@ -236,7 +236,7 @@ namespace VideoDedupClient.Dialogs
             using var dlg = new CustomSelectFileDialog();
             dlg.IsFolderSelector = true;
             dlg.CurrentPath = initialPath;
-            dlg.ButtonUpEnabled = ButtonUpEnabledWhen.NotInRootDirectory;
+            dlg.ButtonUpEnabled = ButtonUpEnabledWhen.Always;
             dlg.EntryIconStyle = IconStyle.FallbackToExtensionSpecificIcons;
             dlg.ContentRequested += (_, args) =>
             {
@@ -249,7 +249,7 @@ namespace VideoDedupClient.Dialogs
                 // ReSharper disable once AccessToDisposedClosure
                 dlg.SetContent(content.Files.Select(f => new Entry(f.Name)
                 {
-                    DateModified = f.DateModified.ToDateTime(),
+                    DateModified = f.DateModified?.ToDateTime(),
                     Size = f.IsFolder ? null : f.Size,
                     Type = f.IsFolder ? EntryType.Folder : EntryType.File,
                     MimeType = f.MimeType,

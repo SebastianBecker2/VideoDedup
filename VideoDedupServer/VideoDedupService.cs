@@ -219,16 +219,27 @@ namespace VideoDedupServer
             ServerCallContext context)
         {
             var result = new GetFolderContentResponse();
-            if (string.IsNullOrWhiteSpace(request.Path)
-                || !Directory.Exists(request.Path))
+            if (string.IsNullOrWhiteSpace(request.Path))
+            {
+                result.Files.AddRange(DriveInfo.GetDrives().Select(drive =>
+                    new GetFolderContentResponse.Types.FileAttributes
+                    {
+                        Name = drive.Name,
+                        IsFolder = true,
+                    }));
+                return Task.FromResult(result);
+            }
+
+            if (!Directory.Exists(request.Path))
             {
                 result.RequestFailed = true;
                 return Task.FromResult(result);
             }
 
-            result.Files.AddRange(
-                Directory.GetFileSystemEntries(request.Path)
-                    .Select(path =>
+            static GetFolderContentResponse.Types.FileAttributes? FromPath(
+                string path)
+            {
+                try
                     {
                         var attr = File.GetAttributes(path);
                         var isFolder = attr.HasFlag(FileAttributes.Directory);
@@ -247,7 +258,22 @@ namespace VideoDedupServer
                             DateModified = dateModified,
                             MimeType = mimeType,
                         };
-                    }));
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+            // Add a backslash at the end to make sure we never try to get the
+            // content of the current drive without a backslash or slash at the
+            // end. If the current working directory is "d:\subfolder" and we try
+            // to get the file system entries from "d:", we would get the file
+            // system entries from "d:\subfolder" instead. Adding the backslash
+            // prevents that.
+            result.Files.AddRange(
+                Directory.GetFileSystemEntries(request.Path + "\\")
+                    .Select(FromPath).Where(e => e is not null));
             return Task.FromResult(result);
         }
 
