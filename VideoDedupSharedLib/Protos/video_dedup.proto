@@ -45,6 +45,7 @@ message GetFolderContentResponse {
         int64 size = 3;
         google.protobuf.Timestamp date_modified = 4;
         string mime_type = 5;
+        google.protobuf.BytesValue icon = 6;
     }
 
     repeated FileAttributes files = 1;

@@ -5,16 +5,20 @@ namespace VideoDedupServer
 #if UseLogger
     using Microsoft.Extensions.Logging;
 #endif
+    using System.Drawing.Imaging;
     using System.IO;
     using CustomComparisonManager;
     using DedupEngine;
     using DedupEngine.EventArgs;
     using DuplicateManager;
+    using Google.Protobuf;
     using Google.Protobuf.WellKnownTypes;
     using Grpc.Core;
     using Newtonsoft.Json;
+    using Properties;
     using VideoDedupGrpc;
     using VideoDedupSharedLib;
+    using VideoDedupSharedLib.ExtensionMethods.ImageExtensions;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
     using static VideoDedupGrpc.OperationInfo.Types;
@@ -24,6 +28,9 @@ namespace VideoDedupServer
         VideoDedupGrpcService.VideoDedupGrpcServiceBase,
         IDisposable
     {
+        private static readonly ByteString DriveIcon =
+            ByteString.FromStream(Resources.drive.ToMemoryStream(ImageFormat.Png));
+
         private readonly DedupEngine dedupEngine;
         private readonly DuplicateManager duplicateManager;
         private readonly List<string> logEntries = new();
@@ -227,6 +234,7 @@ namespace VideoDedupServer
                     {
                         Name = drive.Name,
                         IsFolder = true,
+                        Icon = DriveIcon,
                     }));
                 return Task.FromResult(result);
             }
@@ -241,24 +249,25 @@ namespace VideoDedupServer
                 string path)
             {
                 try
+                {
+                    var attr = File.GetAttributes(path);
+                    var isFolder = attr.HasFlag(FileAttributes.Directory);
+                    var info = new FileInfo(path);
+                    var size = isFolder ? 0 : info.Length;
+                    var mimeType = isFolder
+                        ? "File folder"
+                        : FileInfoProvider.GetMimeType(path) ?? "";
+                    var dateModified =
+                        Timestamp.FromDateTime(info.LastWriteTimeUtc);
+                    return new GetFolderContentResponse.Types.FileAttributes
                     {
-                        var attr = File.GetAttributes(path);
-                        var isFolder = attr.HasFlag(FileAttributes.Directory);
-                        var info = new FileInfo(path);
-                        var size = isFolder ? 0 : info.Length;
-                        var mimeType = isFolder
-                            ? "File folder"
-                            : FileInfoProvider.GetMimeType(path) ?? "";
-                        var dateModified =
-                            Timestamp.FromDateTime(info.LastWriteTimeUtc);
-                        return new GetFolderContentResponse.Types.FileAttributes
-                        {
-                            Name = Path.GetFileName(path),
-                            Size = size,
-                            IsFolder = isFolder,
-                            DateModified = dateModified,
-                            MimeType = mimeType,
-                        };
+                        Name = Path.GetFileName(path),
+                        Size = size,
+                        IsFolder = isFolder,
+                        DateModified = dateModified,
+                        MimeType = mimeType,
+                        Icon = null,
+                    };
                 }
                 catch
                 {
@@ -274,11 +283,11 @@ namespace VideoDedupServer
             // prevents that.
             try
             {
-            result.Files.AddRange(
-                Directory.GetFileSystemEntries(request.Path + "\\")
-                    .Select(FromPath).Where(e => e is not null));
-            return Task.FromResult(result);
-        }
+                result.Files.AddRange(
+                    Directory.GetFileSystemEntries(request.Path + "\\")
+                        .Select(FromPath).Where(e => e is not null));
+                return Task.FromResult(result);
+            }
             catch (IOException)
             {
                 result.RequestFailed = true;

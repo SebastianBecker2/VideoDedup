@@ -5,6 +5,7 @@ namespace VideoDedupClient.Dialogs
     using CustomSelectFileDlg.Exceptions;
     using Microsoft.WindowsAPICodePack.Dialogs;
     using VideoDedupGrpc;
+    using VideoDedupSharedLib.ExtensionMethods.ByteStringExtensions;
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
 
     public partial class ServerConfigDlg : Form
@@ -253,6 +254,7 @@ namespace VideoDedupClient.Dialogs
                     Size = f.IsFolder ? null : f.Size,
                     Type = f.IsFolder ? EntryType.Folder : EntryType.File,
                     MimeType = f.MimeType,
+                    Icon = f.Icon?.ToImage(),
                 }));
             };
 
