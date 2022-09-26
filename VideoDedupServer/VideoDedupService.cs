@@ -5,6 +5,7 @@ namespace VideoDedupServer
 #if UseLogger
     using Microsoft.Extensions.Logging;
 #endif
+    using System.IO;
     using CustomComparisonManager;
     using DedupEngine;
     using DedupEngine.EventArgs;
@@ -271,10 +272,23 @@ namespace VideoDedupServer
             // to get the file system entries from "d:", we would get the file
             // system entries from "d:\subfolder" instead. Adding the backslash
             // prevents that.
+            try
+            {
             result.Files.AddRange(
                 Directory.GetFileSystemEntries(request.Path + "\\")
                     .Select(FromPath).Where(e => e is not null));
             return Task.FromResult(result);
+        }
+            catch (IOException)
+            {
+                result.RequestFailed = true;
+                return Task.FromResult(result);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                result.RequestFailed = true;
+                return Task.FromResult(result);
+            }
         }
 
         private void OperationUpdateCallback(
