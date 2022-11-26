@@ -113,6 +113,16 @@ namespace CustomSelectFileDlg.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap bullet_folder {
+            get {
+                object obj = ResourceManager.GetObject("bullet_folder", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap file_extension_3gp {
             get {
                 object obj = ResourceManager.GetObject("file_extension_3gp", resourceCulture);

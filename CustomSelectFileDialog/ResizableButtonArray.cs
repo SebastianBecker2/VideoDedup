@@ -37,6 +37,16 @@ namespace CustomSelectFileDlg
 
         // Add a little spare space to have a click-able area
         private const int SpareSpaceWidth = 5;
+        private readonly Button iconButton = new()
+        {
+            Image = Resources.bullet_folder,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left,
+            Padding = new Padding(0, 0, 0, 0),
+            Margin = new Padding(0, 0, 0, 0),
+            FlatStyle = FlatStyle.Popup,
+        };
         private readonly Button quickSelectButton = new()
         {
             Image = Resources.bullet_arrow_right_2,
@@ -69,6 +79,8 @@ namespace CustomSelectFileDlg
 
         public ResizableButtonArray()
         {
+            iconButton.Click += (_, args) => OnClick(args);
+
             quickSelectButton.Click += (_, _) => ShowDropDownList();
 
             buttonList.ElementClick += (_, args) =>
@@ -80,9 +92,14 @@ namespace CustomSelectFileDlg
 
         protected override void OnPaint(PaintEventArgs e)
         {
+            if (!TlpArray.Controls.Contains(iconButton))
+            {
+                TlpArray.Controls.Add(iconButton, 0, 0);
+            }
+
             if (!TlpArray.Controls.Contains(quickSelectButton))
             {
-                TlpArray.Controls.Add(quickSelectButton, 0, 0);
+                TlpArray.Controls.Add(quickSelectButton, 1, 0);
             }
 
             DrawButtons();
@@ -99,7 +116,7 @@ namespace CustomSelectFileDlg
                 return;
             }
 
-            var index = 1;
+            var index = 2;
             foreach (var element in Elements)
             {
                 if (TlpArray.Controls.Count > index
@@ -126,6 +143,7 @@ namespace CustomSelectFileDlg
         {
             var buttons = TlpArray.Controls
                 .Cast<Button>()
+                .Where(b => b != iconButton)
                 .Where(b => b != quickSelectButton)
                 .ToList();
             if (!buttons.Any())
@@ -136,6 +154,7 @@ namespace CustomSelectFileDlg
             var collectiveButtonWidth = buttons
                 .Where(b => b.Visible)
                 .Sum(b => b.Width)
+                + iconButton.Width
                 + quickSelectButton.Width
                 // Add a little spare space to have a click-able area
                 + SpareSpaceWidth;
@@ -154,10 +173,6 @@ namespace CustomSelectFileDlg
                 }
 
                 collectiveButtonWidth -= button.Width;
-                if (buttonIndex == 0)
-                {
-                    quickSelectButton.Image = Resources.bullet_arrow_left_2;
-                }
                 button.Visible = false;
             }
 
@@ -177,10 +192,6 @@ namespace CustomSelectFileDlg
                     break;
                 }
 
-                if (buttonIndex == 0)
-                {
-                    quickSelectButton.Image = Resources.bullet_arrow_right_2;
-                }
                 button.Visible = true;
             }
         }
@@ -194,6 +205,7 @@ namespace CustomSelectFileDlg
 
             var hiddenButtons = TlpArray.Controls
                     .Cast<Button>()
+                    .Where(b => b != iconButton)
                     .Where(b => b != quickSelectButton)
                     .Where(b => !b.Visible)
                     .ToList();
