@@ -204,7 +204,6 @@ namespace CustomSelectFileDlg
             {
                 rowToSelect.Selected = true;
             }
-            SelectedPath = name;
         }
 
         private Entry? GetSelectedEntry()
