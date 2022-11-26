@@ -38,10 +38,16 @@ enum ResolveOperation {
     CANCEL = 3;
 }
 
+enum FileType {
+    ANY = 0;
+    FILE = 1;
+    FOLDER = 2;
+}
+
 message GetFolderContentResponse {
     message FileAttributes {
         string name = 1;
-        bool is_folder = 2;
+        FileType type = 2;
         int64 size = 3;
         google.protobuf.Timestamp date_modified = 4;
         string mime_type = 5;
@@ -53,7 +59,9 @@ message GetFolderContentResponse {
 }
 
 message GetFolderContentRequest {
+    
     string path = 1;
+    FileType type_restriction = 2;
 }
 
 message CancelCustomVideoComparisonRequest {

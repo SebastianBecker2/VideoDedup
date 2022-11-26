@@ -233,7 +233,7 @@ namespace VideoDedupServer
                     new GetFolderContentResponse.Types.FileAttributes
                     {
                         Name = drive.Name,
-                        IsFolder = true,
+                        Type = FileType.Folder,
                         Icon = DriveIcon,
                     }));
                 return Task.FromResult(result);
@@ -251,10 +251,12 @@ namespace VideoDedupServer
                 try
                 {
                     var attr = File.GetAttributes(path);
-                    var isFolder = attr.HasFlag(FileAttributes.Directory);
+                    var type = attr.HasFlag(FileAttributes.Directory)
+                        ? FileType.Folder
+                        : FileType.File;
                     var info = new FileInfo(path);
-                    var size = isFolder ? 0 : info.Length;
-                    var mimeType = isFolder
+                    var size = type == FileType.Folder ? 0 : info.Length;
+                    var mimeType = type == FileType.Folder
                         ? "File folder"
                         : FileInfoProvider.GetMimeType(path) ?? "";
                     var dateModified =
@@ -263,7 +265,7 @@ namespace VideoDedupServer
                     {
                         Name = Path.GetFileName(path),
                         Size = size,
-                        IsFolder = isFolder,
+                        Type = type,
                         DateModified = dateModified,
                         MimeType = mimeType,
                         Icon = null,
@@ -275,17 +277,28 @@ namespace VideoDedupServer
                 }
             }
 
-            // Add a backslash at the end to make sure we never try to get the
-            // content of the current drive without a backslash or slash at the
-            // end. If the current working directory is "d:\subfolder" and we try
-            // to get the file system entries from "d:", we would get the file
-            // system entries from "d:\subfolder" instead. Adding the backslash
-            // prevents that.
             try
             {
+                Func<string, IEnumerable<string>> enumerator =
+                    request.TypeRestriction switch
+                    {
+                        FileType.Folder => Directory.EnumerateDirectories,
+                        FileType.File => Directory.EnumerateFiles,
+                        FileType.Any => Directory.EnumerateFileSystemEntries,
+                        _ => Directory.EnumerateFileSystemEntries
+                    };
+
+                // Add a backslash at the end to make sure we never try to get
+                // the content of the current drive without a backslash or slash
+                // at the end. If the current working directory is "d:\subfolder"
+                // and we try to get the file system entries from "d:", we would
+                // get the file system entries from "d:\subfolder" instead.
+                // Adding the backslash prevents that.
                 result.Files.AddRange(
-                    Directory.GetFileSystemEntries(request.Path + "\\")
-                        .Select(FromPath).Where(e => e is not null));
+                    enumerator(request.Path + "\\")
+                        .Select(FromPath)
+                        .Where(e => e is not null));
+
                 return Task.FromResult(result);
             }
             catch (IOException)
