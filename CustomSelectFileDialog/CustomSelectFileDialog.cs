@@ -13,6 +13,7 @@ namespace CustomSelectFileDlg
         private bool updatingSelectedPath;
         private bool applyingHistory;
         private IEnumerable<Entry>? content;
+        private IEnumerable<Entry>? rootEntries;
         private readonly History pathHistory = new();
         private IconStyle entryIconStyle = IconStyle.NoFallbackOnNull;
         private ButtonUpEnabledWhen buttonUpEnabled =
@@ -56,6 +57,16 @@ namespace CustomSelectFileDlg
             }
         }
         public string SelectedPath { get; set; } = string.Empty;
+
+        public IEnumerable<Entry>? RootFolders
+        {
+            get => rootEntries;
+            set
+            {
+                rootEntries = value;
+                PabCurrentPath.RootFolders = value?.Select(entry => entry.Name);
+            }
+        }
 
         /// <summary>
         /// Event raised when content is requested.<br/>Provide content for

@@ -2,7 +2,6 @@ namespace CustomSelectFileDlg
 {
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.Windows.Forms;
     using EventArgs;
     using Properties;
@@ -11,7 +10,14 @@ namespace CustomSelectFileDlg
     {
         public class Element
         {
-            public string? Text { get; set; }
+            public string Text { get; set; }
+            public object? Tag { get; set; }
+
+            public Element(string text, object? tag = null)
+            {
+                Text = text;
+                Tag = tag;
+            }
 
             public Button CreateButton()
             {
@@ -31,16 +37,15 @@ namespace CustomSelectFileDlg
 
         // Add a little spare space to have a click-able area
         private const int SpareSpaceWidth = 5;
-        private readonly Button squashButton = new()
+        private readonly Button quickSelectButton = new()
         {
             Image = Resources.bullet_arrow_right_2,
             AutoSize = true,
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
-            Anchor = AnchorStyles.Top | AnchorStyles.Bottom,
+            Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left,
             Padding = new Padding(0, 0, 0, 0),
             Margin = new Padding(0, 0, 0, 0),
             FlatStyle = FlatStyle.Popup,
-            Visible = false,
         };
         private IEnumerable<Element>? elements;
         private readonly ButtonListDlg buttonList = new();
@@ -55,6 +60,8 @@ namespace CustomSelectFileDlg
             }
         }
 
+        public IEnumerable<Element>? RootElements { get; set; }
+
         [Category("Action")]
         public event EventHandler<ElementClickEventArgs>? ElementClick;
         protected virtual void OnElementClicked(Element element) =>
@@ -62,20 +69,7 @@ namespace CustomSelectFileDlg
 
         public ResizableButtonArray()
         {
-            squashButton.Click += (_, _) =>
-            {
-                var location = squashButton.PointToScreen(Point.Empty);
-                location.Y += squashButton.Size.Height;
-                ShowDropDownList(
-                    TlpArray.Controls
-                        .Cast<Button>()
-                        .Where(b => b != squashButton)
-                        .Where(b => !b.Visible)
-                        .Select(b => new ButtonListDlg.Element(b.Text, b.Tag))
-                        .Reverse()
-                        .ToList(),
-                    location);
-            };
+            quickSelectButton.Click += (_, _) => ShowDropDownList();
 
             buttonList.ElementClick += (_, args) =>
                 OnElementClicked((args.Element.Tag as Element)!);
@@ -86,9 +80,9 @@ namespace CustomSelectFileDlg
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            if (!TlpArray.Controls.Contains(squashButton))
+            if (!TlpArray.Controls.Contains(quickSelectButton))
             {
-                TlpArray.Controls.Add(squashButton, 0, 0);
+                TlpArray.Controls.Add(quickSelectButton, 0, 0);
             }
 
             DrawButtons();
@@ -132,34 +126,21 @@ namespace CustomSelectFileDlg
         {
             var buttons = TlpArray.Controls
                 .Cast<Button>()
-                .Where(b => b != squashButton)
+                .Where(b => b != quickSelectButton)
                 .ToList();
             if (!buttons.Any())
             {
                 return;
             }
 
-            if (buttons.Count == 1)
-            {
-                buttons.First().Visible = true;
-                squashButton.Visible = false;
-                return;
-            }
-
             var collectiveButtonWidth = buttons
                 .Where(b => b.Visible)
-                .Sum(b => b.Width);
-            // Add a little spare space to have a click-able area
-            collectiveButtonWidth += SpareSpaceWidth;
-            if (squashButton.Visible)
-            {
-                collectiveButtonWidth += squashButton.Width;
-            }
+                .Sum(b => b.Width)
+                + quickSelectButton.Width
+                // Add a little spare space to have a click-able area
+                + SpareSpaceWidth;
 
-            Debug.Print($"{Environment.NewLine}Overall width {Width} with button " +
-                $"width {collectiveButtonWidth}");
-
-            foreach (var buttonIndex in Enumerable.Range(0, buttons.Count - 1))
+            foreach (var buttonIndex in Enumerable.Range(0, buttons.Count))
             {
                 if (collectiveButtonWidth <= Width)
                 {
@@ -175,15 +156,11 @@ namespace CustomSelectFileDlg
                 collectiveButtonWidth -= button.Width;
                 if (buttonIndex == 0)
                 {
-                    collectiveButtonWidth += squashButton.Width;
-                    Debug.Print($"Adding 'squashButton' width {squashButton.Width}");
-                    squashButton.Visible = true;
+                    quickSelectButton.Image = Resources.bullet_arrow_left_2;
                 }
-                Debug.Print($"Removing '{button.Text}' width {button.Width}");
                 button.Visible = false;
             }
 
-            Debug.Print($"New button width {collectiveButtonWidth} after removing");
             foreach (var buttonIndex in
                      Enumerable.Range(0, buttons.Count).Reverse())
             {
@@ -194,10 +171,6 @@ namespace CustomSelectFileDlg
                 }
 
                 collectiveButtonWidth += button.Width;
-                if (buttonIndex == 0)
-                {
-                    collectiveButtonWidth -= squashButton.Width;
-                }
 
                 if (collectiveButtonWidth >= Width)
                 {
@@ -206,26 +179,45 @@ namespace CustomSelectFileDlg
 
                 if (buttonIndex == 0)
                 {
-                    Debug.Print($"Removing 'squashButton' width {squashButton.Width}");
-                    squashButton.Visible = false;
+                    quickSelectButton.Image = Resources.bullet_arrow_right_2;
                 }
-                Debug.Print($"Adding '{button.Text}' width {button.Width}");
                 button.Visible = true;
             }
-
-            Debug.Print($"New button width {collectiveButtonWidth} after adding." +
-                $" | Painting {buttons.Count(b => b.Visible)} buttons");
         }
 
         private void HandleTlpArrayClick(object sender, System.EventArgs e) =>
             OnClick(e);
 
-        private void ShowDropDownList(
-            IList<ButtonListDlg.Element> entries,
-            Point location)
+        private void ShowDropDownList()
         {
+            var allEntries = new List<IList<ButtonListDlg.Element>>();
+
+            var hiddenButtons = TlpArray.Controls
+                    .Cast<Button>()
+                    .Where(b => b != quickSelectButton)
+                    .Where(b => !b.Visible)
+                    .ToList();
+
+            if (hiddenButtons.Any())
+            {
+                allEntries.Add(hiddenButtons
+                    .Select(b => new ButtonListDlg.Element(b.Text, b.Tag))
+                    .Reverse()
+                    .ToList());
+            }
+
+            if (RootElements is not null)
+            {
+                allEntries.Add(RootElements
+                    .Select(e => new ButtonListDlg.Element(e.Text, e))
+                    .ToList());
+            }
+
+            var location = quickSelectButton.PointToScreen(Point.Empty);
+            location.Y += quickSelectButton.Size.Height;
             buttonList.Location = location;
-            buttonList.Entries = entries;
+            buttonList.Entries = allEntries;
+
             buttonList.Show();
         }
     }

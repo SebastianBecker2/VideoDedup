@@ -28,19 +28,21 @@ namespace CustomSelectFileDlg
         /// </summary>
         private void InitializeComponent()
         {
-            this.lsbButtonList = new System.Windows.Forms.ListBox();
+            this.TlpButtonLists = new System.Windows.Forms.TableLayoutPanel();
             this.SuspendLayout();
             // 
-            // lsbButtonList
+            // TlpButtonLists
             // 
-            this.lsbButtonList.FormattingEnabled = true;
-            this.lsbButtonList.HorizontalScrollbar = true;
-            this.lsbButtonList.ItemHeight = 15;
-            this.lsbButtonList.Location = new System.Drawing.Point(0, 0);
-            this.lsbButtonList.Margin = new System.Windows.Forms.Padding(0);
-            this.lsbButtonList.Name = "lsbButtonList";
-            this.lsbButtonList.Size = new System.Drawing.Size(50, 49);
-            this.lsbButtonList.TabIndex = 1;
+            this.TlpButtonLists.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.TlpButtonLists.ColumnCount = 1;
+            this.TlpButtonLists.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.TlpButtonLists.Location = new System.Drawing.Point(0, 0);
+            this.TlpButtonLists.Margin = new System.Windows.Forms.Padding(0);
+            this.TlpButtonLists.Name = "TlpButtonLists";
+            this.TlpButtonLists.RowCount = 1;
+            this.TlpButtonLists.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.TlpButtonLists.Size = new System.Drawing.Size(178, 139);
+            this.TlpButtonLists.TabIndex = 2;
             // 
             // ButtonListDlg
             // 
@@ -48,8 +50,8 @@ namespace CustomSelectFileDlg
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(500, 200);
-            this.Controls.Add(this.lsbButtonList);
+            this.ClientSize = new System.Drawing.Size(220, 160);
+            this.Controls.Add(this.TlpButtonLists);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -62,6 +64,6 @@ namespace CustomSelectFileDlg
         }
 
         #endregion
-        private ListBox lsbButtonList;
+        private TableLayoutPanel TlpButtonLists;
     }
 }

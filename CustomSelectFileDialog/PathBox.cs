@@ -9,6 +9,7 @@ namespace CustomSelectFileDlg
     internal partial class PathBox : UserControl
     {
         private string? currentPath = "C:/User/Control";
+        private IEnumerable<string>? rootItems;
         private bool controlLoaded;
         private PathDisplayStyle displayStyle = PathDisplayStyle.Buttons;
 
@@ -27,6 +28,19 @@ namespace CustomSelectFileDlg
                 currentPath = value;
                 UpdatePathDisplay();
                 OnCurrentPathChanged(CurrentPath);
+            }
+        }
+
+        [Category("Appearance")]
+        [Browsable(true)]
+        public IEnumerable<string>? RootFolders
+        {
+            get => rootItems;
+            set
+            {
+                rootItems = value;
+                RbaButtons.RootElements =
+                    value?.Select(item => new ResizableButtonArray.Element(item, item));
             }
         }
 
@@ -71,17 +85,7 @@ namespace CustomSelectFileDlg
                 RbaButtons.Elements != null,
                 "RbaButtons.Elements != null");
 
-            var path = "";
-            foreach (var element in RbaButtons.Elements)
-            {
-                path = Path.Join(path, element.Text);
-                if (element == e.Element)
-                {
-                    break;
-                }
-            }
-
-            CurrentPath = path;
+            CurrentPath = e.Element.Tag as string;
         }
 
         private void UpdatePathDisplay()
@@ -92,18 +96,27 @@ namespace CustomSelectFileDlg
             }
 
             var rbaElements = new List<ResizableButtonArray.Element>();
-            var accumulativePath = "";
-            foreach (var folderName in (CurrentPath ?? "")
-                     .Replace('\\', '/')
-                     .Split('/')
-                     .Where(p => !string.IsNullOrWhiteSpace(p)))
+            if (CurrentPath is null)
             {
-                accumulativePath = Path.Join(accumulativePath, folderName);
-                rbaElements.Add(new ResizableButtonArray.Element
-                {
-                    Text = folderName,
-                });
+                RbaButtons.Elements = rbaElements;
+                return;
             }
+
+            var path = CurrentPath
+                .StartsWith("\\\\", StringComparison.InvariantCulture)
+                ? "\\\\"
+                : string.Empty;
+
+            foreach (var folderName in CurrentPath.Replace('\\', '/')
+                         .Split('/')
+                         .Where(p => !string.IsNullOrWhiteSpace(p)))
+            {
+                path = Path.Combine(path, folderName);
+                rbaElements.Add(new ResizableButtonArray.Element(
+                    folderName,
+                    path));
+            }
+
             RbaButtons.Elements = rbaElements;
         }
 

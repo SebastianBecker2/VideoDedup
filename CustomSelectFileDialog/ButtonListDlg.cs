@@ -2,6 +2,7 @@ namespace CustomSelectFileDlg
 {
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Linq;
     using System.Windows.Forms;
 
@@ -27,7 +28,7 @@ namespace CustomSelectFileDlg
                 Element = element;
         }
 
-        public IList<Element>? Entries { get; set; }
+        public IEnumerable<IList<Element>>? Entries { get; set; }
 
         [Category("Action")]
         public event EventHandler<ElementClickEventArgs>? ElementClick;
@@ -37,26 +38,68 @@ namespace CustomSelectFileDlg
         public ButtonListDlg()
         {
             InitializeComponent();
-            lsbButtonList.AutoSize = true;
-            lsbButtonList.MinimumSize = new Size(0, 0);
-            lsbButtonList.MaximumSize = new Size(260, 200);
-            lsbButtonList.Size = new Size(1, 1);
+            TlpButtonLists.AutoSize = true;
+        }
+
+        private void HandleListBoxClick(object? sender, System.EventArgs e)
+        {
+            var lsb = sender as ListBox;
+            Debug.Assert(lsb is not null);
+            var elementList = lsb.Tag as IList<Element>;
+            Debug.Assert(elementList is not null);
+            OnElementClicked(elementList[lsb.SelectedIndex]);
+
+            Hide();
+        }
+
+        private ListBox CreateButtonList(IList<Element> entries)
+        {
+            var lsb = new ListBox
+            {
+                AutoSize = true,
+                Dock = DockStyle.Fill,
+                MinimumSize = new Size(0, 0),
+                MaximumSize = new Size(260, 200),
+                Margin = Padding.Empty,
+                Padding = Padding.Empty,
+                Size = new Size(1, 1),
+                HorizontalScrollbar = true,
+            };
+            lsb.Items.AddRange(entries.Select(e => e.Text as object).ToArray());
+            lsb.Tag = entries;
+            lsb.Click += HandleListBoxClick;
+            return lsb;
+        }
+
+        private void PopulateTlpButtonList(IEnumerable<IList<Element>>? entries)
+        {
+            TlpButtonLists.Controls.Clear();
+            if (entries is null)
+            {
+                return;
+            }
+            foreach (var elementList in entries)
+            {
+                TlpButtonLists.Controls.Add(CreateButtonList(elementList));
+            }
+
         }
 
         protected override void OnVisibleChanged(System.EventArgs e)
         {
             if (Visible)
             {
-                lsbButtonList.Items.Clear();
-                lsbButtonList.Items.AddRange(
-                    (Entries ?? Enumerable.Empty<Element>())
-                    .Select(entries => entries.Text as object).ToArray());
+                PopulateTlpButtonList(Entries);
 
                 WindowState = FormWindowState.Minimized;
                 WindowState = FormWindowState.Normal;
                 BringToFront();
                 Activate();
-                Focus();
+                _ = Focus();
+            }
+            else
+            {
+                TlpButtonLists.Controls.Clear();
             }
 
             base.OnVisibleChanged(e);
@@ -66,20 +109,6 @@ namespace CustomSelectFileDlg
         {
             Hide();
             base.OnDeactivate(e);
-        }
-
-        protected override void OnLoad(System.EventArgs e)
-        {
-            lsbButtonList.Click += (_, _) =>
-            {
-                if (Entries is not null)
-                {
-                    OnElementClicked(Entries[lsbButtonList.SelectedIndex]);
-                }
-
-                Hide();
-            };
-            base.OnLoad(e);
         }
     }
 }
