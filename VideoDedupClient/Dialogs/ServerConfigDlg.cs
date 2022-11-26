@@ -120,12 +120,15 @@ namespace VideoDedupClient.Dialogs
             {
                 var serverAddress = Program.Configuration.ServerAddress.ToLower(
                     CultureInfo.InvariantCulture);
+#if DEBUG
+                return ShowFolderSelectionRemote(initialFolder);
+#endif
                 if (serverAddress is "localhost" or "127.0.0.1")
                 {
                     return ShowFolderSelectionLocally(initialFolder);
                 }
 
-                return ShowFolderSelectionRemove(initialFolder);
+                return ShowFolderSelectionRemote(initialFolder);
             }
 
             var newPath = ShowFolderSelection(TxtSourcePath.Text);
@@ -232,30 +235,52 @@ namespace VideoDedupClient.Dialogs
             return dlg.FileName;
         }
 
-        private static string? ShowFolderSelectionRemove(string initialPath)
+        private static string? ShowFolderSelectionRemote(string initialPath)
         {
+            static Entry ToEntry(
+                GetFolderContentResponse.Types.FileAttributes f) =>
+                new(f.Name)
+                {
+                    DateModified = f.DateModified?.ToDateTime(),
+                    Size = f.Type == FileType.Folder ? null : f.Size,
+                    Type = f.Type == FileType.Folder
+                        ? EntryType.Folder
+                        : EntryType.File,
+                    MimeType = f.MimeType,
+                    Icon = f.Icon?.ToImage(),
+                };
+
             using var dlg = new CustomSelectFileDialog();
             dlg.IsFolderSelector = true;
             dlg.CurrentPath = initialPath;
             dlg.ButtonUpEnabled = ButtonUpEnabledWhen.Always;
             dlg.EntryIconStyle = IconStyle.FallbackToExtensionSpecificIcons;
+
+            var rootFolderRequest = Program.GrpcClient.GetFolderContent(
+                new GetFolderContentRequest
+                {
+                    Path = "",
+                    TypeRestriction = FileType.Folder
+                });
+            if (!rootFolderRequest.RequestFailed)
+            {
+                dlg.RootFolders = rootFolderRequest.Files.Select(ToEntry);
+            }
+
             dlg.ContentRequested += (_, args) =>
             {
-                var content = Program.GrpcClient.GetFolderContent(
-                    new GetFolderContentRequest { Path = args.Path, });
-                if (content.RequestFailed)
+                var contentRequest = Program.GrpcClient.GetFolderContent(
+                    new GetFolderContentRequest
+                    {
+                        Path = args.Path,
+                        TypeRestriction = FileType.Folder
+                    });
+                if (contentRequest.RequestFailed)
                 {
                     throw new InvalidContentRequestException();
                 }
                 // ReSharper disable once AccessToDisposedClosure
-                dlg.SetContent(content.Files.Select(f => new Entry(f.Name)
-                {
-                    DateModified = f.DateModified?.ToDateTime(),
-                    Size = f.IsFolder ? null : f.Size,
-                    Type = f.IsFolder ? EntryType.Folder : EntryType.File,
-                    MimeType = f.MimeType,
-                    Icon = f.Icon?.ToImage(),
-                }));
+                dlg.SetContent(contentRequest.Files.Select(ToEntry));
             };
 
             if (dlg.ShowDialog() != DialogResult.OK)
