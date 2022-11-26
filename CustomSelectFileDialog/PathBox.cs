@@ -134,7 +134,7 @@ namespace CustomSelectFileDlg
         private void HandleRbaButtonsClick(object sender, System.EventArgs e)
         {
             DisplayStyle = PathDisplayStyle.TextBox;
-            TxtPath.Focus();
+            _ = TxtPath.Focus();
             TxtPath.SelectAll();
         }
     }
