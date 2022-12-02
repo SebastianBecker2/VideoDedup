@@ -277,10 +277,10 @@ namespace VideoDedupClient.Dialogs
                     });
                 if (contentRequest.RequestFailed)
                 {
+                    args.Entries = Array.Empty<Entry>();
                     throw new InvalidContentRequestException();
                 }
-                // ReSharper disable once AccessToDisposedClosure
-                dlg.SetContent(contentRequest.Files.Select(ToEntry));
+                args.Entries = contentRequest.Files.Select(ToEntry);
             };
 
             if (dlg.ShowDialog() != DialogResult.OK)

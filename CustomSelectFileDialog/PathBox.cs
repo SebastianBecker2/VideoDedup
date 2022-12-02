@@ -9,7 +9,6 @@ namespace CustomSelectFileDlg
     internal partial class PathBox : UserControl
     {
         private string? currentPath = "C:/User/Control";
-        private IEnumerable<string>? rootItems;
         private bool controlLoaded;
         private PathDisplayStyle displayStyle = PathDisplayStyle.Buttons;
 
@@ -28,19 +27,6 @@ namespace CustomSelectFileDlg
                 currentPath = value;
                 UpdatePathDisplay();
                 OnCurrentPathChanged(CurrentPath);
-            }
-        }
-
-        [Category("Appearance")]
-        [Browsable(true)]
-        public IEnumerable<string>? RootFolders
-        {
-            get => rootItems;
-            set
-            {
-                rootItems = value;
-                RbaButtons.RootElements =
-                    value?.Select(item => new ResizableButtonArray.Element(item, item));
             }
         }
 
@@ -68,10 +54,50 @@ namespace CustomSelectFileDlg
         protected virtual void OnCurrentPathChanged(string? path) =>
             CurrentPathChanged?.Invoke(this, new CurrentPathChangedEventArgs(path));
 
+        public event EventHandler<SubFoldersRequestedEventArgs>?
+            SubFoldersRequested;
+        protected virtual IEnumerable<string>? OnSubFolderRequested(string path)
+        {
+            var eventArgs = new SubFoldersRequestedEventArgs(path);
+            SubFoldersRequested?.Invoke(this, eventArgs);
+            return eventArgs.SubFolders;
+        }
+
+        public event EventHandler<RootFoldersRequestedEventArgs>?
+            RootFoldersRequested;
+        protected virtual IEnumerable<string>? OnRootFolderRequested()
+        {
+            var eventArgs = new RootFoldersRequestedEventArgs();
+            RootFoldersRequested?.Invoke(this, eventArgs);
+            return eventArgs.RootFolders;
+        }
+
         public PathBox() => InitializeComponent();
 
         protected override void OnLoad(System.EventArgs e)
         {
+            RbaButtons.RootElementsRequested += (_, args) =>
+                args.RootElements = OnRootFolderRequested()
+                    ?.Select(f => new ResizableButtonArray.Element(f, f));
+            RbaButtons.SubElementRequested += (_, args) =>
+            {
+                if (args.Element?.Tag is not string path)
+                {
+                    return;
+                }
+
+                var parentPath = Path.GetDirectoryName(path);
+                if (parentPath is null)
+                {
+                    return;
+                }
+
+                args.SubElements = OnSubFolderRequested(parentPath)
+                    ?.Select(f =>
+                        new ResizableButtonArray.Element(
+                            f,
+                            Path.Combine(parentPath, f)));
+            };
             controlLoaded = true;
             UpdatePathDisplay();
             base.OnLoad(e);

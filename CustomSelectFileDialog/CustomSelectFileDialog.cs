@@ -2,6 +2,7 @@ namespace CustomSelectFileDlg
 {
     using System.ComponentModel;
     using System.Diagnostics;
+    using System.IO;
     using System.Windows.Forms;
     using EventArgs;
     using Exceptions;
@@ -13,7 +14,6 @@ namespace CustomSelectFileDlg
         private bool updatingSelectedPath;
         private bool applyingHistory;
         private IEnumerable<Entry>? content;
-        private IEnumerable<Entry>? rootEntries;
         private readonly History pathHistory = new();
         private IconStyle entryIconStyle = IconStyle.NoFallbackOnNull;
         private ButtonUpEnabledWhen buttonUpEnabled =
@@ -53,20 +53,11 @@ namespace CustomSelectFileDlg
                 }
                 PabCurrentPath.CurrentPath = value;
                 UpdateButtonUp();
-                OnContentRequested();
+                SetContent(OnContentRequested());
             }
         }
         public string SelectedPath { get; set; } = string.Empty;
-
-        public IEnumerable<Entry>? RootFolders
-        {
-            get => rootEntries;
-            set
-            {
-                rootEntries = value;
-                PabCurrentPath.RootFolders = value?.Select(entry => entry.Name);
-            }
-        }
+        public IEnumerable<Entry>? RootFolders { get; set; }
 
         /// <summary>
         /// Event raised when content is requested.<br/>Provide content for
@@ -74,13 +65,12 @@ namespace CustomSelectFileDlg
         /// to display an error to the user.
         /// </summary>
         public event EventHandler<ContentRequestedEventArgs>? ContentRequested;
-        protected virtual void OnContentRequested(string? path)
+
+        protected virtual void OnContentRequested(ContentRequestedEventArgs args)
         {
             try
             {
-                ContentRequested?.Invoke(
-                    this,
-                    new ContentRequestedEventArgs(path));
+                ContentRequested?.Invoke(this, args);
             }
             catch (InvalidContentRequestException exc)
             {
@@ -89,19 +79,38 @@ namespace CustomSelectFileDlg
                     Resources.InvalidContentRequestExceptionTitle,
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
-                SetContent(Array.Empty<Entry>());
             }
         }
-
-        protected virtual void OnContentRequested() =>
+        protected virtual IEnumerable<Entry>? OnContentRequested(string? path)
+        {
+            var args = new ContentRequestedEventArgs(path);
+            OnContentRequested(args);
+            return args.Entries;
+        }
+        protected virtual IEnumerable<Entry>? OnContentRequested() =>
             OnContentRequested(CurrentPath);
+        protected virtual IEnumerable<Entry>? OnSubFolderRequested(string? path)
+        {
+            var args = new ContentRequestedEventArgs(path, true);
+            OnContentRequested(args);
+            if (args.Entries is not null && !args.Entries.Any())
+            {
+                return null;
+            }
+            return args.Entries;
+        }
 
         public CustomSelectFileDialog() => InitializeComponent();
 
         protected override void OnLoad(System.EventArgs e)
         {
-            OnContentRequested();
+            SetContent(OnContentRequested());
             DgvContent.Sort(DgvContent.Columns[1], ListSortDirection.Ascending);
+            PabCurrentPath.RootFoldersRequested += (_, args) =>
+                args.RootFolders = RootFolders?.Select(entry => entry.Name);
+            PabCurrentPath.SubFoldersRequested += (_, args) =>
+                args.SubFolders =
+                    OnSubFolderRequested(args.Path)?.Select(entry => entry.Name);
             base.OnLoad(e);
         }
 
@@ -137,8 +146,13 @@ namespace CustomSelectFileDlg
             return row;
         }
 
-        public void SetContent(IEnumerable<Entry> entries)
+        public void SetContent(IEnumerable<Entry>? entries)
         {
+            if (entries is null)
+            {
+                return;
+            }
+
             updatingSelectedPath = true;
 
             try

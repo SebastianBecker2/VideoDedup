@@ -19,9 +19,20 @@ namespace CustomSelectFileDlg
                 Tag = tag;
             }
 
-            public Button CreateButton()
+            public (Button quickSelectButton, Button folderButton) CreateButton()
             {
-                var newButton = new Button
+                var quickSelectButton = new Button
+                {
+                    Image = Resources.bullet_arrow_right_2,
+                    Tag = this,
+                    AutoSize = true,
+                    AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                    Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left,
+                    Padding = new Padding(0, 0, 0, 0),
+                    Margin = new Padding(0, 0, 0, 0),
+                    FlatStyle = FlatStyle.Popup,
+                };
+                var folderButton = new Button
                 {
                     Text = Text,
                     Tag = this,
@@ -31,7 +42,7 @@ namespace CustomSelectFileDlg
                     Margin = new Padding(0, 0, 0, 0),
                     FlatStyle = FlatStyle.Popup,
                 };
-                return newButton;
+                return (quickSelectButton, folderButton);
             }
         }
 
@@ -40,16 +51,6 @@ namespace CustomSelectFileDlg
         private readonly Button iconButton = new()
         {
             Image = Resources.bullet_folder,
-            AutoSize = true,
-            AutoSizeMode = AutoSizeMode.GrowAndShrink,
-            Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left,
-            Padding = new Padding(0, 0, 0, 0),
-            Margin = new Padding(0, 0, 0, 0),
-            FlatStyle = FlatStyle.Popup,
-        };
-        private readonly Button quickSelectButton = new()
-        {
-            Image = Resources.bullet_arrow_right_2,
             AutoSize = true,
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
             Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left,
@@ -70,18 +71,35 @@ namespace CustomSelectFileDlg
             }
         }
 
-        public IEnumerable<Element>? RootElements { get; set; }
+        //public IEnumerable<Element>? RootElements { get; set; }
 
         [Category("Action")]
         public event EventHandler<ElementClickEventArgs>? ElementClick;
         protected virtual void OnElementClicked(Element element) =>
             ElementClick?.Invoke(this, new ElementClickEventArgs(element));
 
+        public event EventHandler<SubElementsRequestedEventArgs>?
+            SubElementRequested;
+        protected virtual IEnumerable<Element>? OnSubElementRequested(
+            Element element)
+        {
+            var eventArgs = new SubElementsRequestedEventArgs(element);
+            SubElementRequested?.Invoke(this, eventArgs);
+            return eventArgs.SubElements;
+        }
+
+        public event EventHandler<RootElementsRequestedEventArgs>?
+            RootElementsRequested;
+        protected virtual IEnumerable<Element>? OnRootElementRequested()
+        {
+            var eventArgs = new RootElementsRequestedEventArgs();
+            RootElementsRequested?.Invoke(this, eventArgs);
+            return eventArgs.RootElements;
+        }
+
         public ResizableButtonArray()
         {
             iconButton.Click += (_, args) => OnClick(args);
-
-            quickSelectButton.Click += (_, _) => ShowDropDownList();
 
             buttonList.ElementClick += (_, args) =>
                 OnElementClicked((args.Element.Tag as Element)!);
@@ -95,11 +113,6 @@ namespace CustomSelectFileDlg
             if (!TlpArray.Controls.Contains(iconButton))
             {
                 TlpArray.Controls.Add(iconButton, 0, 0);
-            }
-
-            if (!TlpArray.Controls.Contains(quickSelectButton))
-            {
-                TlpArray.Controls.Add(quickSelectButton, 1, 0);
             }
 
             DrawButtons();
@@ -116,21 +129,26 @@ namespace CustomSelectFileDlg
                 return;
             }
 
-            var index = 2;
+            var index = 1;
             foreach (var element in Elements)
             {
                 if (TlpArray.Controls.Count > index
-                    && TlpArray.Controls[index] is Button btn)
+                    && TlpArray.Controls[index + 1] is { } folderButton
+                    && TlpArray.Controls[index] is Button quickSelectButton)
                 {
-                    btn.Text = element.Text;
-                    btn.Tag = element;
-                    index++;
+                    folderButton.Text = element.Text;
+                    folderButton.Tag = element;
+                    quickSelectButton.Image = Resources.bullet_arrow_right_2;
+                    index += 2;
                     continue;
                 }
 
-                btn = element.CreateButton();
-                btn.Click += (_, _) => OnElementClicked((btn.Tag as Element)!);
-                TlpArray.Controls.Add(btn, index++, 0);
+                (quickSelectButton, folderButton) = element.CreateButton();
+                quickSelectButton.Click += (_, _) =>
+                    ShowDropDownList(quickSelectButton);
+                folderButton.Click += (_, _) => OnElementClicked(element);
+                TlpArray.Controls.Add(quickSelectButton, index++, 0);
+                TlpArray.Controls.Add(folderButton, index++, 0);
             }
 
             while (index < TlpArray.Controls.Count)
@@ -144,7 +162,6 @@ namespace CustomSelectFileDlg
             var buttons = TlpArray.Controls
                 .Cast<Button>()
                 .Where(b => b != iconButton)
-                .Where(b => b != quickSelectButton)
                 .ToList();
             if (!buttons.Any())
             {
@@ -155,81 +172,114 @@ namespace CustomSelectFileDlg
                 .Where(b => b.Visible)
                 .Sum(b => b.Width)
                 + iconButton.Width
-                + quickSelectButton.Width
                 // Add a little spare space to have a click-able area
                 + SpareSpaceWidth;
 
-            foreach (var buttonIndex in Enumerable.Range(0, buttons.Count))
+            foreach (var buttonIndex in
+                     Enumerable.Range(0, (buttons.Count - 2) / 2)
+                         .Select(i => i * 2))
             {
                 if (collectiveButtonWidth <= Width)
                 {
                     break;
                 }
 
-                var button = buttons[buttonIndex];
-                if (!button!.Visible)
+                var quickSelectButton = buttons[buttonIndex];
+                var folderButton = buttons[buttonIndex + 1];
+                if (!quickSelectButton!.Visible)
                 {
                     continue;
                 }
 
-                collectiveButtonWidth -= button.Width;
-                button.Visible = false;
+                collectiveButtonWidth -=
+                    quickSelectButton.Width + folderButton.Width;
+                quickSelectButton.Visible = false;
+                folderButton.Visible = false;
             }
 
             foreach (var buttonIndex in
-                     Enumerable.Range(0, buttons.Count).Reverse())
+                     Enumerable.Range(0, buttons.Count / 2)
+                         .Select(x => x * 2)
+                         .Reverse())
             {
-                var button = buttons[buttonIndex];
-                if (button!.Visible)
+                var quickSelectButton = buttons[buttonIndex];
+                var folderButton = buttons[buttonIndex + 1];
+                if (quickSelectButton!.Visible)
                 {
                     continue;
                 }
 
-                collectiveButtonWidth += button.Width;
+                collectiveButtonWidth +=
+                    quickSelectButton.Width + folderButton.Width;
 
                 if (collectiveButtonWidth >= Width)
                 {
                     break;
                 }
 
-                button.Visible = true;
+                quickSelectButton.Visible = true;
+                folderButton.Visible = true;
+            }
+
+            // The first visible quickSelectButton gets a left arrow,
+            // if at least one button is hidden.
+            if (!buttons.First(b => string.IsNullOrEmpty(b.Text)).Visible)
+            {
+                buttons.First(b => b.Visible && string.IsNullOrEmpty(b.Text)).Image =
+                    Resources.bullet_arrow_left_2;
             }
         }
 
         private void HandleTlpArrayClick(object sender, System.EventArgs e) =>
             OnClick(e);
 
-        private void ShowDropDownList()
+        private void ShowDropDownList(Button button)
         {
             var allEntries = new List<IList<ButtonListDlg.Element>>();
 
-            var hiddenButtons = TlpArray.Controls
-                    .Cast<Button>()
-                    .Where(b => b != iconButton)
-                    .Where(b => b != quickSelectButton)
+            var buttons = TlpArray.Controls
+                .Cast<Control>()
+                .Where(b => b != iconButton)
+                .ToList();
+
+            if (button == buttons.First(b => b.Visible))
+            {
+                var hiddenButtons = buttons
                     .Where(b => !b.Visible)
+                    .Where(b => !string.IsNullOrEmpty(b.Text))
                     .ToList();
 
-            if (hiddenButtons.Any())
+                if (hiddenButtons.Any())
+                {
+                    allEntries.Add(hiddenButtons
+                        .Select(b => new ButtonListDlg.Element(b.Text, b.Tag))
+                        .Reverse()
+                        .ToList());
+                }
+
+                var rootElements = OnRootElementRequested();
+                if (rootElements is not null)
+                {
+                    allEntries.Add(rootElements
+                        .Select(e => new ButtonListDlg.Element(e.Text, e))
+                        .ToList());
+                }
+            }
+            else
             {
-                allEntries.Add(hiddenButtons
-                    .Select(b => new ButtonListDlg.Element(b.Text, b.Tag))
-                    .Reverse()
-                    .ToList());
+                var subElements = OnSubElementRequested((button.Tag as Element)!);
+                if (subElements is not null)
+                {
+                    allEntries.Add(subElements
+                        .Select(e => new ButtonListDlg.Element(e.Text, e))
+                        .ToList());
+                }
             }
 
-            if (RootElements is not null)
-            {
-                allEntries.Add(RootElements
-                    .Select(e => new ButtonListDlg.Element(e.Text, e))
-                    .ToList());
-            }
-
-            var location = quickSelectButton.PointToScreen(Point.Empty);
-            location.Y += quickSelectButton.Size.Height;
+            var location = button.PointToScreen(Point.Empty);
+            location.Y += button.Size.Height;
             buttonList.Location = location;
             buttonList.Entries = allEntries;
-
             buttonList.Show();
         }
     }
