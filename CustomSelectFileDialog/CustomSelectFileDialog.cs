@@ -416,6 +416,11 @@ namespace CustomSelectFileDlg
                 DgvContent.ClearSelection();
 
                 SelectEntry(TxtSelectedFileName.Text);
+                if (CurrentPath is not null)
+                {
+                    SelectedPath =
+                        Path.Combine(CurrentPath, TxtSelectedFileName.Text);
+                }
             }
             finally
             {
