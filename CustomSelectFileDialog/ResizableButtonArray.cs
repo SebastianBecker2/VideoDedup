@@ -139,14 +139,16 @@ namespace CustomSelectFileDlg
                     folderButton.Text = element.Text;
                     folderButton.Tag = element;
                     quickSelectButton.Image = Resources.bullet_arrow_right_2;
+                    quickSelectButton.Tag = element;
                     index += 2;
                     continue;
                 }
 
                 (quickSelectButton, folderButton) = element.CreateButton();
-                quickSelectButton.Click += (_, _) =>
-                    ShowDropDownList(quickSelectButton);
-                folderButton.Click += (_, _) => OnElementClicked(element);
+                quickSelectButton.Click += (sender, _) =>
+                    ShowDropDownList((sender as Button)!);
+                folderButton.Click += (_, _) =>
+                    OnElementClicked((folderButton.Tag as Element)!);
                 TlpArray.Controls.Add(quickSelectButton, index++, 0);
                 TlpArray.Controls.Add(folderButton, index++, 0);
             }

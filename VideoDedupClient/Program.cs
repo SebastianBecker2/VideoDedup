@@ -253,6 +253,7 @@ namespace VideoDedupClient
 
                     if (entryElement == null)
                     {
+                        e.Entries = Array.Empty<Entry>();
                         throw new InvalidContentRequestException();
                     }
 
@@ -263,9 +264,9 @@ namespace VideoDedupClient
                         testElement!.SubEntries.Remove(entryElement);
                     }
 
-                    dlg.SetContent(
+                    e.Entries =
                         (entryElement?.SubEntries ?? new List<EntryElement>())
-                        .Select(se => se.Entry));
+                        .Select(se => se.Entry);
                 };
 
                 var result = dlg.ShowDialog();
