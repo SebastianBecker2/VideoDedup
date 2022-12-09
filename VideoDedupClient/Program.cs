@@ -1,9 +1,7 @@
 namespace VideoDedupClient
 {
     using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
     using System.IO;
-    using System.Runtime.InteropServices;
     using CustomSelectFileDlg;
     using Grpc.Core;
     using Grpc.Net.Client;
@@ -11,7 +9,6 @@ namespace VideoDedupClient
     using Properties;
     using Dialogs;
     using static VideoDedupGrpc.VideoDedupGrpcService;
-    using System.Collections.Concurrent;
     using CustomSelectFileDlg.Exceptions;
     using VideoDedupSharedLib;
 
@@ -234,8 +231,9 @@ namespace VideoDedupClient
                 {
                     CurrentPath = @"H:\_Test\Test6\Test5\Test4\Test3\Test2\Test1\Test1\Test2\Test3\Test4\Test5\Test6",
                     EntryIconStyle = IconStyle.FallbackToSimpleIcons,
-                    EntryType = EntryType.File,
+                    IsFolderSelector = true,
                     ButtonUpEnabled = ButtonUpEnabledWhen.Always,
+                    RootFolders = new[] { new Entry("H:") },
                 };
                 dlg.ContentRequested += (s, e) =>
                 {
@@ -253,6 +251,16 @@ namespace VideoDedupClient
 
                     if (entryElement == null)
                     {
+                        if (Uri.TryCreate(e.Path, UriKind.Absolute, out var uri)
+                            && uri.IsUnc
+                            && !e.Path.Trim('\\').Contains('\\'))
+                        {
+                            e.Entries = new Vanara.SharedDevices(e.Path.Trim('\\'))
+                                .Where(kvp => !kvp.Value.IsSpecial && kvp.Value.IsDiskVolume)
+                                .Select(kvp => new Entry(kvp.Key) {Type = EntryType.Folder});
+                            return;
+                        }
+
                         e.Entries = Array.Empty<Entry>();
                         throw new InvalidContentRequestException();
                     }
