@@ -226,92 +226,120 @@ namespace VideoDedupServer
             GetFolderContentRequest request,
             ServerCallContext context)
         {
-            var result = new GetFolderContentResponse();
-            if (string.IsNullOrWhiteSpace(request.Path))
+            try
             {
-                result.Files.AddRange(DriveInfo.GetDrives().Select(drive =>
+                var result = new GetFolderContentResponse();
+                result.Files.AddRange(
+                    GetFolderContent(request.Path, request.TypeRestriction));
+                return Task.FromResult(result);
+            }
+            catch (FileNotFoundException)
+            {
+                return Task.FromResult(
+                    new GetFolderContentResponse { RequestFailed = true });
+            }
+            catch (IOException)
+            {
+                return Task.FromResult(
+                    new GetFolderContentResponse { RequestFailed = true });
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Task.FromResult(
+                    new GetFolderContentResponse { RequestFailed = true });
+            }
+        }
+
+        private static IEnumerable<GetFolderContentResponse.Types.FileAttributes>
+            GetFolderContent(string path, FileType typeRestriction)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return DriveInfo.GetDrives().Select(drive =>
                     new GetFolderContentResponse.Types.FileAttributes
                     {
                         Name = drive.Name,
                         Type = FileType.Folder,
                         Icon = DriveIcon,
-                    }));
-                return Task.FromResult(result);
+                    });
             }
 
-            if (!Directory.Exists(request.Path))
+            if (!Directory.Exists(path))
             {
-                result.RequestFailed = true;
-                return Task.FromResult(result);
+                if (!Uri.TryCreate(path, UriKind.Absolute, out var uri)
+                    || !uri.IsUnc
+                    || path.Trim('\\').Contains('\\'))
+                {
+                    throw new FileNotFoundException();
+                }
+
+                // If it's a UNC path to server, without subfolder, we show the
+                // shares on that server.
+                return GetServerShares(path);
             }
 
-            static GetFolderContentResponse.Types.FileAttributes? FromPath(
-                string path)
-            {
-                try
+            Func<string, IEnumerable<string>> enumerator =
+                typeRestriction switch
                 {
-                    var attr = File.GetAttributes(path);
-                    var type = attr.HasFlag(FileAttributes.Directory)
-                        ? FileType.Folder
-                        : FileType.File;
-                    var info = new FileInfo(path);
-                    var size = type == FileType.Folder ? 0 : info.Length;
-                    var mimeType = type == FileType.Folder
-                        ? "File folder"
-                        : FileInfoProvider.GetMimeType(path) ?? "";
-                    var dateModified =
-                        Timestamp.FromDateTime(info.LastWriteTimeUtc);
-                    return new GetFolderContentResponse.Types.FileAttributes
-                    {
-                        Name = Path.GetFileName(path),
-                        Size = size,
-                        Type = type,
-                        DateModified = dateModified,
-                        MimeType = mimeType,
-                        Icon = null,
-                    };
-                }
-                catch
-                {
-                    return null;
-                }
-            }
+                    FileType.Folder => Directory.EnumerateDirectories,
+                    FileType.File => Directory.EnumerateFiles,
+                    FileType.Any => Directory.EnumerateFileSystemEntries,
+                    _ => Directory.EnumerateFileSystemEntries
+                };
 
+            // Add a backslash at the end to make sure we never try to get
+            // the content of the current drive without a backslash or slash
+            // at the end. If the current working directory is "d:\subfolder"
+            // and we try to get the file system entries from "d:", we would
+            // get the file system entries from "d:\subfolder" instead.
+            // Adding the backslash prevents that.
+            return enumerator(path + "\\")
+                .Select(ToFileAttributes)
+                .Where(e => e is not null)!;
+        }
+
+        private static GetFolderContentResponse.Types.FileAttributes?
+            ToFileAttributes(string path)
+        {
             try
             {
-                Func<string, IEnumerable<string>> enumerator =
-                    request.TypeRestriction switch
-                    {
-                        FileType.Folder => Directory.EnumerateDirectories,
-                        FileType.File => Directory.EnumerateFiles,
-                        FileType.Any => Directory.EnumerateFileSystemEntries,
-                        _ => Directory.EnumerateFileSystemEntries
-                    };
-
-                // Add a backslash at the end to make sure we never try to get
-                // the content of the current drive without a backslash or slash
-                // at the end. If the current working directory is "d:\subfolder"
-                // and we try to get the file system entries from "d:", we would
-                // get the file system entries from "d:\subfolder" instead.
-                // Adding the backslash prevents that.
-                result.Files.AddRange(
-                    enumerator(request.Path + "\\")
-                        .Select(FromPath)
-                        .Where(e => e is not null));
-
-                return Task.FromResult(result);
+                var attr = File.GetAttributes(path);
+                var type = attr.HasFlag(FileAttributes.Directory)
+                    ? FileType.Folder
+                    : FileType.File;
+                var info = new FileInfo(path);
+                var size = type == FileType.Folder ? 0 : info.Length;
+                var mimeType = type == FileType.Folder
+                    ? "File folder"
+                    : FileInfoProvider.GetMimeType(path) ?? "";
+                var dateModified =
+                    Timestamp.FromDateTime(info.LastWriteTimeUtc);
+                return new()
+                {
+                    Name = Path.GetFileName(path),
+                    Size = size,
+                    Type = type,
+                    DateModified = dateModified,
+                    MimeType = mimeType,
+                    Icon = null,
+                };
             }
-            catch (IOException)
+            catch
             {
-                result.RequestFailed = true;
-                return Task.FromResult(result);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                result.RequestFailed = true;
-                return Task.FromResult(result);
+                return null;
             }
         }
+
+        private static IEnumerable<GetFolderContentResponse.Types.FileAttributes>
+            GetServerShares(string serverName) =>
+            new Vanara.SharedDevices(serverName)
+                .Where(kvp => !kvp.Value.IsSpecial && kvp.Value.IsDiskVolume)
+                .Select(kvp =>
+                    new GetFolderContentResponse.Types.FileAttributes
+                    {
+                        Name = kvp.Key,
+                        Type = FileType.Folder
+                    });
 
         private void OperationUpdateCallback(
             object? sender,
