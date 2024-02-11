@@ -266,6 +266,8 @@ namespace VideoDedupServer
 
             if (!Directory.Exists(path))
             {
+                // If it's a UNC path to server, without subfolder, we show the
+                // shares on that server.
                 if (!Uri.TryCreate(path, UriKind.Absolute, out var uri)
                     || !uri.IsUnc
                     || path.Trim('\\').Contains('\\'))
@@ -273,8 +275,6 @@ namespace VideoDedupServer
                     throw new FileNotFoundException();
                 }
 
-                // If it's a UNC path to server, without subfolder, we show the
-                // shares on that server.
                 return GetServerShares(path);
             }
 
