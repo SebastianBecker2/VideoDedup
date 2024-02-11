@@ -1,113 +1,14 @@
 namespace VideoDedupClient
 {
-    using System.Diagnostics;
-    using System.IO;
-    using CustomSelectFileDlg;
     using Grpc.Core;
     using Grpc.Net.Client;
     using Grpc.Net.Client.Configuration;
     using Properties;
     using Dialogs;
     using static VideoDedupGrpc.VideoDedupGrpcService;
-    using CustomSelectFileDlg.Exceptions;
-    using VideoDedupSharedLib;
 
     internal static class Program
     {
-#if DEBUG
-        private static readonly string RootPath = @"H:\";
-
-        internal class EntryElement
-        {
-            public EntryElement(string path)
-            {
-                Entry = EntryFromFile(path);
-
-                if (!Directory.Exists(path))
-                {
-                    return;
-                }
-
-                try
-                {
-                    SubEntries = Directory.GetFileSystemEntries(path).Select(p => new EntryElement(p)).ToList();
-                }
-                catch (IOException)
-                {
-                    SubEntries = new List<EntryElement>();
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    SubEntries = new List<EntryElement>();
-                }
-            }
-
-            public Entry Entry { get; set; }
-            public List<EntryElement>? SubEntries { get; set; }
-
-            public static Entry EntryFromFile(string entry)
-            {
-                var attr = File.GetAttributes(entry);
-                var info = new FileInfo(entry);
-
-                if (attr.HasFlag(FileAttributes.Directory))
-                {
-                    return new Entry(entry.Length <= 3 ? entry : Path.GetFileName(entry))
-                    {
-                        Size = null,
-                        DateModified = info.LastWriteTimeUtc,
-                        MimeType = "File folder",
-                        Type = EntryType.Folder,
-                    };
-                }
-
-                return new Entry(Path.GetFileName(entry))
-                {
-                    Icon = FileInfoProvider.GetIcon(entry),
-                    Size = info.Length,
-                    DateModified = info.LastWriteTimeUtc,
-                    MimeType = FileInfoProvider.GetMimeType(entry),
-                    Type = EntryType.File,
-                };
-            }
-
-            public EntryElement? FindEntryElement(string path)
-            {
-                if (!path.StartsWith(
-                        Entry.Name,
-                        StringComparison.InvariantCultureIgnoreCase))
-                {
-                    return null;
-                }
-
-                path = path[Entry.Name.Length..];
-                while (path.StartsWith(Path.DirectorySeparatorChar)
-                       || path.StartsWith(Path.AltDirectorySeparatorChar))
-                {
-                    path = path[1..];
-                }
-
-                var sepIndex = path.IndexOfAny(new[]
-                {
-                    Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar
-                });
-                if (sepIndex == -1)
-                {
-                    if (string.IsNullOrEmpty(path))
-                    {
-                        return this;
-                    }
-                    return SubEntries.FirstOrDefault(e => e.Entry.Name == path);
-                }
-
-                return SubEntries
-                    .FirstOrDefault(e => e.Entry.Name == path[0..sepIndex])
-                    ?.FindEntryElement(path);
-            }
-        }
-
-#endif
-
         private static GrpcChannel? grpcChannel;
         private static readonly object GrpcClientLock = new();
         private static readonly MethodConfig GrpcDefaultBackoffConfig =
@@ -206,85 +107,6 @@ namespace VideoDedupClient
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-
-#if DEBUG
-            foreach (var i in Enumerable.Range(0, 100))
-            {
-                EntryElement rootElement = new(RootPath);
-                if (false)
-                {
-#pragma warning disable CS0162 // Unreachable code detected
-                    var dlg2 = new OpenFileDialog()
-                    {
-                        Multiselect = true
-                    };
-#pragma warning restore CS0162 // Unreachable code detected
-                    var result2 = dlg2.ShowDialog();
-                    if (result2 == DialogResult.OK)
-                    {
-                        //MessageBox.Show("Filenames:");
-                        _ = MessageBox.Show(string.Join("\n", dlg2.FileNames));
-                    }
-                    continue;
-                }
-                var dlg = new CustomSelectFileDialog
-                {
-                    CurrentPath = @"H:\_Test\Test6\Test5\Test4\Test3\Test2\Test1\Test1\Test2\Test3\Test4\Test5\Test6",
-                    EntryIconStyle = IconStyle.FallbackToSimpleIcons,
-                    IsFolderSelector = true,
-                    ButtonUpEnabled = ButtonUpEnabledWhen.Always,
-                    RootFolders = new[] { new Entry("H:") },
-                };
-                dlg.ContentRequested += (s, e) =>
-                {
-                    Debug.Print("Content Requested");
-                    if (string.IsNullOrWhiteSpace(e.Path))
-                    {
-                        Debug.Print(
-                            "Path is null or white space," +
-                            $" setting it back to {RootPath}");
-                        dlg.CurrentPath = RootPath;
-                        return;
-                    }
-
-                    var entryElement = rootElement.FindEntryElement(e.Path);
-
-                    if (entryElement == null)
-                    {
-                        if (Uri.TryCreate(e.Path, UriKind.Absolute, out var uri)
-                            && uri.IsUnc
-                            && !e.Path.Trim('\\').Contains('\\'))
-                        {
-                            e.Entries = new Vanara.SharedDevices(e.Path.Trim('\\'))
-                                .Where(kvp => !kvp.Value.IsSpecial && kvp.Value.IsDiskVolume)
-                                .Select(kvp => new Entry(kvp.Key) {Type = EntryType.Folder});
-                            return;
-                        }
-
-                        e.Entries = Array.Empty<Entry>();
-                        throw new InvalidContentRequestException();
-                    }
-
-                    if (e.Path == RootPath + @"_Test\Test3")
-                    {
-                        var testElement =
-                            rootElement.FindEntryElement(RootPath + @"_Test");
-                        testElement!.SubEntries.Remove(entryElement);
-                    }
-
-                    e.Entries =
-                        (entryElement?.SubEntries ?? new List<EntryElement>())
-                        .Select(se => se.Entry);
-                };
-
-                var result = dlg.ShowDialog();
-
-                if (result == DialogResult.OK)
-                {
-                    _ = MessageBox.Show(dlg.SelectedPath);
-                }
-            }
-#endif
             Application.Run(new VideoDedupDlg());
         }
     }
