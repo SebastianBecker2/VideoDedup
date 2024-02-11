@@ -91,7 +91,9 @@ namespace CustomSelectFileDlg
             OnContentRequested(CurrentPath);
         protected virtual IEnumerable<Entry>? OnSubFolderRequested(string? path)
         {
-            var args = new ContentRequestedEventArgs(path, true);
+            var args = new ContentRequestedEventArgs(
+                path,
+                RequestedEntryType.Folders);
             OnContentRequested(args);
             if (args.Entries is not null && !args.Entries.Any())
             {
