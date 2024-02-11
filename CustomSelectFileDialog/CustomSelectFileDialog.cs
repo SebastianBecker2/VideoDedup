@@ -345,30 +345,41 @@ namespace CustomSelectFileDlg
 
         private void HandleBtnOkClick(object sender, System.EventArgs e)
         {
-            if (string.IsNullOrEmpty(TxtSelectedFileName.Text))
-            {
-                return;
-            }
-
             var selectedEntry = content?
                 .FirstOrDefault(c => c.Name == TxtSelectedFileName.Text);
 
-            if (selectedEntry is not null)
+            if (IsFolderSelector)
             {
-                if (!IsFolderSelector
-                    && selectedEntry.Type == EntryType.Folder)
-                {
-                    CurrentPath =
-                        Path.Combine(CurrentPath ?? "", selectedEntry.Name);
+            if (string.IsNullOrEmpty(TxtSelectedFileName.Text))
+            {
+                    Debug.Assert(CurrentPath is not null);
+                    SelectedPath = CurrentPath;
+                    DialogResult = DialogResult.OK;
                     return;
                 }
 
-                if (IsFolderSelector
-                    && selectedEntry.Type != EntryType.Folder)
+                if (selectedEntry is null
+                    || selectedEntry.Type == EntryType.Folder)
                 {
+                    DialogResult = DialogResult.OK;
+                return;
+            }
+
+                return;
+            }
+
+            if (string.IsNullOrEmpty(TxtSelectedFileName.Text))
+            {
                     return;
                 }
-            }
+
+            if (selectedEntry is not null
+                && selectedEntry.Type == EntryType.Folder)
+                {
+                CurrentPath =
+                    Path.Combine(CurrentPath ?? "", selectedEntry.Name);
+                    return;
+                }
 
             DialogResult = DialogResult.OK;
         }
