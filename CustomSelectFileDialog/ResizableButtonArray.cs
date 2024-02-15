@@ -58,6 +58,7 @@ namespace CustomSelectFileDlg
             Margin = new Padding(0, 0, 0, 0),
             FlatStyle = FlatStyle.Popup,
         };
+        private bool drawn;
         private IEnumerable<Element>? elements;
         private readonly ButtonListDlg buttonList = new();
 
@@ -66,6 +67,7 @@ namespace CustomSelectFileDlg
             get => elements;
             set
             {
+                drawn = false;
                 elements = value;
                 Invalidate();
             }
@@ -123,18 +125,29 @@ namespace CustomSelectFileDlg
 
         private void DrawButtons()
         {
+            if (drawn)
+            {
+                return;
+            }
+
             if (Elements is null)
             {
                 TlpArray.Controls.Clear();
                 return;
             }
 
-            var index = 1;
+            var buttons = TlpArray.Controls
+                .Cast<Button>()
+                .Where(b => b != iconButton)
+                .OrderBy(b => TlpArray.GetColumn(b))
+                .ToList();
+
+            var index = 0;
             foreach (var element in Elements)
             {
-                if (TlpArray.Controls.Count > index
-                    && TlpArray.Controls[index + 1] is { } folderButton
-                    && TlpArray.Controls[index] is Button quickSelectButton)
+                if (buttons.Count > index
+                    && buttons[index] is Button quickSelectButton
+                    && buttons[index + 1] is Button folderButton)
                 {
                     folderButton.Text = element.Text;
                     folderButton.Tag = element;
@@ -149,14 +162,16 @@ namespace CustomSelectFileDlg
                     ShowDropDownList((sender as Button)!);
                 folderButton.Click += (_, _) =>
                     OnElementClicked((folderButton.Tag as Element)!);
-                TlpArray.Controls.Add(quickSelectButton, index++, 0);
-                TlpArray.Controls.Add(folderButton, index++, 0);
+                TlpArray.Controls.Add(quickSelectButton, ++index, 0);
+                TlpArray.Controls.Add(folderButton, ++index, 0);
             }
 
-            while (index < TlpArray.Controls.Count)
+            for (var i = index; i < TlpArray.Controls.Count - 1; i++)
             {
-                TlpArray.Controls[index].Dispose();
+                buttons[index].Dispose();
             }
+
+            drawn = true;
         }
 
         private void AdjustVisibleButtons()
@@ -164,6 +179,7 @@ namespace CustomSelectFileDlg
             var buttons = TlpArray.Controls
                 .Cast<Button>()
                 .Where(b => b != iconButton)
+                .OrderBy(b => TlpArray.GetColumn(b))
                 .ToList();
             if (!buttons.Any())
             {
@@ -225,11 +241,18 @@ namespace CustomSelectFileDlg
 
             // The first visible quickSelectButton gets a left arrow,
             // if at least one button is hidden.
-            if (!buttons.First(b => string.IsNullOrEmpty(b.Text)).Visible)
+            // All others get a right arrow.
+            foreach (var quickSelectButton in buttons
+                .Where(b =>
+                    string.IsNullOrEmpty(b.Text)
+                    && b.Visible))
             {
-                buttons.First(b => b.Visible && string.IsNullOrEmpty(b.Text)).Image =
-                    Resources.bullet_arrow_left_2;
+                quickSelectButton.Image = Resources.bullet_arrow_right_2;
             }
+            buttons.First(b => b.Visible && string.IsNullOrEmpty(b.Text)).Image =
+                    buttons.First(b => string.IsNullOrEmpty(b.Text)).Visible
+                    ? Resources.bullet_arrow_right_2
+                    : Resources.bullet_arrow_left_2;
         }
 
         private void HandleTlpArrayClick(object sender, System.EventArgs e) =>
