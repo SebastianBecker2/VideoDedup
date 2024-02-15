@@ -61,7 +61,7 @@ namespace CustomSelectFileDlg
 
         /// <summary>
         /// Event raised when content is requested.<br/>Provide content for
-        /// currently for provided path or throw InvalidContentRequestException
+        /// currently selected path or throw InvalidContentRequestException
         /// to display an error to the user.
         /// </summary>
         public event EventHandler<ContentRequestedEventArgs>? ContentRequested;
@@ -100,6 +100,23 @@ namespace CustomSelectFileDlg
                 return null;
             }
             return args.Entries;
+        }
+
+        /// <summary>
+        /// Event raised when the user selected and confirmed a file or folder.
+        /// <br/>The owner of the dialog can verify if the selection is valid.
+        /// Setting the IsValid member to false will cancel the users
+        /// confirmation.
+        /// </summary>
+        public event EventHandler<PathSelectedEventArgs>? PathSelected;
+
+        protected virtual void OnPathSelected(PathSelectedEventArgs args) =>
+            PathSelected?.Invoke(this, args);
+        protected virtual bool OnPathSelected(string path)
+        {
+            var args = new PathSelectedEventArgs(path);
+            OnPathSelected(args);
+            return args.IsValid;
         }
 
         public CustomSelectFileDialog() => InitializeComponent();
@@ -346,42 +363,54 @@ namespace CustomSelectFileDlg
         private void HandleBtnOkClick(object sender, System.EventArgs e)
         {
             var selectedEntry = content?
-                .FirstOrDefault(c => c.Name == TxtSelectedFileName.Text);
+                    .FirstOrDefault(c => c.Name == TxtSelectedFileName.Text);
 
-            if (IsFolderSelector)
+            bool CheckFolderSelection()
             {
-            if (string.IsNullOrEmpty(TxtSelectedFileName.Text))
-            {
+                if (string.IsNullOrEmpty(TxtSelectedFileName.Text))
+                {
                     Debug.Assert(CurrentPath is not null);
                     SelectedPath = CurrentPath;
-                    DialogResult = DialogResult.OK;
-                    return;
+                    return true;
                 }
 
                 if (selectedEntry is null
                     || selectedEntry.Type == EntryType.Folder)
                 {
-                    DialogResult = DialogResult.OK;
-                return;
+                    return true;
+                }
+
+                return false;
             }
 
-                return;
-            }
-
-            if (string.IsNullOrEmpty(TxtSelectedFileName.Text))
+            bool CheckFileSelection()
             {
-                    return;
-                }
-
-            if (selectedEntry is not null
-                && selectedEntry.Type == EntryType.Folder)
+                if (string.IsNullOrEmpty(TxtSelectedFileName.Text))
                 {
-                CurrentPath =
-                    Path.Combine(CurrentPath ?? "", selectedEntry.Name);
-                    return;
+                    return false;
                 }
 
-            DialogResult = DialogResult.OK;
+                if (selectedEntry is not null
+                    && selectedEntry.Type == EntryType.Folder)
+                {
+                    CurrentPath =
+                        Path.Combine(CurrentPath ?? "", selectedEntry.Name);
+                    return false;
+                }
+
+                return true;
+            }
+
+            if ((IsFolderSelector && !CheckFolderSelection())
+                || (!IsFolderSelector && !CheckFileSelection()))
+            {
+                return;
+            }
+
+            if (PathSelected is null || OnPathSelected(SelectedPath))
+            {
+                DialogResult = DialogResult.OK;
+            }
         }
 
         private void HandleBtnUpClick(object sender, System.EventArgs e)
