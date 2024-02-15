@@ -166,9 +166,9 @@ namespace CustomSelectFileDlg
                 TlpArray.Controls.Add(folderButton, ++index, 0);
             }
 
-            for (var i = index; i < TlpArray.Controls.Count - 1; i++)
+            for (var i = index; i < buttons.Count; i++)
             {
-                buttons[index].Dispose();
+                buttons[i].Dispose();
             }
 
             drawn = true;
