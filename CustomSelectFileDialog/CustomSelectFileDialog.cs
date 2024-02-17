@@ -431,7 +431,7 @@ namespace CustomSelectFileDlg
         }
 
         private void HandleBtnRefreshClick(object sender, System.EventArgs e) =>
-            OnContentRequested();
+            SetContent(OnContentRequested(CurrentPath, GetSelectedFilter()));
 
         private void HandleTxtSelectedFileNameKeyDown(
             object sender,
