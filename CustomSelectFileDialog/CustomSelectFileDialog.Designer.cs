@@ -28,230 +28,234 @@ namespace CustomSelectFileDlg
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            this.BtnRefresh = new System.Windows.Forms.Button();
-            this.BtnUp = new System.Windows.Forms.Button();
-            this.BtnForward = new System.Windows.Forms.Button();
-            this.BtnBack = new System.Windows.Forms.Button();
-            this.BtnCancel = new System.Windows.Forms.Button();
-            this.BtnOk = new System.Windows.Forms.Button();
-            this.DgvContent = new System.Windows.Forms.DataGridView();
-            this.DgcIcon = new System.Windows.Forms.DataGridViewImageColumn();
-            this.DgcName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.DgcDateModified = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.DgcType = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.DgcSize = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.TxtSelectedFileName = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.PabCurrentPath = new CustomSelectFileDlg.PathBox();
-            ((System.ComponentModel.ISupportInitialize)(this.DgvContent)).BeginInit();
-            this.SuspendLayout();
+            var dataGridViewCellStyle1 = new DataGridViewCellStyle();
+            var dataGridViewCellStyle2 = new DataGridViewCellStyle();
+            BtnRefresh = new Button();
+            BtnUp = new Button();
+            BtnForward = new Button();
+            BtnBack = new Button();
+            BtnCancel = new Button();
+            BtnOk = new Button();
+            DgvContent = new DataGridView();
+            DgcIcon = new DataGridViewImageColumn();
+            DgcName = new DataGridViewTextBoxColumn();
+            DgcDateModified = new DataGridViewTextBoxColumn();
+            DgcType = new DataGridViewTextBoxColumn();
+            DgcSize = new DataGridViewTextBoxColumn();
+            TxtSelectedFileName = new TextBox();
+            label1 = new Label();
+            PabCurrentPath = new PathBox();
+            CmbFilter = new ComboBox();
+            ((System.ComponentModel.ISupportInitialize)DgvContent).BeginInit();
+            SuspendLayout();
             // 
             // BtnRefresh
             // 
-            this.BtnRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnRefresh.Image = global::CustomSelectFileDlg.Properties.Resources.update;
-            this.BtnRefresh.Location = new System.Drawing.Point(566, 12);
-            this.BtnRefresh.Name = "BtnRefresh";
-            this.BtnRefresh.Size = new System.Drawing.Size(37, 27);
-            this.BtnRefresh.TabIndex = 8;
-            this.BtnRefresh.UseVisualStyleBackColor = true;
-            this.BtnRefresh.Click += new System.EventHandler(this.HandleBtnRefreshClick);
+            BtnRefresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            BtnRefresh.Image = Properties.Resources.update;
+            BtnRefresh.Location = new Point(566, 12);
+            BtnRefresh.Name = "BtnRefresh";
+            BtnRefresh.Size = new Size(37, 27);
+            BtnRefresh.TabIndex = 8;
+            BtnRefresh.UseVisualStyleBackColor = true;
+            BtnRefresh.Click += HandleBtnRefreshClick;
             // 
             // BtnUp
             // 
-            this.BtnUp.Image = global::CustomSelectFileDlg.Properties.Resources.bullet_arrow_up;
-            this.BtnUp.Location = new System.Drawing.Point(98, 12);
-            this.BtnUp.Name = "BtnUp";
-            this.BtnUp.Size = new System.Drawing.Size(37, 27);
-            this.BtnUp.TabIndex = 6;
-            this.BtnUp.UseVisualStyleBackColor = true;
-            this.BtnUp.Click += new System.EventHandler(this.HandleBtnUpClick);
+            BtnUp.Image = Properties.Resources.bullet_arrow_up;
+            BtnUp.Location = new Point(98, 12);
+            BtnUp.Name = "BtnUp";
+            BtnUp.Size = new Size(37, 27);
+            BtnUp.TabIndex = 6;
+            BtnUp.UseVisualStyleBackColor = true;
+            BtnUp.Click += HandleBtnUpClick;
             // 
             // BtnForward
             // 
-            this.BtnForward.Enabled = false;
-            this.BtnForward.Image = global::CustomSelectFileDlg.Properties.Resources.bullet_arrow_right;
-            this.BtnForward.Location = new System.Drawing.Point(55, 12);
-            this.BtnForward.Name = "BtnForward";
-            this.BtnForward.Size = new System.Drawing.Size(37, 27);
-            this.BtnForward.TabIndex = 5;
-            this.BtnForward.UseVisualStyleBackColor = true;
-            this.BtnForward.Click += new System.EventHandler(this.HandleBtnForwardClick);
+            BtnForward.Enabled = false;
+            BtnForward.Image = Properties.Resources.bullet_arrow_right;
+            BtnForward.Location = new Point(55, 12);
+            BtnForward.Name = "BtnForward";
+            BtnForward.Size = new Size(37, 27);
+            BtnForward.TabIndex = 5;
+            BtnForward.UseVisualStyleBackColor = true;
+            BtnForward.Click += HandleBtnForwardClick;
             // 
             // BtnBack
             // 
-            this.BtnBack.Enabled = false;
-            this.BtnBack.Image = global::CustomSelectFileDlg.Properties.Resources.bullet_arrow_left;
-            this.BtnBack.Location = new System.Drawing.Point(12, 12);
-            this.BtnBack.Name = "BtnBack";
-            this.BtnBack.Size = new System.Drawing.Size(37, 27);
-            this.BtnBack.TabIndex = 4;
-            this.BtnBack.UseVisualStyleBackColor = true;
-            this.BtnBack.Click += new System.EventHandler(this.HandleBtnBackClick);
+            BtnBack.Enabled = false;
+            BtnBack.Image = Properties.Resources.bullet_arrow_left;
+            BtnBack.Location = new Point(12, 12);
+            BtnBack.Name = "BtnBack";
+            BtnBack.Size = new Size(37, 27);
+            BtnBack.TabIndex = 4;
+            BtnBack.UseVisualStyleBackColor = true;
+            BtnBack.Click += HandleBtnBackClick;
             // 
             // BtnCancel
             // 
-            this.BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.BtnCancel.Location = new System.Drawing.Point(528, 322);
-            this.BtnCancel.Name = "BtnCancel";
-            this.BtnCancel.Size = new System.Drawing.Size(75, 23);
-            this.BtnCancel.TabIndex = 3;
-            this.BtnCancel.Text = "&Cancel";
-            this.BtnCancel.UseVisualStyleBackColor = true;
+            BtnCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            BtnCancel.DialogResult = DialogResult.Cancel;
+            BtnCancel.Location = new Point(528, 354);
+            BtnCancel.Name = "BtnCancel";
+            BtnCancel.Size = new Size(75, 23);
+            BtnCancel.TabIndex = 3;
+            BtnCancel.Text = "&Cancel";
+            BtnCancel.UseVisualStyleBackColor = true;
             // 
             // BtnOk
             // 
-            this.BtnOk.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnOk.Location = new System.Drawing.Point(447, 322);
-            this.BtnOk.Name = "BtnOk";
-            this.BtnOk.Size = new System.Drawing.Size(75, 23);
-            this.BtnOk.TabIndex = 2;
-            this.BtnOk.Text = "&OK";
-            this.BtnOk.UseVisualStyleBackColor = true;
-            this.BtnOk.Click += new System.EventHandler(this.HandleBtnOkClick);
+            BtnOk.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            BtnOk.Location = new Point(447, 354);
+            BtnOk.Name = "BtnOk";
+            BtnOk.Size = new Size(75, 23);
+            BtnOk.TabIndex = 2;
+            BtnOk.Text = "&OK";
+            BtnOk.UseVisualStyleBackColor = true;
+            BtnOk.Click += HandleBtnOkClick;
             // 
             // DgvContent
             // 
-            this.DgvContent.AllowUserToAddRows = false;
-            this.DgvContent.AllowUserToDeleteRows = false;
-            this.DgvContent.AllowUserToResizeRows = false;
-            this.DgvContent.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.DgvContent.BackgroundColor = System.Drawing.SystemColors.Window;
-            this.DgvContent.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
-            this.DgvContent.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.DgvContent.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
-            this.DgvContent.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            this.DgvContent.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.DgcIcon,
-            this.DgcName,
-            this.DgcDateModified,
-            this.DgcType,
-            this.DgcSize});
-            this.DgvContent.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
-            this.DgvContent.EnableHeadersVisualStyles = false;
-            this.DgvContent.Location = new System.Drawing.Point(12, 45);
-            this.DgvContent.MultiSelect = false;
-            this.DgvContent.Name = "DgvContent";
-            this.DgvContent.RowHeadersVisible = false;
-            this.DgvContent.RowTemplate.Height = 25;
-            this.DgvContent.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.DgvContent.ShowCellToolTips = false;
-            this.DgvContent.ShowEditingIcon = false;
-            this.DgvContent.Size = new System.Drawing.Size(591, 271);
-            this.DgvContent.TabIndex = 0;
-            this.DgvContent.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.HandleDgvContentCellDoubleClick);
-            this.DgvContent.SelectionChanged += new System.EventHandler(this.HandleDgvContentSelectionChanged);
-            this.DgvContent.SortCompare += new System.Windows.Forms.DataGridViewSortCompareEventHandler(this.HandleDgvContentSortCompare);
-            this.DgvContent.KeyDown += new System.Windows.Forms.KeyEventHandler(this.HandleDgvContentKeyDown);
-            this.DgvContent.MouseDown += new System.Windows.Forms.MouseEventHandler(this.HandleDgvContentMouseDown);
+            DgvContent.AllowUserToAddRows = false;
+            DgvContent.AllowUserToDeleteRows = false;
+            DgvContent.AllowUserToResizeRows = false;
+            DgvContent.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            DgvContent.BackgroundColor = SystemColors.Window;
+            DgvContent.CellBorderStyle = DataGridViewCellBorderStyle.None;
+            DgvContent.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = SystemColors.HighlightText;
+            dataGridViewCellStyle1.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            dataGridViewCellStyle1.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = SystemColors.HighlightText;
+            dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
+            DgvContent.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            DgvContent.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            DgvContent.Columns.AddRange(new DataGridViewColumn[] { DgcIcon, DgcName, DgcDateModified, DgcType, DgcSize });
+            DgvContent.EditMode = DataGridViewEditMode.EditProgrammatically;
+            DgvContent.EnableHeadersVisualStyles = false;
+            DgvContent.Location = new Point(12, 45);
+            DgvContent.MultiSelect = false;
+            DgvContent.Name = "DgvContent";
+            DgvContent.RowHeadersVisible = false;
+            DgvContent.RowTemplate.Height = 25;
+            DgvContent.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            DgvContent.ShowCellToolTips = false;
+            DgvContent.ShowEditingIcon = false;
+            DgvContent.Size = new Size(591, 274);
+            DgvContent.TabIndex = 0;
+            DgvContent.CellDoubleClick += HandleDgvContentCellDoubleClick;
+            DgvContent.SelectionChanged += HandleDgvContentSelectionChanged;
+            DgvContent.SortCompare += HandleDgvContentSortCompare;
+            DgvContent.KeyDown += HandleDgvContentKeyDown;
+            DgvContent.MouseDown += HandleDgvContentMouseDown;
             // 
             // DgcIcon
             // 
-            this.DgcIcon.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            DgcIcon.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle2.NullValue = null;
-            this.DgcIcon.DefaultCellStyle = dataGridViewCellStyle2;
-            this.DgcIcon.Frozen = true;
-            this.DgcIcon.HeaderText = "";
-            this.DgcIcon.MinimumWidth = 10;
-            this.DgcIcon.Name = "DgcIcon";
-            this.DgcIcon.Width = 10;
+            DgcIcon.DefaultCellStyle = dataGridViewCellStyle2;
+            DgcIcon.Frozen = true;
+            DgcIcon.HeaderText = "";
+            DgcIcon.MinimumWidth = 10;
+            DgcIcon.Name = "DgcIcon";
+            DgcIcon.Width = 10;
             // 
             // DgcName
             // 
-            this.DgcName.Frozen = true;
-            this.DgcName.HeaderText = "Name";
-            this.DgcName.Name = "DgcName";
-            this.DgcName.Width = 300;
+            DgcName.Frozen = true;
+            DgcName.HeaderText = "Name";
+            DgcName.Name = "DgcName";
+            DgcName.Width = 300;
             // 
             // DgcDateModified
             // 
-            this.DgcDateModified.Frozen = true;
-            this.DgcDateModified.HeaderText = "Date Modified";
-            this.DgcDateModified.Name = "DgcDateModified";
-            this.DgcDateModified.Width = 120;
+            DgcDateModified.Frozen = true;
+            DgcDateModified.HeaderText = "Date Modified";
+            DgcDateModified.Name = "DgcDateModified";
+            DgcDateModified.Width = 120;
             // 
             // DgcType
             // 
-            this.DgcType.Frozen = true;
-            this.DgcType.HeaderText = "Type";
-            this.DgcType.Name = "DgcType";
+            DgcType.Frozen = true;
+            DgcType.HeaderText = "Type";
+            DgcType.Name = "DgcType";
             // 
             // DgcSize
             // 
-            this.DgcSize.Frozen = true;
-            this.DgcSize.HeaderText = "Size";
-            this.DgcSize.Name = "DgcSize";
+            DgcSize.Frozen = true;
+            DgcSize.HeaderText = "Size";
+            DgcSize.Name = "DgcSize";
             // 
             // TxtSelectedFileName
             // 
-            this.TxtSelectedFileName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.TxtSelectedFileName.Location = new System.Drawing.Point(79, 322);
-            this.TxtSelectedFileName.Name = "TxtSelectedFileName";
-            this.TxtSelectedFileName.Size = new System.Drawing.Size(362, 23);
-            this.TxtSelectedFileName.TabIndex = 1;
-            this.TxtSelectedFileName.TextChanged += new System.EventHandler(this.HandleTxtSelectedFileNameTextChanged);
-            this.TxtSelectedFileName.KeyDown += new System.Windows.Forms.KeyEventHandler(this.HandleTxtSelectedFileNameKeyDown);
+            TxtSelectedFileName.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            TxtSelectedFileName.Location = new Point(79, 325);
+            TxtSelectedFileName.Name = "TxtSelectedFileName";
+            TxtSelectedFileName.Size = new Size(362, 23);
+            TxtSelectedFileName.TabIndex = 1;
+            TxtSelectedFileName.TextChanged += HandleTxtSelectedFileNameTextChanged;
+            TxtSelectedFileName.KeyDown += HandleTxtSelectedFileNameKeyDown;
             // 
             // label1
             // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 326);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(61, 15);
-            this.label1.TabIndex = 16;
-            this.label1.Text = "File name:";
+            label1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            label1.AutoSize = true;
+            label1.Location = new Point(12, 328);
+            label1.Name = "label1";
+            label1.Size = new Size(61, 15);
+            label1.TabIndex = 16;
+            label1.Text = "File name:";
             // 
             // PabCurrentPath
             // 
-            this.PabCurrentPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.PabCurrentPath.Location = new System.Drawing.Point(141, 12);
-            this.PabCurrentPath.MaximumSize = new System.Drawing.Size(999999999, 923);
-            this.PabCurrentPath.Name = "PabCurrentPath";
-            this.PabCurrentPath.Size = new System.Drawing.Size(419, 27);
-            this.PabCurrentPath.TabIndex = 17;
-            this.PabCurrentPath.CurrentPathChanged += new System.EventHandler<CustomSelectFileDlg.EventArgs.CurrentPathChangedEventArgs>(this.HandlePabCurrentPathCurrentPathChanged);
+            PabCurrentPath.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            PabCurrentPath.BorderStyle = BorderStyle.FixedSingle;
+            PabCurrentPath.Location = new Point(141, 12);
+            PabCurrentPath.MaximumSize = new Size(999999999, 923);
+            PabCurrentPath.MinimumSize = new Size(0, 27);
+            PabCurrentPath.Name = "PabCurrentPath";
+            PabCurrentPath.Size = new Size(419, 27);
+            PabCurrentPath.TabIndex = 17;
+            PabCurrentPath.CurrentPathChanged += HandlePabCurrentPathCurrentPathChanged;
+            // 
+            // CmbFilter
+            // 
+            CmbFilter.DropDownStyle = ComboBoxStyle.DropDownList;
+            CmbFilter.FormattingEnabled = true;
+            CmbFilter.Location = new Point(447, 325);
+            CmbFilter.Name = "CmbFilter";
+            CmbFilter.Size = new Size(156, 23);
+            CmbFilter.TabIndex = 18;
+            CmbFilter.SelectedIndexChanged += HandleCmbFilterSelectedIndexChanged;
             // 
             // CustomSelectFileDialog
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(615, 357);
-            this.Controls.Add(this.PabCurrentPath);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.TxtSelectedFileName);
-            this.Controls.Add(this.DgvContent);
-            this.Controls.Add(this.BtnRefresh);
-            this.Controls.Add(this.BtnUp);
-            this.Controls.Add(this.BtnForward);
-            this.Controls.Add(this.BtnBack);
-            this.Controls.Add(this.BtnCancel);
-            this.Controls.Add(this.BtnOk);
-            this.KeyPreview = true;
-            this.Name = "CustomSelectFileDialog";
-            this.ShowIcon = false;
-            this.ShowInTaskbar = false;
-            this.Text = "CustomSelectFileDialog";
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.HandleCustomSelectFileDialogKeyDown);
-            ((System.ComponentModel.ISupportInitialize)(this.DgvContent)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(615, 389);
+            Controls.Add(CmbFilter);
+            Controls.Add(PabCurrentPath);
+            Controls.Add(label1);
+            Controls.Add(TxtSelectedFileName);
+            Controls.Add(DgvContent);
+            Controls.Add(BtnRefresh);
+            Controls.Add(BtnUp);
+            Controls.Add(BtnForward);
+            Controls.Add(BtnBack);
+            Controls.Add(BtnCancel);
+            Controls.Add(BtnOk);
+            KeyPreview = true;
+            Name = "CustomSelectFileDialog";
+            ShowIcon = false;
+            ShowInTaskbar = false;
+            Text = "CustomSelectFileDialog";
+            KeyDown += HandleCustomSelectFileDialogKeyDown;
+            ((System.ComponentModel.ISupportInitialize)DgvContent).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -271,5 +275,6 @@ namespace CustomSelectFileDlg
         private DataGridViewTextBoxColumn DgcType;
         private DataGridViewTextBoxColumn DgcSize;
         private PathBox PabCurrentPath;
+        private ComboBox CmbFilter;
     }
 }

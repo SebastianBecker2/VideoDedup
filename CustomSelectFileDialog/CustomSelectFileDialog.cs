@@ -18,6 +18,7 @@ namespace CustomSelectFileDlg
         private IconStyle entryIconStyle = IconStyle.NoFallbackOnNull;
         private ButtonUpEnabledWhen buttonUpEnabled =
             ButtonUpEnabledWhen.NotInRootDirectory;
+        private IEnumerable<string>? filter;
 
         public IconStyle EntryIconStyle
         {
@@ -53,11 +54,27 @@ namespace CustomSelectFileDlg
                 }
                 PabCurrentPath.CurrentPath = value;
                 UpdateButtonUp();
-                SetContent(OnContentRequested());
+                SetContent(OnContentRequested(value, GetSelectedFilter()));
             }
         }
         public string SelectedPath { get; set; } = string.Empty;
         public IEnumerable<Entry>? RootFolders { get; set; }
+        public IEnumerable<string>? Filter
+        {
+            get => filter;
+            set
+            {
+                filter = value;
+                CmbFilter.Items.Clear();
+                if (value is null)
+                {
+                    CmbFilter.Visible = false;
+                    return;
+                }
+                CmbFilter.Items.AddRange(value.ToArray());
+                CmbFilter.SelectedIndex = value.Count() - 1;
+            }
+        }
 
         /// <summary>
         /// Event raised when content is requested.<br/>Provide content for
@@ -81,19 +98,23 @@ namespace CustomSelectFileDlg
                     MessageBoxIcon.Error);
             }
         }
-        protected virtual IEnumerable<Entry>? OnContentRequested(string? path)
+        protected virtual IEnumerable<Entry>? OnContentRequested(
+            string? path,
+            string? filter)
         {
-            var args = new ContentRequestedEventArgs(path);
+            var args = new ContentRequestedEventArgs(
+                path,
+                RequestedEntryType.FilesAndFolders,
+                filter);
             OnContentRequested(args);
             return args.Entries;
         }
-        protected virtual IEnumerable<Entry>? OnContentRequested() =>
-            OnContentRequested(CurrentPath);
         protected virtual IEnumerable<Entry>? OnSubFolderRequested(string? path)
         {
             var args = new ContentRequestedEventArgs(
                 path,
-                RequestedEntryType.Folders);
+                RequestedEntryType.Folders,
+                null);
             OnContentRequested(args);
             if (args.Entries is not null && !args.Entries.Any())
             {
@@ -123,7 +144,7 @@ namespace CustomSelectFileDlg
 
         protected override void OnLoad(System.EventArgs e)
         {
-            SetContent(OnContentRequested());
+            SetContent(OnContentRequested(CurrentPath, GetSelectedFilter()));
             DgvContent.Sort(DgvContent.Columns[1], ListSortDirection.Ascending);
             PabCurrentPath.RootFoldersRequested += (_, args) =>
                 args.RootFolders = RootFolders?.Select(entry => entry.Name);
@@ -249,6 +270,16 @@ namespace CustomSelectFileDlg
             var entry = DgvContent.SelectedRows[0].Tag as Entry;
             Debug.Assert(entry is not null);
             return entry;
+        }
+
+        private string? GetSelectedFilter()
+        {
+            if (Filter is null)
+            {
+                return null;
+            }
+
+            return CmbFilter.GetItemText(CmbFilter.SelectedItem);
         }
 
         private void HandleDgvContentCellDoubleClick(
@@ -554,5 +585,10 @@ namespace CustomSelectFileDlg
 
             DialogResult = BtnCancel.DialogResult;
         }
+
+        private void HandleCmbFilterSelectedIndexChanged(
+            object sender,
+            System.EventArgs e) =>
+            SetContent(OnContentRequested(CurrentPath, GetSelectedFilter()));
     }
 }
