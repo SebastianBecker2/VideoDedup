@@ -151,6 +151,9 @@ namespace CustomSelectFileDlg
             PabCurrentPath.SubFoldersRequested += (_, args) =>
                 args.SubFolders =
                     OnSubFolderRequested(args.Path)?.Select(entry => entry.Name);
+
+            CmbFilter.Visible = filter is not null;
+
             base.OnLoad(e);
         }
 

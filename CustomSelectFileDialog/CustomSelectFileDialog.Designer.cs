@@ -28,8 +28,8 @@ namespace CustomSelectFileDlg
         /// </summary>
         private void InitializeComponent()
         {
-            var dataGridViewCellStyle1 = new DataGridViewCellStyle();
-            var dataGridViewCellStyle2 = new DataGridViewCellStyle();
+            var dataGridViewCellStyle3 = new DataGridViewCellStyle();
+            var dataGridViewCellStyle4 = new DataGridViewCellStyle();
             BtnRefresh = new Button();
             BtnUp = new Button();
             BtnForward = new Button();
@@ -46,7 +46,9 @@ namespace CustomSelectFileDlg
             label1 = new Label();
             PabCurrentPath = new PathBox();
             CmbFilter = new ComboBox();
+            tableLayoutPanel1 = new TableLayoutPanel();
             ((System.ComponentModel.ISupportInitialize)DgvContent).BeginInit();
+            tableLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
             // BtnRefresh
@@ -123,14 +125,14 @@ namespace CustomSelectFileDlg
             DgvContent.BackgroundColor = SystemColors.Window;
             DgvContent.CellBorderStyle = DataGridViewCellBorderStyle.None;
             DgvContent.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
-            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = SystemColors.HighlightText;
-            dataGridViewCellStyle1.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            dataGridViewCellStyle1.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle1.SelectionBackColor = SystemColors.HighlightText;
-            dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
-            DgvContent.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = SystemColors.HighlightText;
+            dataGridViewCellStyle3.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            dataGridViewCellStyle3.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle3.SelectionBackColor = SystemColors.HighlightText;
+            dataGridViewCellStyle3.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.True;
+            DgvContent.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
             DgvContent.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             DgvContent.Columns.AddRange(new DataGridViewColumn[] { DgcIcon, DgcName, DgcDateModified, DgcType, DgcSize });
             DgvContent.EditMode = DataGridViewEditMode.EditProgrammatically;
@@ -154,9 +156,9 @@ namespace CustomSelectFileDlg
             // DgcIcon
             // 
             DgcIcon.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle2.NullValue = null;
-            DgcIcon.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle4.NullValue = null;
+            DgcIcon.DefaultCellStyle = dataGridViewCellStyle4;
             DgcIcon.Frozen = true;
             DgcIcon.HeaderText = "";
             DgcIcon.MinimumWidth = 10;
@@ -192,18 +194,20 @@ namespace CustomSelectFileDlg
             // TxtSelectedFileName
             // 
             TxtSelectedFileName.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            TxtSelectedFileName.Location = new Point(79, 325);
+            TxtSelectedFileName.Location = new Point(61, 0);
+            TxtSelectedFileName.Margin = new Padding(0);
             TxtSelectedFileName.Name = "TxtSelectedFileName";
-            TxtSelectedFileName.Size = new Size(362, 23);
+            TxtSelectedFileName.Size = new Size(371, 23);
             TxtSelectedFileName.TabIndex = 1;
             TxtSelectedFileName.TextChanged += HandleTxtSelectedFileNameTextChanged;
             TxtSelectedFileName.KeyDown += HandleTxtSelectedFileNameKeyDown;
             // 
             // label1
             // 
-            label1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            label1.Anchor = AnchorStyles.Left;
             label1.AutoSize = true;
-            label1.Location = new Point(12, 328);
+            label1.Location = new Point(0, 4);
+            label1.Margin = new Padding(0);
             label1.Name = "label1";
             label1.Size = new Size(61, 15);
             label1.TabIndex = 16;
@@ -225,21 +229,37 @@ namespace CustomSelectFileDlg
             // 
             CmbFilter.DropDownStyle = ComboBoxStyle.DropDownList;
             CmbFilter.FormattingEnabled = true;
-            CmbFilter.Location = new Point(447, 325);
+            CmbFilter.Location = new Point(435, 0);
+            CmbFilter.Margin = new Padding(3, 0, 0, 0);
             CmbFilter.Name = "CmbFilter";
             CmbFilter.Size = new Size(156, 23);
             CmbFilter.TabIndex = 18;
             CmbFilter.SelectedIndexChanged += HandleCmbFilterSelectedIndexChanged;
+            // 
+            // tableLayoutPanel1
+            // 
+            tableLayoutPanel1.ColumnCount = 3;
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
+            tableLayoutPanel1.Controls.Add(label1, 0, 0);
+            tableLayoutPanel1.Controls.Add(CmbFilter, 2, 0);
+            tableLayoutPanel1.Controls.Add(TxtSelectedFileName, 1, 0);
+            tableLayoutPanel1.Location = new Point(12, 325);
+            tableLayoutPanel1.Margin = new Padding(0);
+            tableLayoutPanel1.Name = "tableLayoutPanel1";
+            tableLayoutPanel1.RowCount = 1;
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel1.Size = new Size(591, 23);
+            tableLayoutPanel1.TabIndex = 19;
             // 
             // CustomSelectFileDialog
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(615, 389);
-            Controls.Add(CmbFilter);
+            Controls.Add(tableLayoutPanel1);
             Controls.Add(PabCurrentPath);
-            Controls.Add(label1);
-            Controls.Add(TxtSelectedFileName);
             Controls.Add(DgvContent);
             Controls.Add(BtnRefresh);
             Controls.Add(BtnUp);
@@ -254,8 +274,9 @@ namespace CustomSelectFileDlg
             Text = "CustomSelectFileDialog";
             KeyDown += HandleCustomSelectFileDialogKeyDown;
             ((System.ComponentModel.ISupportInitialize)DgvContent).EndInit();
+            tableLayoutPanel1.ResumeLayout(false);
+            tableLayoutPanel1.PerformLayout();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
@@ -276,5 +297,6 @@ namespace CustomSelectFileDlg
         private DataGridViewTextBoxColumn DgcSize;
         private PathBox PabCurrentPath;
         private ComboBox CmbFilter;
+        private TableLayoutPanel tableLayoutPanel1;
     }
 }
