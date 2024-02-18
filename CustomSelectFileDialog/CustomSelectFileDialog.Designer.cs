@@ -47,15 +47,21 @@ namespace CustomSelectFileDlg
             PabCurrentPath = new PathBox();
             CmbFilter = new ComboBox();
             tableLayoutPanel1 = new TableLayoutPanel();
+            TrvTreeView = new TreeView();
+            splitContainer1 = new SplitContainer();
             ((System.ComponentModel.ISupportInitialize)DgvContent).BeginInit();
             tableLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
+            splitContainer1.Panel1.SuspendLayout();
+            splitContainer1.Panel2.SuspendLayout();
+            splitContainer1.SuspendLayout();
             SuspendLayout();
             // 
             // BtnRefresh
             // 
             BtnRefresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             BtnRefresh.Image = Properties.Resources.update;
-            BtnRefresh.Location = new Point(564, 12);
+            BtnRefresh.Location = new Point(709, 12);
             BtnRefresh.Name = "BtnRefresh";
             BtnRefresh.Size = new Size(37, 27);
             BtnRefresh.TabIndex = 8;
@@ -98,7 +104,7 @@ namespace CustomSelectFileDlg
             // 
             BtnCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             BtnCancel.DialogResult = DialogResult.Cancel;
-            BtnCancel.Location = new Point(526, 327);
+            BtnCancel.Location = new Point(671, 415);
             BtnCancel.Name = "BtnCancel";
             BtnCancel.Size = new Size(75, 23);
             BtnCancel.TabIndex = 3;
@@ -108,7 +114,7 @@ namespace CustomSelectFileDlg
             // BtnOk
             // 
             BtnOk.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            BtnOk.Location = new Point(445, 327);
+            BtnOk.Location = new Point(590, 415);
             BtnOk.Name = "BtnOk";
             BtnOk.Size = new Size(75, 23);
             BtnOk.TabIndex = 2;
@@ -121,7 +127,6 @@ namespace CustomSelectFileDlg
             DgvContent.AllowUserToAddRows = false;
             DgvContent.AllowUserToDeleteRows = false;
             DgvContent.AllowUserToResizeRows = false;
-            DgvContent.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             DgvContent.BackgroundColor = SystemColors.Window;
             DgvContent.CellBorderStyle = DataGridViewCellBorderStyle.None;
             DgvContent.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
@@ -135,9 +140,10 @@ namespace CustomSelectFileDlg
             DgvContent.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             DgvContent.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             DgvContent.Columns.AddRange(new DataGridViewColumn[] { DgcIcon, DgcName, DgcDateModified, DgcType, DgcSize });
+            DgvContent.Dock = DockStyle.Fill;
             DgvContent.EditMode = DataGridViewEditMode.EditProgrammatically;
             DgvContent.EnableHeadersVisualStyles = false;
-            DgvContent.Location = new Point(12, 45);
+            DgvContent.Location = new Point(0, 0);
             DgvContent.MultiSelect = false;
             DgvContent.Name = "DgvContent";
             DgvContent.RowHeadersVisible = false;
@@ -145,7 +151,7 @@ namespace CustomSelectFileDlg
             DgvContent.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             DgvContent.ShowCellToolTips = false;
             DgvContent.ShowEditingIcon = false;
-            DgvContent.Size = new Size(589, 247);
+            DgvContent.Size = new Size(581, 338);
             DgvContent.TabIndex = 0;
             DgvContent.CellDoubleClick += HandleDgvContentCellDoubleClick;
             DgvContent.SelectionChanged += HandleDgvContentSelectionChanged;
@@ -197,7 +203,7 @@ namespace CustomSelectFileDlg
             TxtSelectedFileName.Location = new Point(61, 0);
             TxtSelectedFileName.Margin = new Padding(0);
             TxtSelectedFileName.Name = "TxtSelectedFileName";
-            TxtSelectedFileName.Size = new Size(369, 23);
+            TxtSelectedFileName.Size = new Size(514, 23);
             TxtSelectedFileName.TabIndex = 1;
             TxtSelectedFileName.TextChanged += HandleTxtSelectedFileNameTextChanged;
             TxtSelectedFileName.KeyDown += HandleTxtSelectedFileNameKeyDown;
@@ -221,7 +227,7 @@ namespace CustomSelectFileDlg
             PabCurrentPath.MaximumSize = new Size(999999999, 923);
             PabCurrentPath.MinimumSize = new Size(0, 27);
             PabCurrentPath.Name = "PabCurrentPath";
-            PabCurrentPath.Size = new Size(417, 27);
+            PabCurrentPath.Size = new Size(562, 27);
             PabCurrentPath.TabIndex = 17;
             PabCurrentPath.CurrentPathChanged += HandlePabCurrentPathCurrentPathChanged;
             // 
@@ -229,7 +235,7 @@ namespace CustomSelectFileDlg
             // 
             CmbFilter.DropDownStyle = ComboBoxStyle.DropDownList;
             CmbFilter.FormattingEnabled = true;
-            CmbFilter.Location = new Point(433, 0);
+            CmbFilter.Location = new Point(578, 0);
             CmbFilter.Margin = new Padding(3, 0, 0, 0);
             CmbFilter.Name = "CmbFilter";
             CmbFilter.Size = new Size(156, 23);
@@ -246,22 +252,50 @@ namespace CustomSelectFileDlg
             tableLayoutPanel1.Controls.Add(label1, 0, 0);
             tableLayoutPanel1.Controls.Add(CmbFilter, 2, 0);
             tableLayoutPanel1.Controls.Add(TxtSelectedFileName, 1, 0);
-            tableLayoutPanel1.Location = new Point(12, 298);
+            tableLayoutPanel1.Location = new Point(12, 386);
             tableLayoutPanel1.Margin = new Padding(0);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
             tableLayoutPanel1.RowCount = 1;
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutPanel1.Size = new Size(589, 23);
+            tableLayoutPanel1.Size = new Size(734, 23);
             tableLayoutPanel1.TabIndex = 19;
+            // 
+            // TrvTreeView
+            // 
+            TrvTreeView.Dock = DockStyle.Fill;
+            TrvTreeView.Location = new Point(0, 0);
+            TrvTreeView.Name = "TrvTreeView";
+            TrvTreeView.Size = new Size(149, 338);
+            TrvTreeView.TabIndex = 20;
+            TrvTreeView.BeforeExpand += HandleTrvTreeViewBeforeExpand;
+            TrvTreeView.AfterSelect += HandleTrvTreeViewAfterSelect;
+            // 
+            // splitContainer1
+            // 
+            splitContainer1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            splitContainer1.FixedPanel = FixedPanel.Panel1;
+            splitContainer1.Location = new Point(12, 45);
+            splitContainer1.Name = "splitContainer1";
+            // 
+            // splitContainer1.Panel1
+            // 
+            splitContainer1.Panel1.Controls.Add(TrvTreeView);
+            // 
+            // splitContainer1.Panel2
+            // 
+            splitContainer1.Panel2.Controls.Add(DgvContent);
+            splitContainer1.Size = new Size(734, 338);
+            splitContainer1.SplitterDistance = 149;
+            splitContainer1.TabIndex = 21;
             // 
             // CustomSelectFileDialog
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(613, 362);
+            ClientSize = new Size(758, 450);
+            Controls.Add(splitContainer1);
             Controls.Add(tableLayoutPanel1);
             Controls.Add(PabCurrentPath);
-            Controls.Add(DgvContent);
             Controls.Add(BtnRefresh);
             Controls.Add(BtnUp);
             Controls.Add(BtnForward);
@@ -277,6 +311,10 @@ namespace CustomSelectFileDlg
             ((System.ComponentModel.ISupportInitialize)DgvContent).EndInit();
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
+            splitContainer1.Panel1.ResumeLayout(false);
+            splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
+            splitContainer1.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -299,5 +337,7 @@ namespace CustomSelectFileDlg
         private PathBox PabCurrentPath;
         private ComboBox CmbFilter;
         private TableLayoutPanel tableLayoutPanel1;
+        private TreeView TrvTreeView;
+        private SplitContainer splitContainer1;
     }
 }
