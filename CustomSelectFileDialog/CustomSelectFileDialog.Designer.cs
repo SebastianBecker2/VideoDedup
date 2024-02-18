@@ -28,8 +28,8 @@ namespace CustomSelectFileDlg
         /// </summary>
         private void InitializeComponent()
         {
-            var dataGridViewCellStyle3 = new DataGridViewCellStyle();
-            var dataGridViewCellStyle4 = new DataGridViewCellStyle();
+            var dataGridViewCellStyle1 = new DataGridViewCellStyle();
+            var dataGridViewCellStyle2 = new DataGridViewCellStyle();
             BtnRefresh = new Button();
             BtnUp = new Button();
             BtnForward = new Button();
@@ -55,7 +55,7 @@ namespace CustomSelectFileDlg
             // 
             BtnRefresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             BtnRefresh.Image = Properties.Resources.update;
-            BtnRefresh.Location = new Point(566, 12);
+            BtnRefresh.Location = new Point(564, 12);
             BtnRefresh.Name = "BtnRefresh";
             BtnRefresh.Size = new Size(37, 27);
             BtnRefresh.TabIndex = 8;
@@ -98,7 +98,7 @@ namespace CustomSelectFileDlg
             // 
             BtnCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             BtnCancel.DialogResult = DialogResult.Cancel;
-            BtnCancel.Location = new Point(528, 354);
+            BtnCancel.Location = new Point(526, 327);
             BtnCancel.Name = "BtnCancel";
             BtnCancel.Size = new Size(75, 23);
             BtnCancel.TabIndex = 3;
@@ -108,7 +108,7 @@ namespace CustomSelectFileDlg
             // BtnOk
             // 
             BtnOk.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            BtnOk.Location = new Point(447, 354);
+            BtnOk.Location = new Point(445, 327);
             BtnOk.Name = "BtnOk";
             BtnOk.Size = new Size(75, 23);
             BtnOk.TabIndex = 2;
@@ -125,14 +125,14 @@ namespace CustomSelectFileDlg
             DgvContent.BackgroundColor = SystemColors.Window;
             DgvContent.CellBorderStyle = DataGridViewCellBorderStyle.None;
             DgvContent.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
-            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = SystemColors.HighlightText;
-            dataGridViewCellStyle3.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            dataGridViewCellStyle3.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle3.SelectionBackColor = SystemColors.HighlightText;
-            dataGridViewCellStyle3.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.True;
-            DgvContent.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = SystemColors.HighlightText;
+            dataGridViewCellStyle1.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            dataGridViewCellStyle1.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = SystemColors.HighlightText;
+            dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
+            DgvContent.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             DgvContent.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             DgvContent.Columns.AddRange(new DataGridViewColumn[] { DgcIcon, DgcName, DgcDateModified, DgcType, DgcSize });
             DgvContent.EditMode = DataGridViewEditMode.EditProgrammatically;
@@ -145,7 +145,7 @@ namespace CustomSelectFileDlg
             DgvContent.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             DgvContent.ShowCellToolTips = false;
             DgvContent.ShowEditingIcon = false;
-            DgvContent.Size = new Size(591, 274);
+            DgvContent.Size = new Size(589, 247);
             DgvContent.TabIndex = 0;
             DgvContent.CellDoubleClick += HandleDgvContentCellDoubleClick;
             DgvContent.SelectionChanged += HandleDgvContentSelectionChanged;
@@ -156,9 +156,9 @@ namespace CustomSelectFileDlg
             // DgcIcon
             // 
             DgcIcon.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-            dataGridViewCellStyle4.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle4.NullValue = null;
-            DgcIcon.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle2.NullValue = null;
+            DgcIcon.DefaultCellStyle = dataGridViewCellStyle2;
             DgcIcon.Frozen = true;
             DgcIcon.HeaderText = "";
             DgcIcon.MinimumWidth = 10;
@@ -197,7 +197,7 @@ namespace CustomSelectFileDlg
             TxtSelectedFileName.Location = new Point(61, 0);
             TxtSelectedFileName.Margin = new Padding(0);
             TxtSelectedFileName.Name = "TxtSelectedFileName";
-            TxtSelectedFileName.Size = new Size(371, 23);
+            TxtSelectedFileName.Size = new Size(369, 23);
             TxtSelectedFileName.TabIndex = 1;
             TxtSelectedFileName.TextChanged += HandleTxtSelectedFileNameTextChanged;
             TxtSelectedFileName.KeyDown += HandleTxtSelectedFileNameKeyDown;
@@ -221,7 +221,7 @@ namespace CustomSelectFileDlg
             PabCurrentPath.MaximumSize = new Size(999999999, 923);
             PabCurrentPath.MinimumSize = new Size(0, 27);
             PabCurrentPath.Name = "PabCurrentPath";
-            PabCurrentPath.Size = new Size(419, 27);
+            PabCurrentPath.Size = new Size(417, 27);
             PabCurrentPath.TabIndex = 17;
             PabCurrentPath.CurrentPathChanged += HandlePabCurrentPathCurrentPathChanged;
             // 
@@ -229,7 +229,7 @@ namespace CustomSelectFileDlg
             // 
             CmbFilter.DropDownStyle = ComboBoxStyle.DropDownList;
             CmbFilter.FormattingEnabled = true;
-            CmbFilter.Location = new Point(435, 0);
+            CmbFilter.Location = new Point(433, 0);
             CmbFilter.Margin = new Padding(3, 0, 0, 0);
             CmbFilter.Name = "CmbFilter";
             CmbFilter.Size = new Size(156, 23);
@@ -238,6 +238,7 @@ namespace CustomSelectFileDlg
             // 
             // tableLayoutPanel1
             // 
+            tableLayoutPanel1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tableLayoutPanel1.ColumnCount = 3;
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -245,19 +246,19 @@ namespace CustomSelectFileDlg
             tableLayoutPanel1.Controls.Add(label1, 0, 0);
             tableLayoutPanel1.Controls.Add(CmbFilter, 2, 0);
             tableLayoutPanel1.Controls.Add(TxtSelectedFileName, 1, 0);
-            tableLayoutPanel1.Location = new Point(12, 325);
+            tableLayoutPanel1.Location = new Point(12, 298);
             tableLayoutPanel1.Margin = new Padding(0);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
             tableLayoutPanel1.RowCount = 1;
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutPanel1.Size = new Size(591, 23);
+            tableLayoutPanel1.Size = new Size(589, 23);
             tableLayoutPanel1.TabIndex = 19;
             // 
             // CustomSelectFileDialog
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(615, 389);
+            ClientSize = new Size(613, 362);
             Controls.Add(tableLayoutPanel1);
             Controls.Add(PabCurrentPath);
             Controls.Add(DgvContent);
