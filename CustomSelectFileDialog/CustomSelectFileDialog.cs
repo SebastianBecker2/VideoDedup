@@ -152,6 +152,14 @@ namespace CustomSelectFileDlg
                 DgvContent.Columns[1],
                 ListSortDirection.Ascending);
 
+            DgvContent.ContextMenuStrip = new();
+            var refresh = new ToolStripMenuItem
+            {
+                Text = "Refresh",
+            };
+            refresh.Click += (s, e) => UpdateContent();
+            DgvContent.ContextMenuStrip.Items.Add(refresh);
+
             PabCurrentPath.RootFoldersRequested += (_, args) =>
                 args.RootFolders = RootFolders?.Select(entry => entry.Name);
 
@@ -200,6 +208,22 @@ namespace CustomSelectFileDlg
                     ToolTipText = entry.Size?.ToString()
                 });
 #pragma warning restore CA1305 // Specify IFormatProvider
+
+            row.ContextMenuStrip = new();
+
+            var select = new ToolStripMenuItem
+            {
+                Text = "Select",
+            };
+            select.Click += (s, e) => ApplySelection();
+            row.ContextMenuStrip.Items.Add(select);
+
+            row.ContextMenuStrip.Opening += (s, e) =>
+            {
+
+                DgvContent.ClearSelection();
+                row.Selected = true;
+            };
 
             return row;
         }
@@ -254,6 +278,59 @@ namespace CustomSelectFileDlg
 
         private void UpdateContent() =>
             SetContent(OnContentRequested(CurrentPath, GetSelectedFilter()));
+
+        private void ApplySelection()
+        {
+            var selectedEntry = content?
+                    .FirstOrDefault(c => c.Name == TxtSelectedFileName.Text);
+
+            bool IsValidFolderSelection()
+            {
+                if (string.IsNullOrEmpty(TxtSelectedFileName.Text))
+                {
+                    Debug.Assert(CurrentPath is not null);
+                    SelectedPath = CurrentPath;
+                    return true;
+                }
+
+                if (selectedEntry is null
+                    || selectedEntry.Type == EntryType.Folder)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            bool IsValidFileSelection()
+            {
+                if (string.IsNullOrEmpty(TxtSelectedFileName.Text))
+                {
+                    return false;
+                }
+
+                if (selectedEntry is not null
+                    && selectedEntry.Type == EntryType.Folder)
+                {
+                    CurrentPath =
+                        Path.Combine(CurrentPath ?? "", selectedEntry.Name);
+                    return false;
+                }
+
+                return true;
+            }
+
+            if ((IsFolderSelector && !IsValidFolderSelection())
+                || (!IsFolderSelector && !IsValidFileSelection()))
+            {
+                return;
+            }
+
+            if (PathSelected is null || OnPathSelected(SelectedPath))
+            {
+                DialogResult = DialogResult.OK;
+            }
+        }
 
         private TreeNode EntryToTreeNode(Entry entry)
         {
@@ -356,7 +433,7 @@ namespace CustomSelectFileDlg
                 return;
             }
 
-            BtnOk.PerformClick();
+            ApplySelection();
         }
 
         private void HandleDgvContentSelectionChanged(
@@ -416,7 +493,7 @@ namespace CustomSelectFileDlg
                     return;
                 }
 
-                BtnOk.PerformClick();
+                ApplySelection();
                 return;
             }
 
@@ -441,58 +518,8 @@ namespace CustomSelectFileDlg
             }
         }
 
-        private void HandleBtnOkClick(object sender, System.EventArgs e)
-        {
-            var selectedEntry = content?
-                    .FirstOrDefault(c => c.Name == TxtSelectedFileName.Text);
-
-            bool CheckFolderSelection()
-            {
-                if (string.IsNullOrEmpty(TxtSelectedFileName.Text))
-                {
-                    Debug.Assert(CurrentPath is not null);
-                    SelectedPath = CurrentPath;
-                    return true;
-                }
-
-                if (selectedEntry is null
-                    || selectedEntry.Type == EntryType.Folder)
-                {
-                    return true;
-                }
-
-                return false;
-            }
-
-            bool CheckFileSelection()
-            {
-                if (string.IsNullOrEmpty(TxtSelectedFileName.Text))
-                {
-                    return false;
-                }
-
-                if (selectedEntry is not null
-                    && selectedEntry.Type == EntryType.Folder)
-                {
-                    CurrentPath =
-                        Path.Combine(CurrentPath ?? "", selectedEntry.Name);
-                    return false;
-                }
-
-                return true;
-            }
-
-            if ((IsFolderSelector && !CheckFolderSelection())
-                || (!IsFolderSelector && !CheckFileSelection()))
-            {
-                return;
-            }
-
-            if (PathSelected is null || OnPathSelected(SelectedPath))
-            {
-                DialogResult = DialogResult.OK;
-            }
-        }
+        private void HandleBtnOkClick(object sender, System.EventArgs e) =>
+            ApplySelection();
 
         private void HandleBtnUpClick(object sender, System.EventArgs e)
         {
@@ -520,7 +547,7 @@ namespace CustomSelectFileDlg
         {
             if (e.KeyCode is Keys.Return or Keys.Enter)
             {
-                BtnOk.PerformClick();
+                ApplySelection();
             }
         }
 
