@@ -43,7 +43,7 @@
             this.TlpArray.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.TlpArray.Size = new System.Drawing.Size(432, 30);
             this.TlpArray.TabIndex = 0;
-            this.TlpArray.Click += new System.EventHandler(this.HandleTlpArrayClick);
+            this.TlpArray.Click += new System.EventHandler(this.HandleTlpArray_Click);
             // 
             // ResizableButtonArray
             // 

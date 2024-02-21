@@ -409,7 +409,7 @@ namespace CustomSelectFileDlg
             return CmbFilter.GetItemText(CmbFilter.SelectedItem);
         }
 
-        private void HandleDgvContentCellDoubleClick(
+        private void HandleDgvContent_CellDoubleClick(
             object sender,
             DataGridViewCellEventArgs e)
         {
@@ -436,7 +436,7 @@ namespace CustomSelectFileDlg
             ApplySelection();
         }
 
-        private void HandleDgvContentSelectionChanged(
+        private void HandleDgvContent_SelectionChanged(
             object sender,
             System.EventArgs e)
         {
@@ -463,7 +463,7 @@ namespace CustomSelectFileDlg
             }
         }
 
-        private void HandleDgvContentSortCompare(
+        private void HandleDgvContent_SortCompare(
             object sender,
             DataGridViewSortCompareEventArgs e)
         {
@@ -476,7 +476,7 @@ namespace CustomSelectFileDlg
             e.SortResult = entry1.Type == EntryType.Folder ? -1 : 1;
         }
 
-        private void HandleDgvContentKeyDown(object sender, KeyEventArgs e)
+        private void HandleDgvContent_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode is Keys.Return or Keys.Enter)
             {
@@ -503,7 +503,7 @@ namespace CustomSelectFileDlg
             }
         }
 
-        private void HandleDgvContentMouseDown(object sender, MouseEventArgs e)
+        private void HandleDgvContent_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.XButton1)
             {
@@ -518,10 +518,10 @@ namespace CustomSelectFileDlg
             }
         }
 
-        private void HandleBtnOkClick(object sender, System.EventArgs e) =>
+        private void HandleBtnOk_Click(object sender, System.EventArgs e) =>
             ApplySelection();
 
-        private void HandleBtnUpClick(object sender, System.EventArgs e)
+        private void HandleBtnUp_Click(object sender, System.EventArgs e)
         {
             var previousPath = CurrentPath;
             if (!SetCurrentPath(Path.GetDirectoryName(CurrentPath) ?? ""))
@@ -538,10 +538,10 @@ namespace CustomSelectFileDlg
             SelectEntry(previousFolderName);
         }
 
-        private void HandleBtnRefreshClick(object sender, System.EventArgs e) =>
+        private void HandleBtnRefresh_Click(object sender, System.EventArgs e) =>
             UpdateContent();
 
-        private void HandleTxtSelectedFileNameKeyDown(
+        private void HandleTxtSelectedFileName_KeyDown(
             object sender,
             KeyEventArgs e)
         {
@@ -551,7 +551,7 @@ namespace CustomSelectFileDlg
             }
         }
 
-        private void HandleTxtSelectedFileNameTextChanged(
+        private void HandleTxtSelectedFileName_TextChanged(
             object sender,
             System.EventArgs e)
         {
@@ -578,7 +578,7 @@ namespace CustomSelectFileDlg
             }
         }
 
-        private void HandleBtnBackClick(object sender, System.EventArgs e)
+        private void HandleBtnBack_Click(object sender, System.EventArgs e)
         {
             if (!pathHistory.CanMoveBackward())
             {
@@ -606,7 +606,7 @@ namespace CustomSelectFileDlg
             }
         }
 
-        private void HandleBtnForwardClick(object sender, System.EventArgs e)
+        private void HandleBtnForward_Click(object sender, System.EventArgs e)
         {
             if (!pathHistory.CanMoveForward())
             {
@@ -634,7 +634,7 @@ namespace CustomSelectFileDlg
             }
         }
 
-        private void HandlePabCurrentPathCurrentPathChanged(
+        private void HandlePabCurrentPath_CurrentPathChanged(
             object sender,
             CurrentPathChangedEventArgs e)
         {
@@ -645,7 +645,7 @@ namespace CustomSelectFileDlg
 
         }
 
-        private void HandleCustomSelectFileDialogKeyDown(
+        private void HandleCustomSelectFileDialog_KeyDown(
             object sender,
             KeyEventArgs e)
         {
@@ -663,12 +663,12 @@ namespace CustomSelectFileDlg
             DialogResult = BtnCancel.DialogResult;
         }
 
-        private void HandleCmbFilterSelectedIndexChanged(
+        private void HandleCmbFilter_SelectedIndexChanged(
             object sender,
             System.EventArgs e) =>
             UpdateContent();
 
-        private void HandleTrvTreeViewBeforeExpand(
+        private void HandleTrvTreeView_BeforeExpand(
             object sender,
             TreeViewCancelEventArgs e)
         {
@@ -691,7 +691,7 @@ namespace CustomSelectFileDlg
             ;
         }
 
-        private void HandleTrvTreeViewAfterSelect(
+        private void HandleTrvTreeView_AfterSelect(
             object sender,
             TreeViewEventArgs e)
         {

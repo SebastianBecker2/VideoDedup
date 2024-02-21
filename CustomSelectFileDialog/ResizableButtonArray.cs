@@ -255,7 +255,7 @@ namespace CustomSelectFileDlg
                     : Resources.bullet_arrow_left_2;
         }
 
-        private void HandleTlpArrayClick(object sender, System.EventArgs e) =>
+        private void HandleTlpArray_Click(object sender, System.EventArgs e) =>
             OnClick(e);
 
         private void ShowDropDownList(Button button)

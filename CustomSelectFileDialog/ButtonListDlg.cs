@@ -41,7 +41,7 @@ namespace CustomSelectFileDlg
             TlpButtonLists.AutoSize = true;
         }
 
-        private void HandleListBoxClick(object? sender, System.EventArgs e)
+        private void HandleListBox_Click(object? sender, System.EventArgs e)
         {
             var lsb = sender as ListBox;
             Debug.Assert(lsb is not null);
@@ -67,7 +67,7 @@ namespace CustomSelectFileDlg
             };
             lsb.Items.AddRange(entries.Select(e => e.Text as object).ToArray());
             lsb.Tag = entries;
-            lsb.Click += HandleListBoxClick;
+            lsb.Click += HandleListBox_Click;
             return lsb;
         }
 

@@ -42,8 +42,8 @@ namespace CustomSelectFileDlg
             this.TxtPath.Name = "TxtPath";
             this.TxtPath.Size = new System.Drawing.Size(436, 25);
             this.TxtPath.TabIndex = 0;
-            this.TxtPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.HandleTxtPathKeyDown);
-            this.TxtPath.Leave += new System.EventHandler(this.HandleTxtPathLeave);
+            this.TxtPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.HandleTxtPath_KeyDown);
+            this.TxtPath.Leave += new System.EventHandler(this.HandleTxtPath_Leave);
             // 
             // RbaButtons
             // 
@@ -54,8 +54,8 @@ namespace CustomSelectFileDlg
             this.RbaButtons.Size = new System.Drawing.Size(436, 25);
             this.RbaButtons.TabIndex = 3;
             this.RbaButtons.Visible = false;
-            this.RbaButtons.ElementClick += new System.EventHandler<CustomSelectFileDlg.EventArgs.ElementClickEventArgs>(this.HandleRbaButtonsElementClick);
-            this.RbaButtons.Click += new System.EventHandler(this.HandleRbaButtonsClick);
+            this.RbaButtons.ElementClick += new System.EventHandler<CustomSelectFileDlg.EventArgs.ElementClickEventArgs>(this.HandleRbaButtons_ElementClick);
+            this.RbaButtons.Click += new System.EventHandler(this.HandleRbaButtons_Click);
             // 
             // PathBox
             // 

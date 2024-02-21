@@ -66,7 +66,7 @@ namespace CustomSelectFileDlg
             BtnRefresh.Size = new Size(37, 27);
             BtnRefresh.TabIndex = 8;
             BtnRefresh.UseVisualStyleBackColor = true;
-            BtnRefresh.Click += HandleBtnRefreshClick;
+            BtnRefresh.Click += HandleBtnRefresh_Click;
             // 
             // BtnUp
             // 
@@ -76,7 +76,7 @@ namespace CustomSelectFileDlg
             BtnUp.Size = new Size(37, 27);
             BtnUp.TabIndex = 6;
             BtnUp.UseVisualStyleBackColor = true;
-            BtnUp.Click += HandleBtnUpClick;
+            BtnUp.Click += HandleBtnUp_Click;
             // 
             // BtnForward
             // 
@@ -87,7 +87,7 @@ namespace CustomSelectFileDlg
             BtnForward.Size = new Size(37, 27);
             BtnForward.TabIndex = 5;
             BtnForward.UseVisualStyleBackColor = true;
-            BtnForward.Click += HandleBtnForwardClick;
+            BtnForward.Click += HandleBtnForward_Click;
             // 
             // BtnBack
             // 
@@ -98,7 +98,7 @@ namespace CustomSelectFileDlg
             BtnBack.Size = new Size(37, 27);
             BtnBack.TabIndex = 4;
             BtnBack.UseVisualStyleBackColor = true;
-            BtnBack.Click += HandleBtnBackClick;
+            BtnBack.Click += HandleBtnBack_Click;
             // 
             // BtnCancel
             // 
@@ -120,7 +120,7 @@ namespace CustomSelectFileDlg
             BtnOk.TabIndex = 2;
             BtnOk.Text = "&OK";
             BtnOk.UseVisualStyleBackColor = true;
-            BtnOk.Click += HandleBtnOkClick;
+            BtnOk.Click += HandleBtnOk_Click;
             // 
             // DgvContent
             // 
@@ -153,11 +153,11 @@ namespace CustomSelectFileDlg
             DgvContent.ShowEditingIcon = false;
             DgvContent.Size = new Size(581, 338);
             DgvContent.TabIndex = 0;
-            DgvContent.CellDoubleClick += HandleDgvContentCellDoubleClick;
-            DgvContent.SelectionChanged += HandleDgvContentSelectionChanged;
-            DgvContent.SortCompare += HandleDgvContentSortCompare;
-            DgvContent.KeyDown += HandleDgvContentKeyDown;
-            DgvContent.MouseDown += HandleDgvContentMouseDown;
+            DgvContent.CellDoubleClick += HandleDgvContent_CellDoubleClick;
+            DgvContent.SelectionChanged += HandleDgvContent_SelectionChanged;
+            DgvContent.SortCompare += HandleDgvContent_SortCompare;
+            DgvContent.KeyDown += HandleDgvContent_KeyDown;
+            DgvContent.MouseDown += HandleDgvContent_MouseDown;
             // 
             // DgcIcon
             // 
@@ -205,8 +205,8 @@ namespace CustomSelectFileDlg
             TxtSelectedFileName.Name = "TxtSelectedFileName";
             TxtSelectedFileName.Size = new Size(514, 23);
             TxtSelectedFileName.TabIndex = 1;
-            TxtSelectedFileName.TextChanged += HandleTxtSelectedFileNameTextChanged;
-            TxtSelectedFileName.KeyDown += HandleTxtSelectedFileNameKeyDown;
+            TxtSelectedFileName.TextChanged += HandleTxtSelectedFileName_TextChanged;
+            TxtSelectedFileName.KeyDown += HandleTxtSelectedFileName_KeyDown;
             // 
             // label1
             // 
@@ -229,7 +229,7 @@ namespace CustomSelectFileDlg
             PabCurrentPath.Name = "PabCurrentPath";
             PabCurrentPath.Size = new Size(562, 27);
             PabCurrentPath.TabIndex = 17;
-            PabCurrentPath.CurrentPathChanged += HandlePabCurrentPathCurrentPathChanged;
+            PabCurrentPath.CurrentPathChanged += HandlePabCurrentPath_CurrentPathChanged;
             // 
             // CmbFilter
             // 
@@ -240,7 +240,7 @@ namespace CustomSelectFileDlg
             CmbFilter.Name = "CmbFilter";
             CmbFilter.Size = new Size(156, 23);
             CmbFilter.TabIndex = 18;
-            CmbFilter.SelectedIndexChanged += HandleCmbFilterSelectedIndexChanged;
+            CmbFilter.SelectedIndexChanged += HandleCmbFilter_SelectedIndexChanged;
             // 
             // tableLayoutPanel1
             // 
@@ -267,8 +267,8 @@ namespace CustomSelectFileDlg
             TrvTreeView.Name = "TrvTreeView";
             TrvTreeView.Size = new Size(149, 338);
             TrvTreeView.TabIndex = 20;
-            TrvTreeView.BeforeExpand += HandleTrvTreeViewBeforeExpand;
-            TrvTreeView.AfterSelect += HandleTrvTreeViewAfterSelect;
+            TrvTreeView.BeforeExpand += HandleTrvTreeView_BeforeExpand;
+            TrvTreeView.AfterSelect += HandleTrvTreeView_AfterSelect;
             // 
             // splitContainer1
             // 
@@ -307,7 +307,7 @@ namespace CustomSelectFileDlg
             ShowIcon = false;
             ShowInTaskbar = false;
             Text = "CustomSelectFileDialog";
-            KeyDown += HandleCustomSelectFileDialogKeyDown;
+            KeyDown += HandleCustomSelectFileDialog_KeyDown;
             ((System.ComponentModel.ISupportInitialize)DgvContent).EndInit();
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();

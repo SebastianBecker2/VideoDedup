@@ -103,7 +103,7 @@ namespace CustomSelectFileDlg
             base.OnLoad(e);
         }
 
-        private void HandleRbaButtonsElementClick(
+        private void HandleRbaButtons_ElementClick(
             object sender,
             ElementClickEventArgs e)
         {
@@ -146,7 +146,7 @@ namespace CustomSelectFileDlg
             RbaButtons.Elements = rbaElements;
         }
 
-        private void HandleTxtPathKeyDown(object sender, KeyEventArgs e)
+        private void HandleTxtPath_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode is Keys.Return or Keys.Enter)
             {
@@ -154,10 +154,10 @@ namespace CustomSelectFileDlg
             }
         }
 
-        private void HandleTxtPathLeave(object sender, System.EventArgs e) =>
+        private void HandleTxtPath_Leave(object sender, System.EventArgs e) =>
             DisplayStyle = PathDisplayStyle.Buttons;
 
-        private void HandleRbaButtonsClick(object sender, System.EventArgs e)
+        private void HandleRbaButtons_Click(object sender, System.EventArgs e)
         {
             DisplayStyle = PathDisplayStyle.TextBox;
             _ = TxtPath.Focus();
