@@ -47,7 +47,7 @@ namespace CustomSelectFileDlg
             PabCurrentPath = new PathBox();
             CmbFilter = new ComboBox();
             tableLayoutPanel1 = new TableLayoutPanel();
-            TrvTreeView = new TreeView();
+            RtvFolderTree = new RefreshableTreeView();
             splitContainer1 = new SplitContainer();
             ((System.ComponentModel.ISupportInitialize)DgvContent).BeginInit();
             tableLayoutPanel1.SuspendLayout();
@@ -262,13 +262,11 @@ namespace CustomSelectFileDlg
             // 
             // TrvTreeView
             // 
-            TrvTreeView.Dock = DockStyle.Fill;
-            TrvTreeView.Location = new Point(0, 0);
-            TrvTreeView.Name = "TrvTreeView";
-            TrvTreeView.Size = new Size(149, 338);
-            TrvTreeView.TabIndex = 20;
-            TrvTreeView.BeforeExpand += HandleTrvTreeView_BeforeExpand;
-            TrvTreeView.AfterSelect += HandleTrvTreeView_AfterSelect;
+            RtvFolderTree.Dock = DockStyle.Fill;
+            RtvFolderTree.Location = new Point(0, 0);
+            RtvFolderTree.Name = "TrvTreeView";
+            RtvFolderTree.Size = new Size(149, 338);
+            RtvFolderTree.TabIndex = 20;
             // 
             // splitContainer1
             // 
@@ -279,7 +277,7 @@ namespace CustomSelectFileDlg
             // 
             // splitContainer1.Panel1
             // 
-            splitContainer1.Panel1.Controls.Add(TrvTreeView);
+            splitContainer1.Panel1.Controls.Add(RtvFolderTree);
             // 
             // splitContainer1.Panel2
             // 
@@ -337,7 +335,7 @@ namespace CustomSelectFileDlg
         private PathBox PabCurrentPath;
         private ComboBox CmbFilter;
         private TableLayoutPanel tableLayoutPanel1;
-        private TreeView TrvTreeView;
+        private RefreshableTreeView RtvFolderTree;
         private SplitContainer splitContainer1;
     }
 }

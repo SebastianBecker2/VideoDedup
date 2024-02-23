@@ -10,8 +10,6 @@ namespace CustomSelectFileDlg
 
     public partial class CustomSelectFileDialog : Form
     {
-        private static readonly Size TreeViewIconSize = new(20, 20);
-
         private string? currentPath;
         private bool updatingSelectedPath;
         private bool applyingHistory;
@@ -28,6 +26,7 @@ namespace CustomSelectFileDlg
             set
             {
                 entryIconStyle = value;
+                RtvFolderTree.EntryIconStyle = value;
                 DgvContent.Columns[0].Visible =
                     entryIconStyle != IconStyle.NoIcon;
             }
@@ -56,11 +55,15 @@ namespace CustomSelectFileDlg
                 }
                 PabCurrentPath.CurrentPath = value;
                 UpdateButtonUp();
-                UpdateContent();
+                UpdateDgvContent();
             }
         }
         public string SelectedPath { get; set; } = string.Empty;
-        public IEnumerable<Entry>? RootFolders { get; set; }
+        public IEnumerable<Entry>? RootFolders
+        {
+            get => RtvFolderTree.RootFolders;
+            set => RtvFolderTree.RootFolders = value;
+        }
         public IEnumerable<string>? Filter
         {
             get => filter;
@@ -146,7 +149,7 @@ namespace CustomSelectFileDlg
 
         protected override void OnLoad(System.EventArgs e)
         {
-            UpdateContent();
+            UpdateDgvContent();
 
             DgvContent.Sort(
                 DgvContent.Columns[1],
@@ -157,7 +160,7 @@ namespace CustomSelectFileDlg
             {
                 Text = "Refresh",
             };
-            refresh.Click += (s, e) => UpdateContent();
+            refresh.Click += (s, e) => RefreshContent();
             DgvContent.ContextMenuStrip.Items.Add(refresh);
 
             PabCurrentPath.RootFoldersRequested += (_, args) =>
@@ -170,12 +173,9 @@ namespace CustomSelectFileDlg
 
             CmbFilter.Visible = filter is not null;
 
-            TrvTreeView.ImageList = new ImageList
-            {
-                ColorDepth = ColorDepth.Depth32Bit,
-                ImageSize = TreeViewIconSize,
-            };
-            UpdateTreeView();
+            RtvFolderTree.CurrentPathChanged += (_, e) => CurrentPath = e.Path;
+            RtvFolderTree.SubFoldersRequested += (_, e) => OnContentRequested(e);
+            RtvFolderTree.UpdateContent();
 
             base.OnLoad(e);
         }
@@ -276,7 +276,13 @@ namespace CustomSelectFileDlg
             return CurrentPath == proposedPath;
         }
 
-        private void UpdateContent() =>
+        private void RefreshContent()
+        {
+            UpdateDgvContent();
+            RtvFolderTree.UpdateContent();
+        }
+
+        private void UpdateDgvContent() =>
             SetContent(OnContentRequested(CurrentPath, GetSelectedFilter()));
 
         private void ApplySelection()
@@ -332,34 +338,6 @@ namespace CustomSelectFileDlg
             }
         }
 
-        private TreeNode EntryToTreeNode(Entry entry)
-        {
-            var node = new TreeNode
-            {
-                Text = entry.Name,
-            };
-            var icon = entry.GetIcon(EntryIconStyle);
-            if (icon is not null)
-            {
-                TrvTreeView.ImageList.Images.Add(icon);
-                var index = TrvTreeView.ImageList.Images.Count - 1;
-                node.ImageIndex = index;
-                node.SelectedImageIndex = index;
-            }
-            node.Nodes.Add(new TreeNode("..."));
-            return node;
-        }
-
-        private void UpdateTreeView()
-        {
-            TrvTreeView.Nodes.Clear();
-            if (RootFolders is null)
-            {
-                return;
-            }
-            TrvTreeView.Nodes.AddRange(
-                RootFolders.Select(EntryToTreeNode).ToArray());
-        }
 
         private void UpdateButtonUp() =>
             BtnUp.Enabled = ButtonUpEnabled == ButtonUpEnabledWhen.Always ||
@@ -539,7 +517,7 @@ namespace CustomSelectFileDlg
         }
 
         private void HandleBtnRefresh_Click(object sender, System.EventArgs e) =>
-            UpdateContent();
+            RefreshContent();
 
         private void HandleTxtSelectedFileName_KeyDown(
             object sender,
@@ -666,41 +644,6 @@ namespace CustomSelectFileDlg
         private void HandleCmbFilter_SelectedIndexChanged(
             object sender,
             System.EventArgs e) =>
-            UpdateContent();
-
-        private void HandleTrvTreeView_BeforeExpand(
-            object sender,
-            TreeViewCancelEventArgs e)
-        {
-            if (e.Node is null || e.Node.Tag is not null)
-            {
-                return;
-            }
-            e.Node.Tag = true;
-
-            e.Node.Nodes.Clear();
-
-            var entries = OnSubFolderRequested(e.Node.FullPath);
-            if (entries is null)
-            {
-                return;
-            }
-
-            e.Node.Nodes.AddRange(
-                entries.Select(EntryToTreeNode).ToArray());
-            ;
-        }
-
-        private void HandleTrvTreeView_AfterSelect(
-            object sender,
-            TreeViewEventArgs e)
-        {
-            if (e.Node is null)
-            {
-                return;
-            }
-
-            CurrentPath = e.Node.FullPath;
-        }
+            UpdateDgvContent();
     }
 }
