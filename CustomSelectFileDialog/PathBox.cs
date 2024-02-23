@@ -50,12 +50,15 @@ namespace CustomSelectFileDlg
         /// the path that is displayed in the TextBox using Enter or Return key.
         /// </summary>
         [Category("Property Changed")]
-        public event EventHandler<CurrentPathChangedEventArgs>? CurrentPathChanged;
+        public event EventHandler<CurrentPathChangedEventArgs>?
+            CurrentPathChanged;
+
         protected virtual void OnCurrentPathChanged(string? path) =>
             CurrentPathChanged?.Invoke(this, new CurrentPathChangedEventArgs(path));
 
         public event EventHandler<SubFoldersRequestedEventArgs>?
             SubFoldersRequested;
+
         protected virtual IEnumerable<string>? OnSubFolderRequested(string path)
         {
             var eventArgs = new SubFoldersRequestedEventArgs(path);
@@ -65,6 +68,7 @@ namespace CustomSelectFileDlg
 
         public event EventHandler<RootFoldersRequestedEventArgs>?
             RootFoldersRequested;
+
         protected virtual IEnumerable<string>? OnRootFolderRequested()
         {
             var eventArgs = new RootFoldersRequestedEventArgs();
