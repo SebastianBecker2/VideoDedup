@@ -4,7 +4,6 @@ namespace CustomSelectFileDlg
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Data;
-    using System.Diagnostics.CodeAnalysis;
     using System.Drawing;
     using System.Drawing.Imaging;
     using System.Linq;
@@ -37,7 +36,7 @@ namespace CustomSelectFileDlg
                 return memcmp(x, y, x.Length) == 0;
             }
 
-            public readonly int GetHashCode([DisallowNull] byte[] obj)
+            public readonly int GetHashCode(byte[] obj)
             {
                 unchecked
                 {
@@ -115,30 +114,113 @@ namespace CustomSelectFileDlg
 
         protected override void OnLoad(System.EventArgs e)
         {
+            // Make image at index 0 an empty image.
+            // So we can is it to not show any image.
+            Bitmap emptyBmp = new(
+                TreeViewIconSize.Width,
+                TreeViewIconSize.Height);
+            var emptyBytes = GetImageBytes(emptyBmp);
+            Trv.ImageList.Images.Add(emptyBmp);
+            ImageCache.Add(emptyBytes, 0);
+
             UpdateContent();
 
             base.OnLoad(e);
         }
 
+        private void UpdateTreeNodes(
+            TreeNodeCollection oldNodes,
+            IEnumerable<Entry> newEntries)
+        {
+            var nodes = oldNodes
+                .Cast<TreeNode>()
+                .OrderBy(n => n.Text)
+                .ToList();
+            var entries = newEntries
+                .OrderBy(n => n.Name)
+                .ToList();
+
+            var nodesIndex = 0;
+            var entriesIndex = 0;
+            while (true)
+            {
+                if (nodes.Count <= nodesIndex
+                    && entries.Count <= entriesIndex)
+                {
+                    return;
+                }
+
+                if (nodes.Count <= nodesIndex)
+                {
+                    oldNodes.Add(EntryToTreeNode(entries[entriesIndex++]));
+                    continue;
+                }
+
+                if (entries.Count <= entriesIndex)
+                {
+                    oldNodes.Remove(nodes[nodesIndex++]);
+                    continue;
+                }
+
+                var node = nodes[nodesIndex];
+                var entry = entries[entriesIndex];
+
+                var diff = string.Compare(
+                    node.Text,
+                    entry.Name,
+                    StringComparison.OrdinalIgnoreCase);
+
+                if (diff > 0)
+                {
+                    oldNodes.Add(EntryToTreeNode(entry));
+                    entriesIndex++;
+                    continue;
+                }
+
+                if (diff < 0)
+                {
+                    oldNodes.Remove(node);
+                    nodesIndex++;
+                    continue;
+                }
+
+                if (node.IsExpanded)
+                {
+                    var subFolders = OnSubFolderRequested(
+                        node.FullPath);
+                    if (subFolders is not null)
+                    {
+                        UpdateTreeNodes(node.Nodes, subFolders);
+                    }
+                }
+
+                nodesIndex++;
+                entriesIndex++;
+            }
+        }
+
         public void UpdateContent()
         {
             var scrollPos = GetScrollPos(Trv.Handle);
-            var extendedNodes = GetExpandedNodes(Trv.Nodes).ToList();
 
-            Trv.Nodes.Clear();
             if (RootFolders is null)
             {
+                Trv.Nodes.Clear();
                 return;
             }
-            Trv.Nodes.AddRange(
-                RootFolders.Select(EntryToTreeNode).ToArray());
+            UpdateTreeNodes(Trv.Nodes, RootFolders);
 
-            ExpandNodes(Trv.Nodes, extendedNodes);
             SetScrollPos(Trv.Handle, scrollPos);
         }
 
-        private int GetImageIndex(Image image)
+        private int GetImageIndex(Image? image)
         {
+            if (image is null)
+            {
+                // The first cached image has to be an empty bitmap.
+                return 0;
+            }
+
             var bytes = GetImageBytes(image);
             if (!ImageCache.TryGetValue(bytes, out var index))
             {
@@ -155,13 +237,9 @@ namespace CustomSelectFileDlg
             {
                 Text = entry.Name,
             };
-            var icon = entry.GetIcon(EntryIconStyle);
-            if (icon is not null)
-            {
-                var index = GetImageIndex(icon);
-                node.ImageIndex = index;
-                node.SelectedImageIndex = index;
-            }
+            var imageIndex = GetImageIndex(entry.GetIcon(EntryIconStyle));
+            node.ImageIndex = imageIndex;
+            node.SelectedImageIndex = imageIndex;
             node.Nodes.Add(new TreeNode("..."));
             return node;
         }
@@ -184,7 +262,6 @@ namespace CustomSelectFileDlg
 
             e.Node.Nodes.AddRange(
                 entries.Select(EntryToTreeNode).ToArray());
-            ;
         }
 
         private void HandleTrv_AfterSelect(object? _, TreeViewEventArgs e)
@@ -213,35 +290,6 @@ namespace CustomSelectFileDlg
                 (int)User32.SB.SB_VERT,
                 scrollPos.Y,
                 true);
-        }
-
-        private static IEnumerable<Node> GetExpandedNodes(
-            TreeNodeCollection nodes) =>
-            nodes
-                .Cast<TreeNode>()
-                .Where(n => n.IsExpanded)
-                .Select(n => new Node
-                {
-                    Text = n.Text,
-                    Nodes = GetExpandedNodes(n.Nodes)
-                });
-
-        private static void ExpandNodes(
-            TreeNodeCollection nodes,
-            IEnumerable<Node> nodesToExpand)
-        {
-            foreach (var nodeToExpand in nodesToExpand)
-            {
-                var n = nodes
-                    .Cast<TreeNode>()
-                    .FirstOrDefault(n => n.Text == nodeToExpand.Text);
-                if (n is null)
-                {
-                    continue;
-                }
-                n.Expand();
-                ExpandNodes(n.Nodes, nodeToExpand.Nodes);
-            }
         }
 
         private static byte[] GetImageBytes(Image image)
