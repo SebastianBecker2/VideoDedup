@@ -1,8 +1,10 @@
 namespace CustomSelectFileDlg
 {
     using System;
+    using System.Diagnostics;
     using Properties;
 
+    [DebuggerDisplay("Name = {Name}")]
     public class Entry
     {
         public Image? Icon { get; set; }
