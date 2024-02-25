@@ -10,10 +10,25 @@ namespace CustomSelectFileDlg
     using System.Runtime.InteropServices;
     using System.Windows.Forms;
     using CustomSelectFileDlg.EventArgs;
-    using Vanara.PInvoke;
 
     internal partial class RefreshableTreeView : UserControl
     {
+        public enum ScrollBar
+        {
+            Horizontal = 0,
+            Vertical = 1,
+        }
+
+        [DllImport("user32.dll", SetLastError = true, ExactSpelling = true)]
+        public static extern int GetScrollPos(IntPtr hWnd, int nBar);
+
+        [DllImport("user32.dll", SetLastError = true, ExactSpelling = true)]
+        private static extern int SetScrollPos(
+            IntPtr hWnd,
+            int nBar,
+            int nPos,
+            [MarshalAs(UnmanagedType.Bool)] bool bRedraw);
+
         private struct Node
         {
             public string Text { get; set; }
@@ -22,8 +37,7 @@ namespace CustomSelectFileDlg
 
         private struct ImageComparer : IEqualityComparer<byte[]>
         {
-            [DllImport("msvcrt.dll", CallingConvention =
-                CallingConvention.Cdecl)]
+            [DllImport("msvcrt.dll", ExactSpelling = true)]
             private static extern int memcmp(byte[] x, byte[] y, long count);
 
             public readonly bool Equals(byte[]? x, byte[]? y)
@@ -274,22 +288,22 @@ namespace CustomSelectFileDlg
             OnCurrentPathChanged(e.Node.FullPath);
         }
 
-        private static Point GetScrollPos(HWND handle) =>
-            new(User32.GetScrollPos(handle, (int)User32.SB.SB_HORZ),
-                User32.GetScrollPos(handle, (int)User32.SB.SB_VERT));
+        private static Point GetScrollPos(IntPtr handle) =>
+            new(GetScrollPos(handle, (int)ScrollBar.Horizontal),
+                GetScrollPos(handle, (int)ScrollBar.Vertical));
 
-        private static void SetScrollPos(HWND handle, Point scrollPos)
+        private static void SetScrollPos(IntPtr handle, Point scrollPos)
         {
-            _ = User32.SetScrollPos(
+            _ = SetScrollPos(
                 handle,
-                (int)User32.SB.SB_HORZ,
+                (int)ScrollBar.Horizontal,
                 scrollPos.X,
                 false);
-            _ = User32.SetScrollPos(
+            _ = SetScrollPos(
                 handle,
-                (int)User32.SB.SB_VERT,
+                (int)ScrollBar.Vertical,
                 scrollPos.Y,
-                true);
+                false);
         }
 
         private static byte[] GetImageBytes(Image image)
