@@ -1,10 +1,10 @@
 namespace VideoDedupClient
 {
-    using Dialogs;
     using Grpc.Core;
     using Grpc.Net.Client;
     using Grpc.Net.Client.Configuration;
     using Properties;
+    using Dialogs;
     using static VideoDedupGrpc.VideoDedupGrpcService;
 
     internal static class Program

@@ -5,14 +5,20 @@ namespace VideoDedupServer
 #if UseLogger
     using Microsoft.Extensions.Logging;
 #endif
+    using System.Drawing.Imaging;
+    using System.IO;
     using CustomComparisonManager;
     using DedupEngine;
     using DedupEngine.EventArgs;
     using DuplicateManager;
+    using Google.Protobuf;
     using Google.Protobuf.WellKnownTypes;
     using Grpc.Core;
     using Newtonsoft.Json;
+    using Properties;
     using VideoDedupGrpc;
+    using VideoDedupSharedLib;
+    using VideoDedupSharedLib.ExtensionMethods.ImageExtensions;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
     using static VideoDedupGrpc.OperationInfo.Types;
@@ -22,6 +28,9 @@ namespace VideoDedupServer
         VideoDedupGrpcService.VideoDedupGrpcServiceBase,
         IDisposable
     {
+        private static readonly ByteString DriveIcon =
+            ByteString.FromStream(Resources.drive.ToMemoryStream(ImageFormat.Png));
+
         private readonly DedupEngine dedupEngine;
         private readonly DuplicateManager duplicateManager;
         private readonly List<string> logEntries = new();
@@ -212,6 +221,125 @@ namespace VideoDedupServer
                 Guid.Parse(request.ComparisonToken));
             return Task.FromResult(new Empty());
         }
+
+        public override Task<GetFolderContentResponse> GetFolderContent(
+            GetFolderContentRequest request,
+            ServerCallContext context)
+        {
+            try
+            {
+                var result = new GetFolderContentResponse();
+                result.Files.AddRange(
+                    GetFolderContent(request.Path, request.TypeRestriction));
+                return Task.FromResult(result);
+            }
+            catch (FileNotFoundException)
+            {
+                return Task.FromResult(
+                    new GetFolderContentResponse { RequestFailed = true });
+            }
+            catch (IOException)
+            {
+                return Task.FromResult(
+                    new GetFolderContentResponse { RequestFailed = true });
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Task.FromResult(
+                    new GetFolderContentResponse { RequestFailed = true });
+            }
+        }
+
+        private static IEnumerable<GetFolderContentResponse.Types.FileAttributes>
+            GetFolderContent(string path, FileType typeRestriction)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return DriveInfo.GetDrives().Select(drive =>
+                    new GetFolderContentResponse.Types.FileAttributes
+                    {
+                        Name = drive.Name,
+                        Type = FileType.Folder,
+                        Icon = DriveIcon,
+                    });
+            }
+
+            if (!Directory.Exists(path))
+            {
+                // If it's a UNC path to server, without subfolder, we show the
+                // shares on that server.
+                if (!Uri.TryCreate(path, UriKind.Absolute, out var uri)
+                    || !uri.IsUnc
+                    || path.Trim('\\').Contains('\\'))
+                {
+                    throw new FileNotFoundException();
+                }
+
+                return GetServerShares(path);
+            }
+
+            Func<string, IEnumerable<string>> enumerator =
+                typeRestriction switch
+                {
+                    FileType.Folder => Directory.EnumerateDirectories,
+                    FileType.File => Directory.EnumerateFiles,
+                    FileType.Any => Directory.EnumerateFileSystemEntries,
+                    _ => Directory.EnumerateFileSystemEntries
+                };
+
+            // Add a backslash at the end to make sure we never try to get
+            // the content of the current drive without a backslash or slash
+            // at the end. If the current working directory is "d:\subfolder"
+            // and we try to get the file system entries from "d:", we would
+            // get the file system entries from "d:\subfolder" instead.
+            // Adding the backslash prevents that.
+            return enumerator(path + "\\")
+                .Select(ToFileAttributes)
+                .Where(e => e is not null)!;
+        }
+
+        private static GetFolderContentResponse.Types.FileAttributes?
+            ToFileAttributes(string path)
+        {
+            try
+            {
+                var attr = File.GetAttributes(path);
+                var type = attr.HasFlag(FileAttributes.Directory)
+                    ? FileType.Folder
+                    : FileType.File;
+                var info = new FileInfo(path);
+                var size = type == FileType.Folder ? 0 : info.Length;
+                var mimeType = type == FileType.Folder
+                    ? "File folder"
+                    : FileInfoProvider.GetMimeType(path) ?? "";
+                var dateModified =
+                    Timestamp.FromDateTime(info.LastWriteTimeUtc);
+                return new()
+                {
+                    Name = Path.GetFileName(path),
+                    Size = size,
+                    Type = type,
+                    DateModified = dateModified,
+                    MimeType = mimeType,
+                    Icon = null,
+                };
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static IEnumerable<GetFolderContentResponse.Types.FileAttributes>
+            GetServerShares(string serverName) =>
+            new Vanara.SharedDevices(serverName)
+                .Where(kvp => !kvp.Value.IsSpecial && kvp.Value.IsDiskVolume)
+                .Select(kvp =>
+                    new GetFolderContentResponse.Types.FileAttributes
+                    {
+                        Name = kvp.Key,
+                        Type = FileType.Folder
+                    });
 
         private void OperationUpdateCallback(
             object? sender,

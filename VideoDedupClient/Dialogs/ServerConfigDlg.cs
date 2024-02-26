@@ -1,7 +1,11 @@
 namespace VideoDedupClient.Dialogs
 {
+    using System.Globalization;
+    using CustomSelectFileDlg;
+    using CustomSelectFileDlg.Exceptions;
     using Microsoft.WindowsAPICodePack.Dialogs;
     using VideoDedupGrpc;
+    using VideoDedupSharedLib.ExtensionMethods.ByteStringExtensions;
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
 
     public partial class ServerConfigDlg : Form
@@ -30,13 +34,13 @@ namespace VideoDedupClient.Dialogs
                 if (FolderSettings.ExcludedDirectories != null)
                 {
                     LsbExcludedDirectories.Items.AddRange(
-                        FolderSettings.ExcludedDirectories.ToArray());
+                        FolderSettings.ExcludedDirectories.ToArray<object>());
                 }
 
                 if (FolderSettings.FileExtensions != null)
                 {
                     LsbFileExtensions.Items.AddRange(
-                        FolderSettings.FileExtensions.ToArray());
+                        FolderSettings.FileExtensions.ToArray<object>());
                 }
             }
 
@@ -112,16 +116,28 @@ namespace VideoDedupClient.Dialogs
 
         private void BtnSelectSourcePath_Click(object sender, EventArgs e)
         {
-            using var dlg = new CommonOpenFileDialog();
-            dlg.IsFolderPicker = true;
-            dlg.InitialDirectory = TxtSourcePath.Text;
+            static string? ShowFolderSelection(string initialFolder)
+            {
+                var serverAddress = Program.Configuration.ServerAddress.ToLower(
+                    CultureInfo.InvariantCulture);
+#if DEBUG
+                return ShowFolderSelectionRemote(initialFolder);
+#endif
+                if (serverAddress is "localhost" or "127.0.0.1")
+                {
+                    return ShowFolderSelectionLocally(initialFolder);
+                }
 
-            if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
+                return ShowFolderSelectionRemote(initialFolder);
+            }
+
+            var newPath = ShowFolderSelection(TxtSourcePath.Text);
+            if (newPath is null)
             {
                 return;
             }
 
-            TxtSourcePath.Text = dlg.FileName;
+            TxtSourcePath.Text = newPath;
         }
 
         private void BtnAddExcludedDirectory_Click(object sender, EventArgs e)
@@ -203,6 +219,76 @@ namespace VideoDedupClient.Dialogs
             {
                 LblMaxDurationDifferenceUnit.Text = "Percent";
             }
+        }
+
+        private static string? ShowFolderSelectionLocally(string initialPath)
+        {
+            using var dlg = new CommonOpenFileDialog();
+            dlg.IsFolderPicker = true;
+            dlg.InitialDirectory = initialPath;
+
+            if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
+            {
+                return null;
+            }
+
+            return dlg.FileName;
+        }
+
+        private static string? ShowFolderSelectionRemote(string initialPath)
+        {
+            static Entry ToEntry(
+                GetFolderContentResponse.Types.FileAttributes f) =>
+                new(f.Name)
+                {
+                    DateModified = f.DateModified?.ToDateTime(),
+                    Size = f.Type == FileType.Folder ? null : f.Size,
+                    Type = f.Type == FileType.Folder
+                        ? EntryType.Folder
+                        : EntryType.File,
+                    MimeType = f.MimeType,
+                    Icon = f.Icon?.ToImage(),
+                };
+
+            using var dlg = new CustomSelectFileDialog();
+            dlg.IsFolderSelector = true;
+            dlg.CurrentPath = initialPath;
+            dlg.ButtonUpEnabled = ButtonUpEnabledWhen.Always;
+            dlg.EntryIconStyle = IconStyle.FallbackToExtensionSpecificIcons;
+
+            var rootFolderRequest = Program.GrpcClient.GetFolderContent(
+                new GetFolderContentRequest
+                {
+                    Path = "",
+                    TypeRestriction = FileType.Folder
+                });
+            if (!rootFolderRequest.RequestFailed)
+            {
+                dlg.RootEntries = rootFolderRequest.Files.Select(ToEntry);
+            }
+
+            dlg.ContentRequested += (_, args) =>
+            {
+                var contentRequest = Program.GrpcClient.GetFolderContent(
+                    new GetFolderContentRequest
+                    {
+                        Path = args.Path,
+                        TypeRestriction = FileType.Folder
+                    });
+                if (contentRequest.RequestFailed)
+                {
+                    args.Entries = Array.Empty<Entry>();
+                    throw new InvalidContentRequestException();
+                }
+                args.Entries = contentRequest.Files.Select(ToEntry);
+            };
+
+            if (dlg.ShowDialog() != DialogResult.OK)
+            {
+                return null;
+            }
+
+            return dlg.SelectedPath;
         }
     }
 }
