@@ -264,7 +264,7 @@ namespace VideoDedupClient.Dialogs
                 });
             if (!rootFolderRequest.RequestFailed)
             {
-                dlg.RootFolders = rootFolderRequest.Files.Select(ToEntry);
+                dlg.RootEntries = rootFolderRequest.Files.Select(ToEntry);
             }
 
             dlg.ContentRequested += (_, args) =>
