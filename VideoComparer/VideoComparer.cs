@@ -138,12 +138,20 @@ namespace VideoComparer
             unsafe
             {
                 var bitmapData = image.LockBits(
-                    new Rectangle(new Point(0, 0), DownscaleSize),
+                    new Rectangle(0,0, image.Width, image.Height),
                     ImageLockMode.ReadOnly,
                     image.PixelFormat);
+
+                // Proposition:
+                // Use Marshal.Copy:
+                // Is it faster and behaves the same?
+                //var numBytes = bitmapData.Stride * image.Height;
+                //var bytes = new byte[numBytes];
+                //Marshal.Copy(bitmapData.Scan0, bytes, 0, numBytes);
+                //return bytes;
+
                 var bytesPerPixel =
                     Image.GetPixelFormatSize(image.PixelFormat) / 8;
-
                 return Enumerable
                     .Range(0, DownscaleSize.Height)
                     .SelectMany(y => Enumerable
