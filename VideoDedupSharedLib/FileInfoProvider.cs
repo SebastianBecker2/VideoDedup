@@ -14,7 +14,7 @@ namespace VideoDedupSharedLib
     public static class FileInfoProvider
     {
         [StructLayout(LayoutKind.Sequential)]
-        private struct SHFILEINFO
+        private readonly struct SHFILEINFO
         {
             private readonly IntPtr hIcon;
             private readonly int iIcon;
