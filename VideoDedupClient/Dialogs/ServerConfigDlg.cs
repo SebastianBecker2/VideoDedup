@@ -59,9 +59,9 @@ namespace VideoDedupClient.Dialogs
                 RdbDurationDifferencePercent.Checked =
                     DurationComparisonSettings.DifferenceType
                     == DurationDifferenceType.Percent;
-                RdbDurationDifferencePercent.Checked =
+                RdbDurationDifferenceSeconds.Checked =
                     DurationComparisonSettings.DifferenceType
-                    != DurationDifferenceType.Percent;
+                    == DurationDifferenceType.Seconds;
                 NumMaxDurationDifference.Value =
                     DurationComparisonSettings.MaxDifference;
             }
