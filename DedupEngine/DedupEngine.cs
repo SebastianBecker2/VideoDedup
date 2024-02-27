@@ -288,10 +288,7 @@ namespace DedupEngine
             }
 
             IEnumerable<string> files = new List<string>();
-            if (excludedDirectories == null)
-            {
-                excludedDirectories = new List<string>();
-            }
+            excludedDirectories ??= new List<string>();
 
             try
             {
