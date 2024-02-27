@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Grpc.AspNetCore" Version="2.44.0" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.3" />
-    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.61.0" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.2" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.2" />
   </ItemGroup>
 
   <ItemGroup>

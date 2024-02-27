@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="KGySoft.Drawing" Version="6.3.2" />
+    <PackageReference Include="KGySoft.Drawing" Version="8.1.0" />
   </ItemGroup>
 
   <ItemGroup>
