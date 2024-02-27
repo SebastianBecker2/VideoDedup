@@ -16,6 +16,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Install Wix
+      uses: actions/checkout@v2
+      with:
+        repository: fbarresi/wix
+        path: wix
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
