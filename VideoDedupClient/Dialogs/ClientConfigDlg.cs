@@ -47,13 +47,8 @@ namespace VideoDedupClient.Dialogs
         }
 
         private void TxtServerAddress_ResolveStarted(object sender,
-            ResolveStartedEventArgs e)
-        {
-            if (PibServerAddressLoading.Image == null)
-            {
-                PibServerAddressLoading.Image = Resources.Loading;
-            }
-        }
+            ResolveStartedEventArgs e) =>
+            PibServerAddressLoading.Image ??= Resources.Loading;
 
         private void TxtServerAddress_ResolveSuccessful(object sender,
             ResolveSuccessfulEventArgs e) =>
