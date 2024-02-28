@@ -123,7 +123,6 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
             });
             TlpImageComparison.Controls.Add(TlpDetails, 0, 1);
             TlpImageComparison.SetColumnSpan(TlpDetails, 3);
-            Controls.Add(TlpDetails);
         }
 
         protected override void OnLoad(EventArgs e)
