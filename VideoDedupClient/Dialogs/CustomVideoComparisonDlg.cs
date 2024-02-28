@@ -215,12 +215,12 @@ namespace VideoDedupClient.Dialogs
 
             var startData = GrpcClient.StartCustomVideoComparison(request);
 
-            if (startData.ComparisonToken == null)
+            if (string.IsNullOrWhiteSpace(startData.ComparisonToken))
             {
                 _ = MessageBox.Show(
                     "Couldn't start comparison." + Environment.NewLine
                     + startData.VideoComparisonResult.Reason,
-                    "Erro starting comparison",
+                    "Error starting comparison",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
                 return;
