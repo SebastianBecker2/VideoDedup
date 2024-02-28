@@ -76,7 +76,6 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
                 Margin = new Padding { All = 0 },
             };
             ShowDetailsLabel.Click += HandleShowDetailsClickEvent;
-            Controls.Add(ShowDetailsLabel);
 
             LeftShowDetailArrow = new PictureBox
             {
@@ -86,7 +85,6 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
                 Margin = new Padding { All = 0 },
             };
             LeftShowDetailArrow.Click += HandleShowDetailsClickEvent;
-            Controls.Add(LeftShowDetailArrow);
 
             RightShowDetailArrow = new PictureBox
             {
@@ -96,7 +94,6 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
                 Margin = new Padding { All = 0 },
             };
             RightShowDetailArrow.Click += HandleShowDetailsClickEvent;
-            Controls.Add(RightShowDetailArrow);
 
             TlpDetails = new TableLayoutPanel
             {
