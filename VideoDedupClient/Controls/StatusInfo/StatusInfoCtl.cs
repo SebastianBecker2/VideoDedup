@@ -52,7 +52,8 @@ namespace VideoDedupClient.Controls.StatusInfo
             };
 
         private OperationInfo OperationInfo { get; set; }
-        private int DuplicateCount { get; set; }
+        private int CurrentDuplicateCount { get; set; }
+        private int DuplicatesFound { get; set; }
 
         private int Current => OperationInfo.CurrentProgress;
         private int Maximum => OperationInfo.MaximumProgress;
@@ -111,10 +112,12 @@ namespace VideoDedupClient.Controls.StatusInfo
 
         public void UpdateStatusInfo(
             OperationInfo operationInfo,
-            int duplicateCount = 0)
+            int duplicatesFound = 0,
+            int currentDuplicateCount = 0)
         {
             OperationInfo = operationInfo;
-            DuplicateCount = duplicateCount;
+            CurrentDuplicateCount = currentDuplicateCount;
+            DuplicatesFound = duplicatesFound;
 
             if (OperationInfo.ProgressStyle == ProgressStyle.Continuous)
             {
@@ -230,11 +233,11 @@ namespace VideoDedupClient.Controls.StatusInfo
 
         private void SetDuplicateCount()
         {
-            var visible = DuplicateCount != 0;
+            var visible = CurrentDuplicateCount != 0;
 
             if (visible)
             {
-                LblDuplicateCount.Text = $"{DuplicateCount}";
+                LblDuplicateCount.Text = $"{CurrentDuplicateCount}";
             }
 
             LblDuplicateCount.Visible = visible;
@@ -274,7 +277,7 @@ namespace VideoDedupClient.Controls.StatusInfo
 
         private void SetDuplicateSpeed()
         {
-            var visible = StartTime != DateTime.MinValue && DuplicateCount != 0;
+            var visible = StartTime != DateTime.MinValue && DuplicatesFound != 0;
             try
             {
                 // For the special case that we are monitoring.
@@ -287,7 +290,7 @@ namespace VideoDedupClient.Controls.StatusInfo
                     return;
                 }
 
-                duplicateSpeedHistory.PushBack((DuplicateCount, DateTime.Now));
+                duplicateSpeedHistory.PushBack((DuplicatesFound, DateTime.Now));
                 var (speed, unit) = CalculateSpeed(duplicateSpeedHistory);
 
                 visible = !double.IsInfinity(speed) && !double.IsNaN(speed);

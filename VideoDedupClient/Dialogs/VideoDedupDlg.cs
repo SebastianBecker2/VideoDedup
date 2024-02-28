@@ -19,7 +19,7 @@ namespace VideoDedupClient.Dialogs
         private string? logToken;
         private ConcurrentDictionary<int, LogEntry> LogEntries { get; } = new();
 
-        private int DuplicateCount { get; set; }
+        private int CurrentDuplicateCount { get; set; }
 
         private Timer StatusTimer { get; }
 
@@ -74,12 +74,13 @@ namespace VideoDedupClient.Dialogs
                             DgvLog.RowCount - 1;
                     }
 
-                    DuplicateCount = status.DuplicateCount;
+                    CurrentDuplicateCount = status.CurrentDuplicateCount;
                     StiProgress.UpdateStatusInfo(
                         status.OperationInfo,
-                        DuplicateCount);
-                    BtnResolveDuplicates.Enabled = DuplicateCount > 0;
-                    BtnDiscardDuplicates.Enabled = DuplicateCount > 0;
+                        status.DuplicatesFound,
+                        CurrentDuplicateCount);
+                    BtnResolveDuplicates.Enabled = CurrentDuplicateCount > 0;
+                    BtnDiscardDuplicates.Enabled = CurrentDuplicateCount > 0;
                 });
             }
             catch (RpcException ex)
@@ -327,7 +328,7 @@ namespace VideoDedupClient.Dialogs
         private void BtnDiscard_Click(object sender, EventArgs e)
         {
             var selection = MessageBox.Show(
-                $"There are {DuplicateCount} duplicates to resolve." +
+                $"There are {CurrentDuplicateCount} duplicates to resolve." +
                 $"{Environment.NewLine}Are you sure you want to discard them?",
                 "Discard duplicates?",
                 MessageBoxButtons.YesNo,

@@ -193,9 +193,10 @@ message OperationInfo {
 
 message StatusData {
     OperationInfo operation_info = 1;
-    int32 duplicate_count = 2;
+    int32 current_duplicate_count = 2;
     int32 log_count = 3;
     string log_token = 4;
+    int32 duplicates_found = 5;
 }
 
 message FolderSettings {

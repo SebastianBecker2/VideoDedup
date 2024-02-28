@@ -39,6 +39,7 @@ namespace VideoDedupServer
         private readonly Task initializationTask;
         private OperationInfo operationInfo;
         private Guid logToken = Guid.NewGuid();
+        private int duplicatesFound;
 #if UseLogger
         private readonly ILogger<VideoDedupService> logger;
 #endif
@@ -84,6 +85,7 @@ namespace VideoDedupServer
             {
                 try
                 {
+                    duplicatesFound = 0;
                     dedupEngine.Start();
                 }
                 catch (InvalidOperationException exc)
@@ -118,7 +120,8 @@ namespace VideoDedupServer
             var statusData = new StatusData
             {
                 OperationInfo = operationInfo,
-                DuplicateCount = duplicateManager.Count
+                CurrentDuplicateCount = duplicateManager.Count,
+                DuplicatesFound = duplicatesFound,
             };
 
             lock (logEntriesLock)
@@ -362,6 +365,7 @@ namespace VideoDedupServer
                     e.File1.ToVideoFile(),
                     e.File2.ToVideoFile(),
                     e.BasePath);
+                duplicatesFound++;
             }
             catch (Exception exc)
             {
@@ -502,6 +506,7 @@ namespace VideoDedupServer
 
             try
             {
+                duplicatesFound = 0;
                 dedupEngine.Start();
             }
             catch (InvalidOperationException exc)
