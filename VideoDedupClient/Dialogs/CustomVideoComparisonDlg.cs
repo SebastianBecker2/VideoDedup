@@ -508,12 +508,11 @@ namespace VideoDedupClient.Dialogs
 
             static void ClearTableLayoutPanel(TableLayoutPanel tlp)
             {
-                var localRef = tlp.Controls;
-                tlp.Controls.Clear();
-                foreach (Control control in localRef)
+                foreach (Control control in tlp.Controls)
                 {
                     control.Dispose();
                 }
+                tlp.Controls.Clear();
                 tlp.RowStyles.Clear();
                 tlp.RowCount = 0;
             }
