@@ -570,12 +570,12 @@ namespace VideoDedupClient.Dialogs
             if (TlpThirdLoadLevelResult.Visible)
             {
                 TlpThirdLoadLevelResult.Visible = false;
-                pictureBox1.Image = Resources.ArrowDownBlue;
+                PibThirdLoadLevel.Image = Resources.ArrowDownBlue;
             }
             else
             {
                 TlpThirdLoadLevelResult.Visible = true;
-                pictureBox1.Image = Resources.ArrowUpGray;
+                PibThirdLoadLevel.Image = Resources.ArrowUpGray;
             }
         }
 

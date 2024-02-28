@@ -35,7 +35,7 @@ namespace VideoDedupClient.Dialogs
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CustomVideoComparisonDlg));
             this.TlpResult = new System.Windows.Forms.TableLayoutPanel();
             this.TlpThirdLoadLevel = new System.Windows.Forms.TableLayoutPanel();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.PibThirdLoadLevel = new System.Windows.Forms.PictureBox();
             this.LblThirdLoadLevel = new System.Windows.Forms.Label();
             this.GrbThirdLoadLevel = new System.Windows.Forms.GroupBox();
             this.TlpThirdLoadLevelResult = new System.Windows.Forms.TableLayoutPanel();
@@ -85,7 +85,7 @@ namespace VideoDedupClient.Dialogs
             this.GrbSettings = new System.Windows.Forms.GroupBox();
             this.TlpResult.SuspendLayout();
             this.TlpThirdLoadLevel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.PibThirdLoadLevel)).BeginInit();
             this.GrbThirdLoadLevel.SuspendLayout();
             this.TlpSecondLoadLevel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.PibSecondLoadLevel)).BeginInit();
@@ -142,7 +142,7 @@ namespace VideoDedupClient.Dialogs
             this.TlpResult.SetColumnSpan(this.TlpThirdLoadLevel, 2);
             this.TlpThirdLoadLevel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.TlpThirdLoadLevel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.TlpThirdLoadLevel.Controls.Add(this.pictureBox1, 0, 0);
+            this.TlpThirdLoadLevel.Controls.Add(this.PibThirdLoadLevel, 0, 0);
             this.TlpThirdLoadLevel.Controls.Add(this.LblThirdLoadLevel, 1, 0);
             this.TlpThirdLoadLevel.Controls.Add(this.GrbThirdLoadLevel, 0, 1);
             this.TlpThirdLoadLevel.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -156,14 +156,14 @@ namespace VideoDedupClient.Dialogs
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Image = global::VideoDedupClient.Properties.Resources.ArrowUpGray;
-            this.pictureBox1.Location = new System.Drawing.Point(3, 3);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(32, 32);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.ThirdLoadLevelHeaderClicked);
+            this.PibThirdLoadLevel.Image = global::VideoDedupClient.Properties.Resources.ArrowUpGray;
+            this.PibThirdLoadLevel.Location = new System.Drawing.Point(3, 3);
+            this.PibThirdLoadLevel.Name = "pictureBox1";
+            this.PibThirdLoadLevel.Size = new System.Drawing.Size(32, 32);
+            this.PibThirdLoadLevel.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.PibThirdLoadLevel.TabIndex = 0;
+            this.PibThirdLoadLevel.TabStop = false;
+            this.PibThirdLoadLevel.Click += new System.EventHandler(this.ThirdLoadLevelHeaderClicked);
             // 
             // LblThirdLoadLevel
             // 
@@ -788,7 +788,7 @@ namespace VideoDedupClient.Dialogs
             this.TlpResult.PerformLayout();
             this.TlpThirdLoadLevel.ResumeLayout(false);
             this.TlpThirdLoadLevel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.PibThirdLoadLevel)).EndInit();
             this.GrbThirdLoadLevel.ResumeLayout(false);
             this.GrbThirdLoadLevel.PerformLayout();
             this.TlpSecondLoadLevel.ResumeLayout(false);
@@ -870,7 +870,7 @@ namespace VideoDedupClient.Dialogs
         private Label LblSecondLoadLevel;
         private PictureBox PibSecondLoadLevel;
         private TableLayoutPanel TlpThirdLoadLevel;
-        private PictureBox pictureBox1;
+        private PictureBox PibThirdLoadLevel;
         private Label LblThirdLoadLevel;
         private TextBox TxtLeftFileInfo;
         private TextBox TxtRightFileInfo;
