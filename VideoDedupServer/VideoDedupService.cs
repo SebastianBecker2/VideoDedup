@@ -22,7 +22,6 @@ namespace VideoDedupServer
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
     using static VideoDedupGrpc.OperationInfo.Types;
-    using Enum = Enum;
 
     public class VideoDedupService :
         VideoDedupGrpcService.VideoDedupGrpcServiceBase,
@@ -408,7 +407,7 @@ namespace VideoDedupServer
             }
 
             DurationDifferenceType durationDifferenceType;
-            if (Enum.TryParse(
+            if (System.Enum.TryParse(
                         Settings.Default.DurationDifferenceType,
                         true,
                         out DurationDifferenceType value))
