@@ -93,6 +93,8 @@ namespace VideoDedupServer
             customComparisonManagerLog =
                 CreateCustomComparisonManagerLogger(appDataFolderPath);
 
+            AddLogEntry("Starting VideoDedupService");
+
             if (Settings.Default.UpgradeRequired)
             {
                 Settings.Default.Upgrade();
@@ -120,6 +122,8 @@ namespace VideoDedupServer
             };
 
             initializationTask = Task.Run(() => StartDedupEngine());
+
+            AddLogEntry("Started VideoDedupService");
         }
 
         public override Task<ConfigurationSettings> GetConfiguration(
@@ -613,6 +617,8 @@ namespace VideoDedupServer
             {
                 if (disposing)
                 {
+                    AddLogEntry("Stopping VideoDedupService");
+
                     cancelTokenSource.Cancel();
 
                     try
@@ -631,6 +637,9 @@ namespace VideoDedupServer
                     dedupEngineLog?.Dispose();
                     dedupEngineLog = null;
                     customComparisonManagerLog.Dispose();
+
+                    AddLogEntry("Stopped VideoDedupService");
+
                     videoDedupServiceLog.Dispose();
                 }
                 disposedValue = true;
