@@ -75,11 +75,8 @@ namespace DedupEngine
             });
 
         public event EventHandler<LoggedEventArgs>? Logged;
-
         protected virtual void OnLogged(string message) =>
             Logged?.Invoke(this, new LoggedEventArgs(message));
-        protected virtual void OnLogged(string format, params object?[] args) =>
-            OnLogged(string.Format(CultureInfo.CurrentCulture, format, args));
 
         public DedupEngine(
             string appDataFolder,
