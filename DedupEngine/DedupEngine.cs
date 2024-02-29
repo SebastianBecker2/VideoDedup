@@ -13,14 +13,6 @@ namespace DedupEngine
 
     public class DedupEngine : IDisposable
     {
-        private const string LogCheckingFile = "Checking: {0} - Duration: {1}";
-        private const string LogDeletedFile = "File deleted: {0}";
-        private const string LogNewFile = "File created: {0}";
-        private const string LogDamagedFile = "File corrupted: {0}";
-        private const string LogCriticalError = "Critical Error: {0}";
-        private const string LogComparisonFailed =
-            "Comparison failed. Couldn't access: {0}";
-
         private const string EngineDatastoreFileName = "engine.db";
 
         private static readonly int DamagedFileRetryCount = 5;
@@ -260,7 +252,7 @@ namespace DedupEngine
             }
 
             _ = deletedFiles.TryAdd(new VideoFile(filePath), 0);
-            OnLogged(LogDeletedFile, filePath);
+            OnLogged($"File deleted: {filePath}");
             StartProcessingChanges();
         }
 
@@ -272,7 +264,7 @@ namespace DedupEngine
             }
 
             _ = newFiles.TryAdd(new VideoFile(filePath), 0);
-            OnLogged(LogNewFile, filePath);
+            OnLogged($"File created: {filePath}");
             StartProcessingChanges();
         }
 
@@ -392,10 +384,8 @@ namespace DedupEngine
 
                 var file = videoFiles[index];
 
-                OnLogged(
-                    LogCheckingFile,
-                    file.FilePath,
-                    file.Duration.ToPrettyString());
+                OnLogged($"Checking: {file.FilePath} - Duration: " +
+                    $"{file.Duration.ToPrettyString()}");
                 OnOperationUpdate(
                     OperationType.Comparing,
                     index + 1,
@@ -434,10 +424,8 @@ namespace DedupEngine
             VideoFile file,
             CancellationToken cancelToken)
         {
-            OnLogged(
-                LogCheckingFile,
-                file.FilePath,
-                file.Duration.ToPrettyString());
+            OnLogged($"Checking: {file.FilePath} - Duration: " +
+                    $"{file.Duration.ToPrettyString()}");
 
             foreach (var other in videoFiles
                 .Where(f => f != file)
@@ -486,16 +474,17 @@ namespace DedupEngine
                     _ = deletedFiles.TryAdd(
                         new VideoFile(exc.VideoFile),
                         0);
-                    OnLogged(LogDamagedFile, exc.VideoFile.FilePath);
+                    OnLogged($"File corrupted: {exc.VideoFile.FilePath}");
                 }
                 else
                 {
-                    OnLogged(LogComparisonFailed, exc.VideoFile.FilePath);
+                    OnLogged($"Comparison failed. Couldn't access: " +
+                        $"{exc.VideoFile.FilePath}");
                 }
             }
             catch (Exception exc)
             {
-                OnLogged(LogCriticalError, exc.Message);
+                OnLogged($"Critical Error: {exc.Message}");
                 throw;
             }
         }
