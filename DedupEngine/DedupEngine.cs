@@ -552,6 +552,8 @@ namespace DedupEngine
                 .ToList();
             cancelToken.ThrowIfCancellationRequested();
 
+            OnLogged("Starting searching for duplicates of " +
+                $"{videoFiles.Count} Files.");
             FindDuplicates(cancelToken);
             if (cancelToken.IsCancellationRequested)
             {
