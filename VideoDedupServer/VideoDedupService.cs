@@ -1,11 +1,7 @@
-#undef UseLogger
-
 namespace VideoDedupServer
 {
-#if UseLogger
-    using Microsoft.Extensions.Logging;
-#endif
     using System.Drawing.Imaging;
+    using System.Globalization;
     using System.IO;
     using CustomComparisonManager;
     using DedupEngine;
@@ -16,6 +12,9 @@ namespace VideoDedupServer
     using Grpc.Core;
     using Newtonsoft.Json;
     using Properties;
+    using Serilog;
+    using Serilog.Core;
+    using Serilog.Events;
     using VideoDedupGrpc;
     using VideoDedupSharedLib;
     using VideoDedupSharedLib.ExtensionMethods.ImageExtensions;
@@ -30,6 +29,7 @@ namespace VideoDedupServer
         private static readonly ByteString DriveIcon =
             ByteString.FromStream(Resources.drive.ToMemoryStream(ImageFormat.Png));
 
+        private readonly string appDataFolderPath;
         private readonly DedupEngine dedupEngine;
         private readonly DuplicateManager duplicateManager;
         private readonly List<string> logEntries = new();
@@ -40,20 +40,58 @@ namespace VideoDedupServer
         private OperationInfo operationInfo;
         private Guid logToken = Guid.NewGuid();
         private int duplicatesFound;
-#if UseLogger
-        private readonly ILogger<VideoDedupService> logger;
-#endif
+        private readonly Logger videoDedupServiceLog;
+        private readonly Logger customComparisonManagerLog;
+        private Logger? dedupEngineLog;
         private bool disposedValue;
 
+        private static Logger CreateVideoDedupServiceLogger(
+            string appDataFolder) =>
+            new LoggerConfiguration()
+                .WriteTo.File(
+                    Path.Combine(appDataFolder, "VideoDedupService-.log"),
+                    formatProvider: CultureInfo.InvariantCulture,
+                    rollOnFileSizeLimit: true,
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: null,
+                    retainedFileTimeLimit: null)
+                .CreateLogger();
+
+        private static Logger CreateCustomComparisonManagerLogger(
+            string appDataFolder) =>
+            new LoggerConfiguration()
+                .WriteTo.File(
+                    Path.Combine(appDataFolder, "CustomComparisonManager-.log"),
+                    formatProvider: CultureInfo.InvariantCulture,
+                    rollOnFileSizeLimit: true,
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: null,
+                    retainedFileTimeLimit: null)
+                .CreateLogger();
+
+        private static Logger CreateDedupEngineLogger(
+            string appDataFolder) =>
+            new LoggerConfiguration()
+                .WriteTo.File(
+                    Path.Combine(
+                        appDataFolder,
+                        $"DedupEngine-{DateTime.Now:s}.log".Replace(':', '-')),
+                    formatProvider: CultureInfo.InvariantCulture,
+                    rollOnFileSizeLimit: true,
+                    rollingInterval: RollingInterval.Infinite,
+                    retainedFileCountLimit: null,
+                    retainedFileTimeLimit: null)
+                .CreateLogger();
+
         public VideoDedupService(
-#if UseLogger
-            ILogger<VideoDedupService> logger,
-#endif
-            string appDataFolder)
+            string appDataFolderPath)
         {
-#if UseLogger
-            this.logger = logger;
-#endif
+            this.appDataFolderPath = appDataFolderPath;
+
+            videoDedupServiceLog =
+                CreateVideoDedupServiceLogger(appDataFolderPath);
+            customComparisonManagerLog =
+                CreateCustomComparisonManagerLogger(appDataFolderPath);
 
             if (Settings.Default.UpgradeRequired)
             {
@@ -65,7 +103,7 @@ namespace VideoDedupServer
             var settings = LoadConfiguration();
 
             dedupEngine = new DedupEngine(
-                appDataFolder,
+                appDataFolderPath,
                 settings.FolderSettings,
                 settings.DurationComparisonSettings,
                 settings.VideoComparisonSettings);
@@ -81,23 +119,7 @@ namespace VideoDedupServer
                 OperationType = OperationType.Initializing,
             };
 
-            initializationTask = Task.Run(() =>
-            {
-                try
-                {
-                    duplicatesFound = 0;
-                    dedupEngine.Start();
-                }
-                catch (InvalidOperationException exc)
-                {
-                    operationInfo = new OperationInfo
-                    {
-                        ProgressStyle = ProgressStyle.NoProgress,
-                        OperationType = OperationType.Error,
-                    };
-                    AddLogEntry(exc.Message);
-                }
-            });
+            initializationTask = Task.Run(() => StartDedupEngine());
         }
 
         public override Task<ConfigurationSettings> GetConfiguration(
@@ -369,27 +391,81 @@ namespace VideoDedupServer
             }
             catch (Exception exc)
             {
-                lock (logEntriesLock)
-                {
-                    AddLogEntry(exc.Message);
-                    if (exc.InnerException != null)
-                    {
-                        AddLogEntry(exc.InnerException.Message);
-                    }
-                }
+                AddLogEntry(
+                    exc,
+                    "Error adding duplicate to DuplicateManager",
+                    LogSource.DedupEngine);
             }
         }
 
         private void LoggedCallback(
             object? sender,
             LoggedEventArgs e) =>
-            AddLogEntry(e.Message);
+            AddLogEntry(
+                e.Message,
+                LogSource.DedupEngine);
 
-        private void AddLogEntry(string message)
+        private void AddLogEntry(
+            Exception exc,
+            string message,
+            LogSource source = LogSource.VideoDedupService,
+            LogEventLevel level = LogEventLevel.Error)
         {
-            lock (logEntriesLock)
+            switch (source)
             {
-                logEntries.Add(DateTime.Now.ToString("s") + " " + message);
+                case LogSource.VideoDedupService:
+                    videoDedupServiceLog.Write(level, exc, message);
+                    break;
+                case LogSource.CustomComparisonManager:
+                    customComparisonManagerLog.Write(level, exc, message);
+                    break;
+                case LogSource.DedupEngine:
+                    lock (logEntriesLock)
+                    {
+                        logEntries.Add($"{DateTime.Now:s} {message}");
+                        logEntries.Add($"{DateTime.Now:s} {exc.Message}");
+                        if (exc.InnerException is not null)
+                        {
+                            logEntries.Add(
+                                $"{DateTime.Now:s} {exc.InnerException.Message}");
+                        }
+                        dedupEngineLog?.Write(level, exc, message);
+                    }
+                    break;
+                default:
+                    videoDedupServiceLog.Write(
+                        level,
+                        exc,
+                        $"Invalid LogSource {source} for message '{message}'");
+                    break;
+            }
+        }
+
+        private void AddLogEntry(
+            string message,
+            LogSource source = LogSource.VideoDedupService,
+            LogEventLevel level = LogEventLevel.Information)
+        {
+            switch (source)
+            {
+                case LogSource.VideoDedupService:
+                    videoDedupServiceLog.Write(level, message);
+                    break;
+                case LogSource.CustomComparisonManager:
+                    customComparisonManagerLog.Write(level, message);
+                    break;
+                case LogSource.DedupEngine:
+                    lock (logEntriesLock)
+                    {
+                        logEntries.Add($"{DateTime.Now:s} {message}");
+                        dedupEngineLog?.Write(level, message);
+                    }
+                    break;
+                default:
+                    videoDedupServiceLog.Write(
+                        level,
+                        $"Invalid LogSource {source} for message '{message}'");
+                    break;
             }
         }
 
@@ -493,6 +569,8 @@ namespace VideoDedupServer
             {
                 logEntries.Clear();
                 logToken = Guid.NewGuid();
+                dedupEngineLog?.Dispose();
+                dedupEngineLog = null;
             }
 
             duplicateManager.UpdateSettings(
@@ -504,9 +582,15 @@ namespace VideoDedupServer
                 settings.DurationComparisonSettings,
                 settings.VideoComparisonSettings);
 
+            StartDedupEngine();
+        }
+
+        private void StartDedupEngine()
+        {
+            dedupEngineLog = CreateDedupEngineLogger(appDataFolderPath);
+            duplicatesFound = 0;
             try
             {
-                duplicatesFound = 0;
                 dedupEngine.Start();
             }
             catch (InvalidOperationException exc)
@@ -516,7 +600,10 @@ namespace VideoDedupServer
                     ProgressStyle = ProgressStyle.NoProgress,
                     OperationType = OperationType.Error,
                 };
-                AddLogEntry(exc.Message);
+                AddLogEntry(
+                    exc,
+                    "Error starting DedupEngine",
+                    LogSource.DedupEngine);
             }
         }
 
@@ -540,6 +627,11 @@ namespace VideoDedupServer
 
                     cancelTokenSource.Dispose();
                     initializationTask.Dispose();
+
+                    dedupEngineLog?.Dispose();
+                    dedupEngineLog = null;
+                    customComparisonManagerLog.Dispose();
+                    videoDedupServiceLog.Dispose();
                 }
                 disposedValue = true;
             }
