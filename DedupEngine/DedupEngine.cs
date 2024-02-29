@@ -34,6 +34,10 @@ namespace DedupEngine
         private IList<VideoFile> videoFiles = new List<VideoFile>();
         private readonly EngineDatastore datastore;
 
+        public event EventHandler<StartedEventArgs>? Started;
+        protected virtual void OnStarted() =>
+            Started?.Invoke(this, new StartedEventArgs());
+
         public event EventHandler<StoppedEventArgs>? Stopped;
         protected virtual void OnStopped() =>
             Stopped?.Invoke(this, new StoppedEventArgs());
@@ -140,6 +144,7 @@ namespace DedupEngine
                 DedupTask = Task.Run(ProcessFolder, CancelSource.Token);
             }
 
+            OnStarted();
             OnLogged("Started DedupEngine");
         }
 
@@ -163,8 +168,8 @@ namespace DedupEngine
             {
                 exc.Handle(x => x is OperationCanceledException);
             }
-            OnStopped();
 
+            OnStopped();
             OnLogged("Stopped DedupEngine");
         }
 
