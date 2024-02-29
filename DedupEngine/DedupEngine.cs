@@ -116,6 +116,8 @@ namespace DedupEngine
 
         public void Start()
         {
+            OnLogged("Starting DedupEngine");
+
             if (!Directory.Exists(folderSettings.BasePath))
             {
                 throw new InvalidOperationException("Unable to start. " +
@@ -137,10 +139,14 @@ namespace DedupEngine
                 CancelSource = new CancellationTokenSource();
                 DedupTask = Task.Run(ProcessFolder, CancelSource.Token);
             }
+
+            OnLogged("Started DedupEngine");
         }
 
         public void Stop()
         {
+            OnLogged("Stopping DedupEngine");
+
             FileWatcher.EnableRaisingEvents = false;
 
             if (DedupTask == null || DedupTask.IsCompleted)
@@ -158,6 +164,8 @@ namespace DedupEngine
                 exc.Handle(x => x is OperationCanceledException);
             }
             OnStopped();
+
+            OnLogged("Stopped DedupEngine");
         }
 
         private void StartProcessingChanges()
