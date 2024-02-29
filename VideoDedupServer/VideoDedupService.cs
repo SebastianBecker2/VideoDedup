@@ -111,7 +111,10 @@ namespace VideoDedupServer
                 settings.VideoComparisonSettings);
             dedupEngine.OperationUpdate += OperationUpdateCallback;
             dedupEngine.DuplicateFound += DuplicateFoundCallback;
-            dedupEngine.Logged += LoggedCallback;
+            dedupEngine.Logged += (_,e) =>
+                AddLogEntry(e.Message, LogSource.DedupEngine);
+            dedupEngine.Started += (_, _) => AddLogEntry("Started DedupEngine");
+            dedupEngine.Stopped += (_, _) => AddLogEntry("Stopped DedupEngine");
 
             duplicateManager = new DuplicateManager(settings.ThumbnailSettings);
 
@@ -136,6 +139,7 @@ namespace VideoDedupServer
             ServerCallContext context)
         {
             SaveConfiguration(request);
+            UpdateConfiguration(request);
             return Task.FromResult(new Empty());
         }
 
@@ -473,8 +477,10 @@ namespace VideoDedupServer
             }
         }
 
-        public static ConfigurationSettings LoadConfiguration()
+        public ConfigurationSettings LoadConfiguration()
         {
+            AddLogEntry("Loading configuration");
+
             var excludedDirectories = JsonConvert.DeserializeObject<List<string>>(
                 Settings.Default.ExcludedDirectories) ?? new List<string>();
 
@@ -532,11 +538,15 @@ namespace VideoDedupServer
                 excludedDirectories);
             configData.FolderSettings.FileExtensions.AddRange(fileExtensions);
 
+            AddLogEntry("Loaded configuration");
+
             return configData;
         }
 
         public void SaveConfiguration(ConfigurationSettings settings)
         {
+            AddLogEntry("Saving configuration");
+
             Settings.Default.BasePath = settings.FolderSettings.BasePath;
             Settings.Default.ExcludedDirectories =
                 JsonConvert.SerializeObject(
@@ -564,11 +574,14 @@ namespace VideoDedupServer
 
             Settings.Default.Save();
 
-            UpdateConfig(settings);
+            AddLogEntry("Saved configuration");
         }
 
-        private void UpdateConfig(ConfigurationSettings settings)
+        private void UpdateConfiguration(ConfigurationSettings settings)
         {
+            AddLogEntry("Updating configuration");
+            dedupEngine.Stop();
+
             lock (logEntriesLock)
             {
                 logEntries.Clear();
@@ -587,6 +600,8 @@ namespace VideoDedupServer
                 settings.VideoComparisonSettings);
 
             StartDedupEngine();
+
+            AddLogEntry("Updated configuration");
         }
 
         private void StartDedupEngine()
