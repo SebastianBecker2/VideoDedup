@@ -41,7 +41,7 @@ namespace VideoDedupServer
         private Guid logToken = Guid.NewGuid();
         private int duplicatesFound;
         private readonly Logger videoDedupServiceLog;
-        private readonly Logger customComparisonManagerLog;
+        private readonly Logger comparisonManagerLog;
         private Logger? dedupEngineLog;
         private bool disposedValue;
 
@@ -57,7 +57,7 @@ namespace VideoDedupServer
                     retainedFileTimeLimit: null)
                 .CreateLogger();
 
-        private static Logger CreateCustomComparisonManagerLogger(
+        private static Logger CreateComparisonManagerLogger(
             string appDataFolder) =>
             new LoggerConfiguration()
                 .WriteTo.File(
@@ -90,8 +90,8 @@ namespace VideoDedupServer
 
             videoDedupServiceLog =
                 CreateVideoDedupServiceLogger(appDataFolderPath);
-            customComparisonManagerLog =
-                CreateCustomComparisonManagerLogger(appDataFolderPath);
+            comparisonManagerLog =
+                CreateComparisonManagerLogger(appDataFolderPath);
 
             AddLogEntry("Starting VideoDedupService");
 
@@ -424,8 +424,8 @@ namespace VideoDedupServer
                 case LogSource.VideoDedupService:
                     videoDedupServiceLog.Write(level, exc, message);
                     break;
-                case LogSource.CustomComparisonManager:
-                    customComparisonManagerLog.Write(level, exc, message);
+                case LogSource.ComparisonManager:
+                    comparisonManagerLog.Write(level, exc, message);
                     break;
                 case LogSource.DedupEngine:
                     lock (logEntriesLock)
@@ -459,8 +459,8 @@ namespace VideoDedupServer
                 case LogSource.VideoDedupService:
                     videoDedupServiceLog.Write(level, message);
                     break;
-                case LogSource.CustomComparisonManager:
-                    customComparisonManagerLog.Write(level, message);
+                case LogSource.ComparisonManager:
+                    comparisonManagerLog.Write(level, message);
                     break;
                 case LogSource.DedupEngine:
                     lock (logEntriesLock)
@@ -651,7 +651,7 @@ namespace VideoDedupServer
 
                     dedupEngineLog?.Dispose();
                     dedupEngineLog = null;
-                    customComparisonManagerLog.Dispose();
+                    comparisonManagerLog.Dispose();
 
                     AddLogEntry("Stopped VideoDedupService");
 
