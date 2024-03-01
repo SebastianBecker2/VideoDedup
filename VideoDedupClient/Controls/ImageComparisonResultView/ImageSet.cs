@@ -22,17 +22,17 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
         }
 
         private static Image StreamToFittedImage(
-            ByteString? stream,
+            ByteString stream,
             Size containerSize) =>
             ResizeImageToFitContainer(StreamToImage(stream), containerSize);
 
-        private static Image StreamToImage(ByteString? stream)
+        private static Image StreamToImage(ByteString stream)
         {
-            if (stream is not null)
+            if (stream.IsEmpty)
             {
-                return stream.ToImage();
+                return Resources.BrokenImageIcon;
             }
-            return Resources.BrokenImageIcon;
+            return stream.ToImage();
         }
 
         private static Size GetSize(

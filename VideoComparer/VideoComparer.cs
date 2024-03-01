@@ -73,16 +73,26 @@ namespace VideoComparer
                 }
             }
 
-            public ImageSet ToImageSet() =>
-                new()
+            public ImageSet ToImageSet()
+            {
+                static ByteString ToByteString(Stream? stream)
+                {
+                    if (stream is null)
+                    {
+                        return ByteString.Empty;
+                    }
+                    return ByteString.FromStream(stream);
+                }
+                return new()
                 {
                     Index = Index,
-                    Original = ByteString.FromStream(Original),
-                    Cropped = ByteString.FromStream(Cropped),
-                    Resized = ByteString.FromStream(Resized),
-                    Greyscaled = ByteString.FromStream(Greyscaled),
-                    Bytes = ByteString.CopyFrom(Bytes),
+                    Original = ToByteString(Original),
+                    Cropped = ToByteString(Cropped),
+                    Resized = ToByteString(Resized),
+                    Greyscaled = ToByteString(Greyscaled),
+                    Bytes = ByteString.CopyFrom(Bytes ?? Array.Empty<byte>()),
                 };
+            }
 
             public ImageIndex Index { get; }
             private MemoryStream? Original { get; init; }
