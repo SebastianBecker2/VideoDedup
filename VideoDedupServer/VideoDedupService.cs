@@ -15,6 +15,7 @@ namespace VideoDedupServer
     using Serilog;
     using Serilog.Core;
     using Serilog.Events;
+    using Serilog.Sinks.SystemConsole.Themes;
     using VideoDedupGrpc;
     using VideoDedupSharedLib;
     using VideoDedupSharedLib.ExtensionMethods.ImageExtensions;
@@ -56,6 +57,9 @@ namespace VideoDedupServer
                     rollingInterval: RollingInterval.Day,
                     retainedFileCountLimit: null,
                     retainedFileTimeLimit: null)
+                .WriteTo.Console(
+                    formatProvider: CultureInfo.InvariantCulture,
+                    theme: AnsiConsoleTheme.Sixteen)
                 .CreateLogger();
 
         private static Logger CreateComparisonManagerLogger(
