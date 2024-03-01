@@ -48,6 +48,7 @@ namespace VideoDedupServer
         private static Logger CreateVideoDedupServiceLogger(
             string appDataFolder) =>
             new LoggerConfiguration()
+                .MinimumLevel.Verbose()
                 .WriteTo.File(
                     Path.Combine(appDataFolder, "VideoDedupService-.log"),
                     formatProvider: CultureInfo.InvariantCulture,
@@ -60,6 +61,7 @@ namespace VideoDedupServer
         private static Logger CreateComparisonManagerLogger(
             string appDataFolder) =>
             new LoggerConfiguration()
+                .MinimumLevel.Verbose()
                 .WriteTo.File(
                     Path.Combine(appDataFolder, "CustomComparisonManager-.log"),
                     formatProvider: CultureInfo.InvariantCulture,
@@ -72,6 +74,7 @@ namespace VideoDedupServer
         private static Logger CreateDedupEngineLogger(
             string appDataFolder) =>
             new LoggerConfiguration()
+                .MinimumLevel.Verbose()
                 .WriteTo.File(
                     Path.Combine(
                         appDataFolder,
