@@ -111,7 +111,7 @@ namespace VideoDedupServer
                 settings.VideoComparisonSettings);
             dedupEngine.OperationUpdate += OperationUpdateCallback;
             dedupEngine.DuplicateFound += DuplicateFoundCallback;
-            dedupEngine.Logged += (_,e) =>
+            dedupEngine.Logged += (_, e) =>
                 AddLogEntry(e.Message, LogSource.DedupEngine);
             dedupEngine.Started += (_, _) => AddLogEntry("Started DedupEngine");
             dedupEngine.Stopped += (_, _) => AddLogEntry("Stopped DedupEngine");
