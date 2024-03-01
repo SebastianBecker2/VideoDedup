@@ -1,5 +1,6 @@
 namespace CustomComparisonManager
 {
+    using Serilog;
     using SmartTimer;
     using VideoDedupGrpc;
 
@@ -10,6 +11,8 @@ namespace CustomComparisonManager
         private static readonly TimeSpan TimeoutTime = TimeSpan.FromMinutes(5);
 
         private bool disposedValue;
+
+        private ILogger? Logger { get; }
 
         private Timer TimeoutTimer { get; }
 
@@ -26,29 +29,47 @@ namespace CustomComparisonManager
                 null,
                 TimeoutTimerInterval);
 
+        public CustomComparisonManager(ILogger logger) : this()
+        {
+            Logger = logger;
+            Logger.Information("Started CustomComparisonManager");
+        }
+
         public CustomVideoComparisonStatus StartCustomComparison(
             VideoComparisonSettings settings,
             string leftFilePath,
             string rightFilePath,
             bool forceLoadingAllImages)
         {
+            Logger?.Information($"Starting comparison '{leftFilePath}' - " +
+                $"'{rightFilePath}'");
+
             try
             {
                 var customComparison = new CustomComparison(
                     settings,
                     leftFilePath,
                     rightFilePath,
-                    forceLoadingAllImages);
+                    forceLoadingAllImages,
+                    Logger);
 
                 lock (ComparisonsLock)
                 {
-                    CustomComparisons.Add(customComparison.Token, customComparison);
+                    CustomComparisons.Add(
+                        customComparison.Token,
+                        customComparison);
                     LastRequests[customComparison.Token] = DateTime.Now;
+
+                    Logger?.Information($"Started comparison '{leftFilePath}' " +
+                        $"- '{rightFilePath}' as {customComparison.Token}");
                     return customComparison.GetStatus();
                 }
             }
             catch (InvalidDataException ex)
             {
+                Logger?.Error($"Failed to start comparison '{leftFilePath}' - " +
+                    $"'{rightFilePath}'");
+
                 return new CustomVideoComparisonStatus
                 {
                     VideoComparisonResult = new VideoComparisonResult
@@ -80,6 +101,7 @@ namespace CustomComparisonManager
 
         public bool CancelCustomComparison(Guid token)
         {
+            Logger?.Information($"Cancelling comparison {token}");
             lock (ComparisonsLock)
             {
                 if (!CustomComparisons.TryGetValue(
@@ -107,6 +129,7 @@ namespace CustomComparisonManager
                     .Select(kvp => kvp.Key)
                     .ToList())
                 {
+                    Logger?.Information($"Removing obsolete comparison {token}");
                     _ = CancelCustomComparison(token);
                 }
             }
@@ -118,6 +141,7 @@ namespace CustomComparisonManager
             {
                 if (disposing)
                 {
+                    Logger?.Information("Stopping CustomComparisonManager");
                     TimeoutTimer.Dispose();
                     lock (ComparisonsLock)
                     {
@@ -130,6 +154,7 @@ namespace CustomComparisonManager
                         CustomComparisons.Clear();
                         LastRequests.Clear();
                     }
+                    Logger?.Information("Stopped CustomComparisonManager");
                 }
 
                 disposedValue = true;

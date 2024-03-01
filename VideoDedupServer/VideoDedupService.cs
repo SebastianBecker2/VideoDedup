@@ -34,7 +34,7 @@ namespace VideoDedupServer
         private readonly DuplicateManager duplicateManager;
         private readonly List<string> logEntries = new();
         private readonly object logEntriesLock = new();
-        private readonly CustomComparisonManager comparisonManager = new();
+        private readonly CustomComparisonManager comparisonManager;
         private readonly CancellationTokenSource cancelTokenSource = new();
         private readonly Task initializationTask;
         private OperationInfo operationInfo;
@@ -106,6 +106,8 @@ namespace VideoDedupServer
             }
 
             var settings = LoadConfiguration();
+
+            comparisonManager = new(comparisonManagerLog);
 
             dedupEngine = new DedupEngine(
                 appDataFolderPath,

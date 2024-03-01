@@ -1,5 +1,6 @@
 namespace CustomComparisonManager
 {
+    using Serilog;
     using VideoComparer;
     using VideoComparer.EventArgs;
     using VideoDedupGrpc;
@@ -8,6 +9,8 @@ namespace CustomComparisonManager
 
     internal class CustomComparison : IDisposable
     {
+        private ILogger? Logger { get; }
+
         public Guid Token { get; }
 
         private VideoFile LeftVideoFile => comparer.LeftVideoFile;
@@ -27,17 +30,24 @@ namespace CustomComparisonManager
             VideoComparisonSettings settings,
             string leftFilePath,
             string rightFilePath,
-            bool forceLoadingAllImages)
+            bool forceLoadingAllImages,
+            ILogger? logger = null)
         {
+            Logger = logger;
+
             Token = Guid.NewGuid();
 
             if (!File.Exists(leftFilePath))
             {
+                Logger?.Error($"Comparison {Token} can't find file " +
+                    $"{leftFilePath}");
                 throw new InvalidDataException("Left video file path invalid.");
             }
 
             if (!File.Exists(rightFilePath))
             {
+                Logger?.Error($"Comparison {Token} can't find file " +
+                    $"{rightFilePath}");
                 throw new InvalidDataException("Right video file path invalid.");
             }
 
@@ -82,6 +92,7 @@ namespace CustomComparisonManager
         {
             try
             {
+                Logger?.Information($"Comparison {Token} is comparing");
                 _ = comparer.Compare(cancelTokenSource.Token);
             }
             catch (Exception exc)
@@ -103,6 +114,9 @@ namespace CustomComparisonManager
             object? sender,
             ComparisonFinishedEventArgs e)
         {
+            Logger?.Information($"Comparison {Token} finished with result " +
+                $"{e.ComparisonResult}");
+
             if (e.ComparisonResult != ComparisonResult.Cancelled)
             {
                 return;
@@ -123,12 +137,16 @@ namespace CustomComparisonManager
                     LastComparedIndex = last?.LoadLevel ?? 0,
                 };
             }
+
+            Logger?.Information($"Comparison {Token} was cancelled");
         }
 
         private void HandleImageCompared(
             object? sender,
             ImageComparedEventArgs e)
         {
+            Logger?.Debug($"Comparison {Token} compared image " +
+                $"{e.ImageComparisonIndex}");
             lock (statusLock)
             {
                 if (e.VideoComparisonResult != ComparisonResult.NoResult
@@ -160,10 +178,13 @@ namespace CustomComparisonManager
             {
                 if (disposing)
                 {
+                    Logger?.Information($"Disposing comparison {Token}");
                     cancelTokenSource?.Cancel();
                     comparerTask?.Wait();
                     cancelTokenSource?.Dispose();
                     comparerTask?.Dispose();
+
+                    Logger?.Information($"Disposed comparison {Token}");
                 }
 
                 disposedValue = true;
