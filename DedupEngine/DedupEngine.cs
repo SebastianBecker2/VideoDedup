@@ -2,7 +2,6 @@ namespace DedupEngine
 {
     using System.Collections.Concurrent;
     using System.Diagnostics;
-    using System.Globalization;
     using EventArgs;
     using VideoComparer;
     using VideoDedupGrpc;
