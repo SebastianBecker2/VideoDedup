@@ -29,7 +29,6 @@ namespace VideoDedupServer
         private readonly LogManager logManager;
         private bool disposedValue;
 
-
         public VideoDedupService(
             string appDataFolderPath)
         {
@@ -269,13 +268,6 @@ namespace VideoDedupServer
                 logManager.DeleteDedupEngineLogger();
             }
         }
-
-        private void LoggedCallback(
-            object? sender,
-            LoggedEventArgs e) =>
-            AddLogEntry(
-                e.Message,
-                LogSource.DedupEngine);
 
         private void AddLogEntry(
             Exception exc,
