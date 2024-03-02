@@ -9,14 +9,12 @@ namespace VideoDedupServer
     using Google.Protobuf;
     using Google.Protobuf.WellKnownTypes;
     using Grpc.Core;
-    using Newtonsoft.Json;
     using Properties;
     using Serilog.Events;
     using VideoDedupGrpc;
     using VideoDedupSharedLib;
     using VideoDedupSharedLib.ExtensionMethods.ImageExtensions;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
-    using static VideoDedupGrpc.DurationComparisonSettings.Types;
     using static VideoDedupGrpc.OperationInfo.Types;
 
     public class VideoDedupService :
@@ -441,106 +439,34 @@ namespace VideoDedupServer
         {
             AddLogEntry("Loading configuration");
 
-            var excludedDirectories = JsonConvert.DeserializeObject<List<string>>(
-                Settings.Default.ExcludedDirectories) ?? new List<string>();
-
-            var fileExtensions = JsonConvert.DeserializeObject<List<string>>(
-                Settings.Default.FileExtensions);
-            if (fileExtensions == null || !fileExtensions.Any())
+            var configuration = new ConfigurationSettings()
             {
-                // Default value here, because it's stored as json.
-                fileExtensions = new List<string>
-                    {
-                        ".mp4", ".mpg", ".avi", ".wmv", ".flv", ".m4v", ".mov",
-                        ".mpeg", ".rm", ".3gp"
-                    };
-            }
-
-            static DurationDifferenceType ToDurationDifferenceType(string type)
-            {
-                if (!System.Enum.TryParse(
-                    type,
-                    true,
-                    out DurationDifferenceType value))
-                {
-                    return DurationDifferenceType.Seconds;
-                }
-                return value;
-            }
-
-            var configData = new ConfigurationSettings
-            {
-                FolderSettings = new FolderSettings
-                {
-                    BasePath = Settings.Default.BasePath,
-                    Recursive = Settings.Default.Recursive,
-                    MonitorChanges = Settings.Default.MonitorFileChanges,
-                },
-                VideoComparisonSettings = new VideoComparisonSettings
-                {
-                    CompareCount = Settings.Default.ImageCompareCount,
-                    MaxDifferentImages = Settings.Default.MaxDifferentImages,
-                    MaxDifference = Settings.Default.MaxImageDifference,
-                },
-                DurationComparisonSettings = new DurationComparisonSettings
-                {
-                    MaxDifference = Settings.Default.MaxDurationDifference,
-                    DifferenceType = ToDurationDifferenceType(
-                        Settings.Default.DurationDifferenceType),
-                },
-                ThumbnailSettings = new ThumbnailSettings
-                {
-                    ImageCount = Settings.Default.ThumbnailImageCount,
-                },
+                FolderSettings = ConfigurationManager.GetFolderSettings(),
+                VideoComparisonSettings =
+                    ConfigurationManager.GetVideoComparisonSettings(),
+                DurationComparisonSettings =
+                    ConfigurationManager.GetDurationComparisonSettings(),
+                ThumbnailSettings = ConfigurationManager.GetThumbnailSettings(),
+                LogSettings = ConfigurationManager.GetLogSettings(),
             };
-
-            configData.FolderSettings.ExcludedDirectories.AddRange(
-                excludedDirectories);
-            configData.FolderSettings.FileExtensions.AddRange(fileExtensions);
-
-            configData.LogSettings = LogManager.GetConfiguration();
 
             AddLogEntry("Loaded configuration");
 
-            return configData;
+            return configuration;
         }
 
         public void SaveConfiguration(ConfigurationSettings settings)
         {
             AddLogEntry("Saving configuration");
 
-            Settings.Default.BasePath = settings.FolderSettings.BasePath;
-            Settings.Default.ExcludedDirectories =
-                JsonConvert.SerializeObject(
-                    settings.FolderSettings.ExcludedDirectories);
-            Settings.Default.FileExtensions =
-                JsonConvert.SerializeObject(
-                    settings.FolderSettings.FileExtensions);
-            Settings.Default.Recursive = settings.FolderSettings.Recursive;
-            Settings.Default.MonitorFileChanges =
-                settings.FolderSettings.MonitorChanges;
-
-            Settings.Default.ImageCompareCount =
-                settings.VideoComparisonSettings.CompareCount;
-            Settings.Default.MaxDifferentImages =
-                settings.VideoComparisonSettings.MaxDifferentImages;
-            Settings.Default.MaxImageDifference =
-                settings.VideoComparisonSettings.MaxDifference;
-
-            Settings.Default.MaxDurationDifference =
-                settings.DurationComparisonSettings.MaxDifference;
-            Settings.Default.DurationDifferenceType =
-                settings.DurationComparisonSettings.DifferenceType.ToString();
-
-            Settings.Default.ThumbnailImageCount =
-                settings.ThumbnailSettings.ImageCount;
-
-            Settings.Default.VideoDedupServiceLogLevel =
-                settings.LogSettings.VideoDedupServiceLogLevel.ToString();
-            Settings.Default.CustomComparisonManagerLogLevel =
-                settings.LogSettings.CustomComparisonManagerLogLevel.ToString();
-            Settings.Default.DedupEngineLogLevel =
-                settings.LogSettings.DedupEngineLogLevel.ToString();
+            ConfigurationManager.SetFolderSettings(settings.FolderSettings);
+            ConfigurationManager.SetVideoComparisonSettings(
+                settings.VideoComparisonSettings);
+            ConfigurationManager.SetDurationComparisonSettings(
+                settings.DurationComparisonSettings);
+            ConfigurationManager.SetThumbnailSettings(
+                settings.ThumbnailSettings);
+            ConfigurationManager.SetLogSettings(settings.LogSettings);
 
             Settings.Default.Save();
 

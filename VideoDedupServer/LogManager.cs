@@ -61,17 +61,6 @@ namespace VideoDedupServer
                 ToLogEventLevel(settings.DedupEngineLogLevel.ToString());
         }
 
-        public static LogSettings GetConfiguration() =>
-            new()
-            {
-                DedupEngineLogLevel =
-                    ToLogLevel(Settings.Default.DedupEngineLogLevel),
-                CustomComparisonManagerLogLevel =
-                    ToLogLevel(Settings.Default.CustomComparisonManagerLogLevel),
-                VideoDedupServiceLogLevel =
-                    ToLogLevel(Settings.Default.VideoDedupServiceLogLevel),
-            };
-
         private static Logger CreateVideoDedupServiceLogger(
             string appDataFolderPath, LoggingLevelSwitch levelSwitch) =>
             new LoggerConfiguration()
@@ -124,18 +113,6 @@ namespace VideoDedupServer
                 out LogEventLevel logEventLevel))
             {
                 logEventLevel = LogEventLevel.Information;
-            }
-            return logEventLevel;
-        }
-
-        private static LogSettings.Types.LogLevel ToLogLevel(string logLevel)
-        {
-            if (!Enum.TryParse(
-                logLevel,
-                true,
-                out LogSettings.Types.LogLevel logEventLevel))
-            {
-                logEventLevel = LogSettings.Types.LogLevel.Information;
             }
             return logEventLevel;
         }
