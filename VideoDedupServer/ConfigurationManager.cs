@@ -6,7 +6,7 @@ namespace VideoDedupServer
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
     using static VideoDedupGrpc.LogSettings.Types;
 
-    internal class ConfigurationManager
+    internal static class ConfigurationManager
     {
         public static FolderSettings GetFolderSettings()
         {
