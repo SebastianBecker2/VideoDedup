@@ -58,7 +58,7 @@ namespace VideoDedupServer
             dedupEngine.Logged += (_, e) =>
                 AddLogEntry(e.Message, LogSource.DedupEngine);
             dedupEngine.Started += (_, _) => AddLogEntry("Started DedupEngine");
-            dedupEngine.Stopped += (_, _) => AddLogEntry("Stopped DedupEngine");
+            dedupEngine.Stopped += DedupEngine_Stopped;
 
             duplicateManager = new DuplicateManager(settings.ThumbnailSettings);
 
@@ -259,6 +259,17 @@ namespace VideoDedupServer
             }
         }
 
+        private void DedupEngine_Stopped(object? sender, StoppedEventArgs e)
+        {
+            AddLogEntry("Stopped DedupEngine");
+            lock (logEntriesLock)
+            {
+                logEntries.Clear();
+                logToken = Guid.NewGuid();
+                logManager.DeleteDedupEngineLogger();
+            }
+        }
+
         private void LoggedCallback(
             object? sender,
             LoggedEventArgs e) =>
@@ -380,32 +391,19 @@ namespace VideoDedupServer
 
             logManager.UpdateConfiguration(settings.LogSettings);
 
-            StopDedupEngine();
-
             duplicateManager.UpdateSettings(
                 settings.ThumbnailSettings,
                 UpdateSettingsResolution.DiscardDuplicates);
 
-            dedupEngine.UpdateConfiguration(
+            if (dedupEngine.UpdateConfiguration(
                 settings.FolderSettings,
                 settings.DurationComparisonSettings,
-                settings.VideoComparisonSettings);
-
-            StartDedupEngine();
+                settings.VideoComparisonSettings))
+            {
+                StartDedupEngine();
+            }
 
             AddLogEntry("Updated configuration");
-        }
-
-        private void StopDedupEngine()
-        {
-            dedupEngine.Stop();
-
-            lock (logEntriesLock)
-            {
-                logEntries.Clear();
-                logToken = Guid.NewGuid();
-                logManager.DeleteDedupEngineLogger();
-            }
         }
 
         private void StartDedupEngine()

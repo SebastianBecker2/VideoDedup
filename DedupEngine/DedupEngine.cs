@@ -103,15 +103,22 @@ namespace DedupEngine
             FileWatcher.Created += HandleFileWatcherCreatedEvent;
         }
 
-        public void UpdateConfiguration(
+        public bool UpdateConfiguration(
             FolderSettings folderSettings,
             DurationComparisonSettings durationComparisonSettings,
             VideoComparisonSettings videoComparisonSettings)
         {
+            if (this.folderSettings.Equals(folderSettings)
+                && this.durationComparisonSettings.Equals(durationComparisonSettings)
+                && this.videoComparisonSettings.Equals(videoComparisonSettings))
+            {
+                return false;
+            }
             Stop();
             this.folderSettings = folderSettings;
             this.durationComparisonSettings = durationComparisonSettings;
             this.videoComparisonSettings = videoComparisonSettings;
+            return true;
         }
 
         public void Start()
@@ -150,19 +157,17 @@ namespace DedupEngine
 
             FileWatcher.EnableRaisingEvents = false;
 
-            if (DedupTask == null || DedupTask.IsCompleted)
+            if (DedupTask is { IsCompleted: false })
             {
-                return;
-            }
-
-            CancelSource.Cancel();
-            try
-            {
-                DedupTask?.Wait();
-            }
-            catch (AggregateException exc)
-            {
-                exc.Handle(x => x is OperationCanceledException);
+                CancelSource.Cancel();
+                try
+                {
+                    DedupTask?.Wait();
+                }
+                catch (AggregateException exc)
+                {
+                    exc.Handle(x => x is OperationCanceledException);
+                }
             }
 
             OnStopped();
