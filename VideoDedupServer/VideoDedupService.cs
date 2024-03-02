@@ -53,8 +53,8 @@ namespace VideoDedupServer
                 settings.FolderSettings,
                 settings.DurationComparisonSettings,
                 settings.VideoComparisonSettings);
-            dedupEngine.OperationUpdate += OperationUpdateCallback;
-            dedupEngine.DuplicateFound += DuplicateFoundCallback;
+            dedupEngine.OperationUpdate += DedupEngine_OperationUpdate;
+            dedupEngine.DuplicateFound += DedupEngine_DuplicateFound;
             dedupEngine.Logged += (_, e) =>
                 AddLogEntry(e.Message, LogSource.DedupEngine);
             dedupEngine.Started += (_, _) => AddLogEntry("Started DedupEngine");
@@ -226,7 +226,7 @@ namespace VideoDedupServer
             }
         }
 
-        private void OperationUpdateCallback(
+        private void DedupEngine_OperationUpdate(
             object? sender,
             OperationUpdateEventArgs e) =>
             operationInfo = new OperationInfo
@@ -238,7 +238,7 @@ namespace VideoDedupServer
                 StartTime = Timestamp.FromDateTime(e.StartTime.ToUniversalTime()),
             };
 
-        private void DuplicateFoundCallback(
+        private void DedupEngine_DuplicateFound(
             object? sender,
             DuplicateFoundEventArgs e)
         {
