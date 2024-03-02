@@ -205,7 +205,9 @@ namespace VideoDedupServer
             {
                 var result = new GetFolderContentResponse();
                 result.Files.AddRange(
-                    FileManager.GetFolderContent(request.Path, request.TypeRestriction));
+                    FileManager.GetFolderContent(
+                        request.Path,
+                        request.TypeRestriction));
                 return Task.FromResult(result);
             }
             catch (FileNotFoundException)
