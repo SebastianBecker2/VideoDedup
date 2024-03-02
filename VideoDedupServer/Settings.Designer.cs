@@ -194,12 +194,12 @@ namespace VideoDedupServer {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Information")]
-        public string CustomComparisonManagerLogLevel {
+        public string ComparisonManagerLogLevel {
             get {
-                return ((string)(this["CustomComparisonManagerLogLevel"]));
+                return ((string)(this["ComparisonManagerLogLevel"]));
             }
             set {
-                this["CustomComparisonManagerLogLevel"] = value;
+                this["ComparisonManagerLogLevel"] = value;
             }
         }
         

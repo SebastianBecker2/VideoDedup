@@ -1,10 +1,10 @@
-namespace CustomComparisonManager
+namespace ComparisonManager
 {
     using Serilog;
     using SmartTimer;
     using VideoDedupGrpc;
 
-    public class CustomComparisonManager : IDisposable
+    public class ComparisonManager : IDisposable
     {
         private static readonly TimeSpan TimeoutTimerInterval =
             TimeSpan.FromMinutes(1);
@@ -16,26 +16,26 @@ namespace CustomComparisonManager
 
         private Timer TimeoutTimer { get; }
 
-        private IDictionary<Guid, CustomComparison> CustomComparisons { get; }
-            = new Dictionary<Guid, CustomComparison>();
+        private IDictionary<Guid, Comparison> Comparisons { get; }
+            = new Dictionary<Guid, Comparison>();
         private IDictionary<Guid, DateTime> LastRequests { get; } =
             new Dictionary<Guid, DateTime>();
 
         private object ComparisonsLock { get; } = new();
 
-        public CustomComparisonManager() =>
+        public ComparisonManager() =>
             TimeoutTimer = new Timer(
                 HandleTimeoutTimerTick,
                 null,
                 TimeoutTimerInterval);
 
-        public CustomComparisonManager(ILogger logger) : this()
+        public ComparisonManager(ILogger logger) : this()
         {
             Logger = logger;
-            Logger.Information("Started CustomComparisonManager");
+            Logger.Information("Started ComparisonManager");
         }
 
-        public CustomVideoComparisonStatus StartCustomComparison(
+        public VideoComparisonStatus StartComparison(
             VideoComparisonSettings settings,
             string leftFilePath,
             string rightFilePath,
@@ -46,7 +46,7 @@ namespace CustomComparisonManager
 
             try
             {
-                var customComparison = new CustomComparison(
+                var comparison = new Comparison(
                     settings,
                     leftFilePath,
                     rightFilePath,
@@ -55,14 +55,14 @@ namespace CustomComparisonManager
 
                 lock (ComparisonsLock)
                 {
-                    CustomComparisons.Add(
-                        customComparison.Token,
-                        customComparison);
-                    LastRequests[customComparison.Token] = DateTime.Now;
+                    Comparisons.Add(
+                        comparison.Token,
+                        comparison);
+                    LastRequests[comparison.Token] = DateTime.Now;
 
                     Logger?.Information($"Started comparison '{leftFilePath}' " +
-                        $"- '{rightFilePath}' as {customComparison.Token}");
-                    return customComparison.GetStatus();
+                        $"- '{rightFilePath}' as {comparison.Token}");
+                    return comparison.GetStatus();
                 }
             }
             catch (InvalidDataException ex)
@@ -70,7 +70,7 @@ namespace CustomComparisonManager
                 Logger?.Error($"Failed to start comparison '{leftFilePath}' - " +
                     $"'{rightFilePath}'");
 
-                return new CustomVideoComparisonStatus
+                return new VideoComparisonStatus
                 {
                     VideoComparisonResult = new VideoComparisonResult
                     {
@@ -81,41 +81,37 @@ namespace CustomComparisonManager
             }
         }
 
-        public CustomVideoComparisonStatus? GetStatus(
+        public VideoComparisonStatus? GetStatus(
             Guid token,
             int imageComparisonIndex = 0)
         {
             lock (ComparisonsLock)
             {
-                if (!CustomComparisons.TryGetValue(
-                    token,
-                    out var customComparison))
+                if (!Comparisons.TryGetValue(token, out var comparison))
                 {
                     return null;
                 }
 
                 LastRequests[token] = DateTime.Now;
-                return customComparison.GetStatus(imageComparisonIndex);
+                return comparison.GetStatus(imageComparisonIndex);
             }
         }
 
-        public bool CancelCustomComparison(Guid token)
+        public bool CancelComparison(Guid token)
         {
             Logger?.Information($"Cancelling comparison {token}");
             lock (ComparisonsLock)
             {
-                if (!CustomComparisons.TryGetValue(
-                    token,
-                    out var customComparison))
+                if (!Comparisons.TryGetValue(token, out var comparison))
                 {
                     return false;
                 }
 
-                customComparison.CancelComparison();
-                customComparison.Dispose();
+                comparison.CancelComparison();
+                comparison.Dispose();
 
                 _ = LastRequests.Remove(token);
-                return CustomComparisons.Remove(token);
+                return Comparisons.Remove(token);
             }
         }
 
@@ -130,7 +126,7 @@ namespace CustomComparisonManager
                     .ToList())
                 {
                     Logger?.Information($"Removing obsolete comparison {token}");
-                    _ = CancelCustomComparison(token);
+                    _ = CancelComparison(token);
                 }
             }
         }
@@ -141,20 +137,20 @@ namespace CustomComparisonManager
             {
                 if (disposing)
                 {
-                    Logger?.Information("Stopping CustomComparisonManager");
+                    Logger?.Information("Stopping ComparisonManager");
                     TimeoutTimer.Dispose();
                     lock (ComparisonsLock)
                     {
-                        foreach (var comparison in CustomComparisons
+                        foreach (var comparison in Comparisons
                             .Select(kvp => kvp.Value))
                         {
                             comparison.CancelComparison();
                             comparison.Dispose();
                         }
-                        CustomComparisons.Clear();
+                        Comparisons.Clear();
                         LastRequests.Clear();
                     }
-                    Logger?.Information("Stopped CustomComparisonManager");
+                    Logger?.Information("Stopped ComparisonManager");
                 }
 
                 disposedValue = true;

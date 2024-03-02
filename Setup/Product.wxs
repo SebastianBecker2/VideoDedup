@@ -110,8 +110,8 @@
               Source="$(var.VideoDedupService.TargetDir)Accessibility.dll" />
         <File Id="Server_appsettings.json"
               Source="$(var.VideoDedupService.TargetDir)appsettings.json" />
-        <File Id="Server_CustomComparisonManager.dll"
-              Source="$(var.CustomComparisonManager.TargetPath)" />
+        <File Id="Server_ComparisonManager.dll"
+              Source="$(var.ComparisonManager.TargetPath)" />
         <File Id="Server_DedupEngine.dll"
               Source="$(var.DedupEngine.TargetPath)" />
         <File Id="Server_DuplicateManager.dll"

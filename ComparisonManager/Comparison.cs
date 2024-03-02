@@ -1,4 +1,4 @@
-namespace CustomComparisonManager
+namespace ComparisonManager
 {
     using Serilog;
     using VideoComparer;
@@ -7,7 +7,7 @@ namespace CustomComparisonManager
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
     using VideoFile = VideoComparer.VideoFile;
 
-    internal class CustomComparison : IDisposable
+    internal class Comparison : IDisposable
     {
         private ILogger? Logger { get; }
 
@@ -26,7 +26,7 @@ namespace CustomComparisonManager
         private VideoComparisonResult? comparisonResult;
         private bool disposedValue;
 
-        public CustomComparison(
+        public Comparison(
             VideoComparisonSettings settings,
             string leftFilePath,
             string rightFilePath,
@@ -67,12 +67,12 @@ namespace CustomComparisonManager
 
         public void CancelComparison() => cancelTokenSource.Cancel();
 
-        public CustomVideoComparisonStatus GetStatus(
+        public VideoComparisonStatus GetStatus(
             int imageComparisonIndex = 0)
         {
             lock (statusLock)
             {
-                var status = new CustomVideoComparisonStatus
+                var status = new VideoComparisonStatus
                 {
                     ComparisonToken = Token.ToString(),
                     LeftFile = LeftVideoFile.ToVideoFile(),

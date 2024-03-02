@@ -1,7 +1,7 @@
 namespace VideoDedupServer
 {
     using System.IO;
-    using CustomComparisonManager;
+    using ComparisonManager;
     using DedupEngine;
     using DedupEngine.EventArgs;
     using DuplicateManager;
@@ -20,7 +20,7 @@ namespace VideoDedupServer
         private readonly DuplicateManager duplicateManager;
         private readonly List<string> logEntries = new();
         private readonly object logEntriesLock = new();
-        private readonly CustomComparisonManager comparisonManager;
+        private readonly ComparisonManager comparisonManager;
         private readonly CancellationTokenSource cancelTokenSource = new();
         private readonly Task initializationTask;
         private OperationInfo operationInfo;
@@ -45,7 +45,7 @@ namespace VideoDedupServer
 
             var settings = LoadConfiguration();
 
-            comparisonManager = new(logManager.CustomComparisonManagerLogger);
+            comparisonManager = new(logManager.ComparisonManagerLogger);
 
             dedupEngine = new DedupEngine(
                 appDataFolderPath,
@@ -172,27 +172,27 @@ namespace VideoDedupServer
             }
         }
 
-        public override Task<CustomVideoComparisonStatus> StartCustomVideoComparison(
-            CustomVideoComparisonConfiguration request,
+        public override Task<VideoComparisonStatus> StartVideoComparison(
+            VideoComparisonConfiguration request,
             ServerCallContext context) =>
-            Task.FromResult(comparisonManager.StartCustomComparison(
+            Task.FromResult(comparisonManager.StartComparison(
                 request.VideoComparisonSettings,
                 request.LeftFilePath,
                 request.RightFilePath,
                 request.ForceLoadingAllImages));
 
-        public override Task<CustomVideoComparisonStatus?> GetVideoComparisonStatus(
-            CustomVideoComparisonStatusRequest request,
+        public override Task<VideoComparisonStatus?> GetVideoComparisonStatus(
+            VideoComparisonStatusRequest request,
             ServerCallContext context) =>
             Task.FromResult(comparisonManager.GetStatus(
                 Guid.Parse(request.ComparisonToken),
                 request.ImageComparisonIndex));
 
-        public override Task<Empty> CancelCustomVideoComparison(
-            CancelCustomVideoComparisonRequest request,
+        public override Task<Empty> CancelVideoComparison(
+            CancelVideoComparisonRequest request,
             ServerCallContext context)
         {
-            _ = comparisonManager.CancelCustomComparison(
+            _ = comparisonManager.CancelComparison(
                 Guid.Parse(request.ComparisonToken));
             return Task.FromResult(new Empty());
         }
@@ -286,7 +286,7 @@ namespace VideoDedupServer
                         message);
                     break;
                 case LogSource.ComparisonManager:
-                    logManager.CustomComparisonManagerLogger.Write(
+                    logManager.ComparisonManagerLogger.Write(
                         level,
                         exc,
                         message);
@@ -324,7 +324,7 @@ namespace VideoDedupServer
                     logManager.VideoDedupServiceLogger.Write(level, message);
                     break;
                 case LogSource.ComparisonManager:
-                    logManager.CustomComparisonManagerLogger.Write(level, message);
+                    logManager.ComparisonManagerLogger.Write(level, message);
                     break;
                 case LogSource.DedupEngine:
                     lock (logEntriesLock)

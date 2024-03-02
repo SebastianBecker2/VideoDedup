@@ -116,8 +116,8 @@ namespace VideoDedupClient.Dialogs
             if (ComparisonToken is not null)
             {
                 StatusTimer.Stop();
-                _ = GrpcClient.CancelCustomVideoComparison(
-                    new CancelCustomVideoComparisonRequest
+                _ = GrpcClient.CancelVideoComparison(
+                    new CancelVideoComparisonRequest
                     {
                         ComparisonToken = ComparisonToken,
                     });
@@ -183,8 +183,8 @@ namespace VideoDedupClient.Dialogs
             if (ComparisonToken is not null)
             {
                 StatusTimer.Stop();
-                _ = GrpcClient.CancelCustomVideoComparison(
-                    new CancelCustomVideoComparisonRequest
+                _ = GrpcClient.CancelVideoComparison(
+                    new CancelVideoComparisonRequest
                     {
                         ComparisonToken = ComparisonToken,
                     });
@@ -200,7 +200,7 @@ namespace VideoDedupClient.Dialogs
             PgbComparisonProgress.Visible = true;
             PnlResult.Visible = true;
 
-            var request = new CustomVideoComparisonConfiguration
+            var request = new VideoComparisonConfiguration
             {
                 ForceLoadingAllImages = true,
                 LeftFilePath = LeftFilePath,
@@ -213,7 +213,7 @@ namespace VideoDedupClient.Dialogs
                 }
             };
 
-            var startData = GrpcClient.StartCustomVideoComparison(request);
+            var startData = GrpcClient.StartVideoComparison(request);
 
             if (string.IsNullOrWhiteSpace(startData.ComparisonToken))
             {
@@ -243,7 +243,7 @@ namespace VideoDedupClient.Dialogs
         {
             StatusTimer.Stop();
             var status = GrpcClient.GetVideoComparisonStatus(
-                new CustomVideoComparisonStatusRequest
+                new VideoComparisonStatusRequest
                 {
                     ComparisonToken = ComparisonToken,
                     ImageComparisonIndex = ImageComparisonIndex,
@@ -302,8 +302,8 @@ namespace VideoDedupClient.Dialogs
                         var maxImages = (int)NumMaxImageComparison.Value;
                         if (ImageComparisonIndex >= maxImages)
                         {
-                            _ = GrpcClient.CancelCustomVideoComparison(
-                                new CancelCustomVideoComparisonRequest
+                            _ = GrpcClient.CancelVideoComparison(
+                                new CancelVideoComparisonRequest
                                 {
                                     ComparisonToken = ComparisonToken,
                                 });

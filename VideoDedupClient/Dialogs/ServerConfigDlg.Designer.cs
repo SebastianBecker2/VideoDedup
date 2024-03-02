@@ -75,7 +75,7 @@ namespace VideoDedupClient.Dialogs
             label8 = new Label();
             label11 = new Label();
             CmbVideoDedupServiceLogLevel = new ComboBox();
-            CmbCustomComparisonLogLevel = new ComboBox();
+            CmbComparisonManagerLogLevel = new ComboBox();
             CmbDedupEngineLogLevel = new ComboBox();
             groupBox1.SuspendLayout();
             tableLayoutPanel4.SuspendLayout();
@@ -610,7 +610,7 @@ namespace VideoDedupClient.Dialogs
             tableLayoutPanel5.Controls.Add(label8, 0, 1);
             tableLayoutPanel5.Controls.Add(label11, 0, 2);
             tableLayoutPanel5.Controls.Add(CmbVideoDedupServiceLogLevel, 1, 0);
-            tableLayoutPanel5.Controls.Add(CmbCustomComparisonLogLevel, 1, 1);
+            tableLayoutPanel5.Controls.Add(CmbComparisonManagerLogLevel, 1, 1);
             tableLayoutPanel5.Controls.Add(CmbDedupEngineLogLevel, 1, 2);
             tableLayoutPanel5.Dock = DockStyle.Fill;
             tableLayoutPanel5.Location = new Point(3, 19);
@@ -637,11 +637,11 @@ namespace VideoDedupClient.Dialogs
             // 
             label8.Anchor = AnchorStyles.Right;
             label8.AutoSize = true;
-            label8.Location = new Point(46, 55);
+            label8.Location = new Point(88, 55);
             label8.Name = "label8";
-            label8.Size = new Size(164, 15);
+            label8.Size = new Size(122, 15);
             label8.TabIndex = 0;
-            label8.Text = "CustomComparisonManager:";
+            label8.Text = "ComparisonManager:";
             // 
             // label11
             // 
@@ -663,15 +663,15 @@ namespace VideoDedupClient.Dialogs
             CmbVideoDedupServiceLogLevel.Size = new Size(128, 23);
             CmbVideoDedupServiceLogLevel.TabIndex = 1;
             // 
-            // CmbCustomComparisonLogLevel
+            // CmbComparisonManagerLogLevel
             // 
-            CmbCustomComparisonLogLevel.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            CmbCustomComparisonLogLevel.DropDownStyle = ComboBoxStyle.DropDownList;
-            CmbCustomComparisonLogLevel.FormattingEnabled = true;
-            CmbCustomComparisonLogLevel.Location = new Point(216, 51);
-            CmbCustomComparisonLogLevel.Name = "CmbCustomComparisonLogLevel";
-            CmbCustomComparisonLogLevel.Size = new Size(128, 23);
-            CmbCustomComparisonLogLevel.TabIndex = 1;
+            CmbComparisonManagerLogLevel.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            CmbComparisonManagerLogLevel.DropDownStyle = ComboBoxStyle.DropDownList;
+            CmbComparisonManagerLogLevel.FormattingEnabled = true;
+            CmbComparisonManagerLogLevel.Location = new Point(216, 51);
+            CmbComparisonManagerLogLevel.Name = "CmbComparisonManagerLogLevel";
+            CmbComparisonManagerLogLevel.Size = new Size(128, 23);
+            CmbComparisonManagerLogLevel.TabIndex = 1;
             // 
             // CmbDedupEngineLogLevel
             // 
@@ -766,7 +766,7 @@ namespace VideoDedupClient.Dialogs
         private Label label8;
         private Label label11;
         private ComboBox CmbVideoDedupServiceLogLevel;
-        private ComboBox CmbCustomComparisonLogLevel;
+        private ComboBox CmbComparisonManagerLogLevel;
         private ComboBox CmbDedupEngineLogLevel;
     }
 }

@@ -50,8 +50,8 @@ namespace VideoDedupServer
             {
                 DedupEngineLogLevel =
                     ToLogLevel(Settings.Default.DedupEngineLogLevel),
-                CustomComparisonManagerLogLevel =
-                    ToLogLevel(Settings.Default.CustomComparisonManagerLogLevel),
+                ComparisonManagerLogLevel =
+                    ToLogLevel(Settings.Default.ComparisonManagerLogLevel),
                 VideoDedupServiceLogLevel =
                     ToLogLevel(Settings.Default.VideoDedupServiceLogLevel),
             };
@@ -90,8 +90,8 @@ namespace VideoDedupServer
         {
             Settings.Default.VideoDedupServiceLogLevel =
                 settings.VideoDedupServiceLogLevel.ToString();
-            Settings.Default.CustomComparisonManagerLogLevel =
-                settings.CustomComparisonManagerLogLevel.ToString();
+            Settings.Default.ComparisonManagerLogLevel =
+                settings.ComparisonManagerLogLevel.ToString();
             Settings.Default.DedupEngineLogLevel =
                 settings.DedupEngineLogLevel.ToString();
         }

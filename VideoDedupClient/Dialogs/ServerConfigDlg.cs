@@ -28,7 +28,7 @@ namespace VideoDedupClient.Dialogs
 
             var logLevel = Enum.GetNames<LogSettings.Types.LogLevel>();
             CmbVideoDedupServiceLogLevel.Items.AddRange(logLevel);
-            CmbCustomComparisonLogLevel.Items.AddRange(logLevel);
+            CmbComparisonManagerLogLevel.Items.AddRange(logLevel);
             CmbDedupEngineLogLevel.Items.AddRange(logLevel);
         }
 
@@ -84,8 +84,8 @@ namespace VideoDedupClient.Dialogs
             {
                 CmbVideoDedupServiceLogLevel.SelectedIndex =
                     (int)LogSettings.VideoDedupServiceLogLevel;
-                CmbCustomComparisonLogLevel.SelectedIndex =
-                    (int)LogSettings.CustomComparisonManagerLogLevel;
+                CmbComparisonManagerLogLevel.SelectedIndex =
+                    (int)LogSettings.ComparisonManagerLogLevel;
                 CmbDedupEngineLogLevel.SelectedIndex =
                     (int)LogSettings.DedupEngineLogLevel;
             }
@@ -133,9 +133,9 @@ namespace VideoDedupClient.Dialogs
             LogSettings!.VideoDedupServiceLogLevel =
                 (LogSettings.Types.LogLevel)
                     CmbVideoDedupServiceLogLevel.SelectedIndex;
-            LogSettings!.CustomComparisonManagerLogLevel =
+            LogSettings!.ComparisonManagerLogLevel =
                 (LogSettings.Types.LogLevel)
-                    CmbCustomComparisonLogLevel.SelectedIndex;
+                    CmbComparisonManagerLogLevel.SelectedIndex;
             LogSettings!.DedupEngineLogLevel =
                 (LogSettings.Types.LogLevel)
                     CmbDedupEngineLogLevel.SelectedIndex;

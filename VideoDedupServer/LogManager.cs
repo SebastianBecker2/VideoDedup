@@ -17,9 +17,9 @@ namespace VideoDedupServer
         public Logger VideoDedupServiceLogger { get; }
         private LoggingLevelSwitch VideoDedupServiceLogLevelSwitch { get; } =
             new(ToLogEventLevel(Settings.Default.VideoDedupServiceLogLevel));
-        public Logger CustomComparisonManagerLogger { get; }
-        private LoggingLevelSwitch CustomComparisonManagerLogLevelSwitch { get; } =
-            new(ToLogEventLevel(Settings.Default.CustomComparisonManagerLogLevel));
+        public Logger ComparisonManagerLogger { get; }
+        private LoggingLevelSwitch ComparisonManagerLogLevelSwitch { get; } =
+            new(ToLogEventLevel(Settings.Default.ComparisonManagerLogLevel));
         public Logger? DedupEngineLogger { get; private set; }
         private LoggingLevelSwitch DedupEngineLogLevelSwitch { get; } =
             new(ToLogEventLevel(Settings.Default.DedupEngineLogLevel));
@@ -32,9 +32,9 @@ namespace VideoDedupServer
                 appDataFolderPath,
                 VideoDedupServiceLogLevelSwitch);
 
-            CustomComparisonManagerLogger = CreateCustomComparisonManagerLogger(
+            ComparisonManagerLogger = CreateComparisonManagerLogger(
                 appDataFolderPath,
-                CustomComparisonManagerLogLevelSwitch);
+                ComparisonManagerLogLevelSwitch);
         }
 
         public void CreateDedupEngineLogger() =>
@@ -53,9 +53,9 @@ namespace VideoDedupServer
             VideoDedupServiceLogLevelSwitch.MinimumLevel =
                 ToLogEventLevel(settings.VideoDedupServiceLogLevel.ToString());
 
-            CustomComparisonManagerLogLevelSwitch.MinimumLevel =
+            ComparisonManagerLogLevelSwitch.MinimumLevel =
                 ToLogEventLevel(
-                    settings.CustomComparisonManagerLogLevel.ToString());
+                    settings.ComparisonManagerLogLevel.ToString());
 
             DedupEngineLogLevelSwitch.MinimumLevel =
                 ToLogEventLevel(settings.DedupEngineLogLevel.ToString());
@@ -77,12 +77,12 @@ namespace VideoDedupServer
                     theme: AnsiConsoleTheme.Sixteen)
                 .CreateLogger();
 
-        private static Logger CreateCustomComparisonManagerLogger(
+        private static Logger CreateComparisonManagerLogger(
             string appDataFolderPath, LoggingLevelSwitch levelSwitch) =>
             new LoggerConfiguration()
                 .MinimumLevel.ControlledBy(levelSwitch)
                 .WriteTo.File(
-                    Path.Combine(appDataFolderPath, "CustomComparisonManager-.log"),
+                    Path.Combine(appDataFolderPath, "ComparisonManager-.log"),
                     formatProvider: CultureInfo.InvariantCulture,
                     rollOnFileSizeLimit: true,
                     rollingInterval: RollingInterval.Day,
@@ -124,7 +124,7 @@ namespace VideoDedupServer
                 if (disposing)
                 {
                     VideoDedupServiceLogger.Dispose();
-                    CustomComparisonManagerLogger.Dispose();
+                    ComparisonManagerLogger.Dispose();
                     VideoDedupServiceLogger?.Dispose();
                 }
 

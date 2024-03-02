@@ -47,8 +47,8 @@
     </WixExtension>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CustomComparisonManager\CustomComparisonManager.csproj">
-      <Name>CustomComparisonManager</Name>
+    <ProjectReference Include="..\ComparisonManager\ComparisonManager.csproj">
+      <Name>ComparisonManager</Name>
       <Project>{ef86b28e-7402-468a-a19f-13994630e341}</Project>
       <Private>True</Private>
       <DoNotHarvest>True</DoNotHarvest>
