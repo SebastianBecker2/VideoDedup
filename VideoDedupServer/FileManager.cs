@@ -97,7 +97,8 @@ namespace VideoDedupServer
             }
         }
 
-        private static IEnumerable<FileAttributes> GetServerShares(string serverName) =>
+        private static IEnumerable<FileAttributes> GetServerShares(
+            string serverName) =>
             new Vanara.SharedDevices(serverName)
                 .Where(kvp => !kvp.Value.IsSpecial && kvp.Value.IsDiskVolume)
                 .Select(kvp =>
