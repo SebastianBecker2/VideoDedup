@@ -227,9 +227,25 @@ message ThumbnailSettings {
     int32 image_count = 1;
 }
 
+message LogSettings {
+    enum LogLevel {
+        VERBOSE = 0;
+        DEBUG = 1;
+        INFORMATION = 2;
+        WARNING = 3;
+        ERROR = 4;
+        FATAL = 5;
+    }
+
+    LogLevel video_dedup_service_log_level = 1;
+    LogLevel custom_comparison_manager_log_level = 2;
+    LogLevel dedup_engine_log_level = 3;
+}
+
 message ConfigurationSettings {
   FolderSettings folder_settings = 1;
   DurationComparisonSettings duration_comparison_settings = 2;
   VideoComparisonSettings video_comparison_settings = 3;
   ThumbnailSettings thumbnail_settings = 4;
+  LogSettings log_settings = 5;
 }

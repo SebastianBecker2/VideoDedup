@@ -41,5 +41,14 @@
     <Setting Name="UpgradeRequired" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="VideoDedupServiceLogLevel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Information</Value>
+    </Setting>
+    <Setting Name="CustomComparisonManagerLogLevel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Information</Value>
+    </Setting>
+    <Setting Name="DedupEngineLogLevel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Information</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

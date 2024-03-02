@@ -30,613 +30,695 @@ namespace VideoDedupClient.Dialogs
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ServerConfigDlg));
-            this.BtnCancel = new System.Windows.Forms.Button();
-            this.BtnOkay = new System.Windows.Forms.Button();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
-            this.BtnCustomVideoComparison = new System.Windows.Forms.Button();
-            this.NumMaxImageComparison = new System.Windows.Forms.NumericUpDown();
-            this.label6 = new System.Windows.Forms.Label();
-            this.NumMaxDifferentImages = new System.Windows.Forms.NumericUpDown();
-            this.label5 = new System.Windows.Forms.Label();
-            this.NumMaxDifferentPercentage = new System.Windows.Forms.NumericUpDown();
-            this.label3 = new System.Windows.Forms.Label();
-            this.RdbDurationDifferenceSeconds = new System.Windows.Forms.RadioButton();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.LblMaxDurationDifferenceUnit = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.RdbDurationDifferencePercent = new System.Windows.Forms.RadioButton();
-            this.NumMaxDurationDifference = new System.Windows.Forms.NumericUpDown();
-            this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.NumThumbnailViewCount = new System.Windows.Forms.NumericUpDown();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
-            this.BtnSelectSourcePath = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this.TxtSourcePath = new System.Windows.Forms.TextBox();
-            this.BtnRemoveExcludedDirectory = new System.Windows.Forms.Button();
-            this.BtnAddExcludedDirectory = new System.Windows.Forms.Button();
-            this.label4 = new System.Windows.Forms.Label();
-            this.LsbFileExtensions = new System.Windows.Forms.ListBox();
-            this.BtnRemoveFileExtension = new System.Windows.Forms.Button();
-            this.BtnAddFileExtension = new System.Windows.Forms.Button();
-            this.TxtFileExtension = new System.Windows.Forms.TextBox();
-            this.ChbRecursive = new System.Windows.Forms.CheckBox();
-            this.LsbExcludedDirectories = new System.Windows.Forms.ListBox();
-            this.label10 = new System.Windows.Forms.Label();
-            this.ChbMonitorFileChanges = new System.Windows.Forms.CheckBox();
-            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.groupBox1.SuspendLayout();
-            this.tableLayoutPanel4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxImageComparison)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentImages)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentPercentage)).BeginInit();
-            this.groupBox2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxDurationDifference)).BeginInit();
-            this.groupBox4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.NumThumbnailViewCount)).BeginInit();
-            this.tableLayoutPanel1.SuspendLayout();
-            this.groupBox3.SuspendLayout();
-            this.tableLayoutPanel3.SuspendLayout();
-            this.tableLayoutPanel2.SuspendLayout();
-            this.SuspendLayout();
+            var resources = new ComponentResourceManager(typeof(ServerConfigDlg));
+            BtnCancel = new Button();
+            BtnOkay = new Button();
+            groupBox1 = new GroupBox();
+            tableLayoutPanel4 = new TableLayoutPanel();
+            BtnCustomVideoComparison = new Button();
+            NumMaxImageComparison = new NumericUpDown();
+            label6 = new Label();
+            NumMaxDifferentImages = new NumericUpDown();
+            label5 = new Label();
+            NumMaxDifferentPercentage = new NumericUpDown();
+            label3 = new Label();
+            RdbDurationDifferenceSeconds = new RadioButton();
+            groupBox2 = new GroupBox();
+            LblMaxDurationDifferenceUnit = new Label();
+            label7 = new Label();
+            RdbDurationDifferencePercent = new RadioButton();
+            NumMaxDurationDifference = new NumericUpDown();
+            groupBox4 = new GroupBox();
+            label9 = new Label();
+            NumThumbnailViewCount = new NumericUpDown();
+            tableLayoutPanel1 = new TableLayoutPanel();
+            groupBox3 = new GroupBox();
+            tableLayoutPanel3 = new TableLayoutPanel();
+            BtnSelectSourcePath = new Button();
+            label1 = new Label();
+            TxtSourcePath = new TextBox();
+            BtnRemoveExcludedDirectory = new Button();
+            BtnAddExcludedDirectory = new Button();
+            label4 = new Label();
+            LsbFileExtensions = new ListBox();
+            BtnRemoveFileExtension = new Button();
+            BtnAddFileExtension = new Button();
+            TxtFileExtension = new TextBox();
+            ChbRecursive = new CheckBox();
+            LsbExcludedDirectories = new ListBox();
+            label10 = new Label();
+            ChbMonitorFileChanges = new CheckBox();
+            tableLayoutPanel2 = new TableLayoutPanel();
+            groupBox5 = new GroupBox();
+            tableLayoutPanel5 = new TableLayoutPanel();
+            label2 = new Label();
+            label8 = new Label();
+            label11 = new Label();
+            CmbVideoDedupServiceLogLevel = new ComboBox();
+            CmbCustomComparisonLogLevel = new ComboBox();
+            CmbDedupEngineLogLevel = new ComboBox();
+            groupBox1.SuspendLayout();
+            tableLayoutPanel4.SuspendLayout();
+            ((ISupportInitialize)NumMaxImageComparison).BeginInit();
+            ((ISupportInitialize)NumMaxDifferentImages).BeginInit();
+            ((ISupportInitialize)NumMaxDifferentPercentage).BeginInit();
+            groupBox2.SuspendLayout();
+            ((ISupportInitialize)NumMaxDurationDifference).BeginInit();
+            groupBox4.SuspendLayout();
+            ((ISupportInitialize)NumThumbnailViewCount).BeginInit();
+            tableLayoutPanel1.SuspendLayout();
+            groupBox3.SuspendLayout();
+            tableLayoutPanel3.SuspendLayout();
+            tableLayoutPanel2.SuspendLayout();
+            groupBox5.SuspendLayout();
+            tableLayoutPanel5.SuspendLayout();
+            SuspendLayout();
             // 
             // BtnCancel
             // 
-            this.BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.BtnCancel.Location = new System.Drawing.Point(684, 534);
-            this.BtnCancel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.BtnCancel.Name = "BtnCancel";
-            this.BtnCancel.Size = new System.Drawing.Size(88, 27);
-            this.BtnCancel.TabIndex = 1;
-            this.BtnCancel.Text = "&Cancel";
-            this.BtnCancel.UseVisualStyleBackColor = true;
+            BtnCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            BtnCancel.DialogResult = DialogResult.Cancel;
+            BtnCancel.Location = new Point(684, 534);
+            BtnCancel.Margin = new Padding(4, 3, 4, 3);
+            BtnCancel.Name = "BtnCancel";
+            BtnCancel.Size = new Size(88, 27);
+            BtnCancel.TabIndex = 1;
+            BtnCancel.Text = "&Cancel";
+            BtnCancel.UseVisualStyleBackColor = true;
             // 
             // BtnOkay
             // 
-            this.BtnOkay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnOkay.Location = new System.Drawing.Point(589, 534);
-            this.BtnOkay.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.BtnOkay.Name = "BtnOkay";
-            this.BtnOkay.Size = new System.Drawing.Size(88, 27);
-            this.BtnOkay.TabIndex = 0;
-            this.BtnOkay.Text = "&OK";
-            this.BtnOkay.UseVisualStyleBackColor = true;
-            this.BtnOkay.Click += new System.EventHandler(this.BtnOkay_Click);
+            BtnOkay.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            BtnOkay.Location = new Point(589, 534);
+            BtnOkay.Margin = new Padding(4, 3, 4, 3);
+            BtnOkay.Name = "BtnOkay";
+            BtnOkay.Size = new Size(88, 27);
+            BtnOkay.TabIndex = 0;
+            BtnOkay.Text = "&OK";
+            BtnOkay.UseVisualStyleBackColor = true;
+            BtnOkay.Click += BtnOkay_Click;
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.tableLayoutPanel4);
-            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox1.Location = new System.Drawing.Point(0, 0);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(0);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.groupBox1.Size = new System.Drawing.Size(353, 237);
-            this.groupBox1.TabIndex = 23;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Comparing Images";
+            groupBox1.Controls.Add(tableLayoutPanel4);
+            groupBox1.Dock = DockStyle.Fill;
+            groupBox1.Location = new Point(0, 0);
+            groupBox1.Margin = new Padding(0);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Padding = new Padding(4, 3, 4, 3);
+            groupBox1.Size = new Size(353, 174);
+            groupBox1.TabIndex = 23;
+            groupBox1.TabStop = false;
+            groupBox1.Text = "Comparing Images";
             // 
             // tableLayoutPanel4
             // 
-            this.tableLayoutPanel4.ColumnCount = 2;
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel4.Controls.Add(this.BtnCustomVideoComparison, 0, 3);
-            this.tableLayoutPanel4.Controls.Add(this.NumMaxImageComparison, 1, 0);
-            this.tableLayoutPanel4.Controls.Add(this.label6, 0, 2);
-            this.tableLayoutPanel4.Controls.Add(this.NumMaxDifferentImages, 1, 1);
-            this.tableLayoutPanel4.Controls.Add(this.label5, 0, 1);
-            this.tableLayoutPanel4.Controls.Add(this.NumMaxDifferentPercentage, 1, 2);
-            this.tableLayoutPanel4.Controls.Add(this.label3, 0, 0);
-            this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel4.Location = new System.Drawing.Point(4, 19);
-            this.tableLayoutPanel4.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
-            this.tableLayoutPanel4.RowCount = 4;
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(345, 215);
-            this.tableLayoutPanel4.TabIndex = 14;
+            tableLayoutPanel4.ColumnCount = 2;
+            tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle());
+            tableLayoutPanel4.Controls.Add(BtnCustomVideoComparison, 0, 3);
+            tableLayoutPanel4.Controls.Add(NumMaxImageComparison, 1, 0);
+            tableLayoutPanel4.Controls.Add(label6, 0, 2);
+            tableLayoutPanel4.Controls.Add(NumMaxDifferentImages, 1, 1);
+            tableLayoutPanel4.Controls.Add(label5, 0, 1);
+            tableLayoutPanel4.Controls.Add(NumMaxDifferentPercentage, 1, 2);
+            tableLayoutPanel4.Controls.Add(label3, 0, 0);
+            tableLayoutPanel4.Dock = DockStyle.Fill;
+            tableLayoutPanel4.Location = new Point(4, 19);
+            tableLayoutPanel4.Margin = new Padding(4, 3, 4, 3);
+            tableLayoutPanel4.Name = "tableLayoutPanel4";
+            tableLayoutPanel4.RowCount = 4;
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
+            tableLayoutPanel4.Size = new Size(345, 152);
+            tableLayoutPanel4.TabIndex = 14;
             // 
             // BtnCustomVideoComparison
             // 
-            this.BtnCustomVideoComparison.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.tableLayoutPanel4.SetColumnSpan(this.BtnCustomVideoComparison, 2);
-            this.BtnCustomVideoComparison.Location = new System.Drawing.Point(197, 173);
-            this.BtnCustomVideoComparison.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.BtnCustomVideoComparison.Name = "BtnCustomVideoComparison";
-            this.BtnCustomVideoComparison.Size = new System.Drawing.Size(144, 27);
-            this.BtnCustomVideoComparison.TabIndex = 3;
-            this.BtnCustomVideoComparison.Text = "Try these &settings...";
-            this.BtnCustomVideoComparison.UseVisualStyleBackColor = true;
-            this.BtnCustomVideoComparison.Click += new System.EventHandler(this.BtnCustomVideoComparison_Click);
+            BtnCustomVideoComparison.Anchor = AnchorStyles.Right;
+            tableLayoutPanel4.SetColumnSpan(BtnCustomVideoComparison, 2);
+            BtnCustomVideoComparison.Location = new Point(197, 119);
+            BtnCustomVideoComparison.Margin = new Padding(4, 3, 4, 3);
+            BtnCustomVideoComparison.Name = "BtnCustomVideoComparison";
+            BtnCustomVideoComparison.Size = new Size(144, 27);
+            BtnCustomVideoComparison.TabIndex = 3;
+            BtnCustomVideoComparison.Text = "Try these &settings...";
+            BtnCustomVideoComparison.UseVisualStyleBackColor = true;
+            BtnCustomVideoComparison.Click += BtnCustomVideoComparison_Click;
             // 
             // NumMaxImageComparison
             // 
-            this.NumMaxImageComparison.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.NumMaxImageComparison.Location = new System.Drawing.Point(267, 15);
-            this.NumMaxImageComparison.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.NumMaxImageComparison.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.NumMaxImageComparison.Name = "NumMaxImageComparison";
-            this.NumMaxImageComparison.Size = new System.Drawing.Size(74, 23);
-            this.NumMaxImageComparison.TabIndex = 0;
-            this.NumMaxImageComparison.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+            NumMaxImageComparison.Anchor = AnchorStyles.None;
+            NumMaxImageComparison.Location = new Point(267, 7);
+            NumMaxImageComparison.Margin = new Padding(4, 3, 4, 3);
+            NumMaxImageComparison.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            NumMaxImageComparison.Name = "NumMaxImageComparison";
+            NumMaxImageComparison.Size = new Size(74, 23);
+            NumMaxImageComparison.TabIndex = 0;
+            NumMaxImageComparison.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // label6
             // 
-            this.label6.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(67, 125);
-            this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(192, 15);
-            this.label6.TabIndex = 13;
-            this.label6.Text = "Accepted percentage of difference:";
+            label6.Anchor = AnchorStyles.Right;
+            label6.AutoSize = true;
+            label6.Location = new Point(67, 87);
+            label6.Margin = new Padding(4, 0, 4, 0);
+            label6.Name = "label6";
+            label6.Size = new Size(192, 15);
+            label6.TabIndex = 13;
+            label6.Text = "Accepted percentage of difference:";
             // 
             // NumMaxDifferentImages
             // 
-            this.NumMaxDifferentImages.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.NumMaxDifferentImages.Location = new System.Drawing.Point(267, 68);
-            this.NumMaxDifferentImages.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.NumMaxDifferentImages.Name = "NumMaxDifferentImages";
-            this.NumMaxDifferentImages.Size = new System.Drawing.Size(74, 23);
-            this.NumMaxDifferentImages.TabIndex = 1;
+            NumMaxDifferentImages.Anchor = AnchorStyles.None;
+            NumMaxDifferentImages.Location = new Point(267, 45);
+            NumMaxDifferentImages.Margin = new Padding(4, 3, 4, 3);
+            NumMaxDifferentImages.Name = "NumMaxDifferentImages";
+            NumMaxDifferentImages.Size = new Size(74, 23);
+            NumMaxDifferentImages.TabIndex = 1;
             // 
             // label5
             // 
-            this.label5.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(51, 72);
-            this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(208, 15);
-            this.label5.TabIndex = 12;
-            this.label5.Text = "Accepted number of different Images:";
+            label5.Anchor = AnchorStyles.Right;
+            label5.AutoSize = true;
+            label5.Location = new Point(51, 49);
+            label5.Margin = new Padding(4, 0, 4, 0);
+            label5.Name = "label5";
+            label5.Size = new Size(208, 15);
+            label5.TabIndex = 12;
+            label5.Text = "Accepted number of different Images:";
             // 
             // NumMaxDifferentPercentage
             // 
-            this.NumMaxDifferentPercentage.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.NumMaxDifferentPercentage.Location = new System.Drawing.Point(267, 121);
-            this.NumMaxDifferentPercentage.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.NumMaxDifferentPercentage.Name = "NumMaxDifferentPercentage";
-            this.NumMaxDifferentPercentage.Size = new System.Drawing.Size(74, 23);
-            this.NumMaxDifferentPercentage.TabIndex = 2;
+            NumMaxDifferentPercentage.Anchor = AnchorStyles.None;
+            NumMaxDifferentPercentage.Location = new Point(267, 83);
+            NumMaxDifferentPercentage.Margin = new Padding(4, 3, 4, 3);
+            NumMaxDifferentPercentage.Name = "NumMaxDifferentPercentage";
+            NumMaxDifferentPercentage.Size = new Size(74, 23);
+            NumMaxDifferentPercentage.TabIndex = 2;
             // 
             // label3
             // 
-            this.label3.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(86, 19);
-            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(173, 15);
-            this.label3.TabIndex = 11;
-            this.label3.Text = "Number of Images to compare:";
+            label3.Anchor = AnchorStyles.Right;
+            label3.AutoSize = true;
+            label3.Location = new Point(86, 11);
+            label3.Margin = new Padding(4, 0, 4, 0);
+            label3.Name = "label3";
+            label3.Size = new Size(173, 15);
+            label3.TabIndex = 11;
+            label3.Text = "Number of Images to compare:";
             // 
             // RdbDurationDifferenceSeconds
             // 
-            this.RdbDurationDifferenceSeconds.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.RdbDurationDifferenceSeconds.AutoSize = true;
-            this.RdbDurationDifferenceSeconds.Location = new System.Drawing.Point(18, 40);
-            this.RdbDurationDifferenceSeconds.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.RdbDurationDifferenceSeconds.Name = "RdbDurationDifferenceSeconds";
-            this.RdbDurationDifferenceSeconds.Size = new System.Drawing.Size(181, 19);
-            this.RdbDurationDifferenceSeconds.TabIndex = 0;
-            this.RdbDurationDifferenceSeconds.TabStop = true;
-            this.RdbDurationDifferenceSeconds.Text = "Absolut difference in seconds";
-            this.RdbDurationDifferenceSeconds.UseVisualStyleBackColor = true;
-            this.RdbDurationDifferenceSeconds.CheckedChanged += new System.EventHandler(this.HandleDurationDifferenceTypeChanged);
+            RdbDurationDifferenceSeconds.Anchor = AnchorStyles.None;
+            RdbDurationDifferenceSeconds.AutoSize = true;
+            RdbDurationDifferenceSeconds.Location = new Point(18, 28);
+            RdbDurationDifferenceSeconds.Margin = new Padding(4, 3, 4, 3);
+            RdbDurationDifferenceSeconds.Name = "RdbDurationDifferenceSeconds";
+            RdbDurationDifferenceSeconds.Size = new Size(181, 19);
+            RdbDurationDifferenceSeconds.TabIndex = 0;
+            RdbDurationDifferenceSeconds.TabStop = true;
+            RdbDurationDifferenceSeconds.Text = "Absolut difference in seconds";
+            RdbDurationDifferenceSeconds.UseVisualStyleBackColor = true;
+            RdbDurationDifferenceSeconds.CheckedChanged += HandleDurationDifferenceTypeChanged;
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.LblMaxDurationDifferenceUnit);
-            this.groupBox2.Controls.Add(this.label7);
-            this.groupBox2.Controls.Add(this.RdbDurationDifferencePercent);
-            this.groupBox2.Controls.Add(this.NumMaxDurationDifference);
-            this.groupBox2.Controls.Add(this.RdbDurationDifferenceSeconds);
-            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox2.Location = new System.Drawing.Point(0, 237);
-            this.groupBox2.Margin = new System.Windows.Forms.Padding(0);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.groupBox2.Size = new System.Drawing.Size(353, 178);
-            this.groupBox2.TabIndex = 24;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Comparing Duration";
+            groupBox2.Controls.Add(LblMaxDurationDifferenceUnit);
+            groupBox2.Controls.Add(label7);
+            groupBox2.Controls.Add(RdbDurationDifferencePercent);
+            groupBox2.Controls.Add(NumMaxDurationDifference);
+            groupBox2.Controls.Add(RdbDurationDifferenceSeconds);
+            groupBox2.Dock = DockStyle.Fill;
+            groupBox2.Location = new Point(0, 174);
+            groupBox2.Margin = new Padding(0);
+            groupBox2.Name = "groupBox2";
+            groupBox2.Padding = new Padding(4, 3, 4, 3);
+            groupBox2.Size = new Size(353, 139);
+            groupBox2.TabIndex = 24;
+            groupBox2.TabStop = false;
+            groupBox2.Text = "Comparing Duration";
             // 
             // LblMaxDurationDifferenceUnit
             // 
-            this.LblMaxDurationDifferenceUnit.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.LblMaxDurationDifferenceUnit.AutoSize = true;
-            this.LblMaxDurationDifferenceUnit.Location = new System.Drawing.Point(286, 106);
-            this.LblMaxDurationDifferenceUnit.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.LblMaxDurationDifferenceUnit.Name = "LblMaxDurationDifferenceUnit";
-            this.LblMaxDurationDifferenceUnit.Size = new System.Drawing.Size(51, 15);
-            this.LblMaxDurationDifferenceUnit.TabIndex = 16;
-            this.LblMaxDurationDifferenceUnit.Text = "Seconds";
+            LblMaxDurationDifferenceUnit.Anchor = AnchorStyles.None;
+            LblMaxDurationDifferenceUnit.AutoSize = true;
+            LblMaxDurationDifferenceUnit.Location = new Point(286, 94);
+            LblMaxDurationDifferenceUnit.Margin = new Padding(4, 0, 4, 0);
+            LblMaxDurationDifferenceUnit.Name = "LblMaxDurationDifferenceUnit";
+            LblMaxDurationDifferenceUnit.Size = new Size(51, 15);
+            LblMaxDurationDifferenceUnit.TabIndex = 16;
+            LblMaxDurationDifferenceUnit.Text = "Seconds";
             // 
             // label7
             // 
-            this.label7.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(75, 106);
-            this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(121, 15);
-            this.label7.TabIndex = 15;
-            this.label7.Text = "Maximum difference:";
+            label7.Anchor = AnchorStyles.None;
+            label7.AutoSize = true;
+            label7.Location = new Point(75, 94);
+            label7.Margin = new Padding(4, 0, 4, 0);
+            label7.Name = "label7";
+            label7.Size = new Size(121, 15);
+            label7.TabIndex = 15;
+            label7.Text = "Maximum difference:";
             // 
             // RdbDurationDifferencePercent
             // 
-            this.RdbDurationDifferencePercent.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.RdbDurationDifferencePercent.AutoSize = true;
-            this.RdbDurationDifferencePercent.Location = new System.Drawing.Point(18, 65);
-            this.RdbDurationDifferencePercent.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.RdbDurationDifferencePercent.Name = "RdbDurationDifferencePercent";
-            this.RdbDurationDifferencePercent.Size = new System.Drawing.Size(178, 19);
-            this.RdbDurationDifferencePercent.TabIndex = 1;
-            this.RdbDurationDifferencePercent.TabStop = true;
-            this.RdbDurationDifferencePercent.Text = "Relative difference in percent";
-            this.RdbDurationDifferencePercent.UseVisualStyleBackColor = true;
-            this.RdbDurationDifferencePercent.CheckedChanged += new System.EventHandler(this.HandleDurationDifferenceTypeChanged);
+            RdbDurationDifferencePercent.Anchor = AnchorStyles.None;
+            RdbDurationDifferencePercent.AutoSize = true;
+            RdbDurationDifferencePercent.Location = new Point(18, 53);
+            RdbDurationDifferencePercent.Margin = new Padding(4, 3, 4, 3);
+            RdbDurationDifferencePercent.Name = "RdbDurationDifferencePercent";
+            RdbDurationDifferencePercent.Size = new Size(178, 19);
+            RdbDurationDifferencePercent.TabIndex = 1;
+            RdbDurationDifferencePercent.TabStop = true;
+            RdbDurationDifferencePercent.Text = "Relative difference in percent";
+            RdbDurationDifferencePercent.UseVisualStyleBackColor = true;
+            RdbDurationDifferencePercent.CheckedChanged += HandleDurationDifferenceTypeChanged;
             // 
             // NumMaxDurationDifference
             // 
-            this.NumMaxDurationDifference.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.NumMaxDurationDifference.Location = new System.Drawing.Point(204, 104);
-            this.NumMaxDurationDifference.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.NumMaxDurationDifference.Maximum = new decimal(new int[] {
-            999999,
-            0,
-            0,
-            0});
-            this.NumMaxDurationDifference.Name = "NumMaxDurationDifference";
-            this.NumMaxDurationDifference.Size = new System.Drawing.Size(74, 23);
-            this.NumMaxDurationDifference.TabIndex = 2;
+            NumMaxDurationDifference.Anchor = AnchorStyles.None;
+            NumMaxDurationDifference.Location = new Point(204, 92);
+            NumMaxDurationDifference.Margin = new Padding(4, 3, 4, 3);
+            NumMaxDurationDifference.Maximum = new decimal(new int[] { 999999, 0, 0, 0 });
+            NumMaxDurationDifference.Name = "NumMaxDurationDifference";
+            NumMaxDurationDifference.Size = new Size(74, 23);
+            NumMaxDurationDifference.TabIndex = 2;
             // 
             // groupBox4
             // 
-            this.groupBox4.Controls.Add(this.label9);
-            this.groupBox4.Controls.Add(this.NumThumbnailViewCount);
-            this.groupBox4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox4.Location = new System.Drawing.Point(0, 415);
-            this.groupBox4.Margin = new System.Windows.Forms.Padding(0);
-            this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.groupBox4.Size = new System.Drawing.Size(353, 98);
-            this.groupBox4.TabIndex = 26;
-            this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "Resolving Duplicates";
+            groupBox4.Controls.Add(label9);
+            groupBox4.Controls.Add(NumThumbnailViewCount);
+            groupBox4.Dock = DockStyle.Fill;
+            groupBox4.Location = new Point(0, 313);
+            groupBox4.Margin = new Padding(0);
+            groupBox4.Name = "groupBox4";
+            groupBox4.Padding = new Padding(4, 3, 4, 3);
+            groupBox4.Size = new Size(353, 52);
+            groupBox4.TabIndex = 26;
+            groupBox4.TabStop = false;
+            groupBox4.Text = "Resolving Duplicates";
             // 
             // label9
             // 
-            this.label9.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(92, 41);
-            this.label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(163, 15);
-            this.label9.TabIndex = 19;
-            this.label9.Text = "Number of Images to display:";
+            label9.Anchor = AnchorStyles.None;
+            label9.AutoSize = true;
+            label9.Location = new Point(92, 21);
+            label9.Margin = new Padding(4, 0, 4, 0);
+            label9.Name = "label9";
+            label9.Size = new Size(163, 15);
+            label9.TabIndex = 19;
+            label9.Text = "Number of Images to display:";
             // 
             // NumThumbnailViewCount
             // 
-            this.NumThumbnailViewCount.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.NumThumbnailViewCount.Location = new System.Drawing.Point(266, 39);
-            this.NumThumbnailViewCount.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.NumThumbnailViewCount.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.NumThumbnailViewCount.Name = "NumThumbnailViewCount";
-            this.NumThumbnailViewCount.Size = new System.Drawing.Size(74, 23);
-            this.NumThumbnailViewCount.TabIndex = 0;
-            this.NumThumbnailViewCount.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+            NumThumbnailViewCount.Anchor = AnchorStyles.None;
+            NumThumbnailViewCount.Location = new Point(266, 19);
+            NumThumbnailViewCount.Margin = new Padding(4, 3, 4, 3);
+            NumThumbnailViewCount.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            NumThumbnailViewCount.Name = "NumThumbnailViewCount";
+            NumThumbnailViewCount.Size = new Size(74, 23);
+            NumThumbnailViewCount.TabIndex = 0;
+            NumThumbnailViewCount.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // tableLayoutPanel1
             // 
-            this.tableLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tableLayoutPanel1.ColumnCount = 2;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 53.44564F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 46.55436F));
-            this.tableLayoutPanel1.Controls.Add(this.groupBox3, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 1, 0);
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(14, 14);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 1;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(757, 513);
-            this.tableLayoutPanel1.TabIndex = 27;
+            tableLayoutPanel1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tableLayoutPanel1.ColumnCount = 2;
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 53.44564F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 46.55436F));
+            tableLayoutPanel1.Controls.Add(groupBox3, 0, 0);
+            tableLayoutPanel1.Controls.Add(tableLayoutPanel2, 1, 0);
+            tableLayoutPanel1.Location = new Point(14, 14);
+            tableLayoutPanel1.Margin = new Padding(4, 3, 4, 3);
+            tableLayoutPanel1.Name = "tableLayoutPanel1";
+            tableLayoutPanel1.RowCount = 1;
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel1.Size = new Size(757, 513);
+            tableLayoutPanel1.TabIndex = 27;
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.tableLayoutPanel3);
-            this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox3.Location = new System.Drawing.Point(0, 0);
-            this.groupBox3.Margin = new System.Windows.Forms.Padding(0);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Padding = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.groupBox3.Size = new System.Drawing.Size(404, 513);
-            this.groupBox3.TabIndex = 0;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Video Input";
+            groupBox3.Controls.Add(tableLayoutPanel3);
+            groupBox3.Dock = DockStyle.Fill;
+            groupBox3.Location = new Point(0, 0);
+            groupBox3.Margin = new Padding(0);
+            groupBox3.Name = "groupBox3";
+            groupBox3.Padding = new Padding(4, 3, 4, 3);
+            groupBox3.Size = new Size(404, 513);
+            groupBox3.TabIndex = 0;
+            groupBox3.TabStop = false;
+            groupBox3.Text = "Video Input";
             // 
             // tableLayoutPanel3
             // 
-            this.tableLayoutPanel3.ColumnCount = 3;
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel3.Controls.Add(this.BtnSelectSourcePath, 2, 0);
-            this.tableLayoutPanel3.Controls.Add(this.label1, 0, 0);
-            this.tableLayoutPanel3.Controls.Add(this.TxtSourcePath, 1, 0);
-            this.tableLayoutPanel3.Controls.Add(this.BtnRemoveExcludedDirectory, 2, 6);
-            this.tableLayoutPanel3.Controls.Add(this.BtnAddExcludedDirectory, 2, 5);
-            this.tableLayoutPanel3.Controls.Add(this.label4, 0, 5);
-            this.tableLayoutPanel3.Controls.Add(this.LsbFileExtensions, 1, 4);
-            this.tableLayoutPanel3.Controls.Add(this.BtnRemoveFileExtension, 2, 4);
-            this.tableLayoutPanel3.Controls.Add(this.BtnAddFileExtension, 2, 3);
-            this.tableLayoutPanel3.Controls.Add(this.TxtFileExtension, 1, 3);
-            this.tableLayoutPanel3.Controls.Add(this.ChbRecursive, 1, 1);
-            this.tableLayoutPanel3.Controls.Add(this.LsbExcludedDirectories, 1, 5);
-            this.tableLayoutPanel3.Controls.Add(this.label10, 0, 3);
-            this.tableLayoutPanel3.Controls.Add(this.ChbMonitorFileChanges, 1, 2);
-            this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel3.Location = new System.Drawing.Point(4, 19);
-            this.tableLayoutPanel3.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.tableLayoutPanel3.Name = "tableLayoutPanel3";
-            this.tableLayoutPanel3.RowCount = 6;
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 52.21519F));
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 47.78481F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(396, 491);
-            this.tableLayoutPanel3.TabIndex = 0;
+            tableLayoutPanel3.ColumnCount = 3;
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle());
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle());
+            tableLayoutPanel3.Controls.Add(BtnSelectSourcePath, 2, 0);
+            tableLayoutPanel3.Controls.Add(label1, 0, 0);
+            tableLayoutPanel3.Controls.Add(TxtSourcePath, 1, 0);
+            tableLayoutPanel3.Controls.Add(BtnRemoveExcludedDirectory, 2, 6);
+            tableLayoutPanel3.Controls.Add(BtnAddExcludedDirectory, 2, 5);
+            tableLayoutPanel3.Controls.Add(label4, 0, 5);
+            tableLayoutPanel3.Controls.Add(LsbFileExtensions, 1, 4);
+            tableLayoutPanel3.Controls.Add(BtnRemoveFileExtension, 2, 4);
+            tableLayoutPanel3.Controls.Add(BtnAddFileExtension, 2, 3);
+            tableLayoutPanel3.Controls.Add(TxtFileExtension, 1, 3);
+            tableLayoutPanel3.Controls.Add(ChbRecursive, 1, 1);
+            tableLayoutPanel3.Controls.Add(LsbExcludedDirectories, 1, 5);
+            tableLayoutPanel3.Controls.Add(label10, 0, 3);
+            tableLayoutPanel3.Controls.Add(ChbMonitorFileChanges, 1, 2);
+            tableLayoutPanel3.Dock = DockStyle.Fill;
+            tableLayoutPanel3.Location = new Point(4, 19);
+            tableLayoutPanel3.Margin = new Padding(4, 3, 4, 3);
+            tableLayoutPanel3.Name = "tableLayoutPanel3";
+            tableLayoutPanel3.RowCount = 6;
+            tableLayoutPanel3.RowStyles.Add(new RowStyle());
+            tableLayoutPanel3.RowStyles.Add(new RowStyle());
+            tableLayoutPanel3.RowStyles.Add(new RowStyle());
+            tableLayoutPanel3.RowStyles.Add(new RowStyle());
+            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 52.21519F));
+            tableLayoutPanel3.RowStyles.Add(new RowStyle());
+            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 47.78481F));
+            tableLayoutPanel3.Size = new Size(396, 491);
+            tableLayoutPanel3.TabIndex = 0;
             // 
             // BtnSelectSourcePath
             // 
-            this.BtnSelectSourcePath.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.BtnSelectSourcePath.Location = new System.Drawing.Point(368, 3);
-            this.BtnSelectSourcePath.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.BtnSelectSourcePath.Name = "BtnSelectSourcePath";
-            this.BtnSelectSourcePath.Size = new System.Drawing.Size(24, 27);
-            this.BtnSelectSourcePath.TabIndex = 1;
-            this.BtnSelectSourcePath.Text = "...";
-            this.BtnSelectSourcePath.UseVisualStyleBackColor = true;
-            this.BtnSelectSourcePath.Click += new System.EventHandler(this.BtnSelectSourcePath_Click);
+            BtnSelectSourcePath.Anchor = AnchorStyles.Right;
+            BtnSelectSourcePath.Location = new Point(368, 3);
+            BtnSelectSourcePath.Margin = new Padding(4, 3, 4, 3);
+            BtnSelectSourcePath.Name = "BtnSelectSourcePath";
+            BtnSelectSourcePath.Size = new Size(24, 27);
+            BtnSelectSourcePath.TabIndex = 1;
+            BtnSelectSourcePath.Text = "...";
+            BtnSelectSourcePath.UseVisualStyleBackColor = true;
+            BtnSelectSourcePath.Click += BtnSelectSourcePath_Click;
             // 
             // label1
             // 
-            this.label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(4, 9);
-            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(97, 15);
-            this.label1.TabIndex = 18;
-            this.label1.Text = "Source Directory:";
+            label1.Anchor = AnchorStyles.Right;
+            label1.AutoSize = true;
+            label1.Location = new Point(4, 9);
+            label1.Margin = new Padding(4, 0, 4, 0);
+            label1.Name = "label1";
+            label1.Size = new Size(97, 15);
+            label1.TabIndex = 18;
+            label1.Text = "Source Directory:";
             // 
             // TxtSourcePath
             // 
-            this.TxtSourcePath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.TxtSourcePath.Location = new System.Drawing.Point(109, 5);
-            this.TxtSourcePath.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.TxtSourcePath.Name = "TxtSourcePath";
-            this.TxtSourcePath.Size = new System.Drawing.Size(251, 23);
-            this.TxtSourcePath.TabIndex = 0;
+            TxtSourcePath.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            TxtSourcePath.Location = new Point(109, 5);
+            TxtSourcePath.Margin = new Padding(4, 3, 4, 3);
+            TxtSourcePath.Name = "TxtSourcePath";
+            TxtSourcePath.Size = new Size(251, 23);
+            TxtSourcePath.TabIndex = 0;
             // 
             // BtnRemoveExcludedDirectory
             // 
-            this.BtnRemoveExcludedDirectory.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnRemoveExcludedDirectory.Location = new System.Drawing.Point(368, 330);
-            this.BtnRemoveExcludedDirectory.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.BtnRemoveExcludedDirectory.Name = "BtnRemoveExcludedDirectory";
-            this.BtnRemoveExcludedDirectory.Size = new System.Drawing.Size(24, 27);
-            this.BtnRemoveExcludedDirectory.TabIndex = 10;
-            this.BtnRemoveExcludedDirectory.Text = "-";
-            this.BtnRemoveExcludedDirectory.UseVisualStyleBackColor = true;
-            this.BtnRemoveExcludedDirectory.Click += new System.EventHandler(this.BtnRemoveExcludedDirectory_Click);
+            BtnRemoveExcludedDirectory.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            BtnRemoveExcludedDirectory.Location = new Point(368, 330);
+            BtnRemoveExcludedDirectory.Margin = new Padding(4, 3, 4, 3);
+            BtnRemoveExcludedDirectory.Name = "BtnRemoveExcludedDirectory";
+            BtnRemoveExcludedDirectory.Size = new Size(24, 27);
+            BtnRemoveExcludedDirectory.TabIndex = 10;
+            BtnRemoveExcludedDirectory.Text = "-";
+            BtnRemoveExcludedDirectory.UseVisualStyleBackColor = true;
+            BtnRemoveExcludedDirectory.Click += BtnRemoveExcludedDirectory_Click;
             // 
             // BtnAddExcludedDirectory
             // 
-            this.BtnAddExcludedDirectory.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.BtnAddExcludedDirectory.Location = new System.Drawing.Point(368, 297);
-            this.BtnAddExcludedDirectory.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.BtnAddExcludedDirectory.Name = "BtnAddExcludedDirectory";
-            this.BtnAddExcludedDirectory.Size = new System.Drawing.Size(24, 27);
-            this.BtnAddExcludedDirectory.TabIndex = 9;
-            this.BtnAddExcludedDirectory.Text = "+";
-            this.BtnAddExcludedDirectory.UseVisualStyleBackColor = true;
-            this.BtnAddExcludedDirectory.Click += new System.EventHandler(this.BtnAddExcludedDirectory_Click);
+            BtnAddExcludedDirectory.Anchor = AnchorStyles.Right;
+            BtnAddExcludedDirectory.Location = new Point(368, 297);
+            BtnAddExcludedDirectory.Margin = new Padding(4, 3, 4, 3);
+            BtnAddExcludedDirectory.Name = "BtnAddExcludedDirectory";
+            BtnAddExcludedDirectory.Size = new Size(24, 27);
+            BtnAddExcludedDirectory.TabIndex = 9;
+            BtnAddExcludedDirectory.Text = "+";
+            BtnAddExcludedDirectory.UseVisualStyleBackColor = true;
+            BtnAddExcludedDirectory.Click += BtnAddExcludedDirectory_Click;
             // 
             // label4
             // 
-            this.label4.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(39, 303);
-            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(62, 15);
-            this.label4.TabIndex = 15;
-            this.label4.Text = "Excluding:";
+            label4.Anchor = AnchorStyles.Right;
+            label4.AutoSize = true;
+            label4.Location = new Point(39, 303);
+            label4.Margin = new Padding(4, 0, 4, 0);
+            label4.Name = "label4";
+            label4.Size = new Size(62, 15);
+            label4.TabIndex = 15;
+            label4.Text = "Excluding:";
             // 
             // LsbFileExtensions
             // 
-            this.LsbFileExtensions.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.LsbFileExtensions.FormattingEnabled = true;
-            this.LsbFileExtensions.ItemHeight = 15;
-            this.LsbFileExtensions.Location = new System.Drawing.Point(109, 119);
-            this.LsbFileExtensions.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.LsbFileExtensions.Name = "LsbFileExtensions";
-            this.LsbFileExtensions.Size = new System.Drawing.Size(251, 169);
-            this.LsbFileExtensions.TabIndex = 6;
+            LsbFileExtensions.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            LsbFileExtensions.FormattingEnabled = true;
+            LsbFileExtensions.ItemHeight = 15;
+            LsbFileExtensions.Location = new Point(109, 119);
+            LsbFileExtensions.Margin = new Padding(4, 3, 4, 3);
+            LsbFileExtensions.Name = "LsbFileExtensions";
+            LsbFileExtensions.Size = new Size(251, 169);
+            LsbFileExtensions.TabIndex = 6;
             // 
             // BtnRemoveFileExtension
             // 
-            this.BtnRemoveFileExtension.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnRemoveFileExtension.Location = new System.Drawing.Point(368, 119);
-            this.BtnRemoveFileExtension.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.BtnRemoveFileExtension.Name = "BtnRemoveFileExtension";
-            this.BtnRemoveFileExtension.Size = new System.Drawing.Size(24, 27);
-            this.BtnRemoveFileExtension.TabIndex = 7;
-            this.BtnRemoveFileExtension.Text = "-";
-            this.BtnRemoveFileExtension.UseVisualStyleBackColor = true;
-            this.BtnRemoveFileExtension.Click += new System.EventHandler(this.BtnRemoveFileExtension_Click);
+            BtnRemoveFileExtension.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            BtnRemoveFileExtension.Location = new Point(368, 119);
+            BtnRemoveFileExtension.Margin = new Padding(4, 3, 4, 3);
+            BtnRemoveFileExtension.Name = "BtnRemoveFileExtension";
+            BtnRemoveFileExtension.Size = new Size(24, 27);
+            BtnRemoveFileExtension.TabIndex = 7;
+            BtnRemoveFileExtension.Text = "-";
+            BtnRemoveFileExtension.UseVisualStyleBackColor = true;
+            BtnRemoveFileExtension.Click += BtnRemoveFileExtension_Click;
             // 
             // BtnAddFileExtension
             // 
-            this.BtnAddFileExtension.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.BtnAddFileExtension.Location = new System.Drawing.Point(368, 86);
-            this.BtnAddFileExtension.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.BtnAddFileExtension.Name = "BtnAddFileExtension";
-            this.BtnAddFileExtension.Size = new System.Drawing.Size(24, 27);
-            this.BtnAddFileExtension.TabIndex = 5;
-            this.BtnAddFileExtension.Text = "+";
-            this.BtnAddFileExtension.UseVisualStyleBackColor = true;
-            this.BtnAddFileExtension.Click += new System.EventHandler(this.BtnAddFileExtension_Click);
+            BtnAddFileExtension.Anchor = AnchorStyles.Right;
+            BtnAddFileExtension.Location = new Point(368, 86);
+            BtnAddFileExtension.Margin = new Padding(4, 3, 4, 3);
+            BtnAddFileExtension.Name = "BtnAddFileExtension";
+            BtnAddFileExtension.Size = new Size(24, 27);
+            BtnAddFileExtension.TabIndex = 5;
+            BtnAddFileExtension.Text = "+";
+            BtnAddFileExtension.UseVisualStyleBackColor = true;
+            BtnAddFileExtension.Click += BtnAddFileExtension_Click;
             // 
             // TxtFileExtension
             // 
-            this.TxtFileExtension.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.TxtFileExtension.Location = new System.Drawing.Point(109, 88);
-            this.TxtFileExtension.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.TxtFileExtension.Name = "TxtFileExtension";
-            this.TxtFileExtension.Size = new System.Drawing.Size(251, 23);
-            this.TxtFileExtension.TabIndex = 4;
+            TxtFileExtension.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            TxtFileExtension.Location = new Point(109, 88);
+            TxtFileExtension.Margin = new Padding(4, 3, 4, 3);
+            TxtFileExtension.Name = "TxtFileExtension";
+            TxtFileExtension.Size = new Size(251, 23);
+            TxtFileExtension.TabIndex = 4;
             // 
             // ChbRecursive
             // 
-            this.ChbRecursive.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.ChbRecursive.AutoSize = true;
-            this.ChbRecursive.Checked = true;
-            this.ChbRecursive.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.ChbRecursive.Location = new System.Drawing.Point(109, 36);
-            this.ChbRecursive.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.ChbRecursive.Name = "ChbRecursive";
-            this.ChbRecursive.Size = new System.Drawing.Size(76, 19);
-            this.ChbRecursive.TabIndex = 2;
-            this.ChbRecursive.Text = "Recursive";
-            this.ChbRecursive.UseVisualStyleBackColor = true;
+            ChbRecursive.Anchor = AnchorStyles.Left;
+            ChbRecursive.AutoSize = true;
+            ChbRecursive.Checked = true;
+            ChbRecursive.CheckState = CheckState.Checked;
+            ChbRecursive.Location = new Point(109, 36);
+            ChbRecursive.Margin = new Padding(4, 3, 4, 3);
+            ChbRecursive.Name = "ChbRecursive";
+            ChbRecursive.Size = new Size(76, 19);
+            ChbRecursive.TabIndex = 2;
+            ChbRecursive.Text = "Recursive";
+            ChbRecursive.UseVisualStyleBackColor = true;
             // 
             // LsbExcludedDirectories
             // 
-            this.LsbExcludedDirectories.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.LsbExcludedDirectories.FormattingEnabled = true;
-            this.LsbExcludedDirectories.ItemHeight = 15;
-            this.LsbExcludedDirectories.Location = new System.Drawing.Point(109, 297);
-            this.LsbExcludedDirectories.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.LsbExcludedDirectories.Name = "LsbExcludedDirectories";
-            this.tableLayoutPanel3.SetRowSpan(this.LsbExcludedDirectories, 2);
-            this.LsbExcludedDirectories.Size = new System.Drawing.Size(251, 184);
-            this.LsbExcludedDirectories.TabIndex = 8;
+            LsbExcludedDirectories.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            LsbExcludedDirectories.FormattingEnabled = true;
+            LsbExcludedDirectories.ItemHeight = 15;
+            LsbExcludedDirectories.Location = new Point(109, 297);
+            LsbExcludedDirectories.Margin = new Padding(4, 3, 4, 3);
+            LsbExcludedDirectories.Name = "LsbExcludedDirectories";
+            tableLayoutPanel3.SetRowSpan(LsbExcludedDirectories, 2);
+            LsbExcludedDirectories.Size = new Size(251, 184);
+            LsbExcludedDirectories.TabIndex = 8;
             // 
             // label10
             // 
-            this.label10.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(15, 92);
-            this.label10.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(86, 15);
-            this.label10.TabIndex = 20;
-            this.label10.Text = "File Extentions:";
+            label10.Anchor = AnchorStyles.Right;
+            label10.AutoSize = true;
+            label10.Location = new Point(15, 92);
+            label10.Margin = new Padding(4, 0, 4, 0);
+            label10.Name = "label10";
+            label10.Size = new Size(86, 15);
+            label10.TabIndex = 20;
+            label10.Text = "File Extentions:";
             // 
             // ChbMonitorFileChanges
             // 
-            this.ChbMonitorFileChanges.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.ChbMonitorFileChanges.AutoSize = true;
-            this.ChbMonitorFileChanges.Checked = true;
-            this.ChbMonitorFileChanges.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.ChbMonitorFileChanges.Location = new System.Drawing.Point(109, 61);
-            this.ChbMonitorFileChanges.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.ChbMonitorFileChanges.Name = "ChbMonitorFileChanges";
-            this.ChbMonitorFileChanges.Size = new System.Drawing.Size(135, 19);
-            this.ChbMonitorFileChanges.TabIndex = 3;
-            this.ChbMonitorFileChanges.Text = "Monitor file changes";
-            this.ChbMonitorFileChanges.UseVisualStyleBackColor = true;
+            ChbMonitorFileChanges.Anchor = AnchorStyles.Left;
+            ChbMonitorFileChanges.AutoSize = true;
+            ChbMonitorFileChanges.Checked = true;
+            ChbMonitorFileChanges.CheckState = CheckState.Checked;
+            ChbMonitorFileChanges.Location = new Point(109, 61);
+            ChbMonitorFileChanges.Margin = new Padding(4, 3, 4, 3);
+            ChbMonitorFileChanges.Name = "ChbMonitorFileChanges";
+            ChbMonitorFileChanges.Size = new Size(135, 19);
+            ChbMonitorFileChanges.TabIndex = 3;
+            ChbMonitorFileChanges.Text = "Monitor file changes";
+            ChbMonitorFileChanges.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanel2
             // 
-            this.tableLayoutPanel2.ColumnCount = 1;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Controls.Add(this.groupBox1, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.groupBox2, 0, 1);
-            this.tableLayoutPanel2.Controls.Add(this.groupBox4, 0, 2);
-            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(404, 0);
-            this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(0);
-            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 3;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 46.19976F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 34.81192F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 18.98832F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(353, 513);
-            this.tableLayoutPanel2.TabIndex = 0;
+            tableLayoutPanel2.ColumnCount = 1;
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel2.Controls.Add(groupBox1, 0, 0);
+            tableLayoutPanel2.Controls.Add(groupBox2, 0, 1);
+            tableLayoutPanel2.Controls.Add(groupBox4, 0, 2);
+            tableLayoutPanel2.Controls.Add(groupBox5, 0, 3);
+            tableLayoutPanel2.Dock = DockStyle.Fill;
+            tableLayoutPanel2.Location = new Point(404, 0);
+            tableLayoutPanel2.Margin = new Padding(0);
+            tableLayoutPanel2.Name = "tableLayoutPanel2";
+            tableLayoutPanel2.RowCount = 4;
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 33.98869F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 27.1909523F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 10.2016239F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 28.61873F));
+            tableLayoutPanel2.Size = new Size(353, 513);
+            tableLayoutPanel2.TabIndex = 0;
+            // 
+            // groupBox5
+            // 
+            groupBox5.Controls.Add(tableLayoutPanel5);
+            groupBox5.Dock = DockStyle.Fill;
+            groupBox5.Location = new Point(0, 365);
+            groupBox5.Margin = new Padding(0);
+            groupBox5.Name = "groupBox5";
+            groupBox5.Size = new Size(353, 148);
+            groupBox5.TabIndex = 27;
+            groupBox5.TabStop = false;
+            groupBox5.Text = "Minimum Log Level";
+            // 
+            // tableLayoutPanel5
+            // 
+            tableLayoutPanel5.ColumnCount = 2;
+            tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 61.53846F));
+            tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 38.46154F));
+            tableLayoutPanel5.Controls.Add(label2, 0, 0);
+            tableLayoutPanel5.Controls.Add(label8, 0, 1);
+            tableLayoutPanel5.Controls.Add(label11, 0, 2);
+            tableLayoutPanel5.Controls.Add(CmbVideoDedupServiceLogLevel, 1, 0);
+            tableLayoutPanel5.Controls.Add(CmbCustomComparisonLogLevel, 1, 1);
+            tableLayoutPanel5.Controls.Add(CmbDedupEngineLogLevel, 1, 2);
+            tableLayoutPanel5.Dock = DockStyle.Fill;
+            tableLayoutPanel5.Location = new Point(3, 19);
+            tableLayoutPanel5.Margin = new Padding(0);
+            tableLayoutPanel5.Name = "tableLayoutPanel5";
+            tableLayoutPanel5.RowCount = 3;
+            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 33.3333321F));
+            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 33.3333321F));
+            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 33.3333321F));
+            tableLayoutPanel5.Size = new Size(347, 126);
+            tableLayoutPanel5.TabIndex = 0;
+            // 
+            // label2
+            // 
+            label2.Anchor = AnchorStyles.Right;
+            label2.AutoSize = true;
+            label2.Location = new Point(98, 13);
+            label2.Name = "label2";
+            label2.Size = new Size(112, 15);
+            label2.TabIndex = 0;
+            label2.Text = "VideoDedupService:";
+            // 
+            // label8
+            // 
+            label8.Anchor = AnchorStyles.Right;
+            label8.AutoSize = true;
+            label8.Location = new Point(46, 55);
+            label8.Name = "label8";
+            label8.Size = new Size(164, 15);
+            label8.TabIndex = 0;
+            label8.Text = "CustomComparisonManager:";
+            // 
+            // label11
+            // 
+            label11.Anchor = AnchorStyles.Right;
+            label11.AutoSize = true;
+            label11.Location = new Point(129, 97);
+            label11.Name = "label11";
+            label11.Size = new Size(81, 15);
+            label11.TabIndex = 0;
+            label11.Text = "DedupEngine:";
+            // 
+            // CmbVideoDedupServiceLogLevel
+            // 
+            CmbVideoDedupServiceLogLevel.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            CmbVideoDedupServiceLogLevel.DropDownStyle = ComboBoxStyle.DropDownList;
+            CmbVideoDedupServiceLogLevel.FormattingEnabled = true;
+            CmbVideoDedupServiceLogLevel.Location = new Point(216, 9);
+            CmbVideoDedupServiceLogLevel.Name = "CmbVideoDedupServiceLogLevel";
+            CmbVideoDedupServiceLogLevel.Size = new Size(128, 23);
+            CmbVideoDedupServiceLogLevel.TabIndex = 1;
+            // 
+            // CmbCustomComparisonLogLevel
+            // 
+            CmbCustomComparisonLogLevel.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            CmbCustomComparisonLogLevel.DropDownStyle = ComboBoxStyle.DropDownList;
+            CmbCustomComparisonLogLevel.FormattingEnabled = true;
+            CmbCustomComparisonLogLevel.Location = new Point(216, 51);
+            CmbCustomComparisonLogLevel.Name = "CmbCustomComparisonLogLevel";
+            CmbCustomComparisonLogLevel.Size = new Size(128, 23);
+            CmbCustomComparisonLogLevel.TabIndex = 1;
+            // 
+            // CmbDedupEngineLogLevel
+            // 
+            CmbDedupEngineLogLevel.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            CmbDedupEngineLogLevel.DropDownStyle = ComboBoxStyle.DropDownList;
+            CmbDedupEngineLogLevel.FormattingEnabled = true;
+            CmbDedupEngineLogLevel.Location = new Point(216, 93);
+            CmbDedupEngineLogLevel.Name = "CmbDedupEngineLogLevel";
+            CmbDedupEngineLogLevel.Size = new Size(128, 23);
+            CmbDedupEngineLogLevel.TabIndex = 1;
             // 
             // ServerConfigDlg
             // 
-            this.AcceptButton = this.BtnOkay;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.CancelButton = this.BtnCancel;
-            this.ClientSize = new System.Drawing.Size(785, 575);
-            this.Controls.Add(this.BtnCancel);
-            this.Controls.Add(this.BtnOkay);
-            this.Controls.Add(this.tableLayoutPanel1);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.Name = "ServerConfigDlg";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Server Configuration";
-            this.groupBox1.ResumeLayout(false);
-            this.tableLayoutPanel4.ResumeLayout(false);
-            this.tableLayoutPanel4.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxImageComparison)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentImages)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentPercentage)).EndInit();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxDurationDifference)).EndInit();
-            this.groupBox4.ResumeLayout(false);
-            this.groupBox4.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.NumThumbnailViewCount)).EndInit();
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.groupBox3.ResumeLayout(false);
-            this.tableLayoutPanel3.ResumeLayout(false);
-            this.tableLayoutPanel3.PerformLayout();
-            this.tableLayoutPanel2.ResumeLayout(false);
-            this.ResumeLayout(false);
-
+            AcceptButton = BtnOkay;
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            CancelButton = BtnCancel;
+            ClientSize = new Size(785, 575);
+            Controls.Add(BtnCancel);
+            Controls.Add(BtnOkay);
+            Controls.Add(tableLayoutPanel1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            Margin = new Padding(4, 3, 4, 3);
+            Name = "ServerConfigDlg";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "Server Configuration";
+            groupBox1.ResumeLayout(false);
+            tableLayoutPanel4.ResumeLayout(false);
+            tableLayoutPanel4.PerformLayout();
+            ((ISupportInitialize)NumMaxImageComparison).EndInit();
+            ((ISupportInitialize)NumMaxDifferentImages).EndInit();
+            ((ISupportInitialize)NumMaxDifferentPercentage).EndInit();
+            groupBox2.ResumeLayout(false);
+            groupBox2.PerformLayout();
+            ((ISupportInitialize)NumMaxDurationDifference).EndInit();
+            groupBox4.ResumeLayout(false);
+            groupBox4.PerformLayout();
+            ((ISupportInitialize)NumThumbnailViewCount).EndInit();
+            tableLayoutPanel1.ResumeLayout(false);
+            groupBox3.ResumeLayout(false);
+            tableLayoutPanel3.ResumeLayout(false);
+            tableLayoutPanel3.PerformLayout();
+            tableLayoutPanel2.ResumeLayout(false);
+            groupBox5.ResumeLayout(false);
+            tableLayoutPanel5.ResumeLayout(false);
+            tableLayoutPanel5.PerformLayout();
+            ResumeLayout(false);
         }
 
         #endregion
@@ -678,5 +760,13 @@ namespace VideoDedupClient.Dialogs
         private Button BtnCustomVideoComparison;
         private TableLayoutPanel tableLayoutPanel4;
         private Label LblMaxDurationDifferenceUnit;
+        private GroupBox groupBox5;
+        private TableLayoutPanel tableLayoutPanel5;
+        private Label label2;
+        private Label label8;
+        private Label label11;
+        private ComboBox CmbVideoDedupServiceLogLevel;
+        private ComboBox CmbCustomComparisonLogLevel;
+        private ComboBox CmbDedupEngineLogLevel;
     }
 }

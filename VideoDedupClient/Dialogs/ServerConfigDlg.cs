@@ -18,10 +18,19 @@ namespace VideoDedupClient.Dialogs
             ConfigurationSettings?.VideoComparisonSettings;
         private ThumbnailSettings? ThumbnailSettings =>
             ConfigurationSettings?.ThumbnailSettings;
+        private LogSettings? LogSettings => ConfigurationSettings?.LogSettings;
 
         public ConfigurationSettings? ConfigurationSettings { get; set; }
 
-        public ServerConfigDlg() => InitializeComponent();
+        public ServerConfigDlg()
+        {
+            InitializeComponent();
+
+            var logLevel = Enum.GetNames<LogSettings.Types.LogLevel>();
+            CmbVideoDedupServiceLogLevel.Items.AddRange(logLevel);
+            CmbCustomComparisonLogLevel.Items.AddRange(logLevel);
+            CmbDedupEngineLogLevel.Items.AddRange(logLevel);
+        }
 
         protected override void OnLoad(EventArgs e)
         {
@@ -71,6 +80,16 @@ namespace VideoDedupClient.Dialogs
                 NumThumbnailViewCount.Value = ThumbnailSettings.ImageCount;
             }
 
+            if (LogSettings is not null)
+            {
+                CmbVideoDedupServiceLogLevel.SelectedIndex =
+                    (int)LogSettings.VideoDedupServiceLogLevel;
+                CmbCustomComparisonLogLevel.SelectedIndex =
+                    (int)LogSettings.CustomComparisonManagerLogLevel;
+                CmbDedupEngineLogLevel.SelectedIndex =
+                    (int)LogSettings.DedupEngineLogLevel;
+            }
+
             base.OnLoad(e);
         }
 
@@ -110,6 +129,16 @@ namespace VideoDedupClient.Dialogs
                 (int)NumMaxDurationDifference.Value;
 
             ThumbnailSettings!.ImageCount = (int)NumThumbnailViewCount.Value;
+
+            LogSettings!.VideoDedupServiceLogLevel =
+                (LogSettings.Types.LogLevel)
+                    CmbVideoDedupServiceLogLevel.SelectedIndex;
+            LogSettings!.CustomComparisonManagerLogLevel =
+                (LogSettings.Types.LogLevel)
+                    CmbCustomComparisonLogLevel.SelectedIndex;
+            LogSettings!.DedupEngineLogLevel =
+                (LogSettings.Types.LogLevel)
+                    CmbDedupEngineLogLevel.SelectedIndex;
 
             DialogResult = DialogResult.OK;
         }

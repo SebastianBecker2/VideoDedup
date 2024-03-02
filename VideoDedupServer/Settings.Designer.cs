@@ -9,17 +9,13 @@
 //------------------------------------------------------------------------------
 
 namespace VideoDedupServer {
-    using System.CodeDom.Compiler;
-    using System.Configuration;
-    using System.Diagnostics;
-    using System.Runtime.CompilerServices;
-
-
-    [CompilerGenerated()]
-    [GeneratedCode("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.1.0.0")]
-    internal sealed partial class Settings : ApplicationSettingsBase {
+    
+    
+    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.9.0.0")]
+    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
-        private static Settings defaultInstance = ((Settings)(Synchronized(new Settings())));
+        private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
         
         public static Settings Default {
             get {
@@ -27,9 +23,9 @@ namespace VideoDedupServer {
             }
         }
         
-        [UserScopedSetting()]
-        [DebuggerNonUserCode()]
-        [DefaultSettingValue("")]
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string BasePath {
             get {
                 return ((string)(this["BasePath"]));
@@ -39,9 +35,9 @@ namespace VideoDedupServer {
             }
         }
         
-        [UserScopedSetting()]
-        [DebuggerNonUserCode()]
-        [DefaultSettingValue("")]
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string ExcludedDirectories {
             get {
                 return ((string)(this["ExcludedDirectories"]));
@@ -51,9 +47,9 @@ namespace VideoDedupServer {
             }
         }
         
-        [UserScopedSetting()]
-        [DebuggerNonUserCode()]
-        [DefaultSettingValue("")]
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string FileExtensions {
             get {
                 return ((string)(this["FileExtensions"]));
@@ -63,9 +59,9 @@ namespace VideoDedupServer {
             }
         }
         
-        [UserScopedSetting()]
-        [DebuggerNonUserCode()]
-        [DefaultSettingValue("20")]
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
         public int ImageCompareCount {
             get {
                 return ((int)(this["ImageCompareCount"]));
@@ -75,9 +71,9 @@ namespace VideoDedupServer {
             }
         }
         
-        [UserScopedSetting()]
-        [DebuggerNonUserCode()]
-        [DefaultSettingValue("4")]
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4")]
         public int MaxDifferentImages {
             get {
                 return ((int)(this["MaxDifferentImages"]));
@@ -87,9 +83,9 @@ namespace VideoDedupServer {
             }
         }
         
-        [UserScopedSetting()]
-        [DebuggerNonUserCode()]
-        [DefaultSettingValue("80")]
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("80")]
         public int MaxImageDifference {
             get {
                 return ((int)(this["MaxImageDifference"]));
@@ -99,9 +95,9 @@ namespace VideoDedupServer {
             }
         }
         
-        [UserScopedSetting()]
-        [DebuggerNonUserCode()]
-        [DefaultSettingValue("60")]
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
         public int MaxDurationDifference {
             get {
                 return ((int)(this["MaxDurationDifference"]));
@@ -111,9 +107,9 @@ namespace VideoDedupServer {
             }
         }
         
-        [UserScopedSetting()]
-        [DebuggerNonUserCode()]
-        [DefaultSettingValue("Seconds")]
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Seconds")]
         public string DurationDifferenceType {
             get {
                 return ((string)(this["DurationDifferenceType"]));
@@ -123,9 +119,9 @@ namespace VideoDedupServer {
             }
         }
         
-        [UserScopedSetting()]
-        [DebuggerNonUserCode()]
-        [DefaultSettingValue("8")]
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8")]
         public int ThumbnailImageCount {
             get {
                 return ((int)(this["ThumbnailImageCount"]));
@@ -135,9 +131,9 @@ namespace VideoDedupServer {
             }
         }
         
-        [UserScopedSetting()]
-        [DebuggerNonUserCode()]
-        [DefaultSettingValue("True")]
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool Recursive {
             get {
                 return ((bool)(this["Recursive"]));
@@ -147,9 +143,9 @@ namespace VideoDedupServer {
             }
         }
         
-        [UserScopedSetting()]
-        [DebuggerNonUserCode()]
-        [DefaultSettingValue("True")]
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool MonitorFileChanges {
             get {
                 return ((bool)(this["MonitorFileChanges"]));
@@ -159,9 +155,9 @@ namespace VideoDedupServer {
             }
         }
         
-        [UserScopedSetting()]
-        [DebuggerNonUserCode()]
-        [DefaultSettingValue("5")]
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
         public int SaveStateIntervalMinutes {
             get {
                 return ((int)(this["SaveStateIntervalMinutes"]));
@@ -171,15 +167,51 @@ namespace VideoDedupServer {
             }
         }
         
-        [UserScopedSetting()]
-        [DebuggerNonUserCode()]
-        [DefaultSettingValue("True")]
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool UpgradeRequired {
             get {
                 return ((bool)(this["UpgradeRequired"]));
             }
             set {
                 this["UpgradeRequired"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Information")]
+        public string VideoDedupServiceLogLevel {
+            get {
+                return ((string)(this["VideoDedupServiceLogLevel"]));
+            }
+            set {
+                this["VideoDedupServiceLogLevel"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Information")]
+        public string CustomComparisonManagerLogLevel {
+            get {
+                return ((string)(this["CustomComparisonManagerLogLevel"]));
+            }
+            set {
+                this["CustomComparisonManagerLogLevel"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Information")]
+        public string DedupEngineLogLevel {
+            get {
+                return ((string)(this["DedupEngineLogLevel"]));
+            }
+            set {
+                this["DedupEngineLogLevel"] = value;
             }
         }
     }
