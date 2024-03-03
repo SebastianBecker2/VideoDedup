@@ -5,14 +5,12 @@ namespace DuplicateManager
     using MpvLib.Exceptions;
     using VideoDedupGrpc;
 
-    internal class ThumbnailManager
+    internal sealed class ThumbnailManager(ThumbnailSettings settings)
     {
-        private class VideoFileRefCounter : IEqualityComparer<VideoFileRefCounter>
+        private sealed class VideoFileRefCounter(VideoFile videoFile)
+            : IEqualityComparer<VideoFileRefCounter>
         {
-            public VideoFileRefCounter(VideoFile videoFile) =>
-                VideoFile = videoFile;
-
-            public VideoFile VideoFile { get; }
+            public VideoFile VideoFile { get; } = videoFile;
             public int RefCount { get; set; } = 1;
 
 
@@ -35,12 +33,9 @@ namespace DuplicateManager
                 HashCode.Combine(VideoFile.FilePath);
         }
 
-        private readonly HashSet<VideoFileRefCounter> uniqueVideoFiles = new();
+        private readonly HashSet<VideoFileRefCounter> uniqueVideoFiles = [];
 
-        public ThumbnailSettings Settings { get; set; }
-
-        public ThumbnailManager(ThumbnailSettings settings) =>
-            Settings = settings
+        public ThumbnailSettings Settings { get; set; } = settings
                 ?? throw new ArgumentNullException(nameof(settings));
 
         public VideoFile AddVideoFileReference(VideoFile videoFile)

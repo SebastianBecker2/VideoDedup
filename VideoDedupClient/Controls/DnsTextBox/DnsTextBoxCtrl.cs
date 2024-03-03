@@ -3,7 +3,7 @@ namespace VideoDedupClient.Controls.DnsTextBox
     using System.ComponentModel;
     using System.Net;
     using System.Net.Sockets;
-    using VideoDedupSharedLib.ExtensionMethods.ISynchronizeInvokeExtensions;
+    using VideoDedupClient.ExtensionMethods.ISynchronizeInvokeExtensions;
 
     public class DnsTextBoxCtrl : TextBox
     {

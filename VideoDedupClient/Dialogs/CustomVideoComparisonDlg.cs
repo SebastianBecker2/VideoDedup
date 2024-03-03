@@ -56,7 +56,7 @@ namespace VideoDedupClient.Dialogs
         private int ImageComparisonIndex { get; set; }
         private int? FinishedInLoadLevel { get; set; }
 
-        private List<ImageComparisonResult> ImageComparisons { get; } = new();
+        private List<ImageComparisonResult> ImageComparisons { get; } = [];
         private VideoComparisonResult? VideoComparisonResult { get; set; }
 
         public CustomVideoComparisonDlg()
@@ -230,7 +230,7 @@ namespace VideoDedupClient.Dialogs
             StatusTimer.Start();
         }
 
-        private static IEnumerable<ImageComparisonResult> ToImageComparisonResultEx(
+        private static List<ImageComparisonResult> ToImageComparisonResultEx(
             IEnumerable<VideoDedupGrpc.ImageComparisonResult> icrs)
         {
             var size = ImageComparisonResultViewCtl.ThumbnailSize;
@@ -267,7 +267,7 @@ namespace VideoDedupClient.Dialogs
             }
             UpdateVideoComparisonResult(VideoComparisonResult);
 
-            if (!status.ImageComparisons.Any())
+            if (status.ImageComparisons.Count == 0)
             {
                 StatusTimer.Start();
                 return;
@@ -320,7 +320,7 @@ namespace VideoDedupClient.Dialogs
 
         private void UpdateResultDisplay()
         {
-            if (!ImageComparisons.Any())
+            if (ImageComparisons.Count == 0)
             {
                 return;
             }
@@ -403,7 +403,7 @@ namespace VideoDedupClient.Dialogs
             tableLayoutPanel.SuspendLayout();
             tableLayoutPanel.Controls.AddRange(imageComparisonResults
                 .Where(icr => !resultViews.Any(view => view.ImageComparisonResult == icr))
-                .Select(icr => ToView(icr))
+                .Select(ToView)
                 .ToArray());
             tableLayoutPanel.ResumeLayout();
 

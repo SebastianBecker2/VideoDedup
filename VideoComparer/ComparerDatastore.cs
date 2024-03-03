@@ -7,10 +7,9 @@ namespace VideoComparer
     using VideoDedupSharedLib.ExtensionMethods.SqliteParameterCollectionExtensions;
     using VideoDedupSharedLib.Interfaces;
 
-    internal class ComparerDatastore : Datastore
+    internal sealed class ComparerDatastore(string filePath)
+        : Datastore(filePath)
     {
-        public ComparerDatastore(string filePath) : base(filePath) { }
-
         protected override void CreateTables() => CreateImagesTable();
 
         private void CreateImagesTable()

@@ -38,7 +38,6 @@ namespace VideoDedupSharedLib
             public const uint SHGFI_USEFILEATTRIBUTES = 0x000000010;
         }
 
-#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
         [DllImport(
             "shell32.dll",
             CharSet = CharSet.Ansi,
@@ -46,7 +45,6 @@ namespace VideoDedupSharedLib
             BestFitMapping = false,
             ThrowOnUnmappableChar = true,
             CallingConvention = CallingConvention.Cdecl)]
-#pragma warning restore CA2101 // Specify marshaling for P/Invoke string arguments
         private static extern IntPtr SHGetFileInfo(
             string pszPath,
             uint dwFileAttributes,

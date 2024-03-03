@@ -12,9 +12,20 @@ namespace VideoComparer
     using ImageIndex = MpvLib.ImageIndex;
     using Size = System.Drawing.Size;
 
-    public class VideoComparer
+    public class VideoComparer(
+        VideoComparisonSettings settings,
+        VideoFile leftVideoFile,
+        VideoFile rightVideoFile)
     {
-        private class CacheableImageSet
+        public VideoComparer(
+            VideoComparisonSettings settings,
+            string datastorePath,
+            VideoFile leftVideoFile,
+            VideoFile rightVideoFile)
+            : this(settings, leftVideoFile, rightVideoFile) =>
+            comparerDatastore = new ComparerDatastore(datastorePath);
+
+        private sealed class CacheableImageSet
         {
             private CacheableImageSet(ImageIndex index) =>
                 Index = index;
@@ -90,7 +101,7 @@ namespace VideoComparer
                     Cropped = ToByteString(Cropped),
                     Resized = ToByteString(Resized),
                     Greyscaled = ToByteString(Greyscaled),
-                    Bytes = ByteString.CopyFrom(Bytes ?? Array.Empty<byte>()),
+                    Bytes = ByteString.CopyFrom(Bytes ?? []),
                 };
             }
 
@@ -111,11 +122,10 @@ namespace VideoComparer
             var indices = imageIndices;
             if (indices is null || indices.Count != imageCount)
             {
-                indices = ImageIndex
+                indices = [.. ImageIndex
                     .CreateImageIndices(imageCount)
                     .OrderBy(i => i.Denominator)
-                    .ThenBy(i => i.Numerator)
-                    .ToList();
+                    .ThenBy(i => i.Numerator)];
                 imageIndices = indices;
             }
             return indices;
@@ -128,7 +138,7 @@ namespace VideoComparer
                 .Skip(loadLevel.ImageStartIndex)
                 .Take(loadLevel.ImageCount);
 
-        private class LoadLevel
+        private sealed class LoadLevel
         {
             public int ImageCount { get; init; }
             public int ImageStartIndex { get; init; }
@@ -179,11 +189,11 @@ namespace VideoComparer
             return diffBytes / 256f;
         }
 
-        public VideoComparisonSettings Settings { get; }
+        public VideoComparisonSettings Settings { get; } = settings;
 
-        public VideoFile LeftVideoFile { get; }
+        public VideoFile LeftVideoFile { get; } = leftVideoFile;
 
-        public VideoFile RightVideoFile { get; }
+        public VideoFile RightVideoFile { get; } = rightVideoFile;
 
         public bool ForceLoadingAllImages { get; set; }
 
@@ -218,24 +228,6 @@ namespace VideoComparer
             ComparisonFinished?.Invoke(this, eventArgsCreator.Invoke());
 
         private readonly ComparerDatastore? comparerDatastore;
-
-        public VideoComparer(
-            VideoComparisonSettings settings,
-            VideoFile leftVideoFile,
-            VideoFile rightVideoFile)
-        {
-            Settings = settings;
-            LeftVideoFile = leftVideoFile;
-            RightVideoFile = rightVideoFile;
-        }
-
-        public VideoComparer(
-            VideoComparisonSettings settings,
-            string datastorePath,
-            VideoFile leftVideoFile,
-            VideoFile rightVideoFile)
-            : this(settings, leftVideoFile, rightVideoFile) =>
-            comparerDatastore = new ComparerDatastore(datastorePath);
 
         private static LoadLevel CalculateLoadLevel(
             int loadLevelIndex,

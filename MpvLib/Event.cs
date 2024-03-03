@@ -3,7 +3,7 @@ namespace MpvLib
     using System.Runtime.InteropServices;
 
     [StructLayout(LayoutKind.Sequential)]
-    internal class Event
+    internal sealed class Event
     {
         public int Id { get; set; }
         public int Error { get; set; }

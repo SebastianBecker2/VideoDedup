@@ -4,10 +4,9 @@ namespace DedupEngine
     using VideoDedupSharedLib.ExtensionMethods.DateTimeExtensions;
     using VideoDedupSharedLib.Interfaces;
 
-    internal class EngineDatastore : Datastore
+    internal sealed class EngineDatastore(string filePath)
+        : Datastore(filePath)
     {
-        public EngineDatastore(string filePath) : base(filePath) { }
-
         protected override void CreateTables() => CreateVideoFilesTable();
 
         private void CreateVideoFilesTable()

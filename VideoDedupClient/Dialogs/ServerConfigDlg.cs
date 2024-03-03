@@ -149,9 +149,7 @@ namespace VideoDedupClient.Dialogs
             {
                 var serverAddress = Program.Configuration.ServerAddress.ToLower(
                     CultureInfo.InvariantCulture);
-#if DEBUG
-                return ShowFolderSelectionRemote(initialFolder);
-#endif
+
                 if (serverAddress is "localhost" or "127.0.0.1")
                 {
                     return ShowFolderSelectionLocally(initialFolder);
@@ -306,7 +304,7 @@ namespace VideoDedupClient.Dialogs
                     });
                 if (contentRequest.RequestFailed)
                 {
-                    args.Entries = Array.Empty<Entry>();
+                    args.Entries = [];
                     throw new InvalidContentRequestException();
                 }
                 args.Entries = contentRequest.Files.Select(ToEntry);

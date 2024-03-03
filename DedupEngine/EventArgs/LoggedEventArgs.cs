@@ -2,10 +2,8 @@ namespace DedupEngine.EventArgs
 {
     using System;
 
-    public class LoggedEventArgs : EventArgs
+    public class LoggedEventArgs(string message) : EventArgs
     {
-        public LoggedEventArgs(string message) => Message = message;
-
-        public string Message { get; set; }
+        public string Message { get; set; } = message;
     }
 }

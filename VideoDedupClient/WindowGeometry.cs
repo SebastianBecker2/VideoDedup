@@ -1,6 +1,6 @@
 namespace VideoDedupClient
 {
-    internal class WindowGeometry
+    internal sealed class WindowGeometry
     {
         public Size Size { get; set; }
         public Point Location { get; set; }

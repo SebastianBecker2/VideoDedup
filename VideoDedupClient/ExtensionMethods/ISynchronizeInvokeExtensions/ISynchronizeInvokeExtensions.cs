@@ -1,4 +1,4 @@
-namespace VideoDedupSharedLib.ExtensionMethods.ISynchronizeInvokeExtensions
+namespace VideoDedupClient.ExtensionMethods.ISynchronizeInvokeExtensions
 {
     using System.ComponentModel;
     using System.Windows.Forms;
@@ -13,9 +13,7 @@ namespace VideoDedupSharedLib.ExtensionMethods.ISynchronizeInvokeExtensions
             {
                 try
                 {
-                    _ = invokableControl.BeginInvoke(
-                        action,
-                        Array.Empty<object>());
+                    _ = invokableControl.BeginInvoke(action, []);
                 }
                 catch (ObjectDisposedException) { }
             }

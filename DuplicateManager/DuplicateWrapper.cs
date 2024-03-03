@@ -2,7 +2,7 @@ namespace DuplicateManager
 {
     using VideoDedupGrpc;
 
-    internal class DuplicateWrapper : IEquatable<DuplicateWrapper>
+    internal sealed class DuplicateWrapper : IEquatable<DuplicateWrapper>
     {
         public DuplicateData DuplicateData { get; }
         public string DuplicateId => DuplicateData.DuplicateId;

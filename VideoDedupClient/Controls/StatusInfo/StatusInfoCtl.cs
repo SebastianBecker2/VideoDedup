@@ -24,32 +24,24 @@ namespace VideoDedupClient.Controls.StatusInfo
             { OperationType.Connecting, "Connecting..." },
             };
 
-        private class SpeedScale
+        private sealed class SpeedScale(
+            string unit,
+            double max,
+            Func<TimeSpan, double> divisor)
         {
-            public string Unit { get; }
-            public double Max { get; }
-            public Func<TimeSpan, double> Divisor { get; }
-
-            public SpeedScale(
-                string unit,
-                double max,
-                Func<TimeSpan, double> divisor)
-            {
-                Unit = unit;
-                Max = max;
-                Divisor = divisor;
-            }
+            public string Unit { get; } = unit;
+            public double Max { get; } = max;
+            public Func<TimeSpan, double> Divisor { get; } = divisor;
         }
 
-        private static readonly IReadOnlyCollection<SpeedScale>
-            SpeedScales = new List<SpeedScale>
-            {
+        private static readonly IReadOnlyCollection<SpeedScale> SpeedScales =
+        [
             new("d", 240, timespan => timespan.TotalDays),
             new("h", 300, timespan => timespan.TotalHours),
             new("m", 300, timespan => timespan.TotalMinutes),
             new("s", 5000, timespan => timespan.TotalSeconds),
             new("ms", double.MaxValue, timespan => timespan.TotalMilliseconds),
-            };
+        ];
 
         private OperationInfo OperationInfo { get; set; }
         private int CurrentDuplicateCount { get; set; }

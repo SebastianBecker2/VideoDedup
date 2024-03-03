@@ -8,18 +8,10 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
     using VideoDedupSharedLib.ExtensionMethods.ImageExtensions;
     using Size = Size;
 
-    public class ImageSet : IDisposable
+    public class ImageSet(VideoDedupGrpc.ImageSet imageSet, Size containerSize)
+        : IDisposable
     {
         private bool disposedValue;
-
-        public ImageSet(VideoDedupGrpc.ImageSet imageSet, Size containerSize)
-        {
-            InnerImageSet = imageSet;
-            Original = StreamToFittedImage(imageSet.Original, containerSize);
-            Cropped = StreamToFittedImage(imageSet.Cropped, containerSize);
-            Resized = StreamToFittedImage(imageSet.Resized, containerSize);
-            Greyscaled = StreamToFittedImage(imageSet.Greyscaled, containerSize);
-        }
 
         private static Image StreamToFittedImage(
             ByteString stream,
@@ -66,12 +58,15 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
                 System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor);
         }
 
-        private VideoDedupGrpc.ImageSet InnerImageSet { get; set; }
-        public ImageIndex Index => InnerImageSet.Index;
-        public Image Original { get; set; }
-        public Image Cropped { get; set; }
-        public Image Resized { get; set; }
-        public Image Greyscaled { get; set; }
+        public ImageIndex Index => imageSet.Index;
+        public Image Original { get; set; } =
+            StreamToFittedImage(imageSet.Original, containerSize);
+        public Image Cropped { get; set; } =
+            StreamToFittedImage(imageSet.Cropped, containerSize);
+        public Image Resized { get; set; } =
+            StreamToFittedImage(imageSet.Resized, containerSize);
+        public Image Greyscaled { get; set; } =
+            StreamToFittedImage(imageSet.Greyscaled, containerSize);
 
         protected virtual void Dispose(bool disposing)
         {

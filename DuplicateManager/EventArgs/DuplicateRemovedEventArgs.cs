@@ -3,15 +3,12 @@ namespace DuplicateManager.EventArgs
     using System;
     using VideoDedupGrpc;
 
-    public class DuplicateRemovedEventArgs : EventArgs
+    public class DuplicateRemovedEventArgs(
+        DuplicateData duplicate,
+        int count)
+        : EventArgs
     {
-        public DuplicateRemovedEventArgs(DuplicateData duplicate, int count)
-        {
-            Duplicate = duplicate;
-            DuplicateCount = count;
-        }
-
-        public DuplicateData Duplicate { get; set; }
-        public int DuplicateCount { get; set; }
+        public DuplicateData Duplicate { get; set; } = duplicate;
+        public int DuplicateCount { get; set; } = count;
     }
 }

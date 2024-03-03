@@ -1,7 +1,5 @@
 namespace MpvLib.Exceptions
 {
-    using System.Runtime.Serialization;
-
     [Serializable]
     public class MpvException : Exception
     {
@@ -24,10 +22,5 @@ namespace MpvLib.Exceptions
             Exception inner)
             : base(message, inner) =>
             VideoFilePath = videoFilePath;
-
-        protected MpvException(
-          SerializationInfo info,
-          StreamingContext context)
-            : base(info, context) { }
     }
 }

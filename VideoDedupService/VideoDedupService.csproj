@@ -1,34 +1,28 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <Platforms>x64;x86</Platforms>
-
     <!-- Disable auto generating Assembly Info so we can use
          our own project wide versioning schema.-->
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Deterministic>false</Deterministic>
     <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="..\Versioning\Versioning.cs" Link="Versioning.cs" />
   </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.0" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Versioning\Versioning.csproj">
       <TreatAsUsed>true</TreatAsUsed>
     </ProjectReference>
     <ProjectReference Include="..\VideoDedupServer\VideoDedupServer.csproj" />
   </ItemGroup>
-
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="echo Initializing developer command prompt&#xD;&#xA;if $(PlatformName) == x64 (&#xD;&#xA;  call &quot;$(DevEnvDir)..\..\VC\Auxiliary\Build\vcvars64.bat&quot;&#xD;&#xA;) else (&#xD;&#xA;  call &quot;$(DevEnvDir)..\..\VC\Auxiliary\Build\vcvars32.bat&quot;&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;echo.&#xD;&#xA;echo Copying mpv-1.dll for respective platform&#xD;&#xA;if $(PlatformName) == x64 (&#xD;&#xA;  echo copy from &quot;$(SolutionDir)MpvLib\Libs\libmpv\x64\mpv-1.dll&quot; to &quot;$(TargetDir)&quot;&#xD;&#xA;  xcopy &quot;$(SolutionDir)MpvLib\Libs\libmpv\x64\mpv-1.dll&quot; &quot;$(TargetDir)&quot; /y&#xD;&#xA;) else (&#xD;&#xA;  echo copy from &quot;$(SolutionDir)MpvLib\Libs\libmpv\x86\mpv-1.dll&quot; to &quot;$(TargetDir)&quot;&#xD;&#xA;  xcopy &quot;$(SolutionDir)MpvLib\Libs\libmpv\x86\mpv-1.dll&quot; &quot;$(TargetDir)&quot; /y&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;:EOF&#xD;&#xA;EXIT 0" />
   </Target>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.0" />
+  </ItemGroup>
 </Project>

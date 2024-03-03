@@ -6,8 +6,8 @@ namespace VideoDedupClient.Dialogs
     using Grpc.Core;
     using SmartTimer;
     using VideoDedupGrpc;
-    using VideoDedupSharedLib.ExtensionMethods.DataGridViewExtensions;
-    using VideoDedupSharedLib.ExtensionMethods.ISynchronizeInvokeExtensions;
+    using VideoDedupClient.ExtensionMethods.DataGridViewExtensions;
+    using VideoDedupClient.ExtensionMethods.ISynchronizeInvokeExtensions;
     using static VideoDedupGrpc.OperationInfo.Types;
     using static VideoDedupGrpc.VideoDedupGrpcService;
 

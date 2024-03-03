@@ -3,17 +3,12 @@ namespace DuplicateManager.EventArgs
     using System;
     using VideoDedupGrpc;
 
-    public class DuplicateResolvedEventArgs : EventArgs
+    public class DuplicateResolvedEventArgs(
+        DuplicateData duplicate,
+        ResolveOperation operation)
+        : EventArgs
     {
-        public DuplicateResolvedEventArgs(
-            DuplicateData duplicate,
-            ResolveOperation operation)
-        {
-            Duplicate = duplicate;
-            Operation = operation;
-        }
-
-        public DuplicateData Duplicate { get; set; }
-        public ResolveOperation Operation { get; set; }
+        public DuplicateData Duplicate { get; set; } = duplicate;
+        public ResolveOperation Operation { get; set; } = operation;
     }
 }

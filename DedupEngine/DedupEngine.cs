@@ -30,7 +30,7 @@ namespace DedupEngine
         private FolderSettings folderSettings;
         private DurationComparisonSettings durationComparisonSettings;
         private VideoComparisonSettings videoComparisonSettings;
-        private IList<VideoFile> videoFiles = new List<VideoFile>();
+        private List<VideoFile> videoFiles = [];
         private readonly EngineDatastore datastore;
 
         public event EventHandler<StartedEventArgs>? Started;
@@ -290,11 +290,11 @@ namespace DedupEngine
         {
             if (Path.GetFileName(rootDirectory) == "$RECYCLE.BIN")
             {
-                return new List<string>();
+                return [];
             }
 
-            IEnumerable<string> files = new List<string>();
-            excludedDirectories ??= new List<string>();
+            IEnumerable<string> files = [];
+            excludedDirectories ??= [];
 
             try
             {
@@ -384,9 +384,7 @@ namespace DedupEngine
 
             var timer = Stopwatch.StartNew();
 
-            videoFiles = videoFiles
-                .OrderBy(f => f.Duration)
-                .ToList();
+            videoFiles = [.. videoFiles.OrderBy(f => f.Duration)];
 
             foreach (var index in
                 Enumerable.Range(0, Math.Max(videoFiles.Count - 1, 0)))
@@ -507,7 +505,7 @@ namespace DedupEngine
         {
             lock (DedupLock)
             {
-                if (newFiles.Any() || deletedFiles.Any())
+                if (!newFiles.IsEmpty || !deletedFiles.IsEmpty)
                 {
                     DedupTask = Task.Run(ProcessChanges, CancelSource.Token);
                     return;
@@ -572,7 +570,7 @@ namespace DedupEngine
         {
             var cancelToken = CancelSource.Token;
 
-            while (deletedFiles.Any())
+            while (!deletedFiles.IsEmpty)
             {
                 var deletedFile = deletedFiles.First().Key;
                 _ = deletedFiles.TryRemove(deletedFile, out var _);
@@ -594,7 +592,7 @@ namespace DedupEngine
             // We need to count for the ProgressUpdate since we shrink
             // the Queue on every iteration.
             var filesProcessed = 1;
-            while (newFiles.Any())
+            while (!newFiles.IsEmpty)
             {
                 var newFile = newFiles.First().Key;
                 _ = newFiles.TryRemove(newFile, out var _);

@@ -2,17 +2,11 @@ namespace VideoDedupClient.Controls.DnsTextBox
 {
     using System.Net;
 
-    public class ResolveSuccessfulEventArgs : EventArgs
+    public class ResolveSuccessfulEventArgs(
+        string dnsName,
+        IEnumerable<IPAddress> ipAddress) : EventArgs
     {
-        public string DnsName { get; set; }
-        public IEnumerable<IPAddress> IpAddress { get; set; }
-
-        public ResolveSuccessfulEventArgs(
-            string dnsName,
-            IEnumerable<IPAddress> ipAddress)
-        {
-            DnsName = dnsName;
-            IpAddress = ipAddress;
-        }
+        public string DnsName { get; set; } = dnsName;
+        public IEnumerable<IPAddress> IpAddress { get; set; } = ipAddress;
     }
 }

@@ -7,14 +7,14 @@ namespace VideoDedupSharedLib.ExtensionMethods.ImageExtensions
     public static class ImageExtensions
     {
         private static readonly ColorMatrix GreyScaleColorMatrix =
-            new(new[]
-            {
-                new[] {.3f, .3f, .3f, 0, 0},
-                new[] {.59f, .59f, .59f, 0, 0},
-                new[] {.11f, .11f, .11f, 0, 0},
-                new[] {0f, 0, 0, 1, 0},
-                new[] {0f, 0, 0, 0, 1}
-            });
+            new(
+            [
+                [.3f, .3f, .3f, 0, 0],
+                [.59f, .59f, .59f, 0, 0],
+                [.11f, .11f, .11f, 0, 0],
+                [0f, 0, 0, 1, 0],
+                [0f, 0, 0, 0, 1]
+            ]);
 
         private const int DefaultBlacknessThreshold = 30;
 

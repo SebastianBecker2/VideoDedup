@@ -7,7 +7,7 @@ namespace ComparisonManager
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
     using VideoFile = VideoComparer.VideoFile;
 
-    internal class Comparison : IDisposable
+    internal sealed class Comparison : IDisposable
     {
         private ILogger? Logger { get; }
 
@@ -19,8 +19,7 @@ namespace ComparisonManager
         private readonly CancellationTokenSource cancelTokenSource = new();
         private readonly VideoComparer comparer;
         private readonly Task comparerTask;
-        private readonly IList<ImageComparisonResult> imageComparisons =
-            new List<ImageComparisonResult>();
+        private readonly List<ImageComparisonResult> imageComparisons = [];
         private readonly object statusLock = new();
 
         private VideoComparisonResult? comparisonResult;
@@ -172,7 +171,7 @@ namespace ComparisonManager
             }
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposedValue)
             {

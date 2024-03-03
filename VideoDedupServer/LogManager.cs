@@ -8,7 +8,7 @@ namespace VideoDedupServer
     using Serilog.Events;
     using VideoDedupGrpc;
 
-    internal class LogManager : IDisposable
+    internal sealed class LogManager : IDisposable
     {
         private bool disposedValue;
 
@@ -117,7 +117,7 @@ namespace VideoDedupServer
             return logEventLevel;
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposedValue)
             {

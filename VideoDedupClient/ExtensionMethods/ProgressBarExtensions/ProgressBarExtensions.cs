@@ -1,4 +1,4 @@
-namespace VideoDedupSharedLib.ExtensionMethods.ProgressBarExtensions
+namespace VideoDedupClient.ExtensionMethods.ProgressBarExtensions
 {
     using System.Runtime.InteropServices;
     using System.Windows.Forms;
@@ -7,7 +7,7 @@ namespace VideoDedupSharedLib.ExtensionMethods.ProgressBarExtensions
     {
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         private static extern uint SendMessage(
-            IntPtr hWnd,
+            nint hWnd,
             uint msg,
             uint wParam,
             uint lParam);

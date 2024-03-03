@@ -3,10 +3,11 @@ namespace DedupEngine
     using System.Diagnostics;
 
     [DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
-    public class ImageIndex : IEquatable<ImageIndex>
+    public class ImageIndex(int numerator, int denominator)
+        : IEquatable<ImageIndex>
     {
-        public int Numerator { get; }
-        public int Denominator { get; }
+        public int Numerator { get; } = numerator;
+        public int Denominator { get; } = denominator;
 
         public double Quotient => Numerator / (double)Denominator;
 
@@ -14,12 +15,6 @@ namespace DedupEngine
             $"{Numerator}/{Denominator}";
 
         private string GetDebuggerDisplay() => ToPrettyString();
-
-        public ImageIndex(int numerator, int denominator)
-        {
-            Numerator = numerator;
-            Denominator = denominator;
-        }
 
         public static implicit operator VideoDedupGrpc.ImageIndex(
             ImageIndex index) =>

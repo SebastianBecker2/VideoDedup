@@ -1,9 +1,7 @@
 namespace VideoDedupClient.Controls.DnsTextBox
 {
-    public class ResolveFailedEventArgs : EventArgs
+    public class ResolveFailedEventArgs(string dnsName) : EventArgs
     {
-        public string DnsName { get; set; }
-
-        public ResolveFailedEventArgs(string dnsName) => DnsName = dnsName;
+        public string DnsName { get; set; } = dnsName;
     }
 }

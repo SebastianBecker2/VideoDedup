@@ -4,18 +4,13 @@ namespace VideoComparer.EventArgs
     using VideoDedupGrpc;
     using VideoFile = VideoFile;
 
-    public class ComparisonFinishedEventArgs : EventArgs
+    public class ComparisonFinishedEventArgs(
+        VideoFile leftVideoFile,
+        VideoFile rightVideoFile)
+        : EventArgs
     {
-        public ComparisonFinishedEventArgs(
-            VideoFile leftVideoFile,
-            VideoFile rightVideoFile)
-        {
-            LeftVideoFile = leftVideoFile;
-            RightVideoFile = rightVideoFile;
-        }
-
         public ComparisonResult ComparisonResult { get; set; }
-        public VideoFile LeftVideoFile { get; set; }
-        public VideoFile RightVideoFile { get; set; }
+        public VideoFile LeftVideoFile { get; set; } = leftVideoFile;
+        public VideoFile RightVideoFile { get; set; } = rightVideoFile;
     }
 }

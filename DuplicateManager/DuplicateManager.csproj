@@ -1,15 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Platforms>x64;x86</Platforms>
   </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\MpvLib\MpvLib.csproj" />
     <ProjectReference Include="..\VideoDedupSharedLib\VideoDedupSharedLib.csproj" />
   </ItemGroup>
-
 </Project>

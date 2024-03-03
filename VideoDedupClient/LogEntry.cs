@@ -1,6 +1,6 @@
 namespace VideoDedupClient
 {
-    internal class LogEntry
+    internal sealed class LogEntry(string message, LogEntryStatus status)
     {
         public LogEntry() : this("", LogEntryStatus.Requested)
         {
@@ -10,13 +10,7 @@ namespace VideoDedupClient
         {
         }
 
-        public LogEntry(string message, LogEntryStatus status)
-        {
-            Message = message;
-            Status = status;
-        }
-
-        public string Message { get; set; }
-        public LogEntryStatus Status { get; set; }
+        public string Message { get; set; } = message;
+        public LogEntryStatus Status { get; set; } = status;
     }
 }

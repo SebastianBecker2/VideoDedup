@@ -4,7 +4,7 @@ namespace VideoDedupClient.Dialogs
     using System.IO;
     using System.Reflection;
 
-    internal partial class AboutDlg : Form
+    internal sealed partial class AboutDlg : Form
     {
         public AboutDlg()
         {

@@ -196,7 +196,7 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
 
         private void HandleShowDetailsClickEvent(object? sender, EventArgs e)
         {
-            if ((bool)ShowDetailsLabel.Tag)
+            if (ShowDetailsLabel.Tag is not null && (bool)ShowDetailsLabel.Tag)
             {
                 HideDetails();
             }

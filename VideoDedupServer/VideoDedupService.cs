@@ -18,7 +18,7 @@ namespace VideoDedupServer
     {
         private readonly DedupEngine dedupEngine;
         private readonly DuplicateManager duplicateManager;
-        private readonly List<string> logEntries = new();
+        private readonly List<string> logEntries = [];
         private readonly object logEntriesLock = new();
         private readonly ComparisonManager comparisonManager;
         private readonly CancellationTokenSource cancelTokenSource = new();
@@ -67,7 +67,7 @@ namespace VideoDedupServer
                 OperationType = OperationType.Initializing,
             };
 
-            initializationTask = Task.Run(() => StartDedupEngine());
+            initializationTask = Task.Run(StartDedupEngine);
 
             AddLogEntry("Started VideoDedupService");
         }

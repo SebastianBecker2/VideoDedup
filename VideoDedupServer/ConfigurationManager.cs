@@ -99,7 +99,7 @@ namespace VideoDedupServer
         private static List<string> GetExcludedDirectories() =>
             JsonConvert.DeserializeObject<List<string>>(
                 Settings.Default.ExcludedDirectories)
-            ?? new List<string>();
+            ?? [];
 
         private static List<string> GetFileExtensions()
         {
@@ -110,11 +110,11 @@ namespace VideoDedupServer
                 return fileExtensions;
             }
             // Default value here, because it's stored as json.
-            return new()
-            {
+            return
+            [
                 ".mp4", ".mpg", ".avi", ".wmv", ".flv", ".m4v", ".mov",
                 ".mpeg", ".rm", ".3gp"
-            };
+            ];
         }
 
         private static DurationDifferenceType ToDurationDifferenceType(

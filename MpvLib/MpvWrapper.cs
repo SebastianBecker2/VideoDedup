@@ -311,10 +311,7 @@ namespace MpvLib
                     FilePath);
             }
 
-            if (indices is null)
-            {
-                throw new ArgumentNullException(nameof(indices));
-            }
+            ArgumentNullException.ThrowIfNull(indices);
 
             var indicesIt = indices.GetEnumerator();
             if (!indicesIt.MoveNext())

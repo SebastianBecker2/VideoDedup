@@ -3,13 +3,13 @@ namespace DuplicateManager
     using EventArgs;
     using VideoDedupGrpc;
 
-    public class DuplicateManager
+    public class DuplicateManager(
+        ThumbnailSettings settings)
     {
-        private readonly ThumbnailManager thumbnailManager;
+        private readonly ThumbnailManager thumbnailManager = new(settings);
         private readonly object duplicateLock = new();
 
-        private ISet<DuplicateWrapper> duplicateList
-            = new HashSet<DuplicateWrapper>();
+        private HashSet<DuplicateWrapper> duplicateList = [];
 
         public ThumbnailSettings Settings => thumbnailManager.Settings;
 
@@ -43,11 +43,6 @@ namespace DuplicateManager
             DuplicateResolved?.Invoke(
                 this,
                 new DuplicateResolvedEventArgs(duplicate, operation));
-
-        public DuplicateManager(
-            ThumbnailSettings settings) =>
-            thumbnailManager = new ThumbnailManager(
-                settings ?? throw new ArgumentNullException(nameof(settings)));
 
         public void UpdateSettings(
             ThumbnailSettings settings,
@@ -85,7 +80,7 @@ namespace DuplicateManager
             {
                 while (true)
                 {
-                    if (!duplicateList.Any())
+                    if (duplicateList.Count == 0)
                     {
                         return new DuplicateData();
                     }

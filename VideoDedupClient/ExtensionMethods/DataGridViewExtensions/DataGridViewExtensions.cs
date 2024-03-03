@@ -1,4 +1,4 @@
-namespace VideoDedupSharedLib.ExtensionMethods.DataGridViewExtensions
+namespace VideoDedupClient.ExtensionMethods.DataGridViewExtensions
 {
     using System.Windows.Forms;
 

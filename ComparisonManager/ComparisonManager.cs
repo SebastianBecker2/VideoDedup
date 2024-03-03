@@ -16,10 +16,8 @@ namespace ComparisonManager
 
         private Timer TimeoutTimer { get; }
 
-        private IDictionary<Guid, Comparison> Comparisons { get; }
-            = new Dictionary<Guid, Comparison>();
-        private IDictionary<Guid, DateTime> LastRequests { get; } =
-            new Dictionary<Guid, DateTime>();
+        private Dictionary<Guid, Comparison> Comparisons { get; } = [];
+        private Dictionary<Guid, DateTime> LastRequests { get; } = [];
 
         private object ComparisonsLock { get; } = new();
 

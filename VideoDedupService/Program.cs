@@ -3,7 +3,7 @@ namespace VideoDedupService
     using System.IO.Compression;
     using VideoDedupServer;
 
-    internal class Program
+    internal sealed class Program
     {
         // The folder name, settings are stored in.
         // Which is actually the company name.
@@ -26,6 +26,7 @@ namespace VideoDedupService
             return path;
         }
 
+#pragma warning disable IDE0210 // Convert to top-level statements
         private static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(new WebApplicationOptions
@@ -52,6 +53,7 @@ namespace VideoDedupService
             app.Run();
 
         }
+#pragma warning restore IDE0210 // Convert to top-level statements
     }
 }
 

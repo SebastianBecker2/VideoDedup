@@ -11,10 +11,7 @@ namespace VideoComparer
     {
         public VideoFile(VideoFile other)
         {
-            if (other is null)
-            {
-                throw new ArgumentNullException(nameof(other));
-            }
+            ArgumentNullException.ThrowIfNull(other);
 
             // We have to do a bit more work here since we can't use
             // the other ctors because we don't want to eagerly load
@@ -38,10 +35,7 @@ namespace VideoComparer
         public VideoFile(IVideoFile other)
             : this(other.FilePath)
         {
-            if (other is null)
-            {
-                throw new ArgumentNullException(nameof(other));
-            }
+            ArgumentNullException.ThrowIfNull(other);
 
             fileSize = other.FileSize;
             lastWriteTime = other.LastWriteTime;

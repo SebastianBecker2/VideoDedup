@@ -1,14 +1,11 @@
 namespace VideoComparer
 {
-    public class ComparisonException : Exception
+    public class ComparisonException(
+        string message,
+        VideoFile videoFile,
+        Exception inner)
+        : Exception(message, inner)
     {
-        public VideoFile VideoFile { get; set; }
-
-        public ComparisonException(
-            string message,
-            VideoFile videoFile,
-            Exception inner)
-            : base(message, inner) =>
-            VideoFile = videoFile;
+        public VideoFile VideoFile { get; set; } = videoFile;
     }
 }

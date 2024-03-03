@@ -3,23 +3,12 @@ namespace DedupEngine
     using VideoDedupGrpc;
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
 
-    internal class EngineSettings :
+    internal sealed class EngineSettings(
+        FolderSettings folderSettings,
+        DurationComparisonSettings durationComparisonSettings,
+        VideoComparisonSettings videoComparisonSettings) :
         IEquatable<EngineSettings>
     {
-        private readonly FolderSettings folderSettings;
-        private readonly DurationComparisonSettings durationComparisonSettings;
-        private readonly VideoComparisonSettings videoComparisonSettings;
-
-        public EngineSettings(
-            FolderSettings folderSettings,
-            DurationComparisonSettings durationComparisonSettings,
-            VideoComparisonSettings videoComparisonSettings)
-        {
-            this.folderSettings = folderSettings;
-            this.durationComparisonSettings = durationComparisonSettings;
-            this.videoComparisonSettings = videoComparisonSettings;
-        }
-
         public string BasePath => folderSettings.BasePath;
 
         public IEnumerable<string>? ExcludedDirectories => folderSettings.ExcludedDirectories;

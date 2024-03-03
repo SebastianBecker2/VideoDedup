@@ -1,20 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <Platforms>x64;x86</Platforms>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="KGySoft.Drawing" Version="8.1.0" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\MpvLib\MpvLib.csproj" />
     <ProjectReference Include="..\VideoDedupSharedLib\VideoDedupSharedLib.csproj" />
   </ItemGroup>
-
 </Project>
