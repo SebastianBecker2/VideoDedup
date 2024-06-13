@@ -12,7 +12,7 @@ The server searches for duplicates of video files. Duplicates are determined by 
 - Accepted number of different Images => Defines how many of the compared images can be different to still qualify as a duplicate.
 - Accepted percentage of difference => Defines how different two images have to be to be considered as different images. 80% seems to be a good value.
 
-The comparison algorithm for images is based on [ImageComparison by Jaok Farian Krarup](https://www.codeproject.com/Articles/374386/Simple-image-comparison-in-NET). Though the library isn't used directly anymore. The algorithm is the same.
+The comparison algorithm for images is based on [ImageComparison by Jakop Farian Krarup](https://www.codeproject.com/Articles/374386/Simple-image-comparison-in-NET). Though the library isn't used directly anymore. The algorithm is the same.
 
 To avoid comparing videos that differ too much in length, a maximum difference in length can be defined. Either as an absolute value in seconds or in percent.
 
