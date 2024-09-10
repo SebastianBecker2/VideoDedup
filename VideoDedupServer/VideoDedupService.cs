@@ -23,8 +23,11 @@ namespace VideoDedupServer
         private readonly ComparisonManager comparisonManager;
         private readonly CancellationTokenSource cancelTokenSource = new();
         private readonly Task initializationTask;
+        private readonly List<ProgressInfo> progressInfos = [];
+        private readonly object progressInfoLock = new();
         private OperationInfo operationInfo;
         private Guid logToken = Guid.NewGuid();
+        private Guid progressToken = Guid.NewGuid();
         private int duplicatesFound;
         private readonly LogManager logManager;
         private bool disposedValue;
@@ -65,6 +68,7 @@ namespace VideoDedupServer
             {
                 ProgressStyle = ProgressStyle.Marquee,
                 OperationType = OperationType.Initializing,
+                StartTime = Timestamp.FromDateTime(DateTime.UtcNow),
             };
 
             initializationTask = Task.Run(StartDedupEngine);
@@ -93,8 +97,7 @@ namespace VideoDedupServer
             var statusData = new StatusData
             {
                 OperationInfo = operationInfo,
-                CurrentDuplicateCount = duplicateManager.Count,
-                DuplicatesFound = duplicatesFound,
+                CurrentDuplicatesCount = duplicateManager.Count,
             };
 
             lock (logEntriesLock)
@@ -153,8 +156,7 @@ namespace VideoDedupServer
         {
             lock (logEntriesLock)
             {
-                if (request.LogToken != null
-                    && request.LogToken != logToken.ToString())
+                if (request.LogToken != logToken.ToString())
                 {
                     return Task.FromResult(new GetLogEntriesResponse());
                 }
@@ -227,17 +229,66 @@ namespace VideoDedupServer
             }
         }
 
+        public override Task<GetProgressInfoResponse> GetProgressInfo(
+            GetProgressInfoRequest request,
+            ServerCallContext context)
+        {
+            lock (progressInfoLock)
+            {
+                if (request.ProgressToken != progressToken.ToString())
+                {
+                    return Task.FromResult(new GetProgressInfoResponse());
+                }
+
+                if (request.Start < 0 || request.Count < 0)
+                {
+                    return Task.FromResult(new GetProgressInfoResponse());
+                }
+
+                var response = new GetProgressInfoResponse();
+                response.ProgressInfos.AddRange(progressInfos
+                    .Skip(request.Start)
+                    .Take(request.Count)
+                    .ToList());
+                return Task.FromResult(response);
+            }
+        }
+
         private void DedupEngine_OperationUpdate(
             object? sender,
-            OperationUpdateEventArgs e) =>
-            operationInfo = new OperationInfo
+            OperationUpdateEventArgs e)
+        {
+            lock (progressInfoLock)
             {
-                OperationType = e.Type,
-                CurrentProgress = e.Counter,
-                MaximumProgress = e.MaxCount,
-                ProgressStyle = e.Style,
-                StartTime = Timestamp.FromDateTime(e.StartTime.ToUniversalTime()),
-            };
+                if (e.Counter == 0)
+                {
+                    progressInfos.Clear();
+                    progressToken = Guid.NewGuid();
+                }
+
+                var duration = (DateTime.Now - e.StartTime).TotalSeconds;
+                var fileSpeed = e.Counter / duration;
+                var duplicatesFoundSpeed = duplicatesFound / duration;
+
+                progressInfos.Add(new ProgressInfo()
+                {
+                    FileCount = e.Counter,
+                    FileCountSpeed = fileSpeed,
+                    DuplicatesFound = duplicatesFound,
+                    DuplicatesFoundSpeed = duplicatesFoundSpeed,
+                });
+
+                operationInfo = new OperationInfo()
+                {
+                    OperationType = e.Type,
+                    MaximumFiles = e.MaxCount,
+                    ProgressStyle = e.Style,
+                    StartTime = Timestamp.FromDateTime(e.StartTime.ToUniversalTime()),
+                    ProgressCount = progressInfos.Count,
+                    ProgressToken = progressToken.ToString(),
+                };
+            }
+        }
 
         private void DedupEngine_DuplicateFound(
             object? sender,
@@ -403,7 +454,6 @@ namespace VideoDedupServer
         private void StartDedupEngine()
         {
             logManager.CreateDedupEngineLogger();
-            duplicatesFound = 0;
             try
             {
                 dedupEngine.Start();

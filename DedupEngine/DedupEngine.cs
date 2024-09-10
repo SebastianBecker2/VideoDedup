@@ -352,10 +352,6 @@ namespace DedupEngine
 
             foreach (var file in videoFiles)
             {
-                OnOperationUpdate(OperationType.LoadingMedia,
-                    ++counter,
-                    fileCount);
-
                 var duration = datastore.GetVideoFileDuration(file);
                 if (duration.HasValue)
                 {
@@ -366,6 +362,11 @@ namespace DedupEngine
                     _ = file.Duration;
                     datastore.InsertVideoFile(file);
                 }
+
+                OnOperationUpdate(
+                    OperationType.LoadingMedia,
+                    ++counter,
+                    fileCount);
 
                 if (cancelToken.IsCancellationRequested)
                 {
@@ -398,10 +399,6 @@ namespace DedupEngine
 
                 OnLogged($"Checking: {file.FilePath} - Duration: " +
                     $"{file.Duration.ToPrettyString()}");
-                OnOperationUpdate(
-                    OperationType.Comparing,
-                    index + 1,
-                    videoFiles.Count);
 
                 foreach (var other in videoFiles
                     .Skip(index + 1)
@@ -421,12 +418,18 @@ namespace DedupEngine
 
                     CompareVideoFiles(file, other, cancelToken);
                 }
+
+                OnOperationUpdate(
+                        OperationType.Comparing,
+                        index + 1,
+                        videoFiles.Count);
             }
 
             timer.Stop();
             Debug.Print($"Dedup took {timer.ElapsedMilliseconds} ms");
 
-            OnOperationUpdate(OperationType.Comparing,
+            OnOperationUpdate(
+                OperationType.Comparing,
                 videoFiles.Count,
                 videoFiles.Count);
         }
@@ -596,8 +599,6 @@ namespace DedupEngine
             {
                 var newFile = newFiles.First().Key;
                 _ = newFiles.TryRemove(newFile, out var _);
-                OnOperationUpdate(OperationType.Comparing, filesProcessed,
-                    filesProcessed + newFiles.Count);
                 filesProcessed++;
 
                 if (!newFile.WaitForFileAccess(cancelToken))
@@ -629,6 +630,12 @@ namespace DedupEngine
                 cancelToken.ThrowIfCancellationRequested();
 
                 FindDuplicatesOf(videoFiles, newFile, cancelToken);
+
+                OnOperationUpdate(
+                    OperationType.Comparing,
+                    filesProcessed,
+                    filesProcessed + newFiles.Count);
+
                 cancelToken.ThrowIfCancellationRequested();
             }
 
