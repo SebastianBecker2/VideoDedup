@@ -465,6 +465,7 @@ namespace VideoDedupServer
                 {
                     ProgressStyle = ProgressStyle.NoProgress,
                     OperationType = OperationType.Error,
+                    StartTime = Timestamp.FromDateTime(DateTime.UtcNow),
                 };
                 AddLogEntry(
                     exc,
