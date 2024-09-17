@@ -37,6 +37,7 @@ namespace VideoDedupClient.Dialogs
             {
                 OperationType = OperationType.Connecting,
                 ProgressStyle = ProgressStyle.Marquee,
+                StartTime = Timestamp.FromDateTime(DateTime.UtcNow),
             });
             _ = StatusTimer.StartSingle(0);
 
@@ -74,11 +75,10 @@ namespace VideoDedupClient.Dialogs
                             DgvLog.RowCount - 1;
                     }
 
-                    CurrentDuplicateCount = status.CurrentDuplicateCount;
                     StiProgress.UpdateStatusInfo(
                         status.OperationInfo,
-                        status.DuplicatesFound,
-                        CurrentDuplicateCount);
+                        status.CurrentDuplicatesCount);
+                    CurrentDuplicateCount = status.CurrentDuplicatesCount;
                     BtnResolveDuplicates.Enabled = CurrentDuplicateCount > 0;
                     BtnDiscardDuplicates.Enabled = CurrentDuplicateCount > 0;
                 });
@@ -93,6 +93,7 @@ namespace VideoDedupClient.Dialogs
                     {
                         OperationType = OperationType.Connecting,
                         ProgressStyle = ProgressStyle.Marquee,
+                        StartTime = Timestamp.FromDateTime(DateTime.UtcNow),
                     });
                 });
             }

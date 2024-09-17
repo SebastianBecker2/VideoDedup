@@ -28,6 +28,7 @@
     <PackageReference Include="CircularBuffer" Version="1.4.0" />
     <PackageReference Include="CustomSelectFileDlg" Version="1.0.0" />
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
+    <PackageReference Include="OxyPlot.WindowsForms" Version="2.2.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SmartTimer\SmartTimer.csproj" />

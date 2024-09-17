@@ -31,201 +31,190 @@ namespace VideoDedupClient.Dialogs
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VideoDedupDlg));
-            this.BtnServerConfig = new System.Windows.Forms.Button();
-            this.BtnResolveDuplicates = new System.Windows.Forms.Button();
-            this.MenuStrip = new System.Windows.Forms.MenuStrip();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ClientConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ServerConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.BtnDiscardDuplicates = new System.Windows.Forms.Button();
-            this.BtnClientConfig = new System.Windows.Forms.Button();
-            this.DgvLog = new System.Windows.Forms.DataGridView();
-            this.DgcLogMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.StiProgress = new VideoDedupClient.Controls.StatusInfo.StatusInfoCtl();
-            this.MenuStrip.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.DgvLog)).BeginInit();
-            this.SuspendLayout();
+            var resources = new ComponentResourceManager(typeof(VideoDedupDlg));
+            BtnServerConfig = new Button();
+            BtnResolveDuplicates = new Button();
+            MenuStrip = new MenuStrip();
+            fileToolStripMenuItem = new ToolStripMenuItem();
+            ClientConfigurationToolStripMenuItem = new ToolStripMenuItem();
+            ServerConfigurationToolStripMenuItem = new ToolStripMenuItem();
+            closeToolStripMenuItem = new ToolStripMenuItem();
+            toolStripMenuItem1 = new ToolStripMenuItem();
+            aboutToolStripMenuItem = new ToolStripMenuItem();
+            BtnDiscardDuplicates = new Button();
+            BtnClientConfig = new Button();
+            DgvLog = new DataGridView();
+            DgcLogMessage = new DataGridViewTextBoxColumn();
+            StiProgress = new StatusInfoCtl();
+            MenuStrip.SuspendLayout();
+            ((ISupportInitialize)DgvLog).BeginInit();
+            SuspendLayout();
             // 
             // BtnServerConfig
             // 
-            this.BtnServerConfig.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.BtnServerConfig.Location = new System.Drawing.Point(155, 397);
-            this.BtnServerConfig.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.BtnServerConfig.Name = "BtnServerConfig";
-            this.BtnServerConfig.Size = new System.Drawing.Size(134, 27);
-            this.BtnServerConfig.TabIndex = 1;
-            this.BtnServerConfig.Text = "&Server Configuration";
-            this.BtnServerConfig.UseVisualStyleBackColor = true;
-            this.BtnServerConfig.Click += new System.EventHandler(this.BtnServerConfig_Click);
+            BtnServerConfig.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            BtnServerConfig.Location = new Point(155, 474);
+            BtnServerConfig.Margin = new Padding(4, 3, 4, 3);
+            BtnServerConfig.Name = "BtnServerConfig";
+            BtnServerConfig.Size = new Size(134, 27);
+            BtnServerConfig.TabIndex = 1;
+            BtnServerConfig.Text = "&Server Configuration";
+            BtnServerConfig.UseVisualStyleBackColor = true;
+            BtnServerConfig.Click += BtnServerConfig_Click;
             // 
             // BtnResolveDuplicates
             // 
-            this.BtnResolveDuplicates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnResolveDuplicates.Enabled = false;
-            this.BtnResolveDuplicates.Location = new System.Drawing.Point(820, 397);
-            this.BtnResolveDuplicates.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.BtnResolveDuplicates.Name = "BtnResolveDuplicates";
-            this.BtnResolveDuplicates.Size = new System.Drawing.Size(121, 27);
-            this.BtnResolveDuplicates.TabIndex = 3;
-            this.BtnResolveDuplicates.Text = "&Resolve Duplicates";
-            this.BtnResolveDuplicates.UseVisualStyleBackColor = true;
-            this.BtnResolveDuplicates.Click += new System.EventHandler(this.BtnResolveConflicts_Click);
+            BtnResolveDuplicates.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            BtnResolveDuplicates.Enabled = false;
+            BtnResolveDuplicates.Location = new Point(820, 474);
+            BtnResolveDuplicates.Margin = new Padding(4, 3, 4, 3);
+            BtnResolveDuplicates.Name = "BtnResolveDuplicates";
+            BtnResolveDuplicates.Size = new Size(121, 27);
+            BtnResolveDuplicates.TabIndex = 3;
+            BtnResolveDuplicates.Text = "&Resolve Duplicates";
+            BtnResolveDuplicates.UseVisualStyleBackColor = true;
+            BtnResolveDuplicates.Click += BtnResolveConflicts_Click;
             // 
             // MenuStrip
             // 
-            this.MenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
-            this.toolStripMenuItem1});
-            this.MenuStrip.Location = new System.Drawing.Point(0, 0);
-            this.MenuStrip.Name = "MenuStrip";
-            this.MenuStrip.Padding = new System.Windows.Forms.Padding(7, 2, 0, 2);
-            this.MenuStrip.Size = new System.Drawing.Size(955, 24);
-            this.MenuStrip.TabIndex = 11;
-            this.MenuStrip.Text = "menuStrip1";
+            MenuStrip.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, toolStripMenuItem1 });
+            MenuStrip.Location = new Point(0, 0);
+            MenuStrip.Name = "MenuStrip";
+            MenuStrip.Padding = new Padding(7, 2, 0, 2);
+            MenuStrip.Size = new Size(955, 24);
+            MenuStrip.TabIndex = 11;
+            MenuStrip.Text = "menuStrip1";
             // 
             // fileToolStripMenuItem
             // 
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.ClientConfigurationToolStripMenuItem,
-            this.ServerConfigurationToolStripMenuItem,
-            this.closeToolStripMenuItem});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.fileToolStripMenuItem.Text = "&File";
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { ClientConfigurationToolStripMenuItem, ServerConfigurationToolStripMenuItem, closeToolStripMenuItem });
+            fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            fileToolStripMenuItem.Size = new Size(37, 20);
+            fileToolStripMenuItem.Text = "&File";
             // 
             // ClientConfigurationToolStripMenuItem
             // 
-            this.ClientConfigurationToolStripMenuItem.Name = "ClientConfigurationToolStripMenuItem";
-            this.ClientConfigurationToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
-            this.ClientConfigurationToolStripMenuItem.Text = "&Client Configuration";
-            this.ClientConfigurationToolStripMenuItem.Click += new System.EventHandler(this.ClientConfigurationToolStripMenuItem_Click);
+            ClientConfigurationToolStripMenuItem.Name = "ClientConfigurationToolStripMenuItem";
+            ClientConfigurationToolStripMenuItem.Size = new Size(183, 22);
+            ClientConfigurationToolStripMenuItem.Text = "&Client Configuration";
+            ClientConfigurationToolStripMenuItem.Click += ClientConfigurationToolStripMenuItem_Click;
             // 
             // ServerConfigurationToolStripMenuItem
             // 
-            this.ServerConfigurationToolStripMenuItem.Name = "ServerConfigurationToolStripMenuItem";
-            this.ServerConfigurationToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
-            this.ServerConfigurationToolStripMenuItem.Text = "&Server Configuration";
-            this.ServerConfigurationToolStripMenuItem.Click += new System.EventHandler(this.ServerConfigurationToolStripMenuItem_Click);
+            ServerConfigurationToolStripMenuItem.Name = "ServerConfigurationToolStripMenuItem";
+            ServerConfigurationToolStripMenuItem.Size = new Size(183, 22);
+            ServerConfigurationToolStripMenuItem.Text = "&Server Configuration";
+            ServerConfigurationToolStripMenuItem.Click += ServerConfigurationToolStripMenuItem_Click;
             // 
             // closeToolStripMenuItem
             // 
-            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
-            this.closeToolStripMenuItem.Text = "C&lose";
-            this.closeToolStripMenuItem.Click += new System.EventHandler(this.CloseToolStripMenuItem_Click);
+            closeToolStripMenuItem.Name = "closeToolStripMenuItem";
+            closeToolStripMenuItem.Size = new Size(183, 22);
+            closeToolStripMenuItem.Text = "C&lose";
+            closeToolStripMenuItem.Click += CloseToolStripMenuItem_Click;
             // 
             // toolStripMenuItem1
             // 
-            this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.aboutToolStripMenuItem});
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(24, 20);
-            this.toolStripMenuItem1.Text = "&?";
+            toolStripMenuItem1.DropDownItems.AddRange(new ToolStripItem[] { aboutToolStripMenuItem });
+            toolStripMenuItem1.Name = "toolStripMenuItem1";
+            toolStripMenuItem1.Size = new Size(24, 20);
+            toolStripMenuItem1.Text = "&?";
             // 
             // aboutToolStripMenuItem
             // 
-            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
-            this.aboutToolStripMenuItem.Text = "&About";
-            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItem_Click);
+            aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            aboutToolStripMenuItem.Size = new Size(107, 22);
+            aboutToolStripMenuItem.Text = "&About";
+            aboutToolStripMenuItem.Click += AboutToolStripMenuItem_Click;
             // 
             // BtnDiscardDuplicates
             // 
-            this.BtnDiscardDuplicates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnDiscardDuplicates.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.BtnDiscardDuplicates.Enabled = false;
-            this.BtnDiscardDuplicates.Location = new System.Drawing.Point(691, 397);
-            this.BtnDiscardDuplicates.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.BtnDiscardDuplicates.Name = "BtnDiscardDuplicates";
-            this.BtnDiscardDuplicates.Size = new System.Drawing.Size(121, 27);
-            this.BtnDiscardDuplicates.TabIndex = 2;
-            this.BtnDiscardDuplicates.Text = "&Discard Duplicates";
-            this.BtnDiscardDuplicates.UseVisualStyleBackColor = true;
-            this.BtnDiscardDuplicates.Click += new System.EventHandler(this.BtnDiscard_Click);
+            BtnDiscardDuplicates.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            BtnDiscardDuplicates.DialogResult = DialogResult.Cancel;
+            BtnDiscardDuplicates.Enabled = false;
+            BtnDiscardDuplicates.Location = new Point(691, 474);
+            BtnDiscardDuplicates.Margin = new Padding(4, 3, 4, 3);
+            BtnDiscardDuplicates.Name = "BtnDiscardDuplicates";
+            BtnDiscardDuplicates.Size = new Size(121, 27);
+            BtnDiscardDuplicates.TabIndex = 2;
+            BtnDiscardDuplicates.Text = "&Discard Duplicates";
+            BtnDiscardDuplicates.UseVisualStyleBackColor = true;
+            BtnDiscardDuplicates.Click += BtnDiscard_Click;
             // 
             // BtnClientConfig
             // 
-            this.BtnClientConfig.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.BtnClientConfig.Location = new System.Drawing.Point(14, 397);
-            this.BtnClientConfig.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.BtnClientConfig.Name = "BtnClientConfig";
-            this.BtnClientConfig.Size = new System.Drawing.Size(134, 27);
-            this.BtnClientConfig.TabIndex = 0;
-            this.BtnClientConfig.Text = "&Client Configuration";
-            this.BtnClientConfig.UseVisualStyleBackColor = true;
-            this.BtnClientConfig.Click += new System.EventHandler(this.BtnClientConfig_Click);
+            BtnClientConfig.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            BtnClientConfig.Location = new Point(14, 474);
+            BtnClientConfig.Margin = new Padding(4, 3, 4, 3);
+            BtnClientConfig.Name = "BtnClientConfig";
+            BtnClientConfig.Size = new Size(134, 27);
+            BtnClientConfig.TabIndex = 0;
+            BtnClientConfig.Text = "&Client Configuration";
+            BtnClientConfig.UseVisualStyleBackColor = true;
+            BtnClientConfig.Click += BtnClientConfig_Click;
             // 
             // DgvLog
             // 
-            this.DgvLog.AllowUserToAddRows = false;
-            this.DgvLog.AllowUserToDeleteRows = false;
-            this.DgvLog.AllowUserToResizeColumns = false;
-            this.DgvLog.AllowUserToResizeRows = false;
-            this.DgvLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.DgvLog.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.DgvLog.ColumnHeadersVisible = false;
-            this.DgvLog.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.DgcLogMessage});
-            this.DgvLog.Location = new System.Drawing.Point(14, 172);
-            this.DgvLog.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.DgvLog.MultiSelect = false;
-            this.DgvLog.Name = "DgvLog";
-            this.DgvLog.ReadOnly = true;
-            this.DgvLog.RowHeadersVisible = false;
-            this.DgvLog.Size = new System.Drawing.Size(927, 218);
-            this.DgvLog.TabIndex = 4;
-            this.DgvLog.VirtualMode = true;
-            this.DgvLog.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.DgvLog_CellValueNeeded);
+            DgvLog.AllowUserToAddRows = false;
+            DgvLog.AllowUserToDeleteRows = false;
+            DgvLog.AllowUserToResizeColumns = false;
+            DgvLog.AllowUserToResizeRows = false;
+            DgvLog.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            DgvLog.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            DgvLog.ColumnHeadersVisible = false;
+            DgvLog.Columns.AddRange(new DataGridViewColumn[] { DgcLogMessage });
+            DgvLog.Location = new Point(14, 305);
+            DgvLog.Margin = new Padding(4, 3, 4, 3);
+            DgvLog.MultiSelect = false;
+            DgvLog.Name = "DgvLog";
+            DgvLog.ReadOnly = true;
+            DgvLog.RowHeadersVisible = false;
+            DgvLog.Size = new Size(927, 162);
+            DgvLog.TabIndex = 4;
+            DgvLog.VirtualMode = true;
+            DgvLog.CellValueNeeded += DgvLog_CellValueNeeded;
             // 
             // DgcLogMessage
             // 
-            this.DgcLogMessage.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.DgcLogMessage.HeaderText = "Message";
-            this.DgcLogMessage.Name = "DgcLogMessage";
-            this.DgcLogMessage.ReadOnly = true;
+            DgcLogMessage.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            DgcLogMessage.HeaderText = "Message";
+            DgcLogMessage.Name = "DgcLogMessage";
+            DgcLogMessage.ReadOnly = true;
             // 
             // StiProgress
             // 
-            this.StiProgress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.StiProgress.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.StiProgress.Location = new System.Drawing.Point(14, 27);
-            this.StiProgress.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.StiProgress.Name = "StiProgress";
-            this.StiProgress.Size = new System.Drawing.Size(927, 139);
-            this.StiProgress.TabIndex = 12;
+            StiProgress.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            StiProgress.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            StiProgress.Location = new Point(14, 27);
+            StiProgress.Margin = new Padding(4, 3, 4, 3);
+            StiProgress.Name = "StiProgress";
+            StiProgress.Size = new Size(927, 272);
+            StiProgress.TabIndex = 12;
             // 
             // VideoDedupDlg
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(955, 437);
-            this.Controls.Add(this.StiProgress);
-            this.Controls.Add(this.DgvLog);
-            this.Controls.Add(this.BtnClientConfig);
-            this.Controls.Add(this.BtnDiscardDuplicates);
-            this.Controls.Add(this.BtnResolveDuplicates);
-            this.Controls.Add(this.BtnServerConfig);
-            this.Controls.Add(this.MenuStrip);
-            this.DoubleBuffered = true;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MainMenuStrip = this.MenuStrip;
-            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.Name = "VideoDedupDlg";
-            this.Text = "Video Dedup Client";
-            this.Load += new System.EventHandler(this.VideoDedupDlg_Load);
-            this.MenuStrip.ResumeLayout(false);
-            this.MenuStrip.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.DgvLog)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(955, 514);
+            Controls.Add(StiProgress);
+            Controls.Add(DgvLog);
+            Controls.Add(BtnClientConfig);
+            Controls.Add(BtnDiscardDuplicates);
+            Controls.Add(BtnResolveDuplicates);
+            Controls.Add(BtnServerConfig);
+            Controls.Add(MenuStrip);
+            DoubleBuffered = true;
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            MainMenuStrip = MenuStrip;
+            Margin = new Padding(4, 3, 4, 3);
+            Name = "VideoDedupDlg";
+            Text = "Video Dedup Client";
+            Load += VideoDedupDlg_Load;
+            MenuStrip.ResumeLayout(false);
+            MenuStrip.PerformLayout();
+            ((ISupportInitialize)DgvLog).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
