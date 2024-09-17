@@ -457,6 +457,7 @@ namespace VideoDedupServer
             try
             {
                 dedupEngine.Start();
+                duplicatesFound = 0;
             }
             catch (InvalidOperationException exc)
             {
