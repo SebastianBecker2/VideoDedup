@@ -260,7 +260,7 @@ namespace VideoDedupServer
         {
             lock (progressInfoLock)
             {
-                if (e.Counter == 0)
+                if (e.Style == ProgressStyle.Continuous && e.Counter == 0)
                 {
                     progressInfos.Clear();
                     progressToken = Guid.NewGuid();
