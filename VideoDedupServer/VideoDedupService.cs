@@ -278,10 +278,16 @@ namespace VideoDedupServer
                     DuplicatesFoundSpeed = duplicatesFoundSpeed,
                 });
 
+                var maximumFiles = e.MaxCount;
+                if (e.Style != ProgressStyle.Continuous)
+                {
+                    maximumFiles = progressInfos.LastOrDefault()?.FileCount ?? 0;
+                }
+
                 operationInfo = new OperationInfo()
                 {
                     OperationType = e.Type,
-                    MaximumFiles = e.MaxCount,
+                    MaximumFiles = maximumFiles,
                     ProgressStyle = e.Style,
                     StartTime = Timestamp.FromDateTime(e.StartTime.ToUniversalTime()),
                     ProgressCount = progressInfos.Count,
