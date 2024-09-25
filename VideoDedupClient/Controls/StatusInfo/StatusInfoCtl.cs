@@ -1,6 +1,5 @@
 namespace VideoDedupClient.Controls.StatusInfo
 {
-    using System.Diagnostics;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.TimeSpanExtensions;
     using static VideoDedupGrpc.OperationInfo.Types;
@@ -65,7 +64,6 @@ namespace VideoDedupClient.Controls.StatusInfo
             PrgProgress.MaxProgress = MaximumFiles;
             foreach (var pi in GetNextProgressInfo())
             {
-                //Debug.Print($"UpdateProgressInfo FileCount: {pi.FileCount} | MaximumFiles: {MaximumFiles}");
                 var progressText =
                     $"{(double)pi.FileCount / MaximumFiles * 100:0.00}%";
                 PrgProgress.AddProgress(
@@ -95,7 +93,6 @@ namespace VideoDedupClient.Controls.StatusInfo
             if (string.IsNullOrWhiteSpace(OperationInfo.ProgressToken)
                 || OperationInfo.ProgressToken != progressToken)
             {
-                Debug.Print("Clearing PrgProgress");
                 LatestProgressInfo = null;
                 PrgProgress.Clear();
                 progressCount = 0;
