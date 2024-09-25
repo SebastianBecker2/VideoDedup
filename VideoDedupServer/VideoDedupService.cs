@@ -260,26 +260,29 @@ namespace VideoDedupServer
         {
             lock (progressInfoLock)
             {
-                if (e.Style == ProgressStyle.Continuous && e.Counter == 0)
-                {
-                    progressInfos.Clear();
-                    progressToken = Guid.NewGuid();
-                }
-
-                var duration = (DateTime.Now - e.StartTime).TotalSeconds;
-                var fileSpeed = e.Counter / duration;
-                var duplicatesFoundSpeed = duplicatesFound / duration;
-
-                progressInfos.Add(new ProgressInfo()
-                {
-                    FileCount = e.Counter,
-                    FileCountSpeed = fileSpeed,
-                    DuplicatesFound = duplicatesFound,
-                    DuplicatesFoundSpeed = duplicatesFoundSpeed,
-                });
-
                 var maximumFiles = e.MaxCount;
-                if (e.Style != ProgressStyle.Continuous)
+
+                if (e.Style == ProgressStyle.Continuous)
+                {
+                    if (e.Counter == 0)
+                    {
+                        progressInfos.Clear();
+                        progressToken = Guid.NewGuid();
+                    }
+
+                    var duration = (DateTime.Now - e.StartTime).TotalSeconds;
+                    var fileSpeed = e.Counter / duration;
+                    var duplicatesFoundSpeed = duplicatesFound / duration;
+
+                    progressInfos.Add(new ProgressInfo()
+                    {
+                        FileCount = e.Counter,
+                        FileCountSpeed = fileSpeed,
+                        DuplicatesFound = duplicatesFound,
+                        DuplicatesFoundSpeed = duplicatesFoundSpeed,
+                    });
+                }
+                else
                 {
                     maximumFiles = progressInfos.LastOrDefault()?.FileCount ?? 0;
                 }
