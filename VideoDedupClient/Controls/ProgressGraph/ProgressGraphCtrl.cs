@@ -51,11 +51,31 @@ namespace VideoDedupClient.Controls.ProgressGraph
             IsPanEnabled = false,
             IsAxisVisible = false,
         };
+        private LinearAxis MarqueeVerticalAxis { get; } = new()
+        {
+            Minimum = 0,
+            Maximum = 1,
+            Key = "MarqueeVerticalAxis",
+            Position = AxisPosition.Left,
+            IsZoomEnabled = false,
+            IsPanEnabled = false,
+            IsAxisVisible = false,
+        };
         private LinearAxis ProgressAxis { get; } = new()
         {
             Minimum = 0,
             Maximum = 100,
             Key = "Progress",
+            Position = AxisPosition.Bottom,
+            IsZoomEnabled = false,
+            IsPanEnabled = false,
+            IsAxisVisible = false,
+        };
+        private LinearAxis MarqueeHorizontalAxis { get; } = new()
+        {
+            Minimum = 0,
+            Maximum = 200,
+            Key = "MarqueeHorizontalAxis",
             Position = AxisPosition.Bottom,
             IsZoomEnabled = false,
             IsPanEnabled = false,
@@ -104,8 +124,8 @@ namespace VideoDedupClient.Controls.ProgressGraph
         {
             Fill = OxyColors.Green,
             Stroke = OxyColors.Green,
-            XAxisKey = "Progress",
-            YAxisKey = "FileSpeed",
+            XAxisKey = "MarqueeHorizontalAxis",
+            YAxisKey = "MarqueeVerticalAxis",
             MaximumY = 100,
             MinimumY = 0,
             MaximumX = 0,
@@ -126,7 +146,9 @@ namespace VideoDedupClient.Controls.ProgressGraph
 
             Model.Axes.Add(FileSpeedAxis);
             Model.Axes.Add(DuplicatesAxis);
+            Model.Axes.Add(MarqueeVerticalAxis);
             Model.Axes.Add(ProgressAxis);
+            Model.Axes.Add(MarqueeHorizontalAxis);
             Model.Series.Add(FilesSeries);
             Model.Series.Add(DuplicatesSeries);
             Model.Annotations.Add(FileSpeedText);
@@ -258,7 +280,6 @@ namespace VideoDedupClient.Controls.ProgressGraph
             {
                 return;
             }
-            Clear();
             MarqueeTimer.Start();
         }
 
@@ -267,7 +288,7 @@ namespace VideoDedupClient.Controls.ProgressGraph
             if (MarqueeDiration == FlowDirection.LeftToRight)
             {
                 MarqueePosition++;
-                if (MarqueePosition == ProgressAxis.Maximum)
+                if (MarqueePosition == MarqueeHorizontalAxis.Maximum)
                 {
                     MarqueeDiration = FlowDirection.RightToLeft;
                 }
@@ -280,7 +301,7 @@ namespace VideoDedupClient.Controls.ProgressGraph
             }
 
             MarqueePosition--;
-            if (MarqueePosition == ProgressAxis.Minimum + MarqueeWidth)
+            if (MarqueePosition == MarqueeHorizontalAxis.Minimum + MarqueeWidth)
             {
                 MarqueeDiration = FlowDirection.LeftToRight;
             }
