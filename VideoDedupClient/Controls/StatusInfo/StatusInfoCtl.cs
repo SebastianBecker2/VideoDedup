@@ -1,5 +1,6 @@
 namespace VideoDedupClient.Controls.StatusInfo
 {
+    using System.Diagnostics;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.TimeSpanExtensions;
     using static VideoDedupGrpc.OperationInfo.Types;
@@ -61,38 +62,27 @@ namespace VideoDedupClient.Controls.StatusInfo
             SetDuplicateCount();
             SetElapsedTime();
 
-            if (Style is ProgressStyle.NoProgress)
+            PrgProgress.MaxProgress = MaximumFiles;
+            foreach (var pi in GetNextProgressInfo())
             {
-                //PrgProgress.Clear();
-                LatestProgressInfo = null;
-                progressCount = 0;
-                progressToken = "";
+                //Debug.Print($"UpdateProgressInfo FileCount: {pi.FileCount} | MaximumFiles: {MaximumFiles}");
+                var progressText =
+                    $"{(double)pi.FileCount / MaximumFiles * 100:0.00}%";
+                PrgProgress.AddProgress(
+                    pi.FileCount,
+                    progressText,
+                    pi.FileCountSpeed,
+                    $"{pi.FileCountSpeed:0.00} Files/s",
+                    pi.DuplicatesFound,
+                    $"{pi.DuplicatesFound} Duplicates");
             }
-            else if (Style is ProgressStyle.Marquee)
+
+            if (Style is ProgressStyle.Marquee)
             {
                 PrgProgress.DisplayMarquee();
-                PrgProgress.Refresh();
-                LatestProgressInfo = null;
-                progressCount = 0;
-                progressToken = "";
             }
-            else if (Style == ProgressStyle.Continuous)
-            {
-                PrgProgress.MaxProgress = MaximumFiles;
-                foreach (var pi in GetNextProgressInfo())
-                {
-                    var progressText =
-                        $"{(double)pi.FileCount / MaximumFiles * 100:0.00}%";
-                    PrgProgress.AddProgress(
-                        pi.FileCount,
-                        progressText,
-                        pi.FileCountSpeed,
-                        $"{pi.FileCountSpeed:0.00} Files/s",
-                        pi.DuplicatesFound,
-                        $"{pi.DuplicatesFound} Duplicates");
-                }
-                PrgProgress.Refresh();
-            }
+
+            PrgProgress.Refresh();
 
             SetCurrentFileCount();
             SetFileSpeed();
@@ -105,6 +95,7 @@ namespace VideoDedupClient.Controls.StatusInfo
             if (string.IsNullOrWhiteSpace(OperationInfo.ProgressToken)
                 || OperationInfo.ProgressToken != progressToken)
             {
+                Debug.Print("Clearing PrgProgress");
                 LatestProgressInfo = null;
                 PrgProgress.Clear();
                 progressCount = 0;
@@ -140,61 +131,36 @@ namespace VideoDedupClient.Controls.StatusInfo
 
         private void SetCurrentFileCount()
         {
-            var visible = LatestProgressInfo is not null;
-
-            if (visible)
+            if (LatestProgressInfo is null)
             {
-                LblCurrentFileCount.Text = $"{FileCount} / {MaximumFiles} " +
+                return;
+            }
+
+            LblCurrentFileCount.Text = $"{FileCount} / {MaximumFiles} " +
                     $"({(double)FileCount / MaximumFiles * 100:0.00}%)";
-            }
-
-            LblCurrentFileCount.Visible = visible;
-            LblCurrentFileCountTitle.Visible = visible;
         }
 
-        private void SetDuplicateCount()
-        {
-            var visible = CurrentDuplicateCount != 0;
-
-            if (visible)
-            {
-                LblDuplicateCount.Text = $"{CurrentDuplicateCount}";
-            }
-
-            LblDuplicateCount.Visible = visible;
-            LblDuplicateCountTitle.Visible = visible;
-        }
+        private void SetDuplicateCount() =>
+            LblDuplicateCount.Text = $"{CurrentDuplicateCount}";
 
         private void SetFileSpeed()
         {
-            var visible = LatestProgressInfo is not null;
-
-            if (!visible)
+            if (LatestProgressInfo is null)
             {
                 return;
             }
 
             LblFileCountSpeed.Text = $"{FileSpeed:0.00}";
-
-            LblFileCountSpeed.Visible = visible;
-            LblFileCountSpeedTitle.Visible = visible;
-            LblFileCountSpeedUnit.Visible = visible;
         }
 
         private void SetDuplicatesSpeed()
         {
-            var visible = LatestProgressInfo is not null;
-
-            if (!visible)
+            if (LatestProgressInfo is null)
             {
                 return;
             }
 
             LblDuplicateSpeed.Text = $"{DuplicatesSpeed:0.00}";
-
-            LblDuplicateSpeed.Visible = visible;
-            LblDuplicateSpeedTitle.Visible = visible;
-            LblDuplicateSpeedUnit.Visible = visible;
         }
 
         private void SetElapsedTime() =>
@@ -202,20 +168,17 @@ namespace VideoDedupClient.Controls.StatusInfo
 
         private void SetRemainingTime()
         {
-            var visible = LatestProgressInfo is not null
-                && FileCount > 0
-                && Remaining > 0
-                && FileSpeed > 0;
-
-            if (!visible)
+            if (LatestProgressInfo is null
+                || FileCount == 0
+                || FileCount == MaximumFiles
+                || FileSpeed == 0)
             {
+                LblRemainingTime.Text = TimeSpan.Zero.ToPrettyString();
                 return;
             }
+
             LblRemainingTime.Text =
                 TimeSpan.FromSeconds(Remaining / FileSpeed).ToPrettyString();
-
-            LblRemainingTime.Visible = visible;
-            LblRemainingTimeTitle.Visible = visible;
         }
     }
 }

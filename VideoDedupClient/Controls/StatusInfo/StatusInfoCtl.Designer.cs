@@ -46,7 +46,7 @@ namespace VideoDedupClient.Controls.StatusInfo
             LblDuplicateSpeed = new Label();
             LblDuplicateSpeedUnit = new Label();
             LblFileCountSpeedUnit = new Label();
-            PrgProgress = new Controls.ProgressGraph.ProgressGraphCtrl();
+            PrgProgress = new ProgressGraph.ProgressGraphCtrl();
             tableLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
