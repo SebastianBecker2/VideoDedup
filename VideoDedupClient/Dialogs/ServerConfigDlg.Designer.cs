@@ -33,16 +33,12 @@ namespace VideoDedupClient.Dialogs
             var resources = new ComponentResourceManager(typeof(ServerConfigDlg));
             BtnCancel = new Button();
             BtnOkay = new Button();
-            groupBox4 = new GroupBox();
-            label9 = new Label();
-            NumThumbnailViewCount = new NumericUpDown();
             tableLayoutPanel1 = new TableLayoutPanel();
             tableLayoutPanel2 = new TableLayoutPanel();
             CscComparisonSettings = new Controls.ComparisonSettings.ComparisonSettingsCtrl();
-            VicVideoInput = new Controls.VideoInput.VideoInputCtrl();
             LscLogSettings = new Controls.LogSettings.LogSettingsCtrl();
-            groupBox4.SuspendLayout();
-            ((ISupportInitialize)NumThumbnailViewCount).BeginInit();
+            VicVideoInput = new Controls.VideoInput.VideoInputCtrl();
+            RscResolutionSettings = new Controls.ResolutionSettings.ResolutionSettingsCtrl();
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
             SuspendLayout();
@@ -71,42 +67,6 @@ namespace VideoDedupClient.Dialogs
             BtnOkay.UseVisualStyleBackColor = true;
             BtnOkay.Click += BtnOkay_Click;
             // 
-            // groupBox4
-            // 
-            groupBox4.Controls.Add(label9);
-            groupBox4.Controls.Add(NumThumbnailViewCount);
-            groupBox4.Dock = DockStyle.Fill;
-            groupBox4.Location = new Point(0, 260);
-            groupBox4.Margin = new Padding(0);
-            groupBox4.Name = "groupBox4";
-            groupBox4.Padding = new Padding(4, 3, 4, 3);
-            groupBox4.Size = new Size(353, 66);
-            groupBox4.TabIndex = 26;
-            groupBox4.TabStop = false;
-            groupBox4.Text = "Resolving Duplicates";
-            // 
-            // label9
-            // 
-            label9.Anchor = AnchorStyles.None;
-            label9.AutoSize = true;
-            label9.Location = new Point(92, 28);
-            label9.Margin = new Padding(4, 0, 4, 0);
-            label9.Name = "label9";
-            label9.Size = new Size(163, 15);
-            label9.TabIndex = 19;
-            label9.Text = "Number of Images to display:";
-            // 
-            // NumThumbnailViewCount
-            // 
-            NumThumbnailViewCount.Anchor = AnchorStyles.None;
-            NumThumbnailViewCount.Location = new Point(266, 26);
-            NumThumbnailViewCount.Margin = new Padding(4, 3, 4, 3);
-            NumThumbnailViewCount.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
-            NumThumbnailViewCount.Name = "NumThumbnailViewCount";
-            NumThumbnailViewCount.Size = new Size(74, 23);
-            NumThumbnailViewCount.TabIndex = 0;
-            NumThumbnailViewCount.Value = new decimal(new int[] { 1, 0, 0, 0 });
-            // 
             // tableLayoutPanel1
             // 
             tableLayoutPanel1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
@@ -127,9 +87,9 @@ namespace VideoDedupClient.Dialogs
             // 
             tableLayoutPanel2.ColumnCount = 1;
             tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tableLayoutPanel2.Controls.Add(groupBox4, 0, 1);
             tableLayoutPanel2.Controls.Add(CscComparisonSettings, 0, 0);
             tableLayoutPanel2.Controls.Add(LscLogSettings, 0, 2);
+            tableLayoutPanel2.Controls.Add(RscResolutionSettings, 0, 1);
             tableLayoutPanel2.Dock = DockStyle.Fill;
             tableLayoutPanel2.Location = new Point(404, 0);
             tableLayoutPanel2.Margin = new Padding(0);
@@ -149,6 +109,13 @@ namespace VideoDedupClient.Dialogs
             CscComparisonSettings.TabIndex = 28;
             CscComparisonSettings.TryComparisonClick += CscComparisonSettings_TryComparisonClick;
             // 
+            // LscLogSettings
+            // 
+            LscLogSettings.Location = new Point(3, 329);
+            LscLogSettings.Name = "LscLogSettings";
+            LscLogSettings.Size = new Size(347, 176);
+            LscLogSettings.TabIndex = 29;
+            // 
             // VicVideoInput
             // 
             VicVideoInput.Location = new Point(3, 3);
@@ -156,12 +123,12 @@ namespace VideoDedupClient.Dialogs
             VicVideoInput.Size = new Size(398, 507);
             VicVideoInput.TabIndex = 1;
             // 
-            // LscLogSettings
+            // RscResolutionSettings
             // 
-            LscLogSettings.Location = new Point(3, 329);
-            LscLogSettings.Name = "LscLogSettings";
-            LscLogSettings.Size = new Size(347, 176);
-            LscLogSettings.TabIndex = 29;
+            RscResolutionSettings.Location = new Point(3, 263);
+            RscResolutionSettings.Name = "RscResolutionSettings";
+            RscResolutionSettings.Size = new Size(347, 60);
+            RscResolutionSettings.TabIndex = 30;
             // 
             // ServerConfigDlg
             // 
@@ -178,9 +145,6 @@ namespace VideoDedupClient.Dialogs
             Name = "ServerConfigDlg";
             StartPosition = FormStartPosition.CenterParent;
             Text = "Server Configuration";
-            groupBox4.ResumeLayout(false);
-            groupBox4.PerformLayout();
-            ((ISupportInitialize)NumThumbnailViewCount).EndInit();
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel2.ResumeLayout(false);
             ResumeLayout(false);
@@ -189,13 +153,11 @@ namespace VideoDedupClient.Dialogs
         #endregion
         private Button BtnCancel;
         private Button BtnOkay;
-        private GroupBox groupBox4;
-        private Label label9;
-        private NumericUpDown NumThumbnailViewCount;
         private TableLayoutPanel tableLayoutPanel1;
         private TableLayoutPanel tableLayoutPanel2;
         private Controls.VideoInput.VideoInputCtrl VicVideoInput;
         private Controls.ComparisonSettings.ComparisonSettingsCtrl CscComparisonSettings;
         private Controls.LogSettings.LogSettingsCtrl LscLogSettings;
+        private Controls.ResolutionSettings.ResolutionSettingsCtrl RscResolutionSettings;
     }
 }

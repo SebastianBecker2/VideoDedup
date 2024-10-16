@@ -65,7 +65,8 @@ namespace VideoDedupClient.Dialogs
 
             if (ThumbnailSettings is not null)
             {
-                NumThumbnailViewCount.Value = ThumbnailSettings.ImageCount;
+                RscResolutionSettings.NumThumbnailViewCount.Value =
+                    ThumbnailSettings.ImageCount;
             }
 
             if (LogSettings is not null)
@@ -117,7 +118,8 @@ namespace VideoDedupClient.Dialogs
             DurationComparisonSettings!.MaxDifference =
                 (int)CscComparisonSettings.NumMaxDurationDifference.Value;
 
-            ThumbnailSettings!.ImageCount = (int)NumThumbnailViewCount.Value;
+            ThumbnailSettings!.ImageCount =
+                (int)RscResolutionSettings.NumThumbnailViewCount.Value;
 
             LogSettings!.VideoDedupServiceLogLevel =
                 (LogSettings.Types.LogLevel)
