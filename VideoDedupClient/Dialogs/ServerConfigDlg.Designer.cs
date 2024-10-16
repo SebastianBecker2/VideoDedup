@@ -38,22 +38,13 @@ namespace VideoDedupClient.Dialogs
             NumThumbnailViewCount = new NumericUpDown();
             tableLayoutPanel1 = new TableLayoutPanel();
             tableLayoutPanel2 = new TableLayoutPanel();
-            groupBox5 = new GroupBox();
-            tableLayoutPanel5 = new TableLayoutPanel();
-            label2 = new Label();
-            label8 = new Label();
-            label11 = new Label();
-            CmbVideoDedupServiceLogLevel = new ComboBox();
-            CmbComparisonManagerLogLevel = new ComboBox();
-            CmbDedupEngineLogLevel = new ComboBox();
             CscComparisonSettings = new Controls.ComparisonSettings.ComparisonSettingsCtrl();
             VicVideoInput = new Controls.VideoInput.VideoInputCtrl();
+            LscLogSettings = new Controls.LogSettings.LogSettingsCtrl();
             groupBox4.SuspendLayout();
             ((ISupportInitialize)NumThumbnailViewCount).BeginInit();
             tableLayoutPanel1.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
-            groupBox5.SuspendLayout();
-            tableLayoutPanel5.SuspendLayout();
             SuspendLayout();
             // 
             // BtnCancel
@@ -137,8 +128,8 @@ namespace VideoDedupClient.Dialogs
             tableLayoutPanel2.ColumnCount = 1;
             tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tableLayoutPanel2.Controls.Add(groupBox4, 0, 1);
-            tableLayoutPanel2.Controls.Add(groupBox5, 0, 2);
             tableLayoutPanel2.Controls.Add(CscComparisonSettings, 0, 0);
+            tableLayoutPanel2.Controls.Add(LscLogSettings, 0, 2);
             tableLayoutPanel2.Dock = DockStyle.Fill;
             tableLayoutPanel2.Location = new Point(404, 0);
             tableLayoutPanel2.Margin = new Padding(0);
@@ -149,100 +140,6 @@ namespace VideoDedupClient.Dialogs
             tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 36.288105F));
             tableLayoutPanel2.Size = new Size(353, 513);
             tableLayoutPanel2.TabIndex = 0;
-            // 
-            // groupBox5
-            // 
-            groupBox5.Controls.Add(tableLayoutPanel5);
-            groupBox5.Dock = DockStyle.Fill;
-            groupBox5.Location = new Point(0, 326);
-            groupBox5.Margin = new Padding(0);
-            groupBox5.Name = "groupBox5";
-            groupBox5.Size = new Size(353, 187);
-            groupBox5.TabIndex = 27;
-            groupBox5.TabStop = false;
-            groupBox5.Text = "Minimum Log Level";
-            // 
-            // tableLayoutPanel5
-            // 
-            tableLayoutPanel5.ColumnCount = 2;
-            tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 61.53846F));
-            tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 38.46154F));
-            tableLayoutPanel5.Controls.Add(label2, 0, 0);
-            tableLayoutPanel5.Controls.Add(label8, 0, 1);
-            tableLayoutPanel5.Controls.Add(label11, 0, 2);
-            tableLayoutPanel5.Controls.Add(CmbVideoDedupServiceLogLevel, 1, 0);
-            tableLayoutPanel5.Controls.Add(CmbComparisonManagerLogLevel, 1, 1);
-            tableLayoutPanel5.Controls.Add(CmbDedupEngineLogLevel, 1, 2);
-            tableLayoutPanel5.Dock = DockStyle.Fill;
-            tableLayoutPanel5.Location = new Point(3, 19);
-            tableLayoutPanel5.Margin = new Padding(0);
-            tableLayoutPanel5.Name = "tableLayoutPanel5";
-            tableLayoutPanel5.RowCount = 3;
-            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 33.3333321F));
-            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 33.3333321F));
-            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 33.3333321F));
-            tableLayoutPanel5.Size = new Size(347, 165);
-            tableLayoutPanel5.TabIndex = 0;
-            // 
-            // label2
-            // 
-            label2.Anchor = AnchorStyles.Right;
-            label2.AutoSize = true;
-            label2.Location = new Point(98, 20);
-            label2.Name = "label2";
-            label2.Size = new Size(112, 15);
-            label2.TabIndex = 0;
-            label2.Text = "VideoDedupService:";
-            // 
-            // label8
-            // 
-            label8.Anchor = AnchorStyles.Right;
-            label8.AutoSize = true;
-            label8.Location = new Point(88, 75);
-            label8.Name = "label8";
-            label8.Size = new Size(122, 15);
-            label8.TabIndex = 0;
-            label8.Text = "ComparisonManager:";
-            // 
-            // label11
-            // 
-            label11.Anchor = AnchorStyles.Right;
-            label11.AutoSize = true;
-            label11.Location = new Point(129, 130);
-            label11.Name = "label11";
-            label11.Size = new Size(81, 15);
-            label11.TabIndex = 0;
-            label11.Text = "DedupEngine:";
-            // 
-            // CmbVideoDedupServiceLogLevel
-            // 
-            CmbVideoDedupServiceLogLevel.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            CmbVideoDedupServiceLogLevel.DropDownStyle = ComboBoxStyle.DropDownList;
-            CmbVideoDedupServiceLogLevel.FormattingEnabled = true;
-            CmbVideoDedupServiceLogLevel.Location = new Point(216, 16);
-            CmbVideoDedupServiceLogLevel.Name = "CmbVideoDedupServiceLogLevel";
-            CmbVideoDedupServiceLogLevel.Size = new Size(128, 23);
-            CmbVideoDedupServiceLogLevel.TabIndex = 1;
-            // 
-            // CmbComparisonManagerLogLevel
-            // 
-            CmbComparisonManagerLogLevel.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            CmbComparisonManagerLogLevel.DropDownStyle = ComboBoxStyle.DropDownList;
-            CmbComparisonManagerLogLevel.FormattingEnabled = true;
-            CmbComparisonManagerLogLevel.Location = new Point(216, 71);
-            CmbComparisonManagerLogLevel.Name = "CmbComparisonManagerLogLevel";
-            CmbComparisonManagerLogLevel.Size = new Size(128, 23);
-            CmbComparisonManagerLogLevel.TabIndex = 1;
-            // 
-            // CmbDedupEngineLogLevel
-            // 
-            CmbDedupEngineLogLevel.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            CmbDedupEngineLogLevel.DropDownStyle = ComboBoxStyle.DropDownList;
-            CmbDedupEngineLogLevel.FormattingEnabled = true;
-            CmbDedupEngineLogLevel.Location = new Point(216, 126);
-            CmbDedupEngineLogLevel.Name = "CmbDedupEngineLogLevel";
-            CmbDedupEngineLogLevel.Size = new Size(128, 23);
-            CmbDedupEngineLogLevel.TabIndex = 1;
             // 
             // CscComparisonSettings
             // 
@@ -258,6 +155,13 @@ namespace VideoDedupClient.Dialogs
             VicVideoInput.Name = "VicVideoInput";
             VicVideoInput.Size = new Size(398, 507);
             VicVideoInput.TabIndex = 1;
+            // 
+            // LscLogSettings
+            // 
+            LscLogSettings.Location = new Point(3, 329);
+            LscLogSettings.Name = "LscLogSettings";
+            LscLogSettings.Size = new Size(347, 176);
+            LscLogSettings.TabIndex = 29;
             // 
             // ServerConfigDlg
             // 
@@ -279,9 +183,6 @@ namespace VideoDedupClient.Dialogs
             ((ISupportInitialize)NumThumbnailViewCount).EndInit();
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel2.ResumeLayout(false);
-            groupBox5.ResumeLayout(false);
-            tableLayoutPanel5.ResumeLayout(false);
-            tableLayoutPanel5.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -293,15 +194,8 @@ namespace VideoDedupClient.Dialogs
         private NumericUpDown NumThumbnailViewCount;
         private TableLayoutPanel tableLayoutPanel1;
         private TableLayoutPanel tableLayoutPanel2;
-        private GroupBox groupBox5;
-        private TableLayoutPanel tableLayoutPanel5;
-        private Label label2;
-        private Label label8;
-        private Label label11;
-        private ComboBox CmbVideoDedupServiceLogLevel;
-        private ComboBox CmbComparisonManagerLogLevel;
-        private ComboBox CmbDedupEngineLogLevel;
         private Controls.VideoInput.VideoInputCtrl VicVideoInput;
         private Controls.ComparisonSettings.ComparisonSettingsCtrl CscComparisonSettings;
+        private Controls.LogSettings.LogSettingsCtrl LscLogSettings;
     }
 }

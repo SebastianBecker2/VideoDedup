@@ -17,15 +17,7 @@ namespace VideoDedupClient.Dialogs
 
         public ConfigurationSettings? ConfigurationSettings { get; set; }
 
-        public ServerConfigDlg()
-        {
-            InitializeComponent();
-
-            var logLevel = Enum.GetNames<LogSettings.Types.LogLevel>();
-            CmbVideoDedupServiceLogLevel.Items.AddRange(logLevel);
-            CmbComparisonManagerLogLevel.Items.AddRange(logLevel);
-            CmbDedupEngineLogLevel.Items.AddRange(logLevel);
-        }
+        public ServerConfigDlg() => InitializeComponent();
 
         protected override void OnLoad(EventArgs e)
         {
@@ -78,11 +70,11 @@ namespace VideoDedupClient.Dialogs
 
             if (LogSettings is not null)
             {
-                CmbVideoDedupServiceLogLevel.SelectedIndex =
+                LscLogSettings.CmbVideoDedupServiceLogLevel.SelectedIndex =
                     (int)LogSettings.VideoDedupServiceLogLevel;
-                CmbComparisonManagerLogLevel.SelectedIndex =
+                LscLogSettings.CmbComparisonManagerLogLevel.SelectedIndex =
                     (int)LogSettings.ComparisonManagerLogLevel;
-                CmbDedupEngineLogLevel.SelectedIndex =
+                LscLogSettings.CmbDedupEngineLogLevel.SelectedIndex =
                     (int)LogSettings.DedupEngineLogLevel;
             }
 
@@ -129,13 +121,13 @@ namespace VideoDedupClient.Dialogs
 
             LogSettings!.VideoDedupServiceLogLevel =
                 (LogSettings.Types.LogLevel)
-                    CmbVideoDedupServiceLogLevel.SelectedIndex;
+                    LscLogSettings.CmbVideoDedupServiceLogLevel.SelectedIndex;
             LogSettings!.ComparisonManagerLogLevel =
                 (LogSettings.Types.LogLevel)
-                    CmbComparisonManagerLogLevel.SelectedIndex;
+                    LscLogSettings.CmbComparisonManagerLogLevel.SelectedIndex;
             LogSettings!.DedupEngineLogLevel =
                 (LogSettings.Types.LogLevel)
-                    CmbDedupEngineLogLevel.SelectedIndex;
+                    LscLogSettings.CmbDedupEngineLogLevel.SelectedIndex;
 
             DialogResult = DialogResult.OK;
         }
