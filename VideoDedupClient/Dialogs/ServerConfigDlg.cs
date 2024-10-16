@@ -51,23 +51,23 @@ namespace VideoDedupClient.Dialogs
 
             if (VideoComparisonSettings is not null)
             {
-                NumMaxImageComparison.Value =
+                CscComparisonSettings.NumMaxImageComparison.Value =
                     VideoComparisonSettings.CompareCount;
-                NumMaxDifferentImages.Value =
+                CscComparisonSettings.NumMaxDifferentImages.Value =
                     VideoComparisonSettings.MaxDifferentImages;
-                NumMaxDifferentPercentage.Value =
+                CscComparisonSettings.NumMaxDifferentPercentage.Value =
                     VideoComparisonSettings.MaxDifference;
             }
 
             if (DurationComparisonSettings is not null)
             {
-                RdbDurationDifferencePercent.Checked =
+                CscComparisonSettings.RdbDurationDifferencePercent.Checked =
                     DurationComparisonSettings.DifferenceType
                     == DurationDifferenceType.Percent;
-                RdbDurationDifferenceSeconds.Checked =
+                CscComparisonSettings.RdbDurationDifferenceSeconds.Checked =
                     DurationComparisonSettings.DifferenceType
                     == DurationDifferenceType.Seconds;
-                NumMaxDurationDifference.Value =
+                CscComparisonSettings.NumMaxDurationDifference.Value =
                     DurationComparisonSettings.MaxDifference;
             }
 
@@ -106,13 +106,13 @@ namespace VideoDedupClient.Dialogs
                 VicVideoInput.LsbFileExtensions.Items.Cast<string>().ToList());
 
             VideoComparisonSettings!.CompareCount =
-                (int)NumMaxImageComparison.Value;
+                (int)CscComparisonSettings.NumMaxImageComparison.Value;
             VideoComparisonSettings!.MaxDifferentImages =
-                (int)NumMaxDifferentImages.Value;
+                (int)CscComparisonSettings.NumMaxDifferentImages.Value;
             VideoComparisonSettings!.MaxDifference =
-                (int)NumMaxDifferentPercentage.Value;
+                (int)CscComparisonSettings.NumMaxDifferentPercentage.Value;
 
-            if (RdbDurationDifferencePercent.Checked)
+            if (CscComparisonSettings.RdbDurationDifferencePercent.Checked)
             {
                 DurationComparisonSettings!.DifferenceType =
                     DurationDifferenceType.Percent;
@@ -123,7 +123,7 @@ namespace VideoDedupClient.Dialogs
                     DurationDifferenceType.Seconds;
             }
             DurationComparisonSettings!.MaxDifference =
-                (int)NumMaxDurationDifference.Value;
+                (int)CscComparisonSettings.NumMaxDurationDifference.Value;
 
             ThumbnailSettings!.ImageCount = (int)NumThumbnailViewCount.Value;
 
@@ -140,14 +140,19 @@ namespace VideoDedupClient.Dialogs
             DialogResult = DialogResult.OK;
         }
 
-        private void BtnCustomVideoComparison_Click(object sender, EventArgs e)
+        private void CscComparisonSettings_TryComparisonClick(
+            object sender,
+            EventArgs e)
         {
             using var dlg = new CustomVideoComparisonDlg();
             dlg.VideoComparisonSettings = new VideoComparisonSettings
             {
-                CompareCount = (int)NumMaxImageComparison.Value,
-                MaxDifferentImages = (int)NumMaxDifferentImages.Value,
-                MaxDifference = (int)NumMaxDifferentPercentage.Value,
+                CompareCount =
+                    (int)CscComparisonSettings.NumMaxImageComparison.Value,
+                MaxDifferentImages =
+                    (int)CscComparisonSettings.NumMaxDifferentImages.Value,
+                MaxDifference =
+                    (int)CscComparisonSettings.NumMaxDifferentPercentage.Value,
             };
 
             if (dlg.ShowDialog() != DialogResult.OK)
@@ -155,25 +160,12 @@ namespace VideoDedupClient.Dialogs
                 return;
             }
 
-            NumMaxImageComparison.Value = dlg.VideoComparisonSettings.CompareCount;
-            NumMaxDifferentImages.Value =
+            CscComparisonSettings.NumMaxImageComparison.Value =
+                dlg.VideoComparisonSettings.CompareCount;
+            CscComparisonSettings.NumMaxDifferentImages.Value =
                 dlg.VideoComparisonSettings.MaxDifferentImages;
-            NumMaxDifferentPercentage.Value =
+            CscComparisonSettings.NumMaxDifferentPercentage.Value =
                 dlg.VideoComparisonSettings.MaxDifference;
-        }
-
-        private void HandleDurationDifferenceTypeChanged(
-            object sender,
-            EventArgs e)
-        {
-            if (RdbDurationDifferenceSeconds.Checked)
-            {
-                LblMaxDurationDifferenceUnit.Text = "Seconds";
-            }
-            else
-            {
-                LblMaxDurationDifferenceUnit.Text = "Percent";
-            }
         }
     }
 }
