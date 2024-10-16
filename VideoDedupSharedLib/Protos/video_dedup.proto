@@ -21,6 +21,7 @@ service VideoDedupGrpcService {
   rpc GetVideoComparisonStatus (VideoComparisonStatusRequest) returns (VideoComparisonStatus);
   rpc CancelVideoComparison (CancelVideoComparisonRequest) returns (google.protobuf.Empty);
   rpc GetFolderContent (GetFolderContentRequest) returns (GetFolderContentResponse);
+  rpc GetProgressInfo (GetProgressInfoRequest) returns (GetProgressInfoResponse);
 }
 
 enum ComparisonResult {
@@ -167,6 +168,23 @@ message ResolveDuplicateResponse {
     ResolveOperation resolve_operation = 3;
 }
 
+message ProgressInfo {
+    int32 file_count = 1;
+    double file_count_speed = 2;
+    int32 duplicates_found = 3;
+    double duplicates_found_speed = 4;
+}
+
+message GetProgressInfoRequest {
+    string progress_token = 1;
+    int32 start = 2;
+    int32 count = 3;
+}
+
+message GetProgressInfoResponse {
+    repeated ProgressInfo progress_infos = 1;
+}
+
 message OperationInfo {
     enum OperationType {
         COMPARING = 0;
@@ -185,18 +203,18 @@ message OperationInfo {
     }
 
     OperationType operation_type = 1;
-    int32 current_progress = 2;
-    int32 maximum_progress = 3;
-    ProgressStyle progress_style = 4;
-    google.protobuf.Timestamp start_time = 5;
+    int32 maximum_files = 2;
+    ProgressStyle progress_style = 3;
+    google.protobuf.Timestamp start_time = 4;
+    int32 progress_count = 5;
+    string progress_token = 6;
 }
 
 message StatusData {
     OperationInfo operation_info = 1;
-    int32 current_duplicate_count = 2;
+    int32 current_duplicates_count = 2;
     int32 log_count = 3;
     string log_token = 4;
-    int32 duplicates_found = 5;
 }
 
 message FolderSettings {
