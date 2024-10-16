@@ -1,11 +1,6 @@
 namespace VideoDedupClient.Dialogs
 {
-    using System.Globalization;
-    using CustomSelectFileDlg;
-    using CustomSelectFileDlg.Exceptions;
-    using Microsoft.WindowsAPICodePack.Dialogs;
     using VideoDedupGrpc;
-    using VideoDedupSharedLib.ExtensionMethods.ByteStringExtensions;
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
 
     public partial class ServerConfigDlg : Form
@@ -36,20 +31,21 @@ namespace VideoDedupClient.Dialogs
         {
             if (FolderSettings is not null)
             {
-                TxtSourcePath.Text = FolderSettings.BasePath;
-                ChbRecursive.Checked = FolderSettings.Recursive;
-                ChbMonitorFileChanges.Checked = FolderSettings.MonitorChanges;
+                VicVideoInput.TxtSourcePath.Text = FolderSettings.BasePath;
+                VicVideoInput.ChbRecursive.Checked = FolderSettings.Recursive;
+                VicVideoInput.ChbMonitorFileChanges.Checked =
+                    FolderSettings.MonitorChanges;
 
                 if (FolderSettings.ExcludedDirectories != null)
                 {
-                    LsbExcludedDirectories.Items.AddRange(
-                        FolderSettings.ExcludedDirectories.ToArray<object>());
+                    VicVideoInput.LsbExcludedDirectories.Items.AddRange(
+                        [.. FolderSettings.ExcludedDirectories]);
                 }
 
                 if (FolderSettings.FileExtensions != null)
                 {
-                    LsbFileExtensions.Items.AddRange(
-                        FolderSettings.FileExtensions.ToArray<object>());
+                    VicVideoInput.LsbFileExtensions.Items.AddRange(
+                        [.. FolderSettings.FileExtensions]);
                 }
             }
 
@@ -96,17 +92,18 @@ namespace VideoDedupClient.Dialogs
         private void BtnOkay_Click(object sender, EventArgs e)
         {
             ConfigurationSettings ??= new ConfigurationSettings();
-            FolderSettings!.BasePath = TxtSourcePath.Text;
-            FolderSettings!.Recursive = ChbRecursive.Checked;
-            FolderSettings!.MonitorChanges = ChbMonitorFileChanges.Checked;
+            FolderSettings!.BasePath = VicVideoInput.TxtSourcePath.Text;
+            FolderSettings!.Recursive = VicVideoInput.ChbRecursive.Checked;
+            FolderSettings!.MonitorChanges =
+                VicVideoInput.ChbMonitorFileChanges.Checked;
 
             FolderSettings!.ExcludedDirectories.Clear();
             FolderSettings!.ExcludedDirectories.AddRange(
-                LsbExcludedDirectories.Items.Cast<string>());
+                VicVideoInput.LsbExcludedDirectories.Items.Cast<string>());
 
             FolderSettings!.FileExtensions.Clear();
             FolderSettings!.FileExtensions.AddRange(
-                LsbFileExtensions.Items.Cast<string>().ToList());
+                VicVideoInput.LsbFileExtensions.Items.Cast<string>().ToList());
 
             VideoComparisonSettings!.CompareCount =
                 (int)NumMaxImageComparison.Value;
@@ -143,75 +140,6 @@ namespace VideoDedupClient.Dialogs
             DialogResult = DialogResult.OK;
         }
 
-        private void BtnSelectSourcePath_Click(object sender, EventArgs e)
-        {
-            static string? ShowFolderSelection(string initialFolder)
-            {
-                var serverAddress = Program.Configuration.ServerAddress.ToLower(
-                    CultureInfo.InvariantCulture);
-
-                if (serverAddress is "localhost" or "127.0.0.1")
-                {
-                    return ShowFolderSelectionLocally(initialFolder);
-                }
-
-                return ShowFolderSelectionRemote(initialFolder);
-            }
-
-            var newPath = ShowFolderSelection(TxtSourcePath.Text);
-            if (newPath is null)
-            {
-                return;
-            }
-
-            TxtSourcePath.Text = newPath;
-        }
-
-        private void BtnAddExcludedDirectory_Click(object sender, EventArgs e)
-        {
-            using var dlg = new CommonOpenFileDialog();
-            dlg.IsFolderPicker = true;
-
-            if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
-            {
-                return;
-            }
-
-            _ = LsbExcludedDirectories.Items.Add(dlg.FileName);
-        }
-
-        private void BtnRemoveExcludedDirectory_Click(object sender, EventArgs e)
-        {
-            foreach (var s in LsbExcludedDirectories
-                         .SelectedItems
-                         .OfType<string>()
-                         .ToList())
-            {
-                LsbExcludedDirectories.Items.Remove(s);
-            }
-        }
-
-        private void BtnAddFileExtension_Click(object sender, EventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(TxtFileExtension.Text))
-            {
-                return;
-            }
-
-            _ = LsbFileExtensions.Items.Add(TxtFileExtension.Text);
-        }
-
-        private void BtnRemoveFileExtension_Click(object sender, EventArgs e)
-        {
-            foreach (var s in LsbFileExtensions
-                         .SelectedItems
-                         .OfType<string>()
-                         .ToList())
-            {
-                LsbFileExtensions.Items.Remove(s);
-            }
-        }
-
         private void BtnCustomVideoComparison_Click(object sender, EventArgs e)
         {
             using var dlg = new CustomVideoComparisonDlg();
@@ -246,76 +174,6 @@ namespace VideoDedupClient.Dialogs
             {
                 LblMaxDurationDifferenceUnit.Text = "Percent";
             }
-        }
-
-        private static string? ShowFolderSelectionLocally(string initialPath)
-        {
-            using var dlg = new CommonOpenFileDialog();
-            dlg.IsFolderPicker = true;
-            dlg.InitialDirectory = initialPath;
-
-            if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
-            {
-                return null;
-            }
-
-            return dlg.FileName;
-        }
-
-        private static string? ShowFolderSelectionRemote(string initialPath)
-        {
-            static Entry ToEntry(
-                GetFolderContentResponse.Types.FileAttributes f) =>
-                new(f.Name)
-                {
-                    DateModified = f.DateModified?.ToDateTime(),
-                    Size = f.Type == FileType.Folder ? null : f.Size,
-                    Type = f.Type == FileType.Folder
-                        ? EntryType.Folder
-                        : EntryType.File,
-                    MimeType = f.MimeType,
-                    Icon = f.Icon?.ToImage(),
-                };
-
-            using var dlg = new CustomSelectFileDialog();
-            dlg.IsFolderSelector = true;
-            dlg.CurrentPath = initialPath;
-            dlg.ButtonUpEnabled = ButtonUpEnabledWhen.Always;
-            dlg.EntryIconStyle = IconStyle.FallbackToExtensionSpecificIcons;
-
-            var rootFolderRequest = Program.GrpcClient.GetFolderContent(
-                new GetFolderContentRequest
-                {
-                    Path = "",
-                    TypeRestriction = FileType.Folder
-                });
-            if (!rootFolderRequest.RequestFailed)
-            {
-                dlg.RootEntries = rootFolderRequest.Files.Select(ToEntry);
-            }
-
-            dlg.ContentRequested += (_, args) =>
-            {
-                var contentRequest = Program.GrpcClient.GetFolderContent(
-                    new GetFolderContentRequest
-                    {
-                        Path = args.Path,
-                        TypeRestriction = FileType.Folder
-                    });
-                if (contentRequest.RequestFailed)
-                {
-                    args.Entries = [];
-                    throw new InvalidContentRequestException();
-                }
-                args.Entries = contentRequest.Files.Select(ToEntry);
-            };
-
-            if (dlg.ShowDialog() != DialogResult.OK)
-            {
-                return null;
-            }
-
-            return dlg.SelectedPath;
         }
     }
 }
