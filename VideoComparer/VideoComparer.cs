@@ -192,14 +192,26 @@ namespace VideoComparer
         }
 
         private static float GetDifferenceOfBytes(
-            IReadOnlyList<byte> left,
-            IReadOnlyList<byte> right,
+            byte[] left,
+            byte[] right,
             byte threshold = ByteDifferenceThreshold)
         {
-            var diffBytes = Enumerable
-                .Range(0, left.Count)
-                .Aggregate((d, i) =>
-                    Math.Abs(left[i] - right[i]) > threshold ? d + 1 : d);
+            var diffBytes = 0;
+            var count = left.Length;
+
+            for (var i = 0; i < count; i++)
+            {
+                var diff = left[i] - right[i];
+                if (diff < 0)
+                {
+                    diff = -diff; // Manual absolute difference
+                }
+
+                if (diff > threshold)
+                {
+                    diffBytes++;
+                }
+            }
 
             return diffBytes / 256f;
         }
