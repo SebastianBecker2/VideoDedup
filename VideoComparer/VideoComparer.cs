@@ -2,6 +2,7 @@ namespace VideoComparer
 {
     using System.Drawing;
     using System.Drawing.Imaging;
+    using System.Numerics;
     using EventArgs;
     using Google.Protobuf;
     using KGySoft.Drawing;
@@ -191,22 +192,40 @@ namespace VideoComparer
             }
         }
 
-        private static float GetDifferenceOfBytes(
+        private static unsafe float GetDifferenceOfBytes(
             byte[] left,
             byte[] right,
             byte threshold = ByteDifferenceThreshold)
         {
+            // Typically 16 or 32 bytes depending on hardware
+            var vectorSize = Vector<byte>.Count;
             var diffBytes = 0;
-            var count = left.Length;
+            var i = 0;
 
-            for (var i = 0; i < count; i++)
+            // Process in chunks of Vector<byte>.Count (16 or 32 bytes)
+            for (; i <= left.Length - vectorSize; i += vectorSize)
             {
-                var diff = left[i] - right[i];
-                if (diff < 0)
-                {
-                    diff = -diff; // Manual absolute difference
-                }
+                var leftVector = new Vector<byte>(left, i);
+                var rightVector = new Vector<byte>(right, i);
 
+                // Calculate absolute difference: |left - right|
+                var diffVector = Vector.Abs(
+                    Vector.Subtract(leftVector, rightVector));
+
+                // Compare with threshold and count elements that exceed it
+                for (var j = 0; j < vectorSize; j++)
+                {
+                    if (diffVector[j] > threshold)
+                    {
+                        diffBytes++;
+                    }
+                }
+            }
+
+            // Process remaining elements (if any)
+            for (; i < left.Length; i++)
+            {
+                var diff = Math.Abs(left[i] - right[i]);
                 if (diff > threshold)
                 {
                     diffBytes++;
