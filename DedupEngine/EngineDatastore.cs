@@ -1,5 +1,7 @@
 namespace DedupEngine
 {
+    using System.Data.SqlTypes;
+    using Microsoft.Data.Sqlite;
     using VideoDedupSharedLib;
     using VideoDedupSharedLib.ExtensionMethods.DateTimeExtensions;
     using VideoDedupSharedLib.Interfaces;
@@ -7,12 +9,16 @@ namespace DedupEngine
     internal sealed class EngineDatastore(string filePath)
         : Datastore(filePath)
     {
-        protected override void CreateTables() => CreateVideoFilesTable();
-
-        private void CreateVideoFilesTable()
+        protected override void CreateTables()
         {
             using var connection = OpenConnection();
-            var command = connection.CreateCommand();
+            CreateVideoFilesTable(connection);
+            CreateVideFilesIndexes(connection);
+        }
+
+        private static void CreateVideoFilesTable(SqliteConnection connection)
+        {
+            using var command = connection.CreateCommand();
             command.CommandText = "CREATE TABLE IF NOT EXISTS VideoFiles ("
                 + " VideoFileId INTEGER NOT NULL UNIQUE,"
                 + " FileName TEXT NOT NULL,"
@@ -24,8 +30,11 @@ namespace DedupEngine
                 + " PRIMARY KEY(VideoFileId AUTOINCREMENT)"
                 + ")";
             _ = command.ExecuteNonQuery();
+        }
 
-            command = connection.CreateCommand();
+        private static void CreateVideFilesIndexes(SqliteConnection connection)
+        {
+            using var command = connection.CreateCommand();
             command.CommandText = "CREATE INDEX IF NOT EXISTS" +
                 " idx_VideoFiles_FileAttributes" +
                 " ON VideoFiles (FileName, FileSize, LastWriteTime);";
@@ -35,7 +44,7 @@ namespace DedupEngine
         public void InsertVideoFile(IVideoFile videoFile)
         {
             using var connection = OpenConnection();
-            var command = connection.CreateCommand();
+            using var command = connection.CreateCommand();
             command.CommandText = "INSERT INTO VideoFiles"
                 + " (FileName, FileSize, Duration, LastWriteTime)"
                 + " VALUES "
@@ -60,7 +69,7 @@ namespace DedupEngine
         public TimeSpan? GetVideoFileDuration(IVideoFile videoFile)
         {
             using var connection = OpenConnection();
-            var command = connection.CreateCommand();
+            using var command = connection.CreateCommand();
             command.CommandText = "SELECT"
                 + " Duration FROM VideoFiles"
                 + " WHERE FileName IS (@FileName)"

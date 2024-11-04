@@ -1,5 +1,6 @@
 namespace VideoComparer
 {
+    using Microsoft.Data.Sqlite;
     using MpvLib;
     using VideoDedupSharedLib;
     using VideoDedupSharedLib.ExtensionMethods.DateTimeExtensions;
@@ -10,12 +11,16 @@ namespace VideoComparer
     internal sealed class ComparerDatastore(string filePath)
         : Datastore(filePath)
     {
-        protected override void CreateTables() => CreateImagesTable();
-
-        private void CreateImagesTable()
+        protected override void CreateTables()
         {
             using var connection = OpenConnection();
-            var command = connection.CreateCommand();
+            CreateImagesTable(connection);
+            CreateImagesIndexes(connection);
+        }
+
+        private static void CreateImagesTable(SqliteConnection connection)
+        {
+            using var command = connection.CreateCommand();
             command.CommandText = "CREATE TABLE IF NOT EXISTS Images ("
                 + " Numerator INTEGER NOT NULL,"
                 + " Denominator INTEGER NOT NULL,"
@@ -28,18 +33,24 @@ namespace VideoComparer
                 + " ON DELETE CASCADE"
                 + ")";
             _ = command.ExecuteNonQuery();
+        }
+        private static void CreateImagesIndexes(SqliteConnection connection)
+        {
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = "CREATE INDEX IF NOT EXISTS " +
+                    "idx_Images_VideoFileId " +
+                    "ON Images (VideoFileId);";
+                _ = command.ExecuteNonQuery();
+            }
 
-            command = connection.CreateCommand();
-            command.CommandText = "CREATE INDEX IF NOT EXISTS " +
-                "idx_Images_VideoFileId " +
-                "ON Images (VideoFileId);";
-            _ = command.ExecuteNonQuery();
-
-            command = connection.CreateCommand();
-            command.CommandText = "CREATE INDEX IF NOT EXISTS " +
-                "idx_Images_Numerator_Denominator_ImageSize_Data " +
-                "ON Images (Numerator, Denominator, ImageSize, Data);";
-            _ = command.ExecuteNonQuery();
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = "CREATE INDEX IF NOT EXISTS " +
+                    "idx_Images_Numerator_Denominator_ImageSize_Data " +
+                    "ON Images (Numerator, Denominator, ImageSize, Data);";
+                _ = command.ExecuteNonQuery();
+            }
         }
 
         public void InsertImage(
@@ -48,7 +59,7 @@ namespace VideoComparer
             IVideoFile videoFile)
         {
             using var connection = OpenConnection();
-            var command = connection.CreateCommand();
+            using var command = connection.CreateCommand();
             command.CommandText = "INSERT INTO Images"
                     + " (Numerator, Denominator, ImageSize, Data, VideoFileId)"
                     + " VALUES"
@@ -95,7 +106,7 @@ namespace VideoComparer
             }
 
             using var connection = OpenConnection();
-            var command = connection.CreateCommand();
+            using var command = connection.CreateCommand();
             command.CommandText = "SELECT"
                 + " Numerator, Denominator, ImageSize, Data"
                 + " FROM Images"
