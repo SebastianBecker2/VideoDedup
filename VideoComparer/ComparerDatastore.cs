@@ -34,6 +34,7 @@ namespace VideoComparer
                 + ")";
             _ = command.ExecuteNonQuery();
         }
+
         private static void CreateImagesIndexes(SqliteConnection connection)
         {
             {
