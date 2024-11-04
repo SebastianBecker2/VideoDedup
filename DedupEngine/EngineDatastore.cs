@@ -1,6 +1,5 @@
 namespace DedupEngine
 {
-    using System.Data.SqlTypes;
     using Microsoft.Data.Sqlite;
     using VideoDedupSharedLib;
     using VideoDedupSharedLib.ExtensionMethods.DateTimeExtensions;
