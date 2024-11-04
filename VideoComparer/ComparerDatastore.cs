@@ -27,7 +27,18 @@ namespace VideoComparer
                 + " FOREIGN KEY(VideoFileId) REFERENCES VideoFiles(VideoFileId)"
                 + " ON DELETE CASCADE"
                 + ")";
+            _ = command.ExecuteNonQuery();
 
+            command = connection.CreateCommand();
+            command.CommandText = "CREATE INDEX IF NOT EXISTS " +
+                "idx_Images_VideoFileId " +
+                "ON Images (VideoFileId);";
+            _ = command.ExecuteNonQuery();
+
+            command = connection.CreateCommand();
+            command.CommandText = "CREATE INDEX IF NOT EXISTS " +
+                "idx_Images_Numerator_Denominator_ImageSize_Data " +
+                "ON Images (Numerator, Denominator, ImageSize, Data);";
             _ = command.ExecuteNonQuery();
         }
 
