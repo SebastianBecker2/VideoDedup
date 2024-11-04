@@ -16,6 +16,8 @@ namespace VideoDedupServer
         VideoDedupGrpcService.VideoDedupGrpcServiceBase,
         IDisposable
     {
+        private static readonly string TrashFolderName = "VideoDedupTrash";
+
         private readonly DedupEngine dedupEngine;
         private readonly DuplicateManager duplicateManager;
         private readonly List<string> logEntries = [];
@@ -62,7 +64,7 @@ namespace VideoDedupServer
             dedupEngine.Started += (_, _) => AddLogEntry("Started DedupEngine");
             dedupEngine.Stopped += DedupEngine_Stopped;
 
-            duplicateManager = new DuplicateManager(settings.ThumbnailSettings);
+            duplicateManager = new DuplicateManager(settings.ResolutionSettings);
 
             operationInfo = new OperationInfo
             {
@@ -85,6 +87,10 @@ namespace VideoDedupServer
             ConfigurationSettings request,
             ServerCallContext context)
         {
+            var fs = request.FolderSettings;
+            var rs = request.ResolutionSettings;
+            rs.TrashPath = Path.Combine(fs.BasePath, TrashFolderName);
+
             SaveConfiguration(request);
             UpdateConfiguration(request);
             return Task.FromResult(new Empty());
@@ -412,8 +418,9 @@ namespace VideoDedupServer
                     ConfigurationManager.GetVideoComparisonSettings(),
                 DurationComparisonSettings =
                     ConfigurationManager.GetDurationComparisonSettings(),
-                ThumbnailSettings = ConfigurationManager.GetThumbnailSettings(),
                 LogSettings = ConfigurationManager.GetLogSettings(),
+                ResolutionSettings =
+                    ConfigurationManager.GetResolutionSettings(),
             };
 
             AddLogEntry("Loaded configuration");
@@ -430,9 +437,9 @@ namespace VideoDedupServer
                 settings.VideoComparisonSettings);
             ConfigurationManager.SetDurationComparisonSettings(
                 settings.DurationComparisonSettings);
-            ConfigurationManager.SetThumbnailSettings(
-                settings.ThumbnailSettings);
             ConfigurationManager.SetLogSettings(settings.LogSettings);
+            ConfigurationManager.SetResolutionSettings(
+                settings.ResolutionSettings);
 
             Settings.Default.Save();
 
@@ -446,11 +453,23 @@ namespace VideoDedupServer
             logManager.UpdateConfiguration(settings.LogSettings);
 
             duplicateManager.UpdateSettings(
-                settings.ThumbnailSettings,
+                settings.ResolutionSettings,
                 UpdateSettingsResolution.DiscardDuplicates);
 
+            // Copy FolderSettings but add TrashPath as ExcludedDirectory
+            var fs = new FolderSettings
+            {
+                BasePath = settings.FolderSettings.BasePath,
+                MonitorChanges = settings.FolderSettings.MonitorChanges,
+                Recursive = settings.FolderSettings.Recursive,
+            };
+            fs.ExcludedDirectories.AddRange(
+                settings.FolderSettings.ExcludedDirectories);
+            fs.ExcludedDirectories.Add(settings.ResolutionSettings.TrashPath);
+            fs.FileExtensions.AddRange(settings.FolderSettings.FileExtensions);
+
             if (dedupEngine.UpdateConfiguration(
-                settings.FolderSettings,
+                fs,
                 settings.DurationComparisonSettings,
                 settings.VideoComparisonSettings))
             {

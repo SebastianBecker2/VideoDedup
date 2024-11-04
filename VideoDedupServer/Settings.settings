@@ -50,5 +50,11 @@
     <Setting Name="DedupEngineLogLevel" Type="System.String" Scope="User">
       <Value Profile="(Default)">Information</Value>
     </Setting>
+    <Setting Name="MoveToTrash" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="TrashPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

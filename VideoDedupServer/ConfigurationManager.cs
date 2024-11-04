@@ -39,12 +39,6 @@ namespace VideoDedupServer
                         Settings.Default.DurationDifferenceType),
             };
 
-        public static ThumbnailSettings GetThumbnailSettings() =>
-            new()
-            {
-                ImageCount = Settings.Default.ThumbnailImageCount,
-            };
-
         public static LogSettings GetLogSettings() =>
             new()
             {
@@ -54,6 +48,14 @@ namespace VideoDedupServer
                     ToLogLevel(Settings.Default.ComparisonManagerLogLevel),
                 VideoDedupServiceLogLevel =
                     ToLogLevel(Settings.Default.VideoDedupServiceLogLevel),
+            };
+
+        public static ResolutionSettings GetResolutionSettings() =>
+            new()
+            {
+                ImageCount = Settings.Default.ThumbnailImageCount,
+                MoveToTrash = Settings.Default.MoveToTrash,
+                TrashPath = Settings.Default.TrashPath,
             };
 
         public static void SetFolderSettings(FolderSettings settings)
@@ -83,9 +85,6 @@ namespace VideoDedupServer
                 settings.DifferenceType.ToString();
         }
 
-        public static void SetThumbnailSettings(ThumbnailSettings settings) =>
-            Settings.Default.ThumbnailImageCount = settings.ImageCount;
-
         public static void SetLogSettings(LogSettings settings)
         {
             Settings.Default.VideoDedupServiceLogLevel =
@@ -94,6 +93,13 @@ namespace VideoDedupServer
                 settings.ComparisonManagerLogLevel.ToString();
             Settings.Default.DedupEngineLogLevel =
                 settings.DedupEngineLogLevel.ToString();
+        }
+
+        public static void SetResolutionSettings(ResolutionSettings settings)
+        {
+            Settings.Default.ThumbnailImageCount = settings.ImageCount;
+            Settings.Default.MoveToTrash = settings.MoveToTrash;
+            Settings.Default.TrashPath = settings.TrashPath;
         }
 
         private static List<string> GetExcludedDirectories() =>

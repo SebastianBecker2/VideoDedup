@@ -5,7 +5,7 @@ namespace DuplicateManager
     using MpvLib.Exceptions;
     using VideoDedupGrpc;
 
-    internal sealed class ThumbnailManager(ThumbnailSettings settings)
+    internal sealed class ThumbnailManager(ResolutionSettings settings)
     {
         private sealed class VideoFileRefCounter(VideoFile videoFile)
             : IEqualityComparer<VideoFileRefCounter>
@@ -35,7 +35,7 @@ namespace DuplicateManager
 
         private readonly HashSet<VideoFileRefCounter> uniqueVideoFiles = [];
 
-        public ThumbnailSettings Settings { get; set; } = settings
+        public ResolutionSettings Settings { get; set; } = settings
                 ?? throw new ArgumentNullException(nameof(settings));
 
         public VideoFile AddVideoFileReference(VideoFile videoFile)
