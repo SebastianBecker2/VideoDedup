@@ -1,5 +1,7 @@
 namespace VideoComparer
 {
+    using System;
+    using Microsoft.Data.Sqlite;
     using MpvLib;
     using VideoDedupSharedLib;
     using VideoDedupSharedLib.ExtensionMethods.DateTimeExtensions;
@@ -10,12 +12,20 @@ namespace VideoComparer
     internal sealed class ComparerDatastore(string filePath)
         : Datastore(filePath)
     {
-        protected override void CreateTables() => CreateImagesTable();
+        private static readonly Dictionary<Tuple<ImageIndex, IVideoFile>, byte[]?>
+            ImageCache = [];
+        private static readonly object ImageCacheMutex = new();
 
-        private void CreateImagesTable()
+        protected override void CreateTables()
         {
             using var connection = OpenConnection();
-            var command = connection.CreateCommand();
+            CreateImagesTable(connection);
+            CreateImagesIndexes(connection);
+        }
+
+        private static void CreateImagesTable(SqliteConnection connection)
+        {
+            using var command = connection.CreateCommand();
             command.CommandText = "CREATE TABLE IF NOT EXISTS Images ("
                 + " Numerator INTEGER NOT NULL,"
                 + " Denominator INTEGER NOT NULL,"
@@ -27,8 +37,26 @@ namespace VideoComparer
                 + " FOREIGN KEY(VideoFileId) REFERENCES VideoFiles(VideoFileId)"
                 + " ON DELETE CASCADE"
                 + ")";
-
             _ = command.ExecuteNonQuery();
+        }
+
+        private static void CreateImagesIndexes(SqliteConnection connection)
+        {
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = "CREATE INDEX IF NOT EXISTS " +
+                    "idx_Images_VideoFileId " +
+                    "ON Images (VideoFileId);";
+                _ = command.ExecuteNonQuery();
+            }
+
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = "CREATE INDEX IF NOT EXISTS " +
+                    "idx_Images_Numerator_Denominator_ImageSize_Data " +
+                    "ON Images (Numerator, Denominator, ImageSize, Data);";
+                _ = command.ExecuteNonQuery();
+            }
         }
 
         public void InsertImage(
@@ -37,7 +65,7 @@ namespace VideoComparer
             IVideoFile videoFile)
         {
             using var connection = OpenConnection();
-            var command = connection.CreateCommand();
+            using var command = connection.CreateCommand();
             command.CommandText = "INSERT INTO Images"
                     + " (Numerator, Denominator, ImageSize, Data, VideoFileId)"
                     + " VALUES"
@@ -72,6 +100,11 @@ namespace VideoComparer
                 videoFile.LastWriteTime.ToUnixDate());
 
             _ = command.ExecuteNonQuery();
+
+            lock (ImageCacheMutex)
+            {
+                _ = ImageCache.TryAdd(Tuple.Create(imageId, videoFile), bytes);
+            }
         }
 
         public IEnumerable<(ImageIndex index, byte[]? bytes)> GetImages(
@@ -83,8 +116,31 @@ namespace VideoComparer
                 yield break;
             }
 
+            List<ImageIndex> uncachedImageIndices = [];
+            lock (ImageCacheMutex)
+            {
+                foreach (var imageIndex in imageIndices)
+                {
+                    if (ImageCache.TryGetValue(
+                        Tuple.Create(imageIndex, videoFile),
+                        out var data))
+                    {
+                        yield return (imageIndex, data);
+                    }
+                    else
+                    {
+                        uncachedImageIndices.Add(imageIndex);
+                    }
+                }
+            }
+
+            if (uncachedImageIndices.Count == 0)
+            {
+                yield break;
+            }
+
             using var connection = OpenConnection();
-            var command = connection.CreateCommand();
+            using var command = connection.CreateCommand();
             command.CommandText = "SELECT"
                 + " Numerator, Denominator, ImageSize, Data"
                 + " FROM Images"
@@ -96,7 +152,7 @@ namespace VideoComparer
                 + " AND ("
                 + string.Join(
                     " OR ",
-                    imageIndices.Select((_, i) =>
+                    uncachedImageIndices.Select((_, i) =>
                         $"(Numerator IS (@Numerator{i})"
                         + $" AND Denominator IS (@Denominator{i}))"))
                 + ")";
@@ -112,7 +168,7 @@ namespace VideoComparer
                 videoFile.LastWriteTime.ToUnixDate());
 
             var counter = 0;
-            foreach (var index in imageIndices)
+            foreach (var index in uncachedImageIndices)
             {
                 _ = command.Parameters.AddWithValue(
                     $"@Numerator{counter}",
@@ -124,14 +180,18 @@ namespace VideoComparer
             }
 
             using var reader = command.ExecuteReader();
-            while (reader.Read())
+            lock (ImageCacheMutex)
             {
-                var index = new ImageIndex(
-                    reader.GetInt32(0),
-                    reader.GetInt32(1));
-                var size = reader.GetInt32(2);
-                var bytes = size > 0 ? reader.GetBytes(3, size) : null;
-                yield return (index, bytes);
+                while (reader.Read())
+                {
+                    var index = new ImageIndex(
+                        reader.GetInt32(0),
+                        reader.GetInt32(1));
+                    var size = reader.GetInt32(2);
+                    var bytes = size > 0 ? reader.GetBytes(3, size) : null;
+                    _ = ImageCache.TryAdd(Tuple.Create(index, videoFile), bytes);
+                    yield return (index, bytes);
+                }
             }
         }
     }

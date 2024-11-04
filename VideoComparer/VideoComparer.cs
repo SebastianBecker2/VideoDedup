@@ -22,8 +22,23 @@ namespace VideoComparer
             string datastorePath,
             VideoFile leftVideoFile,
             VideoFile rightVideoFile)
-            : this(settings, leftVideoFile, rightVideoFile) =>
-            comparerDatastore = new ComparerDatastore(datastorePath);
+            : this(settings, leftVideoFile, rightVideoFile)
+        {
+            lock (DatastoreCacheMutex)
+            {
+                if (DatastoreCache.TryGetValue(datastorePath, out var datastore))
+                {
+                    comparerDatastore = datastore;
+                    return;
+                }
+                comparerDatastore = new ComparerDatastore(datastorePath);
+                DatastoreCache.Add(datastorePath, comparerDatastore);
+            }
+        }
+
+        private static readonly Dictionary<string, ComparerDatastore>
+            DatastoreCache = [];
+        private static readonly object DatastoreCacheMutex = new();
 
         private sealed class CacheableImageSet
         {
