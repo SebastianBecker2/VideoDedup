@@ -23,7 +23,12 @@ namespace DedupEngine
                 + " ON CONFLICT IGNORE,"
                 + " PRIMARY KEY(VideoFileId AUTOINCREMENT)"
                 + ")";
+            _ = command.ExecuteNonQuery();
 
+            command = connection.CreateCommand();
+            command.CommandText = "CREATE INDEX IF NOT EXISTS" +
+                " idx_VideoFiles_FileAttributes" +
+                " ON VideoFiles (FileName, FileSize, LastWriteTime);";
             _ = command.ExecuteNonQuery();
         }
 
