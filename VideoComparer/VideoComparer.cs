@@ -3,6 +3,8 @@ namespace VideoComparer
     using System.Drawing;
     using System.Drawing.Imaging;
     using System.Numerics;
+    using System.Runtime.Intrinsics.X86;
+    using System.Runtime.Intrinsics;
     using EventArgs;
     using Google.Protobuf;
     using KGySoft.Drawing;
@@ -18,6 +20,10 @@ namespace VideoComparer
         VideoFile leftVideoFile,
         VideoFile rightVideoFile)
     {
+        private static readonly Dictionary<string, ComparerDatastore>
+            DatastoreCache = [];
+        private static readonly object DatastoreCacheMutex = new();
+
         public VideoComparer(
             VideoComparisonSettings settings,
             string datastorePath,
@@ -36,10 +42,6 @@ namespace VideoComparer
                 DatastoreCache.Add(datastorePath, comparerDatastore);
             }
         }
-
-        private static readonly Dictionary<string, ComparerDatastore>
-            DatastoreCache = [];
-        private static readonly object DatastoreCacheMutex = new();
 
         private sealed class CacheableImageSet
         {
@@ -192,7 +194,19 @@ namespace VideoComparer
             }
         }
 
-        private static unsafe float GetDifferenceOfBytes(
+        private static float GetDifferenceOfBytes(
+            byte[] left,
+            byte[] right,
+            byte threshold = ByteDifferenceThreshold)
+        {
+            if (Avx2.IsSupported)
+            {
+                return GetDifferenceOfBytesAvx2(left, right, threshold);
+            }
+            return GetDifferenceOfBytesSimd(left, right, threshold);
+        }
+
+        private static unsafe float GetDifferenceOfBytesSimd(
             byte[] left,
             byte[] right,
             byte threshold = ByteDifferenceThreshold)
@@ -229,6 +243,64 @@ namespace VideoComparer
                 if (diff > threshold)
                 {
                     diffBytes++;
+                }
+            }
+
+            return diffBytes / 256f;
+        }
+
+        private static unsafe float GetDifferenceOfBytesAvx2(
+           byte[] left,
+           byte[] right,
+           byte threshold = ByteDifferenceThreshold)
+        {
+            if (left.Length != 256 || right.Length != 256)
+            {
+                throw new ArgumentException("Arrays must have a length of 256.");
+            }
+
+            var diffBytes = 0;
+            var vectorSize = 32; // AVX2 processes 32 bytes at a time
+
+            // Create threshold vectors for byte and short
+            var thresholdVectorByte = Vector256.Create(threshold);
+            var thresholdVectorShort = Vector256.Create((short)threshold);
+
+            fixed (byte* leftPtr = left, rightPtr = right)
+            {
+                for (var i = 0; i <= left.Length - vectorSize; i += vectorSize)
+                {
+                    // Load 32 bytes from each array into AVX2 registers
+                    var leftVector = Avx.LoadVector256(leftPtr + i);
+                    var rightVector = Avx.LoadVector256(rightPtr + i);
+
+                    // Perform saturated subtraction in both directions
+                    // to calculate absolute difference
+                    var diff1 = Avx2.SubtractSaturate(leftVector, rightVector);
+                    var diff2 = Avx2.SubtractSaturate(rightVector, leftVector);
+                    // Combine results to get |left - right|
+                    var diffVector = Avx2.Or(diff1, diff2);
+
+                    // Widen diffVector from byte to short to allow
+                    // CompareGreaterThan
+                    var diffVectorLow =
+                        Avx2.ConvertToVector256Int16(diffVector.GetLower());
+                    var diffVectorHigh =
+                        Avx2.ConvertToVector256Int16(diffVector.GetUpper());
+
+                    // Compare each short element with the threshold and count
+                    var comparisonLow = Avx2.CompareGreaterThan(
+                        diffVectorLow,
+                        thresholdVectorShort);
+                    var comparisonHigh = Avx2.CompareGreaterThan(
+                        diffVectorHigh,
+                        thresholdVectorShort);
+
+                    // Use Popcnt to count bits set in comparison results
+                    diffBytes += (int)Popcnt.PopCount(
+                        (uint)Avx2.MoveMask(comparisonLow.AsByte()));
+                    diffBytes += (int)Popcnt.PopCount(
+                        (uint)Avx2.MoveMask(comparisonHigh.AsByte()));
                 }
             }
 
