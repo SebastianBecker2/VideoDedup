@@ -1,6 +1,6 @@
-﻿namespace VideoDedupClient.Controls.VideoInput
+namespace VideoDedupClient.Controls.FolderSettings
 {
-    partial class VideoInputCtrl
+    partial class FolderSettingsCtrl
     {
         /// <summary> 
         /// Required designer variable.

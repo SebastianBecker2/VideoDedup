@@ -1,7 +1,6 @@
 namespace VideoDedupClient.Dialogs
 {
     using VideoDedupGrpc;
-    using static VideoDedupGrpc.DurationComparisonSettings.Types;
 
     public partial class ServerConfigDlg : Form
     {
@@ -11,9 +10,9 @@ namespace VideoDedupClient.Dialogs
             ConfigurationSettings?.DurationComparisonSettings;
         private VideoComparisonSettings? VideoComparisonSettings =>
             ConfigurationSettings?.VideoComparisonSettings;
-        private ThumbnailSettings? ThumbnailSettings =>
-            ConfigurationSettings?.ThumbnailSettings;
         private LogSettings? LogSettings => ConfigurationSettings?.LogSettings;
+        private ResolutionSettings? ResolutionSettings =>
+            ConfigurationSettings?.ResolutionSettings;
 
         public ConfigurationSettings? ConfigurationSettings { get; set; }
 
@@ -21,63 +20,15 @@ namespace VideoDedupClient.Dialogs
 
         protected override void OnLoad(EventArgs e)
         {
-            if (FolderSettings is not null)
-            {
-                VicVideoInput.TxtSourcePath.Text = FolderSettings.BasePath;
-                VicVideoInput.ChbRecursive.Checked = FolderSettings.Recursive;
-                VicVideoInput.ChbMonitorFileChanges.Checked =
-                    FolderSettings.MonitorChanges;
+            FscFolderSettings.ShowSettings(FolderSettings);
 
-                if (FolderSettings.ExcludedDirectories != null)
-                {
-                    VicVideoInput.LsbExcludedDirectories.Items.AddRange(
-                        [.. FolderSettings.ExcludedDirectories]);
-                }
+            CscComparisonSettings.ShowSettings(
+                VideoComparisonSettings,
+                DurationComparisonSettings);
 
-                if (FolderSettings.FileExtensions != null)
-                {
-                    VicVideoInput.LsbFileExtensions.Items.AddRange(
-                        [.. FolderSettings.FileExtensions]);
-                }
-            }
+            LscLogSettings.ShowSettings(LogSettings);
 
-            if (VideoComparisonSettings is not null)
-            {
-                CscComparisonSettings.NumMaxImageComparison.Value =
-                    VideoComparisonSettings.CompareCount;
-                CscComparisonSettings.NumMaxDifferentImages.Value =
-                    VideoComparisonSettings.MaxDifferentImages;
-                CscComparisonSettings.NumMaxDifferentPercentage.Value =
-                    VideoComparisonSettings.MaxDifference;
-            }
-
-            if (DurationComparisonSettings is not null)
-            {
-                CscComparisonSettings.RdbDurationDifferencePercent.Checked =
-                    DurationComparisonSettings.DifferenceType
-                    == DurationDifferenceType.Percent;
-                CscComparisonSettings.RdbDurationDifferenceSeconds.Checked =
-                    DurationComparisonSettings.DifferenceType
-                    == DurationDifferenceType.Seconds;
-                CscComparisonSettings.NumMaxDurationDifference.Value =
-                    DurationComparisonSettings.MaxDifference;
-            }
-
-            if (ThumbnailSettings is not null)
-            {
-                RscResolutionSettings.NumThumbnailViewCount.Value =
-                    ThumbnailSettings.ImageCount;
-            }
-
-            if (LogSettings is not null)
-            {
-                LscLogSettings.CmbVideoDedupServiceLogLevel.SelectedIndex =
-                    (int)LogSettings.VideoDedupServiceLogLevel;
-                LscLogSettings.CmbComparisonManagerLogLevel.SelectedIndex =
-                    (int)LogSettings.ComparisonManagerLogLevel;
-                LscLogSettings.CmbDedupEngineLogLevel.SelectedIndex =
-                    (int)LogSettings.DedupEngineLogLevel;
-            }
+            RscResolutionSettings.ShowSettings(ResolutionSettings);
 
             base.OnLoad(e);
         }
@@ -85,51 +36,19 @@ namespace VideoDedupClient.Dialogs
         private void BtnOkay_Click(object sender, EventArgs e)
         {
             ConfigurationSettings ??= new ConfigurationSettings();
-            FolderSettings!.BasePath = VicVideoInput.TxtSourcePath.Text;
-            FolderSettings!.Recursive = VicVideoInput.ChbRecursive.Checked;
-            FolderSettings!.MonitorChanges =
-                VicVideoInput.ChbMonitorFileChanges.Checked;
 
-            FolderSettings!.ExcludedDirectories.Clear();
-            FolderSettings!.ExcludedDirectories.AddRange(
-                VicVideoInput.LsbExcludedDirectories.Items.Cast<string>());
+            ConfigurationSettings.FolderSettings =
+                FscFolderSettings.GetSettings();
 
-            FolderSettings!.FileExtensions.Clear();
-            FolderSettings!.FileExtensions.AddRange(
-                VicVideoInput.LsbFileExtensions.Items.Cast<string>().ToList());
+            ConfigurationSettings.VideoComparisonSettings =
+                CscComparisonSettings.GetVideoComparisonSettings();
+            ConfigurationSettings.DurationComparisonSettings =
+                CscComparisonSettings.GetDurationComparisonSettings();
 
-            VideoComparisonSettings!.CompareCount =
-                (int)CscComparisonSettings.NumMaxImageComparison.Value;
-            VideoComparisonSettings!.MaxDifferentImages =
-                (int)CscComparisonSettings.NumMaxDifferentImages.Value;
-            VideoComparisonSettings!.MaxDifference =
-                (int)CscComparisonSettings.NumMaxDifferentPercentage.Value;
+            ConfigurationSettings.ResolutionSettings =
+                RscResolutionSettings.GetSettings();
 
-            if (CscComparisonSettings.RdbDurationDifferencePercent.Checked)
-            {
-                DurationComparisonSettings!.DifferenceType =
-                    DurationDifferenceType.Percent;
-            }
-            else
-            {
-                DurationComparisonSettings!.DifferenceType =
-                    DurationDifferenceType.Seconds;
-            }
-            DurationComparisonSettings!.MaxDifference =
-                (int)CscComparisonSettings.NumMaxDurationDifference.Value;
-
-            ThumbnailSettings!.ImageCount =
-                (int)RscResolutionSettings.NumThumbnailViewCount.Value;
-
-            LogSettings!.VideoDedupServiceLogLevel =
-                (LogSettings.Types.LogLevel)
-                    LscLogSettings.CmbVideoDedupServiceLogLevel.SelectedIndex;
-            LogSettings!.ComparisonManagerLogLevel =
-                (LogSettings.Types.LogLevel)
-                    LscLogSettings.CmbComparisonManagerLogLevel.SelectedIndex;
-            LogSettings!.DedupEngineLogLevel =
-                (LogSettings.Types.LogLevel)
-                    LscLogSettings.CmbDedupEngineLogLevel.SelectedIndex;
+            ConfigurationSettings.LogSettings = LscLogSettings.GetSettings();
 
             DialogResult = DialogResult.OK;
         }

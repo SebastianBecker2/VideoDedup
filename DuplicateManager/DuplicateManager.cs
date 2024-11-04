@@ -4,14 +4,14 @@ namespace DuplicateManager
     using VideoDedupGrpc;
 
     public class DuplicateManager(
-        ThumbnailSettings settings)
+        ResolutionSettings settings)
     {
         private readonly ThumbnailManager thumbnailManager = new(settings);
         private readonly object duplicateLock = new();
 
         private HashSet<DuplicateWrapper> duplicateList = [];
 
-        public ThumbnailSettings Settings => thumbnailManager.Settings;
+        public ResolutionSettings Settings => thumbnailManager.Settings;
 
         public int Count
         {
@@ -45,7 +45,7 @@ namespace DuplicateManager
                 new DuplicateResolvedEventArgs(duplicate, operation));
 
         public void UpdateSettings(
-            ThumbnailSettings settings,
+            ResolutionSettings settings,
             UpdateSettingsResolution resolution =
                 UpdateSettingsResolution.DiscardDuplicates)
         {
@@ -194,7 +194,26 @@ namespace DuplicateManager
                     "the duplicate.");
             }
 
-            File.Delete(file.FilePath);
+            if (Settings.MoveToTrash)
+            {
+                Directory.CreateDirectory(Settings.TrashPath);
+
+                var folder =
+                    Path.Combine(Settings.TrashPath, $"{Guid.NewGuid()}");
+                Directory.CreateDirectory(folder);
+
+                var trashFile =
+                    Path.Combine(folder, Path.GetFileName(file.FilePath));
+                File.Move(file.FilePath, trashFile);
+
+                var metaFile = Path.Combine(folder, "meta.txt");
+                File.WriteAllText(metaFile, file.FilePath);
+            }
+            else
+            {
+                File.Delete(file.FilePath);
+            }
+
             RemoveDuplicate(duplicate);
         }
 

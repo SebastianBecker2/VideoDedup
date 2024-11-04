@@ -33,21 +33,27 @@ namespace VideoDedupClient.Dialogs
             var resources = new ComponentResourceManager(typeof(ServerConfigDlg));
             BtnCancel = new Button();
             BtnOkay = new Button();
-            tableLayoutPanel1 = new TableLayoutPanel();
-            tableLayoutPanel2 = new TableLayoutPanel();
             CscComparisonSettings = new Controls.ComparisonSettings.ComparisonSettingsCtrl();
             LscLogSettings = new Controls.LogSettings.LogSettingsCtrl();
-            VicVideoInput = new Controls.VideoInput.VideoInputCtrl();
             RscResolutionSettings = new Controls.ResolutionSettings.ResolutionSettingsCtrl();
-            tableLayoutPanel1.SuspendLayout();
-            tableLayoutPanel2.SuspendLayout();
+            FscFolderSettings = new Controls.FolderSettings.FolderSettingsCtrl();
+            tabControl1 = new TabControl();
+            tabPage1 = new TabPage();
+            tabPage2 = new TabPage();
+            tabPage3 = new TabPage();
+            tableLayoutPanel3 = new TableLayoutPanel();
+            tabControl1.SuspendLayout();
+            tabPage1.SuspendLayout();
+            tabPage2.SuspendLayout();
+            tabPage3.SuspendLayout();
+            tableLayoutPanel3.SuspendLayout();
             SuspendLayout();
             // 
             // BtnCancel
             // 
             BtnCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             BtnCancel.DialogResult = DialogResult.Cancel;
-            BtnCancel.Location = new Point(684, 534);
+            BtnCancel.Location = new Point(325, 478);
             BtnCancel.Margin = new Padding(4, 3, 4, 3);
             BtnCancel.Name = "BtnCancel";
             BtnCancel.Size = new Size(88, 27);
@@ -58,7 +64,7 @@ namespace VideoDedupClient.Dialogs
             // BtnOkay
             // 
             BtnOkay.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            BtnOkay.Location = new Point(589, 534);
+            BtnOkay.Location = new Point(230, 478);
             BtnOkay.Margin = new Padding(4, 3, 4, 3);
             BtnOkay.Name = "BtnOkay";
             BtnOkay.Size = new Size(88, 27);
@@ -67,68 +73,98 @@ namespace VideoDedupClient.Dialogs
             BtnOkay.UseVisualStyleBackColor = true;
             BtnOkay.Click += BtnOkay_Click;
             // 
-            // tableLayoutPanel1
-            // 
-            tableLayoutPanel1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            tableLayoutPanel1.ColumnCount = 2;
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 53.44564F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 46.55436F));
-            tableLayoutPanel1.Controls.Add(tableLayoutPanel2, 1, 0);
-            tableLayoutPanel1.Controls.Add(VicVideoInput, 0, 0);
-            tableLayoutPanel1.Location = new Point(14, 14);
-            tableLayoutPanel1.Margin = new Padding(4, 3, 4, 3);
-            tableLayoutPanel1.Name = "tableLayoutPanel1";
-            tableLayoutPanel1.RowCount = 1;
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel1.Size = new Size(757, 513);
-            tableLayoutPanel1.TabIndex = 27;
-            // 
-            // tableLayoutPanel2
-            // 
-            tableLayoutPanel2.ColumnCount = 1;
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tableLayoutPanel2.Controls.Add(CscComparisonSettings, 0, 0);
-            tableLayoutPanel2.Controls.Add(LscLogSettings, 0, 2);
-            tableLayoutPanel2.Controls.Add(RscResolutionSettings, 0, 1);
-            tableLayoutPanel2.Dock = DockStyle.Fill;
-            tableLayoutPanel2.Location = new Point(404, 0);
-            tableLayoutPanel2.Margin = new Padding(0);
-            tableLayoutPanel2.Name = "tableLayoutPanel2";
-            tableLayoutPanel2.RowCount = 3;
-            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 50.7763977F));
-            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 12.9354954F));
-            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 36.288105F));
-            tableLayoutPanel2.Size = new Size(353, 513);
-            tableLayoutPanel2.TabIndex = 0;
-            // 
             // CscComparisonSettings
             // 
+            CscComparisonSettings.Dock = DockStyle.Fill;
             CscComparisonSettings.Location = new Point(3, 3);
             CscComparisonSettings.Name = "CscComparisonSettings";
-            CscComparisonSettings.Size = new Size(347, 254);
+            CscComparisonSettings.Size = new Size(186, 66);
             CscComparisonSettings.TabIndex = 28;
             CscComparisonSettings.TryComparisonClick += CscComparisonSettings_TryComparisonClick;
             // 
             // LscLogSettings
             // 
-            LscLogSettings.Location = new Point(3, 329);
+            LscLogSettings.Dock = DockStyle.Fill;
+            LscLogSettings.Location = new Point(3, 216);
             LscLogSettings.Name = "LscLogSettings";
-            LscLogSettings.Size = new Size(347, 176);
+            LscLogSettings.Size = new Size(382, 207);
             LscLogSettings.TabIndex = 29;
-            // 
-            // VicVideoInput
-            // 
-            VicVideoInput.Location = new Point(3, 3);
-            VicVideoInput.Name = "VicVideoInput";
-            VicVideoInput.Size = new Size(398, 507);
-            VicVideoInput.TabIndex = 1;
             // 
             // RscResolutionSettings
             // 
-            RscResolutionSettings.Location = new Point(3, 263);
+            RscResolutionSettings.Dock = DockStyle.Fill;
+            RscResolutionSettings.Location = new Point(3, 3);
             RscResolutionSettings.Name = "RscResolutionSettings";
-            RscResolutionSettings.Size = new Size(347, 60);
+            RscResolutionSettings.Size = new Size(382, 207);
             RscResolutionSettings.TabIndex = 30;
+            // 
+            // FscFolderSettings
+            // 
+            FscFolderSettings.Dock = DockStyle.Fill;
+            FscFolderSettings.Location = new Point(3, 3);
+            FscFolderSettings.Name = "FscFolderSettings";
+            FscFolderSettings.Size = new Size(388, 426);
+            FscFolderSettings.TabIndex = 1;
+            // 
+            // tabControl1
+            // 
+            tabControl1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tabControl1.Controls.Add(tabPage1);
+            tabControl1.Controls.Add(tabPage2);
+            tabControl1.Controls.Add(tabPage3);
+            tabControl1.Location = new Point(12, 12);
+            tabControl1.Name = "tabControl1";
+            tabControl1.SelectedIndex = 0;
+            tabControl1.Size = new Size(402, 460);
+            tabControl1.TabIndex = 28;
+            // 
+            // tabPage1
+            // 
+            tabPage1.Controls.Add(FscFolderSettings);
+            tabPage1.Location = new Point(4, 24);
+            tabPage1.Name = "tabPage1";
+            tabPage1.Padding = new Padding(3);
+            tabPage1.Size = new Size(394, 432);
+            tabPage1.TabIndex = 0;
+            tabPage1.Text = "Video Input";
+            tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // tabPage2
+            // 
+            tabPage2.Controls.Add(CscComparisonSettings);
+            tabPage2.Location = new Point(4, 24);
+            tabPage2.Name = "tabPage2";
+            tabPage2.Padding = new Padding(3);
+            tabPage2.Size = new Size(192, 72);
+            tabPage2.TabIndex = 1;
+            tabPage2.Text = "Comparison";
+            tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // tabPage3
+            // 
+            tabPage3.Controls.Add(tableLayoutPanel3);
+            tabPage3.Location = new Point(4, 24);
+            tabPage3.Name = "tabPage3";
+            tabPage3.Padding = new Padding(3);
+            tabPage3.Size = new Size(394, 432);
+            tabPage3.TabIndex = 2;
+            tabPage3.Text = "Duplicates and Logging";
+            tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // tableLayoutPanel3
+            // 
+            tableLayoutPanel3.ColumnCount = 1;
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel3.Controls.Add(LscLogSettings, 0, 1);
+            tableLayoutPanel3.Controls.Add(RscResolutionSettings, 0, 0);
+            tableLayoutPanel3.Dock = DockStyle.Fill;
+            tableLayoutPanel3.Location = new Point(3, 3);
+            tableLayoutPanel3.Name = "tableLayoutPanel3";
+            tableLayoutPanel3.RowCount = 2;
+            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel3.Size = new Size(388, 426);
+            tableLayoutPanel3.TabIndex = 31;
             // 
             // ServerConfigDlg
             // 
@@ -136,28 +172,34 @@ namespace VideoDedupClient.Dialogs
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             CancelButton = BtnCancel;
-            ClientSize = new Size(785, 575);
+            ClientSize = new Size(426, 519);
+            Controls.Add(tabControl1);
             Controls.Add(BtnCancel);
             Controls.Add(BtnOkay);
-            Controls.Add(tableLayoutPanel1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Margin = new Padding(4, 3, 4, 3);
             Name = "ServerConfigDlg";
             StartPosition = FormStartPosition.CenterParent;
             Text = "Server Configuration";
-            tableLayoutPanel1.ResumeLayout(false);
-            tableLayoutPanel2.ResumeLayout(false);
+            tabControl1.ResumeLayout(false);
+            tabPage1.ResumeLayout(false);
+            tabPage2.ResumeLayout(false);
+            tabPage3.ResumeLayout(false);
+            tableLayoutPanel3.ResumeLayout(false);
             ResumeLayout(false);
         }
 
         #endregion
         private Button BtnCancel;
         private Button BtnOkay;
-        private TableLayoutPanel tableLayoutPanel1;
-        private TableLayoutPanel tableLayoutPanel2;
-        private Controls.VideoInput.VideoInputCtrl VicVideoInput;
+        private Controls.FolderSettings.FolderSettingsCtrl FscFolderSettings;
         private Controls.ComparisonSettings.ComparisonSettingsCtrl CscComparisonSettings;
         private Controls.LogSettings.LogSettingsCtrl LscLogSettings;
         private Controls.ResolutionSettings.ResolutionSettingsCtrl RscResolutionSettings;
+        private TabControl tabControl1;
+        private TabPage tabPage1;
+        private TabPage tabPage2;
+        private TabPage tabPage3;
+        private TableLayoutPanel tableLayoutPanel3;
     }
 }

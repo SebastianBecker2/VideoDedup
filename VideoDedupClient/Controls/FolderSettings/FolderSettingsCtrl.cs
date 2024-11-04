@@ -1,4 +1,4 @@
-namespace VideoDedupClient.Controls.VideoInput
+namespace VideoDedupClient.Controls.FolderSettings
 {
     using System;
     using System.Data;
@@ -11,9 +11,54 @@ namespace VideoDedupClient.Controls.VideoInput
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.ByteStringExtensions;
 
-    public partial class VideoInputCtrl : UserControl
+    public partial class FolderSettingsCtrl : UserControl
     {
-        public VideoInputCtrl() => InitializeComponent();
+        public FolderSettingsCtrl() => InitializeComponent();
+
+        public void ShowSettings(FolderSettings? folderSettings)
+        {
+            if (folderSettings is null)
+            {
+                return;
+            }
+
+            TxtSourcePath.Text = folderSettings.BasePath;
+            ChbRecursive.Checked = folderSettings.Recursive;
+            ChbMonitorFileChanges.Checked =
+                folderSettings.MonitorChanges;
+
+            if (folderSettings.ExcludedDirectories != null)
+            {
+                LsbExcludedDirectories.Items.AddRange(
+                    [.. folderSettings.ExcludedDirectories]);
+            }
+
+            if (folderSettings.FileExtensions != null)
+            {
+                LsbFileExtensions.Items.AddRange(
+                    [.. folderSettings.FileExtensions]);
+            }
+        }
+
+        public FolderSettings GetSettings()
+        {
+            var folderSettings = new FolderSettings()
+            {
+                BasePath = TxtSourcePath.Text,
+                Recursive = ChbRecursive.Checked,
+                MonitorChanges = ChbMonitorFileChanges.Checked,
+            };
+
+            folderSettings.ExcludedDirectories.Clear();
+            folderSettings.ExcludedDirectories.AddRange(
+                LsbExcludedDirectories.Items.Cast<string>());
+
+            folderSettings.FileExtensions.Clear();
+            folderSettings.FileExtensions.AddRange(
+                LsbFileExtensions.Items.Cast<string>().ToList());
+
+            return folderSettings;
+        }
 
         private void BtnSelectSourcePath_Click(object sender, EventArgs e)
         {

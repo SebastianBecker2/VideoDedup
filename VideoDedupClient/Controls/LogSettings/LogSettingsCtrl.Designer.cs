@@ -55,8 +55,8 @@
             // tableLayoutPanel5
             // 
             tableLayoutPanel5.ColumnCount = 2;
-            tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 61.53846F));
-            tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 38.46154F));
+            tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tableLayoutPanel5.Controls.Add(label2, 0, 0);
             tableLayoutPanel5.Controls.Add(label8, 0, 1);
             tableLayoutPanel5.Controls.Add(label11, 0, 2);
@@ -78,7 +78,7 @@
             // 
             label2.Anchor = AnchorStyles.Right;
             label2.AutoSize = true;
-            label2.Location = new Point(110, 18);
+            label2.Location = new Point(68, 18);
             label2.Name = "label2";
             label2.Size = new Size(112, 15);
             label2.TabIndex = 0;
@@ -88,7 +88,7 @@
             // 
             label8.Anchor = AnchorStyles.Right;
             label8.AutoSize = true;
-            label8.Location = new Point(100, 69);
+            label8.Location = new Point(58, 69);
             label8.Name = "label8";
             label8.Size = new Size(122, 15);
             label8.TabIndex = 0;
@@ -98,7 +98,7 @@
             // 
             label11.Anchor = AnchorStyles.Right;
             label11.AutoSize = true;
-            label11.Location = new Point(141, 120);
+            label11.Location = new Point(99, 120);
             label11.Name = "label11";
             label11.Size = new Size(81, 15);
             label11.TabIndex = 0;
@@ -109,9 +109,9 @@
             CmbVideoDedupServiceLogLevel.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             CmbVideoDedupServiceLogLevel.DropDownStyle = ComboBoxStyle.DropDownList;
             CmbVideoDedupServiceLogLevel.FormattingEnabled = true;
-            CmbVideoDedupServiceLogLevel.Location = new Point(228, 14);
+            CmbVideoDedupServiceLogLevel.Location = new Point(186, 14);
             CmbVideoDedupServiceLogLevel.Name = "CmbVideoDedupServiceLogLevel";
-            CmbVideoDedupServiceLogLevel.Size = new Size(136, 23);
+            CmbVideoDedupServiceLogLevel.Size = new Size(178, 23);
             CmbVideoDedupServiceLogLevel.TabIndex = 1;
             // 
             // CmbComparisonManagerLogLevel
@@ -119,9 +119,9 @@
             CmbComparisonManagerLogLevel.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             CmbComparisonManagerLogLevel.DropDownStyle = ComboBoxStyle.DropDownList;
             CmbComparisonManagerLogLevel.FormattingEnabled = true;
-            CmbComparisonManagerLogLevel.Location = new Point(228, 65);
+            CmbComparisonManagerLogLevel.Location = new Point(186, 65);
             CmbComparisonManagerLogLevel.Name = "CmbComparisonManagerLogLevel";
-            CmbComparisonManagerLogLevel.Size = new Size(136, 23);
+            CmbComparisonManagerLogLevel.Size = new Size(178, 23);
             CmbComparisonManagerLogLevel.TabIndex = 1;
             // 
             // CmbDedupEngineLogLevel
@@ -129,9 +129,9 @@
             CmbDedupEngineLogLevel.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             CmbDedupEngineLogLevel.DropDownStyle = ComboBoxStyle.DropDownList;
             CmbDedupEngineLogLevel.FormattingEnabled = true;
-            CmbDedupEngineLogLevel.Location = new Point(228, 116);
+            CmbDedupEngineLogLevel.Location = new Point(186, 116);
             CmbDedupEngineLogLevel.Name = "CmbDedupEngineLogLevel";
-            CmbDedupEngineLogLevel.Size = new Size(136, 23);
+            CmbDedupEngineLogLevel.Size = new Size(178, 23);
             CmbDedupEngineLogLevel.TabIndex = 1;
             // 
             // LogSettingsCtrl

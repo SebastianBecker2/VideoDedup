@@ -1,20 +1,29 @@
-﻿namespace VideoDedupClient.Controls.ResolutionSettings
+namespace VideoDedupClient.Controls.ResolutionSettings
 {
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Data;
-    using System.Drawing;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
     using System.Windows.Forms;
+    using VideoDedupGrpc;
 
     public partial class ResolutionSettingsCtrl : UserControl
     {
-        public ResolutionSettingsCtrl()
+        public ResolutionSettingsCtrl() => InitializeComponent();
+
+        public void ShowSettings(ResolutionSettings? resolutionSettings)
         {
-            InitializeComponent();
+            if (resolutionSettings is null)
+            {
+                return;
+            }
+
+            NumThumbnailViewCount.Value = resolutionSettings.ImageCount;
+            RdbMoveToTrash.Checked = resolutionSettings.MoveToTrash;
+            RdbDeleteFiles.Checked = !resolutionSettings.MoveToTrash;
         }
+
+        public ResolutionSettings GetSettings() =>
+            new()
+            {
+                ImageCount = (int)NumThumbnailViewCount.Value,
+                MoveToTrash = RdbMoveToTrash.Checked,
+            };
     }
 }

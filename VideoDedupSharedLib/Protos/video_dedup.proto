@@ -156,7 +156,6 @@ message DuplicateData {
 }
 
 message ResolveDuplicateRequest {
-
     string duplicate_id = 1;
     ResolveOperation resolve_operation = 2;
     VideoFile file = 3;
@@ -241,10 +240,6 @@ message VideoComparisonSettings {
     int32 max_difference = 3;
 }
 
-message ThumbnailSettings {
-    int32 image_count = 1;
-}
-
 message LogSettings {
     enum LogLevel {
         VERBOSE = 0;
@@ -260,10 +255,16 @@ message LogSettings {
     LogLevel dedup_engine_log_level = 3;
 }
 
+message ResolutionSettings {
+    int32 image_count = 1;
+    bool move_to_trash = 2;
+    string trash_path = 3;
+}
+
 message ConfigurationSettings {
   FolderSettings folder_settings = 1;
   DurationComparisonSettings duration_comparison_settings = 2;
   VideoComparisonSettings video_comparison_settings = 3;
-  ThumbnailSettings thumbnail_settings = 4;
   LogSettings log_settings = 5;
+  ResolutionSettings resolution_settings = 6;
 }
