@@ -54,6 +54,7 @@ namespace VideoDedupClient
                         $"http://{Configuration.ServerAddress}:41722",
                         new GrpcChannelOptions
                         {
+                            MaxReconnectBackoff = TimeSpan.FromSeconds(10),
                             MaxReceiveMessageSize = null,
                             ServiceConfig = new ServiceConfig
                             {
@@ -62,7 +63,7 @@ namespace VideoDedupClient
                                     GrpcDefaultBackoffConfig,
                                     GrpcGetCurrentStatusBackoffConfig,
                                 },
-                            }
+                            },
                         });
                     return new VideoDedupGrpcServiceClient(grpcChannel);
                 }
