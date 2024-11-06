@@ -52,8 +52,8 @@
 
   <!-- Icon definition -->
   <Fragment>
-    <Icon Id="ClientIcon.exe" SourceFile="$(var.VideoDedupClient.TargetPath)" />
-    <Property Id="ARPPRODUCTICON" Value="ClientIcon.exe" />
+    <Icon Id="ClientIcon.ico" SourceFile="$(var.SolutionDir)VideoDedupClient\Images\film.ico" />
+    <Property Id="ARPPRODUCTICON" Value="ClientIcon.ico" />
   </Fragment>
   
   <!-- File actions -->
@@ -91,7 +91,7 @@
         <Shortcut Id="ClientStartMenuShortcut"
                   Directory="ProgramMenuFolder"
                   Name="$(var.ProductName)"
-                  Icon="ClientIcon.exe"
+                  Icon="ClientIcon.ico"
                   WorkingDirectory="INSTALLFOLDER"
                   Advertise="yes" />
 
