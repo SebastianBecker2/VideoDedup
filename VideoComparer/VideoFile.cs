@@ -66,11 +66,14 @@ namespace VideoComparer
                 {
                     try
                     {
-                        fileSize = new FileInfo(FilePath).Length;
+                        var fi = new FileInfo(FilePath);
+                        fileSize = fi.Length;
+                        lastWriteTime = fi.LastWriteTime;
                     }
                     catch (Exception)
                     {
                         fileSize = 0;
+                        lastWriteTime = null;
                     }
                 }
                 return fileSize.Value;
