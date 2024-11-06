@@ -48,6 +48,9 @@ namespace VideoDedupService
 
             var app = builder.Build();
 
+            var videoDedupService =
+                app.Services.GetRequiredService<VideoDedupService>();
+
             _ = app.MapGrpcService<VideoDedupService>();
 
             app.Run();
