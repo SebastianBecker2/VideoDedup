@@ -165,8 +165,15 @@ namespace VideoDedupClient.Controls.StatusInfo
             LblDuplicateSpeed.Text = $"{DuplicatesSpeed:0.00}";
         }
 
-        private void SetElapsedTime() =>
+        private void SetElapsedTime()
+        {
+            if (OperationInfo.OperationType == OperationType.Monitoring)
+            {
+                return;
+            }
+
             LblElapsedTime.Text = Duration.ToPrettyString();
+        }
 
         private void SetRemainingTime()
         {
