@@ -48,6 +48,11 @@ namespace VideoDedupClient.Controls.StatusInfo
             };
 
             InitializeComponent();
+
+            LblCurrentFileCount.Text = "";
+            LblDuplicateCount.Text = "";
+            LblFileCountSpeed.Text = "0";
+            LblDuplicateSpeed.Text = "0";
         }
 
         public void UpdateStatusInfo(
