@@ -167,7 +167,8 @@ namespace VideoDedupClient.Controls.StatusInfo
 
         private void SetElapsedTime()
         {
-            if (OperationInfo.OperationType == OperationType.Monitoring)
+            if (OperationInfo.OperationType is OperationType.Monitoring
+                or OperationType.Completed)
             {
                 return;
             }
