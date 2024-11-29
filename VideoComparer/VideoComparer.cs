@@ -250,9 +250,9 @@ namespace VideoComparer
         }
 
         private static unsafe float GetDifferenceOfBytesAvx2(
-           byte[] left,
-           byte[] right,
-           byte threshold = ByteDifferenceThreshold)
+            byte[] left,
+            byte[] right,
+            byte threshold = ByteDifferenceThreshold)
         {
             if (left.Length != 256 || right.Length != 256)
             {
