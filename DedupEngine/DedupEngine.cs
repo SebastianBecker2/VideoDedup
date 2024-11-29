@@ -16,6 +16,41 @@ namespace DedupEngine
 
         private static readonly int DamagedFileRetryCount = 5;
 
+        private int operationType = (int)OperationType.Completed;
+        public OperationType OperationType
+        {
+            get => (OperationType)Interlocked.CompareExchange(ref operationType, 0, 0);
+            set => Interlocked.Exchange(ref operationType, (int)value);
+        }
+
+        private int fileCounter;
+        public int FileCounter
+        {
+            get => Interlocked.CompareExchange(ref fileCounter, 0, 0);
+            set => Interlocked.Exchange(ref fileCounter, value);
+        }
+
+        private int maxFileCount;
+        public int MaxFileCount
+        {
+            get => Interlocked.CompareExchange(ref maxFileCount, 0, 0);
+            set => Interlocked.Exchange(ref maxFileCount, value);
+        }
+
+        private long progressStyle = (int)ProgressStyle.Marquee;
+        public ProgressStyle ProgressStyle
+        {
+            get => (ProgressStyle)Interlocked.CompareExchange(ref progressStyle, 0, 0);
+            set => Interlocked.Exchange(ref progressStyle, (int)value);
+        }
+
+        private long operationStartTimeTicks = DateTime.MinValue.Ticks;
+        public DateTime OperationStartTime
+        {
+            get => new(Interlocked.Read(ref operationStartTimeTicks));
+            set => Interlocked.Exchange(ref operationStartTimeTicks, value.Ticks);
+        }
+
         private bool disposedValue; // For IDisposable
 
         private object DedupLock { get; } = new();
@@ -50,28 +85,42 @@ namespace DedupEngine
                 new DuplicateFoundEventArgs(folderSettings.BasePath, file1, file2));
 
         public event EventHandler<OperationUpdateEventArgs>? OperationUpdate;
-        private DateTime operationStartTime = DateTime.MinValue;
         protected virtual void OnOperationUpdate(OperationType type,
             int counter,
-            int maxCount) =>
+            int maxCount)
+        {
+            OperationType = type;
+            FileCounter = counter;
+            MaxFileCount = maxCount;
+            ProgressStyle = ProgressStyle.Continuous;
+
             OperationUpdate?.Invoke(this, new OperationUpdateEventArgs
             {
                 Type = type,
                 Counter = counter,
                 MaxCount = maxCount,
                 Style = ProgressStyle.Continuous,
-                StartTime = operationStartTime,
+                StartTime = OperationStartTime,
             });
+        }
+
         protected virtual void OnOperationUpdate(OperationType type,
-            ProgressStyle style) =>
+            ProgressStyle style)
+        {
+            OperationType = type;
+            FileCounter = 0;
+            MaxFileCount = 0;
+            ProgressStyle = style;
+
             OperationUpdate?.Invoke(this, new OperationUpdateEventArgs
             {
                 Type = type,
                 Counter = 0,
                 MaxCount = 0,
                 Style = style,
-                StartTime = operationStartTime,
+                StartTime = OperationStartTime,
             });
+        }
 
         public event EventHandler<LoggedEventArgs>? Logged;
         protected virtual void OnLogged(string message) =>
@@ -324,7 +373,7 @@ namespace DedupEngine
         private IEnumerable<VideoFile> GetVideoFileList(
             FolderSettings folderSettings)
         {
-            operationStartTime = DateTime.Now;
+            OperationStartTime = DateTime.Now;
             OnOperationUpdate(OperationType.Searching, ProgressStyle.Marquee);
 
             return GetAllAccessibleFilesIn(
@@ -344,7 +393,7 @@ namespace DedupEngine
             var counter = 0;
             var fileCount = videoFiles.Count();
 
-            operationStartTime = DateTime.Now;
+            OperationStartTime = DateTime.Now;
             OnOperationUpdate(
                 OperationType.LoadingMedia,
                 counter,
@@ -377,7 +426,7 @@ namespace DedupEngine
 
         private void FindDuplicates(CancellationToken cancelToken)
         {
-            operationStartTime = DateTime.Now;
+            OperationStartTime = DateTime.Now;
             OnOperationUpdate(
                 OperationType.Comparing,
                 0,
@@ -516,7 +565,7 @@ namespace DedupEngine
 
                 if (!folderSettings.MonitorChanges)
                 {
-                    operationStartTime = DateTime.MinValue;
+                    OperationStartTime = DateTime.MinValue;
                     OnOperationUpdate(
                         OperationType.Completed,
                         ProgressStyle.NoProgress);
@@ -524,7 +573,7 @@ namespace DedupEngine
                     return;
                 }
 
-                operationStartTime = DateTime.Now;
+                OperationStartTime = DateTime.Now;
                 OnOperationUpdate(
                     OperationType.Monitoring,
                     ProgressStyle.Marquee);
@@ -590,7 +639,7 @@ namespace DedupEngine
                 cancelToken.ThrowIfCancellationRequested();
             }
 
-            operationStartTime = DateTime.Now;
+            OperationStartTime = DateTime.Now;
             OnOperationUpdate(OperationType.Comparing, 0, newFiles.Count);
             // We need to count for the ProgressUpdate since we shrink
             // the Queue on every iteration.

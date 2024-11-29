@@ -468,10 +468,14 @@ namespace VideoDedupServer
             settings.FolderSettings.ExcludedDirectories.Add(
                 settings.ResolutionSettings.TrashPath);
 
-            if (dedupEngine.UpdateConfiguration(
+            var restartNecessary = dedupEngine.UpdateConfiguration(
                 settings.FolderSettings,
                 settings.DurationComparisonSettings,
-                settings.VideoComparisonSettings))
+                settings.VideoComparisonSettings);
+
+            if (restartNecessary ||
+                dedupEngine.OperationType is OperationType.Completed
+                or OperationType.Monitoring)
             {
                 StartDedupEngine();
             }
