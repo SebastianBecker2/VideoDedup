@@ -52,6 +52,12 @@ namespace VideoDedupServer
 
             comparisonManager = new(logManager.ComparisonManagerLogger);
 
+            // Adding TrashPath right before we create DedupEngine to avoid
+            // having it permanently in the FolderSettings (so the user won't
+            // see it).
+            settings.FolderSettings.ExcludedDirectories.Add(
+                settings.ResolutionSettings.TrashPath);
+
             dedupEngine = new DedupEngine(
                 appDataFolderPath,
                 settings.FolderSettings,
@@ -456,20 +462,14 @@ namespace VideoDedupServer
                 settings.ResolutionSettings,
                 UpdateSettingsResolution.DiscardDuplicates);
 
-            // Copy FolderSettings but add TrashPath as ExcludedDirectory
-            var fs = new FolderSettings
-            {
-                BasePath = settings.FolderSettings.BasePath,
-                MonitorChanges = settings.FolderSettings.MonitorChanges,
-                Recursive = settings.FolderSettings.Recursive,
-            };
-            fs.ExcludedDirectories.AddRange(
-                settings.FolderSettings.ExcludedDirectories);
-            fs.ExcludedDirectories.Add(settings.ResolutionSettings.TrashPath);
-            fs.FileExtensions.AddRange(settings.FolderSettings.FileExtensions);
+            // Adding TrashPath right before we update the configuration
+            // to avoid having it permanently in the FolderSettings (so the user
+            // won't see it).
+            settings.FolderSettings.ExcludedDirectories.Add(
+                settings.ResolutionSettings.TrashPath);
 
             if (dedupEngine.UpdateConfiguration(
-                fs,
+                settings.FolderSettings,
                 settings.DurationComparisonSettings,
                 settings.VideoComparisonSettings))
             {
