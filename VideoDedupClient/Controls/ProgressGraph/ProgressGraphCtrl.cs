@@ -175,6 +175,10 @@ namespace VideoDedupClient.Controls.ProgressGraph
 
             FilesSeries.Points.Add(filesDataPoint);
             DuplicatesSeries.Points.Add(duplicatesDataPoint);
+            if (duplicates != 0)
+            {
+                DuplicatesSeries.IsVisible = true;
+            }
 
             if (FileSpeedAxis.Maximum <= fileSpeed * 1.1)
             {
@@ -194,11 +198,14 @@ namespace VideoDedupClient.Controls.ProgressGraph
                 fileSpeedText,
                 filesDataPoint);
 
-            UpdateTextAnnotation(
-                DuplicatesText,
-                DuplicatesAxis.Key,
-                duplicatesText,
-                duplicatesDataPoint);
+            if (DuplicatesSeries.IsVisible)
+            {
+                UpdateTextAnnotation(
+                    DuplicatesText,
+                    DuplicatesAxis.Key,
+                    duplicatesText,
+                    duplicatesDataPoint);
+            }
 
             UpdateTextAnnotation(
                 ProgressText,
@@ -257,6 +264,7 @@ namespace VideoDedupClient.Controls.ProgressGraph
         {
             FilesSeries.Points.Clear();
             DuplicatesSeries.Points.Clear();
+            DuplicatesSeries.IsVisible = false;
 
             FileSpeedAxis.Maximum = 1;
             DuplicatesAxis.Maximum = 1;
