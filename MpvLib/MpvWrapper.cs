@@ -244,6 +244,9 @@ namespace MpvLib
                 Duration.TotalSeconds / (divisionCount + 1),
                 1);
 
+            //Console.WriteLine($"Duration: {Duration.TotalSeconds}");
+            //Console.WriteLine($"Stepping: {stepping}");
+
             PrepareImageHandle(stepping * ++index);
 
             while (true)
@@ -408,6 +411,7 @@ namespace MpvLib
 
         private void PrepareImageHandle(double position)
         {
+            //Console.WriteLine($"Index: {position}");
             try
             {
                 if (MpvHandle == IntPtr.Zero)
