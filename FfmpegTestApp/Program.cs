@@ -102,10 +102,47 @@ var files = GetAllAccessibleFilesIn(
 //files = ["\\\\bowser\\data\\MFC\\AvrilDoll\\AvrilDollX some nudity.mp4"];
 //files = ["\\\\bowser\\data\\Avril 220621 DildoFuck&Riding.mp4"];
 //files = ["D:\\VideoDedupTest\\SampleVideo_720x480_5mb.mp4"];
+//files = ["\\\\bowser\\data\\C6CEF8D.mp4.mp4"];
 //files = ["\\\\bowser\\data\\MFC\\Sassyt33n\\Watch sassyt33ns Chaturbate show from 1 week ago.mp4"];
+files = ["\\\\bowser\\data\\MFC\\Hanna Costello\\Performer hanna_costtello show on 2023-08-14 0510, Chaturbate Archive – Recurbate.mp4"];
 
-var imageCount = 20;
+var imageCount = 10;
 
+
+//{
+//    foreach (var file in files)
+//    {
+//        var ffmpeg = new FfmpegWrapper(file);
+//        var ffmpegImages = ffmpeg.GetImages(0, imageCount, imageCount);
+//        var ffmpegCounter = 0;
+//        ClearFolder($"D:\\VideoDedupTest\\temp\\ffmpeg\\");
+//        foreach (var image in ffmpegImages)
+//        {
+//            if (image is null)
+//            {
+//                continue;
+//            }
+
+//            SaveByteArrayAsImage(image, $"D:\\VideoDedupTest\\temp\\ffmpeg\\file{ffmpegCounter++}.png");
+//        }
+
+//        var mpv = new MpvLib.MpvWrapper(file);
+//        var mpvImages = mpv.GetImages(0, imageCount, imageCount);
+//        var mpvCounter = 0;
+//        ClearFolder($"D:\\VideoDedupTest\\temp\\mpv\\");
+//        foreach (var image in mpvImages)
+//        {
+//            if (image is null)
+//            {
+//                continue;
+//            }
+
+//            SaveByteArrayAsImage(image, $"D:\\VideoDedupTest\\temp\\mpv\\file{mpvCounter++}.png");
+//        }
+
+//        Console.ReadLine();
+//    }
+//}
 
 {
     Console.WriteLine($"FFMPEG");
@@ -113,41 +150,42 @@ var imageCount = 20;
     foreach (var file in files)
     {
         var ffmpeg = new FfmpegWrapper(file);
-        var ffmpegImages = ffmpeg.GetImages(0, imageCount, imageCount);
-        //var ffmpegCounter = 0;
-        //ClearFolder($"D:\\VideoDedupTest\\temp\\ffmpeg\\");
+        var ffmpegImages = ffmpeg.GetImages(3, 5, imageCount);
+        Console.WriteLine($"FFMPEG: {ffmpegImages.Count()}");
+        var ffmpegCounter = 0;
+        ClearFolder($"D:\\VideoDedupTest\\temp\\ffmpeg\\");
         foreach (var image in ffmpegImages)
         {
             if (image is null)
             {
                 continue;
             }
-            //SaveByteArrayAsImage(image, $"D:\\VideoDedupTest\\temp\\ffmpeg\\file{ffmpegCounter++}.png");
+            SaveByteArrayAsImage(image, $"D:\\VideoDedupTest\\temp\\ffmpeg\\file{ffmpegCounter++}.png");
         }
     }
     Console.WriteLine($"FFMPEG took: {stopwatch.ElapsedMilliseconds} ms");
 }
 
-//{
-//    Console.WriteLine($"libMPV");
-//    var stopwatch = Stopwatch.StartNew();
-//    foreach (var file in files)
-//    {
-//        var mpv = new MpvLib.MpvWrapper(file);
-//        var mpvImages = mpv.GetImages(0, imageCount, imageCount);
-//        //var mpvCounter = 0;
-//        //ClearFolder($"D:\\VideoDedupTest\\temp\\mpv\\");
-//        foreach (var image in mpvImages)
-//        {
-//            if (image is null)
-//            {
-//                continue;
-//            }
-//            //SaveByteArrayAsImage(image, $"D:\\VideoDedupTest\\temp\\ffmpeg\\file{ffmpegCounter++}.png");
-//        }
-//    }
-//    Console.WriteLine($"libMPV took: {stopwatch.ElapsedMilliseconds} ms");
-//}
+{
+    Console.WriteLine($"libMPV");
+    var stopwatch = Stopwatch.StartNew();
+    foreach (var file in files)
+    {
+        using var mpv = new MpvLib.MpvWrapper(file);
+        var mpvImages = mpv.GetImages(3, 5, imageCount);
+        var mpvCounter = 0;
+        ClearFolder($"D:\\VideoDedupTest\\temp\\mpv\\");
+        foreach (var image in mpvImages)
+        {
+            if (image is null)
+            {
+                continue;
+            }
+            SaveByteArrayAsImage(image, $"D:\\VideoDedupTest\\temp\\mpv\\file{mpvCounter++}.png");
+        }
+    }
+    Console.WriteLine($"libMPV took: {stopwatch.ElapsedMilliseconds} ms");
+}
 
 //Console.WriteLine($"MPV");
 //var mpv = new MpvLib.MpvWrapper(files[0]);

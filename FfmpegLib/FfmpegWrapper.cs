@@ -145,7 +145,7 @@ namespace FfmpegLib
         }
         private TimeSpan? duration;
 
-        public FfmpegWrapper(string filePath, TimeSpan? duration = null)
+        public FfmpegWrapper(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
             {
@@ -154,7 +154,6 @@ namespace FfmpegLib
             }
 
             FilePath = filePath;
-            this.duration = duration;
         }
 
         public IEnumerable<byte[]?> GetImages(
@@ -170,7 +169,7 @@ namespace FfmpegLib
             CancellationToken cancelToken) =>
             GetImages(cancelToken, index, count, divisionCount);
 
-        public IEnumerable<byte[]?> GetImages(
+        private IEnumerable<byte[]?> GetImages(
             CancellationToken? cancelToken,
             int index,
             int count,
@@ -210,7 +209,7 @@ namespace FfmpegLib
                     $"location within {nameof(divisionCount)}.");
             }
 
-            var enumerator = new FfmpegImageEnumerator(
+            using var enumerator = new FfmpegImageEnumerator(
                 FilePath, cancelToken, index, count, divisionCount);
 
             foreach (var image in enumerator)
@@ -219,18 +218,30 @@ namespace FfmpegLib
             }
         }
 
-        //public IEnumerable<byte[]?> GetImages(
-        //    IEnumerable<ImageIndex> indices)
-        //{
+        public IEnumerable<byte[]?> GetImages(
+            IEnumerable<ImageIndex> indices) =>
+            GetImages(null, indices);
 
-        //}
+        public IEnumerable<byte[]?> GetImages(
+            IEnumerable<ImageIndex> indices,
+            CancellationToken cancelToken) =>
+            GetImages(cancelToken, indices);
 
-        //public IEnumerable<byte[]?> GetImages(
-        //    IEnumerable<ImageIndex> indices,
-        //    CancellationToken cancelToken)
-        //{
+        private IEnumerable<byte[]?> GetImages(
+            CancellationToken? cancelToken,
+            IEnumerable<ImageIndex> indices)
+        {
+            if (!File.Exists(FilePath))
+            {
+                throw new FfmpegFileNotFoundException(
+                    "Unable to extract images. File not found.",
+                    FilePath);
+            }
 
-        //}
+            ArgumentNullException.ThrowIfNull(indices);
+
+
+        }
 
         internal static unsafe AVStream* GetVideoStream(AVFormatContext* context)
         {
