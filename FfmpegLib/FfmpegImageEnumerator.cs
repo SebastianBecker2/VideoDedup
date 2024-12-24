@@ -94,8 +94,6 @@ namespace FfmpegLib
             }
         }
 
-        private static int counter = 0;
-
         private static unsafe byte[]? ExtractImageAtTimestamp(
             FormatContext formatContext,
             CodecContext streamContext,
@@ -113,14 +111,6 @@ namespace FfmpegLib
                 < 0)
             {
                 return null;
-            }
-
-            counter++;
-            if (counter % 5 == 0)
-            {
-                throw new FfmpegOperationException(
-                    "Unable to extract images. " +
-                    "fake error.");
             }
 
             using var frame = new DoubleBufferedFrame();
