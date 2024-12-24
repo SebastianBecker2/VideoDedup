@@ -23,20 +23,10 @@ The duplicates can be resolved using the client. It will view details as well as
 VidepDedup is using the following tools and libraries:
 
 - [gRPC](https://grpc.io/)
-- [.NET 6](https://docs.microsoft.com/en-us/dotnet/core/whats-new/dotnet-6)
-- [libmpv](https://github.com/mpv-player/mpv)
+- [.NET 8](https://docs.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8)
+- [ffmpeg](https://ffmpeg.org/)
 - [KGySoft Drawing](https://kgysoft.net/drawing)
 - [Newtonsoft.Json](https://www.newtonsoft.com/json)
 - [WindowsAPICodePack](https://github.com/contre/Windows-API-Code-Pack-1.1)
 - The amazing [FatCow IconPack](https://www.fatcow.com/free-icons)
 - [WiX Toolset](https://wixtoolset.org)
-
-libmpv 0.33 was cross-compiled with LGPL flag from the "release/0.33" branch using MXE for x64 and x86 with:  
-
-    DEST_OS=win32 TARGET=x86_64-w64-mingw32.static ./waf configure --enable-libmpv-shared --disable-cplayer --enable-lgpl --disable-debug-build --disable-lua
-and:  
-
-    DEST_OS=win32 TARGET=i686-w64-mingw32.static ./waf configure --enable-libmpv-shared --disable-cplayer --enable-lgpl --disable-debug-build --disable-lua
-respectively.  
-For detailed configuration check [x64 libmpv_build_config](./DedupEngine/Libs/libmpv/x64/libmpv_build_config) and [x86 libmpv_build_config](./DedupEngine/Libs/libmpv/x86/libmpv_build_config) respectively.  
-For information on how to build libmpv check out [mpv-players windows compilation guide](https://github.com/mpv-player/mpv/blob/master/DOCS/compile-windows.md).
