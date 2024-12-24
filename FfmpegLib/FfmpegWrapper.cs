@@ -39,7 +39,7 @@ namespace FfmpegLib
                     filePath);
             }
 
-            var stream = GetVideoStream(context);
+            var stream = context.GetVideoStream(false);
             if (stream is null)
             {
                 throw new FfmpegOperationException(
@@ -220,21 +220,6 @@ namespace FfmpegLib
             {
                 yield return image;
             }
-        }
-
-        internal static unsafe AVStream* GetVideoStream(FormatContext context)
-        {
-            for (uint i = 0; i < context.NbStreams; i++)
-            {
-                var stream = context.Streams[i];
-                if (stream->codecpar->codec_type
-                    != AVMediaType.AVMEDIA_TYPE_VIDEO)
-                {
-                    continue;
-                }
-                return stream;
-            }
-            return null;
         }
     }
 }

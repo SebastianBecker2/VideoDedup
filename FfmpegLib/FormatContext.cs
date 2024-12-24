@@ -19,6 +19,8 @@ namespace FfmpegLib
 
         public int Open(string filePath)
         {
+            ArgumentException.ThrowIfNullOrWhiteSpace(filePath, nameof(filePath));
+
             if (disposedValue)
             {
                 throw new ObjectDisposedException(
@@ -46,6 +48,31 @@ namespace FfmpegLib
             }
 
             return ffmpeg.avformat_find_stream_info(formatContextPtr, null);
+        }
+
+        public AVStream* GetVideoStream(bool deactivateOthers = false)
+        {
+            AVStream* stream = null;
+            for (uint i = 0; i < formatContextPtr->nb_streams; i++)
+            {
+                if (stream is null
+                    && stream->codecpar->codec_type
+                    == AVMediaType.AVMEDIA_TYPE_VIDEO)
+                {
+                    stream = formatContextPtr->streams[i];
+                    if (!deactivateOthers)
+                    {
+                        return stream;
+                    }
+                    continue;
+                }
+                if (!deactivateOthers)
+                {
+                    continue;
+                }
+                formatContextPtr->streams[i]->discard = AVDiscard.AVDISCARD_ALL;
+            }
+            return null;
         }
 
         public AVFormatContext* GetPointer()

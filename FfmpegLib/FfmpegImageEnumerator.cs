@@ -35,7 +35,7 @@ namespace FfmpegLib
             try
             {
                 var formatContext = AllocateFormatContext(filePath);
-                var stream = FindStream(formatContext);
+                var stream = formatContext.GetVideoStream(true);
                 var codec = GetDecoder(stream);
                 var streamContext = AllocateStreamContext(stream, codec);
                 var timestamp =
@@ -287,28 +287,6 @@ namespace FfmpegLib
 
                 return true;
             }
-        }
-
-        private static unsafe AVStream* FindStream(FormatContext formatContext)
-        {
-            ArgumentNullException.ThrowIfNull(formatContext, nameof(formatContext));
-
-            AVStream* stream = null;
-            for (var index = 0;
-                index < formatContext.NbStreams;
-                index++)
-            {
-                if (stream is null
-                    && formatContext.Streams[index]->codecpar->codec_type
-                    == AVMediaType.AVMEDIA_TYPE_VIDEO)
-                {
-                    stream = formatContext.Streams[index];
-                    continue;
-                }
-                formatContext.Streams[index]->discard = AVDiscard.AVDISCARD_ALL;
-            }
-
-            return stream;
         }
 
         private static unsafe AVCodec* GetDecoder(AVStream* stream)
