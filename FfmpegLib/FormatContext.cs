@@ -56,7 +56,7 @@ namespace FfmpegLib
             for (uint i = 0; i < formatContextPtr->nb_streams; i++)
             {
                 if (stream is null
-                    && stream->codecpar->codec_type
+                    && formatContextPtr->streams[i]->codecpar->codec_type
                     == AVMediaType.AVMEDIA_TYPE_VIDEO)
                 {
                     stream = formatContextPtr->streams[i];
@@ -72,7 +72,7 @@ namespace FfmpegLib
                 }
                 formatContextPtr->streams[i]->discard = AVDiscard.AVDISCARD_ALL;
             }
-            return null;
+            return stream;
         }
 
         public AVFormatContext* GetPointer()
