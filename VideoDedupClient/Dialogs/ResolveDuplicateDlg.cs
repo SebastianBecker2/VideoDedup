@@ -5,7 +5,6 @@ namespace VideoDedupClient.Dialogs
     using Google.Protobuf.WellKnownTypes;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.StringExtensions;
-    using VideoDedupSharedLib.Interfaces;
 
     public partial class ResolveDuplicateDlg : Form
     {
@@ -86,7 +85,7 @@ namespace VideoDedupClient.Dialogs
             DialogResult = DialogResult.OK;
         }
 
-        private void OpenFileInExplorer(IVideoFile file)
+        private void OpenFileInExplorer(VideoFile file)
         {
             var filePath = file.FilePath;
 
