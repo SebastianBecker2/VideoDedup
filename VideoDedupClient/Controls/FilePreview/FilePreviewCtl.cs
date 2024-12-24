@@ -61,7 +61,7 @@ namespace VideoDedupClient.Controls.FilePreview
             var index = 0;
             foreach (var image in VideoFile.Images)
             {
-                if (image is null)
+                if (image.Length == 0)
                 {
                     ImlThumbnails.Images.Add(Resources.BrokenImageIcon);
                 }
@@ -92,7 +92,7 @@ namespace VideoDedupClient.Controls.FilePreview
                 return file.CodecInfo.Size;
             }
 
-            var img = file.Images.FirstOrDefault(i => i != null);
+            var img = file.Images.FirstOrDefault(i => i.Length != 0);
             if (img != null)
             {
                 return img.ToImage().Size;

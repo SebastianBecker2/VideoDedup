@@ -1,9 +1,9 @@
 namespace DuplicateManager
 {
     using Google.Protobuf;
-    using MpvLib;
-    using MpvLib.Exceptions;
+    using FfmpegLib;
     using VideoDedupGrpc;
+    using FfmpegLib.Exceptions;
 
     internal sealed class ThumbnailManager(ResolutionSettings settings)
     {
@@ -52,21 +52,22 @@ namespace DuplicateManager
             {
                 try
                 {
-                    using var mpv = new MpvWrapper(
-                        videoFile.FilePath,
-                        videoFile.Duration?.ToTimeSpan());
+                    var mpv = new FfmpegWrapper(videoFile.FilePath);
                     return mpv
                         .GetImages(0, Settings.ImageCount, Settings.ImageCount)
+                        .Select(i => i is null ? [] : i)
                         .ToList();
                 }
-                catch (MpvOperationException)
+                catch (FfmpegOperationException)
                 {
                     return new byte[Settings.ImageCount][];
                 }
             }
 
+            var p = GetThumbnails();
+
             videoFile.Images.AddRange(
-                GetThumbnails().Select(ByteString.CopyFrom));
+                p.Select(ByteString.CopyFrom));
 
             _ = uniqueVideoFiles.Add(new VideoFileRefCounter(videoFile));
             return videoFile;

@@ -1,11 +1,11 @@
 namespace VideoComparer
 {
-    using MpvLib;
-    using MpvLib.Exceptions;
+    using FfmpegLib;
+    using FfmpegLib.Exceptions;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.Interfaces;
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
-    using ImageIndex = MpvLib.ImageIndex;
+    using ImageIndex = FfmpegLib.ImageIndex;
 
     public class VideoFile : IVideoFile
     {
@@ -109,9 +109,9 @@ namespace VideoComparer
                 {
                     try
                     {
-                        duration = MpvWrapper.GetDuration(FilePath);
+                        duration = FfmpegWrapper.GetDuration(FilePath);
                     }
-                    catch (MpvOperationException)
+                    catch (FfmpegOperationException)
                     {
                         duration = TimeSpan.Zero;
                     }
@@ -130,9 +130,9 @@ namespace VideoComparer
                 {
                     try
                     {
-                        codecInfo = MpvWrapper.GetCodecInfo(FilePath);
+                        codecInfo = FfmpegWrapper.GetCodecInfo(FilePath);
                     }
-                    catch (MpvOperationException) { }
+                    catch (FfmpegOperationException) { }
                 }
                 return codecInfo;
             }

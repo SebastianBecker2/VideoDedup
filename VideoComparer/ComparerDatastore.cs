@@ -2,7 +2,7 @@ namespace VideoComparer
 {
     using System;
     using Microsoft.Data.Sqlite;
-    using MpvLib;
+    using FfmpegLib;
     using VideoDedupSharedLib;
     using VideoDedupSharedLib.ExtensionMethods.DateTimeExtensions;
     using VideoDedupSharedLib.ExtensionMethods.SqliteDataReaderExtensions;
