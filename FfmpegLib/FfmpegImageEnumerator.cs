@@ -23,8 +23,6 @@ namespace FfmpegLib
             this.filePath = filePath;
             this.cancelToken = cancelToken;
 
-            ffmpeg.avformat_network_init();
-
             tasks = indices
                 .Select(index => Task.Run(() => ExtractImageAtIndex(index)))
                 .ToList();
