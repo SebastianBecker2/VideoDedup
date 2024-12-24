@@ -10,7 +10,7 @@
     <PackageReference Include="KGySoft.Drawing" Version="8.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MpvLib\MpvLib.csproj" />
+    <ProjectReference Include="..\FfmpegLib\FfmpegLib.csproj" />
     <ProjectReference Include="..\VideoDedupSharedLib\VideoDedupSharedLib.csproj" />
   </ItemGroup>
 </Project>

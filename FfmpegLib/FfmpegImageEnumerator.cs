@@ -1,103 +1,55 @@
 namespace FfmpegLib
 {
     using System.Collections;
-    using System.Net.Http;
-    using System.Net.Sockets;
     using System.Runtime.InteropServices;
     using System.Threading.Tasks;
     using FFmpeg.AutoGen;
     using FfmpegLib.Exceptions;
-    using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
-    public sealed class FfmpegImageEnumerator : IEnumerable<byte[]?>, IEnumerator<byte[]?>
+    public sealed class FfmpegImageEnumerator :
+        IEnumerable<byte[]?>,
+        IEnumerator<byte[]?>
     {
-        private static readonly int DecodeRetryCount = 5;
         private readonly string filePath;
         private readonly CancellationToken? cancelToken;
-        private readonly int divisionCount;
-        private int streamIndex;
-        private readonly int index;
-        private readonly int count;
-        private List<Task<byte[]?>>? tasks;
+        private readonly List<Task<byte[]?>> tasks;
         private int currentMoveIndex;
 
         public FfmpegImageEnumerator(
             string filePath,
             CancellationToken? cancelToken,
-            int index,
-            int count,
-            int divisionCount)
+            IEnumerable<ImageIndex> indices)
         {
             this.filePath = filePath;
             this.cancelToken = cancelToken;
-            this.index = index;
-            this.count = count;
-            this.divisionCount = divisionCount;
 
             ffmpeg.avformat_network_init();
 
-            InitializeThreads();
-        }
-
-        private unsafe void InitializeThreads()
-        {
-            var formatContext = AllocateFormatContext();
-            double stepping = 0;
-            try
-            {
-                var durationInSeconds =
-                    formatContext->duration / (double)ffmpeg.AV_TIME_BASE;
-                stepping = CalculateStepping(durationInSeconds, divisionCount);
-
-                streamIndex = FindStreamIndex(formatContext);
-            }
-            finally
-            {
-                ffmpeg.avformat_close_input(&formatContext);
-                ffmpeg.avformat_free_context(formatContext);
-            }
-
-            tasks = Enumerable.Range(0, count)
-                .Select(i => Task.Run(() => ExtractImageAtIndex(i, stepping)))
+            tasks = indices
+                .Select(index => Task.Run(() => ExtractImageAtIndex(index)))
                 .ToList();
         }
 
-        private unsafe byte[]? ExtractImageAtIndex(int i, double stepping)
+        private unsafe byte[]? ExtractImageAtIndex(ImageIndex index)
         {
-            var formatContext = AllocateFormatContext();
-
             try
             {
-                var stream = formatContext->streams[streamIndex];
+                var formatContext = AllocateFormatContext(filePath);
+                var stream = FindStream(formatContext);
                 var codec = GetDecoder(stream);
                 var streamContext = AllocateStreamContext(stream, codec);
-                try
-                {
-                    //var timestamp = stepping * (i + 1);
-                    var timestamp = (stepping * index) + (stepping * (i + 1));
-                    timestamp = ffmpeg.av_rescale(
-                        (long)timestamp,
-                        stream->time_base.den,
-                        stream->time_base.num);
+                var timestamp =
+                    stream->duration / index.Denominator * index.Numerator;
 
-                    return ExtractImageAtTimestamp(
-                        formatContext,
-                        streamContext,
-                        (long)timestamp);
-                }
-                finally
-                {
-                    ffmpeg.avcodec_free_context(&streamContext);
-                }
+                return ExtractImageAtTimestamp(
+                    formatContext,
+                    streamContext,
+                    stream->index,
+                    timestamp);
             }
             catch (FfmpegOperationException)
             {
                 return null;
-            }
-            finally
-            {
-                ffmpeg.avformat_close_input(&formatContext);
-                ffmpeg.avformat_free_context(formatContext);
             }
         }
 
@@ -111,8 +63,7 @@ namespace FfmpegLib
 
         public bool MoveNext()
         {
-            if (count <= 0
-                || count <= currentMoveIndex
+            if (currentMoveIndex >= tasks.Count
                 || cancelToken?.IsCancellationRequested == true)
             {
                 Current = null;
@@ -121,7 +72,7 @@ namespace FfmpegLib
 
             try
             {
-                Current = tasks![currentMoveIndex].Result;
+                Current = tasks[currentMoveIndex].Result;
                 currentMoveIndex++;
                 return true;
             }
@@ -137,27 +88,25 @@ namespace FfmpegLib
 
         public void Dispose()
         {
-            foreach (var thread in tasks!)
+            foreach (var thread in tasks)
             {
                 thread.Wait();
             }
         }
 
-        private static double CalculateStepping(
-            double duration,
-            int divisionCount) =>
-            Math.Max(duration / (divisionCount + 1), 1);
+        private static int counter = 0;
 
-        private unsafe byte[]? ExtractImageAtTimestamp(
-            AVFormatContext* formatContext,
-            AVCodecContext* streamContext,
+        private static unsafe byte[]? ExtractImageAtTimestamp(
+            FormatContext formatContext,
+            CodecContext streamContext,
+            int streamIndex,
             long timestamp)
         {
             ArgumentNullException.ThrowIfNull(formatContext, nameof(formatContext));
             ArgumentNullException.ThrowIfNull(streamContext, nameof(streamContext));
 
             if (ffmpeg.av_seek_frame(
-                formatContext,
+                formatContext.GetPointer(),
                 streamIndex,
                 timestamp,
                 ffmpeg.AVSEEK_FLAG_BACKWARD | ffmpeg.AVSEEK_FLAG_FRAME)
@@ -166,149 +115,203 @@ namespace FfmpegLib
                 return null;
             }
 
-            var frame = ffmpeg.av_frame_alloc();
-            var packet = ffmpeg.av_packet_alloc();
-            var jpegPacket = ffmpeg.av_packet_alloc();
-
-            AVCodecContext* jpegContext = null;
-            try
+            counter++;
+            if (counter % 5 == 0)
             {
-                if (!GetFrame(formatContext, streamContext, packet, frame, timestamp))
-                {
-                    throw new FfmpegOperationException(
-                        "Unable to extract images. Unable to decode video.",
-                        filePath);
-                }
-
-                var jpegCodec = ffmpeg.avcodec_find_encoder(AVCodecID.AV_CODEC_ID_MJPEG);
-                if (jpegCodec == null)
-                {
-                    throw new FfmpegOperationException("Jpeg codec not found.", filePath);
-                }
-
-                jpegContext = AllocateJpegContext(formatContext, streamContext);
-
-                var result = ffmpeg.avcodec_send_frame(jpegContext, frame);
-                if (result != 0)
-                {
-                    var errorBuffer = new byte[128];
-                    fixed (byte* errorPtr = errorBuffer)
-                    {
-                        ffmpeg.av_strerror(result, errorPtr, (ulong)errorBuffer.Length);
-                        var errorMessage = System.Text.Encoding.UTF8.GetString(errorBuffer);
-                        throw new FfmpegOperationException(
-                            "Unable to extract images. Unable to decode video.",
-                            filePath);
-                    }
-                }
-
-                if (ffmpeg.avcodec_receive_packet(jpegContext, jpegPacket) != 0)
-                {
-                    throw new FfmpegOperationException(
-                        "Unable to extract images. Unable to decode video.",
-                        filePath);
-                }
-
-                var jpegData = new byte[jpegPacket->size];
-                Marshal.Copy((IntPtr)jpegPacket->data, jpegData, 0, jpegPacket->size);
-
-                return jpegData;
-            }
-            finally
-            {
-                ffmpeg.av_frame_free(&frame);
-                ffmpeg.av_packet_unref(packet);
-                ffmpeg.av_packet_free(&packet);
-                ffmpeg.av_packet_unref(jpegPacket);
-                ffmpeg.av_packet_free(&jpegPacket);
-                if (jpegContext is not null)
-                {
-                    ffmpeg.avcodec_free_context(&jpegContext);
-                }
+                throw new FfmpegOperationException(
+                    "Unable to extract images. " +
+                    "fake error.");
             }
 
+            using var frame = new DoubleBufferedFrame();
+            if (frame.GetPointer() is null)
+            {
+                throw new FfmpegOperationException(
+                    "Unable to extract images. " +
+                    "Unable to allocate frame.");
+            }
+            using var jpegPacket = new Packet();
+            if (jpegPacket.GetPointer() is null)
+            {
+                throw new FfmpegOperationException(
+                    "Unable to extract images. " +
+                    "Unable to allocate packet.");
+            }
+
+            GetFrame(
+                formatContext,
+                streamContext,
+                streamIndex,
+                frame,
+                timestamp);
+
+            var jpegCodec = ffmpeg.avcodec_find_encoder(AVCodecID.AV_CODEC_ID_MJPEG);
+            if (jpegCodec == null)
+            {
+                throw new FfmpegOperationException(
+                    "Unable to extract images. " +
+                    "Jpeg codec not found.");
+            }
+
+            var jpegContext = AllocateJpegContext(streamContext);
+
+            if (jpegContext.SendFrame(frame) < 0)
+            {
+                throw new FfmpegOperationException(
+                    "Unable to extract images. " +
+                    "Unable to decode frame.");
+            }
+
+            if (jpegPacket.ReceivePacket(jpegContext) < 0)
+            {
+                throw new FfmpegOperationException(
+                    "Unable to extract images. " +
+                    "Unable to decode frame.");
+            }
+
+            var jpegData = new byte[jpegPacket.Size];
+            Marshal.Copy((IntPtr)jpegPacket.Data, jpegData, 0, jpegPacket.Size);
+
+            return jpegData;
         }
 
-        private unsafe bool GetFrame(
-            AVFormatContext* formatContext,
-            AVCodecContext* streamContext,
-            AVPacket* packet,
-            AVFrame* frame,
+        private static unsafe void GetFrame(
+            FormatContext formatContext,
+            CodecContext streamContext,
+            int streamIndex,
+            DoubleBufferedFrame frame,
             long timestamp)
         {
             ArgumentNullException.ThrowIfNull(formatContext, nameof(formatContext));
             ArgumentNullException.ThrowIfNull(streamContext, nameof(streamContext));
-            ArgumentNullException.ThrowIfNull(packet, nameof(packet));
             ArgumentNullException.ThrowIfNull(frame, nameof(frame));
 
-            ffmpeg.avcodec_flush_buffers(streamContext);
+            streamContext.FlushBuffers();
 
-            while (ffmpeg.av_read_frame(formatContext, packet) >= 0)
+            using var packet = new Packet();
+            if (packet.GetPointer() is null)
             {
-                if (packet->stream_index != streamIndex)
+                throw new FfmpegOperationException(
+                    "Unable to extract images. " +
+                    "Unable to allocate packet.");
+            }
+
+            while (true)
+            {
+                var result = packet.ReadFrame(formatContext);
+                if (result < 0 && result != ffmpeg.AVERROR_EOF)
                 {
-                    ffmpeg.av_packet_unref(packet);
+                    throw new FfmpegOperationException(
+                        "Unable to extract images. " +
+                        "Unable to decode frame.");
+                }
+
+                if (packet.StreamIndex == streamIndex)
+                {
+                    if (streamContext.SendPacket(packet) != 0)
+                    {
+                        throw new FfmpegOperationException(
+                            "Unable to extract images. " +
+                            "Unable to decode frame.");
+                    }
+
+                    if (DecodePacket(streamContext, frame, timestamp))
+                    {
+                        return;
+                    }
+                }
+
+                if (result == ffmpeg.AVERROR_EOF)
+                {
+                    frame.UseBufferedFrame();
+                    if (frame.HasData)
+                    {
+                        return;
+                    }
+                    throw new FfmpegOperationException(
+                        "Unable to extract images. " +
+                        "Unable to decode frame.");
+                }
+            }
+        }
+
+        private static unsafe bool DecodePacket(
+            CodecContext streamContext,
+            DoubleBufferedFrame frame,
+            long timestamp)
+        {
+            ArgumentNullException.ThrowIfNull(streamContext, nameof(streamContext));
+            ArgumentNullException.ThrowIfNull(frame, nameof(frame));
+
+            while (true)
+            {
+                var result = frame.ReceiveFrame(streamContext);
+                if (result == ffmpeg.AVERROR_EOF)
+                {
+                    frame.UseBufferedFrame();
+                    if (frame.HasData)
+                    {
+                        return true;
+                    }
+                    throw new FfmpegOperationException(
+                        "Unable to extract images. " +
+                        "Unable to decode frame.");
+                }
+                if (result == ffmpeg.AVERROR(ffmpeg.EAGAIN))
+                {
+                    return false;
+                }
+                if (result < 0)
+                {
+                    throw new FfmpegOperationException(
+                        "Unable to extract images. " +
+                        "Unable to decode frame.");
+                }
+
+                if (frame.BestEffortTimestamp < timestamp)
+                {
                     continue;
                 }
 
-                foreach (var _ in Enumerable.Range(0, DecodeRetryCount))
+                if (frame.BestEffortTimestamp > timestamp)
                 {
-                    if (ffmpeg.avcodec_send_packet(streamContext, packet) != 0)
+                    frame.UseBufferedFrame();
+                    if (frame.HasData)
                     {
-                        return false;
+                        return true;
                     }
-
-                    var result = ffmpeg.avcodec_receive_frame(streamContext, frame);
-                    if (result == ffmpeg.AVERROR_EOF)
-                    {
-                        ffmpeg.av_packet_unref(packet);
-                        return false;
-                    }
-                    if (result == ffmpeg.AVERROR(ffmpeg.EAGAIN))
-                    {
-                        break;
-                    }
-                    if (result < 0)
-                    {
-                        ffmpeg.av_packet_unref(packet);
-                        return false;
-                    }
-
-                    if (frame->best_effort_timestamp < timestamp)
-                    {
-                        ffmpeg.av_packet_unref(packet);
-                        ffmpeg.av_frame_unref(frame);
-                        break;
-                    }
-                    return true;
+                    throw new FfmpegOperationException(
+                        "Unable to extract images. " +
+                        "Unable to decode frame.");
                 }
+
+                return true;
             }
-            return false;
         }
 
-        private static unsafe int FindStreamIndex(AVFormatContext* formatContext)
+        private static unsafe AVStream* FindStream(FormatContext formatContext)
         {
             ArgumentNullException.ThrowIfNull(formatContext, nameof(formatContext));
 
             AVStream* stream = null;
             for (var index = 0;
-                index < formatContext->nb_streams;
+                index < formatContext.NbStreams;
                 index++)
             {
                 if (stream is null
-                    && formatContext->streams[index]->codecpar->codec_type
+                    && formatContext.Streams[index]->codecpar->codec_type
                     == AVMediaType.AVMEDIA_TYPE_VIDEO)
                 {
-                    return index;
+                    stream = formatContext.Streams[index];
+                    continue;
                 }
-                formatContext->streams[index]->discard =
-                    AVDiscard.AVDISCARD_ALL;
+                formatContext.Streams[index]->discard = AVDiscard.AVDISCARD_ALL;
             }
 
-            return -1;
+            return stream;
         }
 
-        private unsafe AVCodec* GetDecoder(AVStream* stream)
+        private static unsafe AVCodec* GetDecoder(AVStream* stream)
         {
             ArgumentNullException.ThrowIfNull(stream, nameof(stream));
 
@@ -316,111 +319,131 @@ namespace FfmpegLib
             if (codec is null)
             {
                 throw new FfmpegOperationException(
-                    "Unable to extract images. Video codec not found.",
-                    filePath);
+                    "Unable to extract images. " +
+                    "Decoder not found.");
             }
             return codec;
         }
 
-        private unsafe AVFormatContext* AllocateFormatContext()
+        private static unsafe FormatContext AllocateFormatContext(
+            string filePath)
         {
-            var formatContext = ffmpeg.avformat_alloc_context();
-            if (formatContext is null)
+            ArgumentException.ThrowIfNullOrWhiteSpace(filePath, nameof(filePath));
+
+            var formatContext = new FormatContext();
+            if (formatContext.GetPointer() is null)
             {
                 throw new FfmpegOperationException(
-                    "Unable to extract images. Unable to allocate format context.",
-                    filePath);
+                    "Unable to extract images. " +
+                    "Unable to allocate format context.");
             }
 
-            if (ffmpeg.avformat_open_input(&formatContext, filePath, null, null) != 0)
+            if (formatContext.Open(filePath) != 0)
             {
-                ffmpeg.avformat_free_context(formatContext);
                 throw new FfmpegOperationException(
-                    "Unable to extract images. Unable to open file.",
-                    filePath);
+                    "Unable to extract images. " +
+                    "Unable to open file.");
             }
 
-            if (ffmpeg.avformat_find_stream_info(formatContext, null) < 0)
+            if (formatContext.FindStreamInfo() < 0)
             {
                 throw new FfmpegOperationException(
-                    "Unable to extract images. Video stream not found.",
-                    filePath);
+                    "Unable to extract images. " +
+                    "Video stream not found.");
             }
 
             return formatContext;
         }
 
-        private unsafe AVCodecContext* AllocateStreamContext(
-            AVStream* stream, AVCodec* codec)
+        private static unsafe CodecContext AllocateStreamContext(
+            AVStream* stream,
+            AVCodec* codec)
         {
             ArgumentNullException.ThrowIfNull(stream, nameof(stream));
             ArgumentNullException.ThrowIfNull(codec, nameof(codec));
 
-            var streamContext = ffmpeg.avcodec_alloc_context3(codec);
-            if (streamContext is null)
+            try
+            {
+                var context = new CodecContext(codec);
+                if (context.GetPointer() is null)
+                {
+                    throw new FfmpegOperationException(
+                        "Unable to extract images. " +
+                        "Unable to allocate stream codec context.");
+                }
+
+                if (context.ParametersToContext(stream->codecpar) < 0)
+                {
+                    throw new FfmpegOperationException(
+                        "Unable to extract images. " +
+                        "Unable to allocate stream codec context.");
+                }
+
+                if (context.Open(codec) < 0)
+                {
+                    throw new FfmpegOperationException(
+                        "Unable to extract images. " +
+                        "Could not stream codec context.");
+                }
+
+                return context;
+
+            }
+            catch (InvalidOperationException)
             {
                 throw new FfmpegOperationException(
-                    "Unable to extract images." +
-                    "Unable to create stream context.",
-                    filePath);
+                    "Unable to extract images. " +
+                    "Unable to allocate stream codec context.");
             }
-
-            if (ffmpeg.avcodec_parameters_to_context(
-                    streamContext,
-                    stream->codecpar)
-                < 0)
-            {
-                ffmpeg.avcodec_free_context(&streamContext);
-                throw new FfmpegOperationException(
-                    "Unable to extract images." +
-                    "Unable to allocate video codec context.",
-                    filePath);
-            }
-
-            if (ffmpeg.avcodec_open2(streamContext, codec, null) < 0)
-            {
-                ffmpeg.avcodec_free_context(&streamContext);
-                throw new FfmpegOperationException(
-                    "Unable to extract images. Could not open video codec.",
-                    filePath);
-            }
-
-            return streamContext;
         }
 
-        private unsafe AVCodecContext* AllocateJpegContext(
-            AVFormatContext* formatContext, AVCodecContext* streamContext)
+        private static unsafe CodecContext AllocateJpegContext(
+            CodecContext streamContext)
         {
-            ArgumentNullException.ThrowIfNull(formatContext, nameof(formatContext));
             ArgumentNullException.ThrowIfNull(streamContext, nameof(streamContext));
 
-            var jpegCodec = ffmpeg.avcodec_find_encoder(AVCodecID.AV_CODEC_ID_MJPEG);
+            var jpegCodec =
+                ffmpeg.avcodec_find_encoder(AVCodecID.AV_CODEC_ID_MJPEG);
             if (jpegCodec == null)
             {
-                throw new FfmpegOperationException("Jpeg codec not found.", filePath);
+                throw new FfmpegOperationException(
+                    "Unable to extract images. " +
+                    "Jpeg codec not found.");
             }
 
-            var jpegContext = ffmpeg.avcodec_alloc_context3(jpegCodec);
-            if (jpegContext == null)
+            try
             {
-                throw new FfmpegOperationException("Unable to allocate JPEG codec.", filePath);
+                var jpegContext = new CodecContext(jpegCodec)
+                {
+                    Width = streamContext.Width,
+                    Height = streamContext.Height,
+                    PixFmt = AVPixelFormat.AV_PIX_FMT_YUVJ420P,
+                    GlobalQuality = 12,
+                    TimeBase = new AVRational { num = 1, den = 25 },
+                    BitRate = 400000
+                };
+                if (jpegContext.GetPointer() is null)
+                {
+                    throw new FfmpegOperationException(
+                        "Unable to extract images." +
+                        " Unable to allocate jpeg codec context.");
+                }
+
+                if (jpegContext.Open(jpegCodec) < 0)
+                {
+                    throw new FfmpegOperationException(
+                        "Unable to extract images. " +
+                        "Could not open jpeg codec context.");
+                }
+
+                return jpegContext;
             }
-
-            // Configure the new context
-            jpegContext->width = streamContext->width;
-            jpegContext->height = streamContext->height;
-            jpegContext->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUVJ420P;
-            jpegContext->global_quality = 12;
-            jpegContext->time_base = new AVRational { num = 1, den = 25 };
-            jpegContext->bit_rate = 400000;
-
-            if (ffmpeg.avcodec_open2(jpegContext, jpegCodec, null) < 0)
+            catch (InvalidOperationException)
             {
-                ffmpeg.avcodec_free_context(&jpegContext);
-                throw new FfmpegOperationException("Could not open JPEG codec.", filePath);
+                throw new FfmpegOperationException(
+                    "Unable to extract images. " +
+                    "Unable to allocate jpeg codec context.");
             }
-
-            return jpegContext;
         }
     }
 }

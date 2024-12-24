@@ -1,5 +1,6 @@
 namespace FfmpegLib
 {
+    using System;
     using FFmpeg.AutoGen;
     using FfmpegLib.Exceptions;
     using VideoDedupGrpc;
@@ -17,70 +18,49 @@ namespace FfmpegLib
 
             ffmpeg.avdevice_register_all();
 
-            var context = ffmpeg.avformat_alloc_context();
-            if (context is null)
+            using var context = new FormatContext();
+            if (context.GetPointer() is null)
             {
                 throw new FfmpegOperationException(
                     "Unable to read duration. Unable to allocate resources.");
             }
 
-            try
+            if (context.Open(filePath) < 0)
             {
-                if (ffmpeg.avformat_open_input(
-                    &context,
-                    filePath,
-                    null,
-                    null) != 0)
-                {
-                    throw new FfmpegOperationException(
-                        "Unable to read codec information. Unable to open file.",
-                        filePath);
-                }
-
-                if (ffmpeg.avformat_find_stream_info(context, null) < 0)
-                {
-                    throw new FfmpegOperationException(
-                        "Unable to read codec information. Stream not found.",
-                        filePath);
-                }
-
-                var stream = GetVideoStream(context);
-                if (stream is null)
-                {
-                    throw new FfmpegOperationException(
-                        "Unable to read codec information. Stream not found.",
-                        filePath);
-                }
-
-                var codecId = ffmpeg.avcodec_find_decoder(
-                    stream->codecpar->codec_id);
-                if (codecId is null)
-                {
-                    throw new FfmpegOperationException(
-                        "Unable to read codec information. Codec not found.",
-                        filePath);
-                }
-
-                var frameRate = stream->avg_frame_rate;
-
-                return new CodecInfo
-                {
-                    Size = new Size
-                    {
-                        Width = stream->codecpar->width,
-                        Height = stream->codecpar->height,
-                    },
-                    Name = ffmpeg.avcodec_get_name(stream->codecpar->codec_id),
-                    FrameRate = frameRate.den != 0
-                        ? (float)frameRate.num / frameRate.den
-                        : (float)0.0,
-                };
+                throw new FfmpegOperationException(
+                    "Unable to read codec information. Unable to open file.",
+                    filePath);
             }
-            finally
+
+            if (context.FindStreamInfo() < 0)
             {
-                ffmpeg.avformat_close_input(&context);
-                ffmpeg.avformat_free_context(context);
+                throw new FfmpegOperationException(
+                    "Unable to read codec information. Stream not found.",
+                    filePath);
             }
+
+            var stream = GetVideoStream(context);
+            if (stream is null)
+            {
+                throw new FfmpegOperationException(
+                    "Unable to read codec information. Stream not found.",
+                    filePath);
+            }
+
+            var frameRate = stream->avg_frame_rate;
+
+            return new CodecInfo
+            {
+                Size = new Size
+                {
+                    Width = stream->codecpar->width,
+                    Height = stream->codecpar->height,
+                },
+                Name = ffmpeg.avcodec_get_name(stream->codecpar->codec_id),
+                FrameRate = frameRate.den != 0
+                    ? (float)frameRate.num / frameRate.den
+                    : (float)0.0,
+            };
         }
 
         public static unsafe TimeSpan GetDuration(string filePath)
@@ -92,45 +72,35 @@ namespace FfmpegLib
                     filePath);
             }
 
-            var context = ffmpeg.avformat_alloc_context();
-            if (context is null)
+            using var context = new FormatContext();
+            if (context.GetPointer() is null)
             {
                 throw new FfmpegOperationException(
                     "Unable to read duration. Unable to allocate resources.");
             }
 
-            try
+            if (context.Open(filePath) < 0)
             {
-                if (ffmpeg.avformat_open_input(
-                    &context,
-                    filePath,
-                    null,
-                    null) != 0)
-                {
-                    throw new FfmpegOperationException(
-                        "Unable to read duration. Unable to open file.");
-                }
-
-                if (ffmpeg.avformat_find_stream_info(context, null) < 0)
-                {
-                    throw new FfmpegOperationException(
-                        "Unable to read duration. Stream not found.");
-                }
-
-                if (context->duration < 0)
-                {
-                    throw new FfmpegOperationException(
-                        "Unable to read duration. Duration not available.");
-                }
-
-                var durationInSeconds = context->duration / (double)ffmpeg.AV_TIME_BASE;
-                return TimeSpan.FromSeconds(durationInSeconds);
+                throw new FfmpegOperationException(
+                    "Unable to read codec information. Unable to open file.",
+                    filePath);
             }
-            finally
+
+            if (context.FindStreamInfo() < 0)
             {
-                ffmpeg.avformat_close_input(&context);
-                ffmpeg.avformat_free_context(context);
+                throw new FfmpegOperationException(
+                    "Unable to read codec information. Stream not found.",
+                    filePath);
             }
+
+            if (context.Duration < 0)
+            {
+                throw new FfmpegOperationException(
+                    "Unable to read duration. Duration not available.");
+            }
+
+            var durationInSeconds = context.Duration / (double)ffmpeg.AV_TIME_BASE;
+            return TimeSpan.FromSeconds(durationInSeconds);
         }
 
         public string FilePath { get; private set; }
@@ -209,8 +179,11 @@ namespace FfmpegLib
                     $"location within {nameof(divisionCount)}.");
             }
 
+            var indices = Enumerable.Range(index, count)
+                .Select(i => new ImageIndex(i, divisionCount - 1));
+
             using var enumerator = new FfmpegImageEnumerator(
-                FilePath, cancelToken, index, count, divisionCount);
+                FilePath, cancelToken, indices);
 
             foreach (var image in enumerator)
             {
@@ -240,14 +213,20 @@ namespace FfmpegLib
 
             ArgumentNullException.ThrowIfNull(indices);
 
+            using var enumerator = new FfmpegImageEnumerator(
+                FilePath, cancelToken, indices);
 
+            foreach (var image in enumerator)
+            {
+                yield return image;
+            }
         }
 
-        internal static unsafe AVStream* GetVideoStream(AVFormatContext* context)
+        internal static unsafe AVStream* GetVideoStream(FormatContext context)
         {
-            for (uint i = 0; i < context->nb_streams; i++)
+            for (uint i = 0; i < context.NbStreams; i++)
             {
-                var stream = context->streams[i];
+                var stream = context.Streams[i];
                 if (stream->codecpar->codec_type
                     != AVMediaType.AVMEDIA_TYPE_VIDEO)
                 {

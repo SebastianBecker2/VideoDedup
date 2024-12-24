@@ -8,12 +8,12 @@ namespace VideoComparer
     using EventArgs;
     using Google.Protobuf;
     using KGySoft.Drawing;
-    using MpvLib;
-    using MpvLib.Exceptions;
+    using FfmpegLib;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.ImageExtensions;
-    using ImageIndex = MpvLib.ImageIndex;
+    using ImageIndex = FfmpegLib.ImageIndex;
     using Size = System.Drawing.Size;
+    using FfmpegLib.Exceptions;
 
     public class VideoComparer(
         VideoComparisonSettings settings,
@@ -401,9 +401,9 @@ namespace VideoComparer
         {
             try
             {
-                using var mpv = new MpvWrapper(
-                   videoFile.FilePath,
-                   videoFile.Duration);
+                var mpv = new FfmpegWrapper(
+                   videoFile.FilePath);
+                   //videoFile.Duration);
                 var images = mpv.GetImages(indices, cancelToken)
                     .ToList()
                     .Zip(indices, (stream, index) => (index, stream))
@@ -428,7 +428,7 @@ namespace VideoComparer
 
                 return images;
             }
-            catch (MpvException exc)
+            catch (FfmpegException exc)
             {
                 throw new ComparisonException(exc.Message, videoFile, exc);
             }
