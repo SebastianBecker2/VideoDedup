@@ -98,9 +98,6 @@ namespace FfmpegLib
             int streamIndex,
             long timestamp)
         {
-            ArgumentNullException.ThrowIfNull(formatContext, nameof(formatContext));
-            ArgumentNullException.ThrowIfNull(streamContext, nameof(streamContext));
-
             if (ffmpeg.av_seek_frame(
                 formatContext.GetPointer(),
                 streamIndex,
@@ -170,10 +167,6 @@ namespace FfmpegLib
             DoubleBufferedFrame frame,
             long timestamp)
         {
-            ArgumentNullException.ThrowIfNull(formatContext, nameof(formatContext));
-            ArgumentNullException.ThrowIfNull(streamContext, nameof(streamContext));
-            ArgumentNullException.ThrowIfNull(frame, nameof(frame));
-
             streamContext.FlushBuffers();
 
             using var packet = new Packet();
@@ -228,9 +221,6 @@ namespace FfmpegLib
             DoubleBufferedFrame frame,
             long timestamp)
         {
-            ArgumentNullException.ThrowIfNull(streamContext, nameof(streamContext));
-            ArgumentNullException.ThrowIfNull(frame, nameof(frame));
-
             while (true)
             {
                 var result = frame.ReceiveFrame(streamContext);
@@ -366,8 +356,6 @@ namespace FfmpegLib
         private static unsafe CodecContext AllocateJpegContext(
             CodecContext streamContext)
         {
-            ArgumentNullException.ThrowIfNull(streamContext, nameof(streamContext));
-
             var jpegCodec =
                 ffmpeg.avcodec_find_encoder(AVCodecID.AV_CODEC_ID_MJPEG);
             if (jpegCodec == null)

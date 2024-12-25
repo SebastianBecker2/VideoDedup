@@ -211,8 +211,6 @@ namespace FfmpegLib
                     FilePath);
             }
 
-            ArgumentNullException.ThrowIfNull(indices);
-
             using var enumerator = new FfmpegImageEnumerator(
                 FilePath, cancelToken, indices);
 
