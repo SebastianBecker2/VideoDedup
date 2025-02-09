@@ -62,7 +62,7 @@ namespace FfmpegLib
             if (disposedValue)
             {
                 throw new ObjectDisposedException(
-                    nameof(Frame),
+                    nameof(DoubleBufferedFrame),
                     "The AVFrameWrapper has already been disposed.");
             }
 
