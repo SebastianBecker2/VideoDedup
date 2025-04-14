@@ -183,7 +183,7 @@ namespace FfmpegLib
             }
 
             var indices = Enumerable.Range(index, count)
-                .Select(i => new ImageIndex(i, divisionCount - 1));
+                .Select(i => new ImageIndex(i + 1, divisionCount + 1));
 
             using var enumerator = new FfmpegImageEnumerator(
                 FilePath, cancelToken, indices);
