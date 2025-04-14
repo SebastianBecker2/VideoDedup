@@ -2,6 +2,7 @@ namespace FfmpegLib
 {
     using System;
     using FFmpeg.AutoGen;
+    using FfmpegLib.Exceptions;
 
     internal unsafe class CodecContext : IDisposable
     {
@@ -46,7 +47,7 @@ namespace FfmpegLib
             codecContextPtr = ffmpeg.avcodec_alloc_context3(codec);
             if (codecContextPtr == null)
             {
-                throw new InvalidOperationException(
+                throw new FfmpegOperationException(
                     "Unable to allocate codec context.");
             }
         }
