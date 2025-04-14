@@ -1,5 +1,6 @@
 namespace FfmpegLib
 {
+    using System;
     using System.Collections;
     using System.Runtime.InteropServices;
     using System.Threading.Tasks;
@@ -10,10 +11,10 @@ namespace FfmpegLib
         IEnumerable<byte[]?>,
         IEnumerator<byte[]?>
     {
-        private readonly string filePath;
-        private readonly CancellationToken? cancelToken;
         private readonly List<Task<byte[]?>> tasks;
         private int currentMoveIndex;
+        private readonly string filePath;
+        private readonly CancellationToken? cancelToken;
 
         public FfmpegImageEnumerator(
             string filePath,
@@ -23,19 +24,18 @@ namespace FfmpegLib
             this.filePath = filePath;
             this.cancelToken = cancelToken;
 
-            tasks = indices
-                .Select(index => Task.Run(() => ExtractImageAtIndex(index)))
-                .ToList();
+            tasks = [.. indices.Select(index =>
+                Task.Run(() => ExtractImageAtIndex(index)))];
         }
 
         private unsafe byte[]? ExtractImageAtIndex(ImageIndex index)
         {
             try
             {
-                var formatContext = AllocateFormatContext(filePath);
+                using var formatContext = AllocateFormatContext(filePath);
                 var stream = formatContext.GetVideoStream(true);
                 var codec = GetDecoder(stream);
-                var streamContext = AllocateStreamContext(stream, codec);
+                using var streamContext = AllocateStreamContext(stream, codec);
                 var timestamp =
                     stream->duration / index.Denominator * index.Numerator;
 
@@ -89,6 +89,7 @@ namespace FfmpegLib
             foreach (var thread in tasks)
             {
                 thread.Wait();
+                thread.Dispose();
             }
         }
 
@@ -98,6 +99,8 @@ namespace FfmpegLib
             int streamIndex,
             long timestamp)
         {
+            ffmpeg.avcodec_flush_buffers(streamContext.GetPointer());
+
             if (ffmpeg.av_seek_frame(
                 formatContext.GetPointer(),
                 streamIndex,
@@ -138,7 +141,7 @@ namespace FfmpegLib
                     "Jpeg codec not found.");
             }
 
-            var jpegContext = AllocateJpegContext(streamContext);
+            using var jpegContext = AllocateJpegContext(streamContext);
 
             if (jpegContext.SendFrame(frame) < 0)
             {
@@ -320,7 +323,7 @@ namespace FfmpegLib
 
             try
             {
-                var context = new CodecContext(codec);
+                var context = new CodecContext(stream, codec);
                 if (context.GetPointer() is null)
                 {
                     throw new FfmpegOperationException(
