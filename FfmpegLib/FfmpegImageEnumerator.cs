@@ -143,6 +143,7 @@ namespace FfmpegLib
 
             using var jpegContext = AllocateJpegContext(streamContext);
 
+            _ = frame.ConvertToSoftwareFrame(jpegContext);
             if (jpegContext.SendFrame(frame) < 0)
             {
                 throw new FfmpegOperationException(
