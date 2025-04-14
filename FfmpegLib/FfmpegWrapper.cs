@@ -103,6 +103,9 @@ namespace FfmpegLib
             return TimeSpan.FromSeconds(durationInSeconds);
         }
 
+        public static void SetLogLevel(int logLevel) =>
+            ffmpeg.av_log_set_level(logLevel);
+
         public string FilePath { get; private set; }
         public TimeSpan Duration
         {
