@@ -157,7 +157,7 @@ namespace FfmpegLib
 
             if (count <= 0)
             {
-                yield break;
+                return [];
             }
 
             if (divisionCount < 0)
@@ -185,13 +185,7 @@ namespace FfmpegLib
             var indices = Enumerable.Range(index, count)
                 .Select(i => new ImageIndex(i + 1, divisionCount + 1));
 
-            using var enumerator = new FfmpegImageEnumerator(
-                FilePath, cancelToken, indices);
-
-            foreach (var image in enumerator)
-            {
-                yield return image;
-            }
+            return GetImages(cancelToken, indices);
         }
 
         public IEnumerable<byte[]?> GetImages(
@@ -215,7 +209,9 @@ namespace FfmpegLib
             }
 
             using var enumerator = new FfmpegImageEnumerator(
-                FilePath, cancelToken, indices);
+                FilePath,
+                cancelToken,
+                indices);
 
             foreach (var image in enumerator)
             {
