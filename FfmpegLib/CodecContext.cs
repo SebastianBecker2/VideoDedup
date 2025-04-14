@@ -6,7 +6,7 @@ namespace FfmpegLib
 
     internal unsafe class CodecContext : IDisposable
     {
-        private AVCodecContext* codecContextPtr;
+        private readonly AVCodecContext* codecContextPtr;
         private bool disposedValue;
 
         public int Width
@@ -134,7 +134,6 @@ namespace FfmpegLib
             {
                 ffmpeg.avcodec_free_context(codecContextPtrRef);
             }
-            codecContextPtr = null;
         }
 
         protected virtual void Dispose(bool disposing)
