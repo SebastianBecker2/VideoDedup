@@ -65,6 +65,18 @@ namespace FfmpegLib
             }
         }
 
+        public CodecContext(AVStream* stream, AVCodec* codec) : this(codec)
+        {
+            var result = ffmpeg.avcodec_parameters_to_context(
+                codecContextPtr,
+                stream->codecpar);
+            if (result < 0)
+            {
+                throw new FfmpegOperationException(
+                    "Unable to allocate codec context.");
+            }
+        }
+
         public int Open(AVCodec* codec)
         {
             if (disposedValue)
