@@ -182,15 +182,14 @@ namespace VideoComparer
 
                 var bytesPerPixel =
                     Image.GetPixelFormatSize(image.PixelFormat) / 8;
-                return Enumerable
+                return [.. Enumerable
                     .Range(0, image.Height)
                     .SelectMany(y => Enumerable
                         .Range(0, image.Width)
                         .Select(x =>
                             ((byte*)bitmapData.Scan0
                                 + (y * bitmapData.Stride)
-                                + (x * bytesPerPixel))[0]))
-                    .ToArray();
+                                + (x * bytesPerPixel))[0]))];
             }
         }
 

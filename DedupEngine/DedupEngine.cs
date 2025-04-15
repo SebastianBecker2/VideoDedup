@@ -585,7 +585,7 @@ namespace DedupEngine
         {
             var cancelToken = CancelSource.Token;
 
-            videoFiles = GetVideoFileList(folderSettings).ToList();
+            videoFiles = [.. GetVideoFileList(folderSettings)];
             cancelToken.ThrowIfCancellationRequested();
 
             // Cancellable preload of files
@@ -600,9 +600,7 @@ namespace DedupEngine
                 $"{videoFiles.Count} Files.");
 
             // Remove invalid files
-            videoFiles = videoFiles
-                .Where(f => f.Duration != TimeSpan.Zero)
-                .ToList();
+            videoFiles = [.. videoFiles.Where(f => f.Duration != TimeSpan.Zero)];
             cancelToken.ThrowIfCancellationRequested();
 
             OnLogged("Starting searching for duplicates of " +

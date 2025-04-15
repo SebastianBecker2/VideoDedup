@@ -55,7 +55,7 @@ namespace VideoDedupClient.Controls.FolderSettings
 
             folderSettings.FileExtensions.Clear();
             folderSettings.FileExtensions.AddRange(
-                LsbFileExtensions.Items.Cast<string>().ToList());
+                [.. LsbFileExtensions.Items.Cast<string>()]);
 
             return folderSettings;
         }

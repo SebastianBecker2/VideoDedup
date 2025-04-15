@@ -234,9 +234,7 @@ namespace VideoDedupClient.Dialogs
             IEnumerable<VideoDedupGrpc.ImageComparisonResult> icrs)
         {
             var size = ImageComparisonResultViewCtl.ThumbnailSize;
-            return icrs
-                .Select(icr => new ImageComparisonResult(icr, size))
-                .ToList();
+            return [.. icrs.Select(icr => new ImageComparisonResult(icr, size))];
         }
 
         private void HandleStatusTimerTick(object sender, EventArgs e)
@@ -401,10 +399,9 @@ namespace VideoDedupClient.Dialogs
             // Add them.
             // Then iterate over all with index to set ALL the new row indexes.
             tableLayoutPanel.SuspendLayout();
-            tableLayoutPanel.Controls.AddRange(imageComparisonResults
+            tableLayoutPanel.Controls.AddRange([.. imageComparisonResults
                 .Where(icr => !resultViews.Any(view => view.ImageComparisonResult == icr))
-                .Select(ToView)
-                .ToArray());
+                .Select(ToView)]);
             tableLayoutPanel.ResumeLayout();
 
             var indexed = Enumerable

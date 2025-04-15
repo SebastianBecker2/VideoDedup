@@ -181,7 +181,7 @@ namespace VideoDedupServer
 
                 var response = new GetLogEntriesResponse();
                 response.LogEntries.AddRange(
-                    logEntries.Skip(request.Start).Take(request.Count).ToList());
+                    [.. logEntries.Skip(request.Start).Take(request.Count)]);
                 return Task.FromResult(response);
             }
         }
@@ -258,10 +258,9 @@ namespace VideoDedupServer
                 }
 
                 var response = new GetProgressInfoResponse();
-                response.ProgressInfos.AddRange(progressInfos
+                response.ProgressInfos.AddRange([.. progressInfos
                     .Skip(request.Start)
-                    .Take(request.Count)
-                    .ToList());
+                    .Take(request.Count)]);
                 return Task.FromResult(response);
             }
         }

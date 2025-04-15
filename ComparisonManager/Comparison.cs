@@ -79,9 +79,8 @@ namespace ComparisonManager
                     VideoComparisonResult = comparisonResult,
                 };
 
-                status.ImageComparisons.AddRange(imageComparisons
-                    .Skip(imageComparisonIndex)
-                    .ToList());
+                status.ImageComparisons.AddRange(
+                    [.. imageComparisons.Skip(imageComparisonIndex)]);
 
                 return status;
             }
