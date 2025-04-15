@@ -401,10 +401,8 @@ namespace VideoComparer
         {
             try
             {
-                var mpv = new FfmpegWrapper(
-                   videoFile.FilePath);
-                   //videoFile.Duration);
-                var images = mpv.GetImages(indices, cancelToken)
+                var ffmpeg = new FfmpegWrapper(videoFile.FilePath);
+                var images = ffmpeg.GetImages(indices, cancelToken)
                     .ToList()
                     .Zip(indices, (stream, index) => (index, stream))
                     // Converting to image set including the intermediate
