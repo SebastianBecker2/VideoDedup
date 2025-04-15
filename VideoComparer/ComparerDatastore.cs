@@ -38,7 +38,7 @@ namespace VideoComparer
             // Upgrade process
             {
                 using var command = connection.CreateCommand();
-                command.CommandText = "DROP TABLE Images";
+                command.CommandText = "DROP TABLE IF EXISTS Images";
                 _ = command.ExecuteNonQuery();
             }
 
