@@ -32,7 +32,7 @@ namespace VideoDedupSharedLib
             if (!isInitialized)
             {
                 isInitialized = true;
-                CreateTables();
+                Initialize();
             }
 
             var connection = new SqliteConnection(ConnectionString);
@@ -40,6 +40,6 @@ namespace VideoDedupSharedLib
             return connection;
         }
 
-        protected abstract void CreateTables();
+        protected abstract void Initialize();
     }
 }

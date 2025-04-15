@@ -1,8 +1,9 @@
 namespace VideoComparer
 {
     using System;
-    using Microsoft.Data.Sqlite;
+    using System.Globalization;
     using FfmpegLib;
+    using Microsoft.Data.Sqlite;
     using VideoDedupSharedLib;
     using VideoDedupSharedLib.ExtensionMethods.DateTimeExtensions;
     using VideoDedupSharedLib.ExtensionMethods.SqliteDataReaderExtensions;
@@ -12,15 +13,53 @@ namespace VideoComparer
     internal sealed class ComparerDatastore(string filePath)
         : Datastore(filePath)
     {
+        private static readonly int DatastoreVersion = 1;
         private static readonly Dictionary<Tuple<ImageIndex, IVideoFile>, byte[]?>
             ImageCache = [];
         private static readonly object ImageCacheMutex = new();
 
-        protected override void CreateTables()
+        protected override void Initialize()
         {
             using var connection = OpenConnection();
+            CreateComparerMetaTable(connection);
+            UpgradeDatastore(connection);
             CreateImagesTable(connection);
             CreateImagesIndexes(connection);
+        }
+
+        private static void UpgradeDatastore(SqliteConnection connection)
+        {
+            // Version check
+            if (DatastoreVersion <= GetDatastoreVersion(connection))
+            {
+                return;
+            }
+
+            // Upgrade process
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = "DROP TABLE Images";
+                _ = command.ExecuteNonQuery();
+            }
+
+            // Update version number
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = "INSERT OR REPLACE INTO ComparerMeta" +
+                    $" (id, Version) VALUES (1, {DatastoreVersion})";
+                _ = command.ExecuteNonQuery();
+            }
+
+        }
+
+        private static void CreateComparerMetaTable(SqliteConnection connection)
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = "CREATE TABLE IF NOT EXISTS ComparerMeta (" +
+                " id INTEGER PRIMARY KEY CHECK (id = 1)," +
+                " Version INTEGER NOT NULL" +
+                ")";
+            _ = command.ExecuteNonQuery();
         }
 
         private static void CreateImagesTable(SqliteConnection connection)
@@ -57,6 +96,20 @@ namespace VideoComparer
                     "ON Images (Numerator, Denominator, ImageSize, Data);";
                 _ = command.ExecuteNonQuery();
             }
+        }
+
+        private static int GetDatastoreVersion(SqliteConnection connection)
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = "SELECT"
+                + " Version"
+                + " FROM ComparerMeta"
+                + " WHERE id = 1";
+
+            var result = command.ExecuteScalar();
+            return result != null
+                ? Convert.ToInt32(result, CultureInfo.InvariantCulture)
+                : 0;
         }
 
         public void InsertImage(

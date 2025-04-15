@@ -8,7 +8,7 @@ namespace DedupEngine
     internal sealed class EngineDatastore(string filePath)
         : Datastore(filePath)
     {
-        protected override void CreateTables()
+        protected override void Initialize()
         {
             using var connection = OpenConnection();
             CreateVideoFilesTable(connection);
