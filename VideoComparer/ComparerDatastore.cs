@@ -49,7 +49,6 @@ namespace VideoComparer
                     $" (id, Version) VALUES (1, {DatastoreVersion})";
                 _ = command.ExecuteNonQuery();
             }
-
         }
 
         private static void CreateComparerMetaTable(SqliteConnection connection)
