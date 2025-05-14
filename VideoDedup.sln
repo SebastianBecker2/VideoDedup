@@ -36,6 +36,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComparisonManager", "Compar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FfmpegLib", "FfmpegLib\FfmpegLib.csproj", "{B5256B1B-DBBA-4935-8FF9-6ADA3E6FEB23}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MpvLib", "MpvLib\MpvLib.csproj", "{499F4F3D-8ADF-E023-2A29-C75E6719BAC9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

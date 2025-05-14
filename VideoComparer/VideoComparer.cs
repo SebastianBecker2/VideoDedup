@@ -8,12 +8,18 @@ namespace VideoComparer
     using EventArgs;
     using Google.Protobuf;
     using KGySoft.Drawing;
-    using FfmpegLib;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.ImageExtensions;
-    using ImageIndex = FfmpegLib.ImageIndex;
     using Size = System.Drawing.Size;
+#if USE_MPV
+    using MpvLib;
+    using MpvLib.Exceptions;
+    using ImageIndex = MpvLib.ImageIndex;
+#else
+    using FfmpegLib;
     using FfmpegLib.Exceptions;
+    using ImageIndex = FfmpegLib.ImageIndex;
+#endif
 
     public class VideoComparer(
         VideoComparisonSettings settings,
@@ -398,6 +404,39 @@ namespace VideoComparer
             IEnumerable<ImageIndex> indices,
             CancellationToken cancelToken)
         {
+#if USE_MPV
+            try
+            {
+                using var mpv = new MpvWrapper(videoFile.FilePath);
+                var images = mpv.GetImages(indices, cancelToken)
+                    .ToList()
+                    .Zip(indices, (stream, index) => (index, stream))
+                    // Converting to image set including the intermediate
+                    // images if necessary.
+                    .Select(kvp => CacheableImageSet.FromOriginalImage(
+                        kvp.index,
+                        kvp.stream,
+                        ImageCompared != null));
+
+                foreach (var image in images)
+                {
+                    // Cache in memory
+                    videoFile.ImageBytes[image.Index] = image.Bytes;
+
+                    // Cache in DB if we have a DB cache
+                    comparerDatastore?.InsertImage(
+                        image.Index,
+                        image.Bytes,
+                        videoFile);
+                }
+
+                return images;
+            }
+            catch (MpvException exc)
+            {
+                throw new ComparisonException(exc.Message, videoFile, exc);
+            }
+#else
             try
             {
                 var ffmpeg = new FfmpegWrapper(videoFile.FilePath);
@@ -429,6 +468,7 @@ namespace VideoComparer
             {
                 throw new ComparisonException(exc.Message, videoFile, exc);
             }
+#endif
         }
 
         private IEnumerable<CacheableImageSet> GetImagesFromFile(

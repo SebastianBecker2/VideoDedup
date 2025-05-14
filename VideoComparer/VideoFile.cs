@@ -1,12 +1,20 @@
 namespace VideoComparer
 {
-    using FfmpegLib;
-    using FfmpegLib.Exceptions;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.Interfaces;
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
+    using System.Diagnostics;
+#if USE_MPV
+    using MpvLib;
+    using MpvLib.Exceptions;
+    using ImageIndex = MpvLib.ImageIndex;
+#else
+    using FfmpegLib;
+    using FfmpegLib.Exceptions;
     using ImageIndex = FfmpegLib.ImageIndex;
+#endif
 
+    [DebuggerDisplay("{FilePath}")]
     public class VideoFile : IVideoFile
     {
         public VideoFile(VideoFile other)
@@ -107,6 +115,16 @@ namespace VideoComparer
             {
                 if (!duration.HasValue)
                 {
+#if USE_MPV
+                    try
+                    {
+                        duration = MpvWrapper.GetDuration(FilePath);
+                    }
+                    catch (MpvException)
+                    {
+                        duration = TimeSpan.Zero;
+                    }
+#else
                     try
                     {
                         duration = FfmpegWrapper.GetDuration(FilePath);
@@ -115,6 +133,7 @@ namespace VideoComparer
                     {
                         duration = TimeSpan.Zero;
                     }
+#endif
                 }
                 return duration.Value;
             }
@@ -128,11 +147,19 @@ namespace VideoComparer
             {
                 if (codecInfo == null)
                 {
+#if USE_MPV
+                    try
+                    {
+                        codecInfo = MpvWrapper.GetCodecInfo(FilePath);
+                    }
+                    catch (MpvException) { }
+#else
                     try
                     {
                         codecInfo = FfmpegWrapper.GetCodecInfo(FilePath);
                     }
                     catch (FfmpegOperationException) { }
+#endif
                 }
                 return codecInfo;
             }
@@ -163,7 +190,9 @@ namespace VideoComparer
             }
         }
 
-        public int ErrorCount { get; set; }
+        public int ErrorCount { get => errorCount; set => errorCount = value; }
+        private int errorCount;
+        public void IncrementErrorCount() => Interlocked.Increment(ref errorCount);
 
         public override bool Equals(object? obj) => Equals(obj as IVideoFile);
 
