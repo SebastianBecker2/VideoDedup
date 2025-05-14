@@ -10,7 +10,9 @@ namespace DedupEngine
     {
         protected override void Initialize()
         {
-            using var connection = OpenConnection();
+            using var connection = new SqliteConnection(ConnectionString);
+            connection.Open();
+
             CreateVideoFilesTable(connection);
             CreateVideFilesIndexes(connection);
         }

@@ -20,7 +20,9 @@ namespace VideoComparer
 
         protected override void Initialize()
         {
-            using var connection = OpenConnection();
+            using var connection = new SqliteConnection(ConnectionString);
+            connection.Open();
+
             CreateComparerMetaTable(connection);
             UpgradeDatastore(connection);
             CreateImagesTable(connection);
