@@ -53,14 +53,14 @@ namespace VideoDedupServer
             comparisonManager = new(logManager.ComparisonManagerLogger);
 
             // Adding TrashPath right before we create DedupEngine to avoid
-            // having it permanently in the FolderSettings (so the user won't
+            // having it permanently in the DedupSettings (so the user won't
             // see it).
-            settings.FolderSettings.ExcludedDirectories.Add(
+            settings.DedupSettings.ExcludedDirectories.Add(
                 settings.ResolutionSettings.TrashPath);
 
             dedupEngine = new DedupEngine(
                 appDataFolderPath,
-                settings.FolderSettings,
+                settings.DedupSettings,
                 settings.DurationComparisonSettings,
                 settings.VideoComparisonSettings);
             dedupEngine.OperationUpdate += DedupEngine_OperationUpdate;
@@ -93,7 +93,7 @@ namespace VideoDedupServer
             ConfigurationSettings request,
             ServerCallContext context)
         {
-            var fs = request.FolderSettings;
+            var fs = request.DedupSettings;
             var rs = request.ResolutionSettings;
             rs.TrashPath = Path.Combine(fs.BasePath, TrashFolderName);
 
@@ -418,7 +418,7 @@ namespace VideoDedupServer
 
             var configuration = new ConfigurationSettings()
             {
-                FolderSettings = ConfigurationManager.GetFolderSettings(),
+                DedupSettings = ConfigurationManager.GetDedupSettings(),
                 VideoComparisonSettings =
                     ConfigurationManager.GetVideoComparisonSettings(),
                 DurationComparisonSettings =
@@ -437,7 +437,7 @@ namespace VideoDedupServer
         {
             AddLogEntry("Saving configuration");
 
-            ConfigurationManager.SetFolderSettings(settings.FolderSettings);
+            ConfigurationManager.SetDedupSettings(settings.DedupSettings);
             ConfigurationManager.SetVideoComparisonSettings(
                 settings.VideoComparisonSettings);
             ConfigurationManager.SetDurationComparisonSettings(
@@ -462,13 +462,13 @@ namespace VideoDedupServer
                 UpdateSettingsResolution.DiscardDuplicates);
 
             // Adding TrashPath right before we update the configuration
-            // to avoid having it permanently in the FolderSettings (so the user
+            // to avoid having it permanently in the DedupSettings (so the user
             // won't see it).
-            settings.FolderSettings.ExcludedDirectories.Add(
+            settings.DedupSettings.ExcludedDirectories.Add(
                 settings.ResolutionSettings.TrashPath);
 
             var restartNecessary = dedupEngine.UpdateConfiguration(
-                settings.FolderSettings,
+                settings.DedupSettings,
                 settings.DurationComparisonSettings,
                 settings.VideoComparisonSettings);
 

@@ -8,13 +8,14 @@ namespace VideoDedupServer
 
     internal static class ConfigurationManager
     {
-        public static FolderSettings GetFolderSettings()
+        public static DedupSettings GetDedupSettings()
         {
-            var settings = new FolderSettings
+            var settings = new DedupSettings
             {
                 BasePath = Settings.Default.BasePath,
                 Recursive = Settings.Default.Recursive,
                 MonitorChanges = Settings.Default.MonitorFileChanges,
+                ConcurrencyLevel = GetDedupEngineConcurrencyLevel(),
             };
 
             settings.ExcludedDirectories.AddRange(GetExcludedDirectories());
@@ -58,7 +59,7 @@ namespace VideoDedupServer
                 TrashPath = Settings.Default.TrashPath,
             };
 
-        public static void SetFolderSettings(FolderSettings settings)
+        public static void SetDedupSettings(DedupSettings settings)
         {
             Settings.Default.BasePath = settings.BasePath;
             Settings.Default.ExcludedDirectories =
@@ -67,6 +68,8 @@ namespace VideoDedupServer
                 JsonConvert.SerializeObject(settings.FileExtensions);
             Settings.Default.Recursive = settings.Recursive;
             Settings.Default.MonitorFileChanges = settings.MonitorChanges;
+            Settings.Default.DedupEngineConcurrencyLevel =
+                settings.ConcurrencyLevel;
         }
 
         public static void SetVideoComparisonSettings(
@@ -121,6 +124,15 @@ namespace VideoDedupServer
                 ".mp4", ".mpg", ".avi", ".wmv", ".flv", ".m4v", ".mov",
                 ".mpeg", ".rm", ".3gp"
             ];
+        }
+
+        private static int GetDedupEngineConcurrencyLevel()
+        {
+            if (Settings.Default.DedupEngineConcurrencyLevel <= 0)
+            {
+                return Environment.ProcessorCount / 2;
+            }
+            return Settings.Default.DedupEngineConcurrencyLevel;
         }
 
         private static DurationDifferenceType ToDurationDifferenceType(

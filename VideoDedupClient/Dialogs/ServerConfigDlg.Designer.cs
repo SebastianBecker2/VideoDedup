@@ -33,10 +33,10 @@ namespace VideoDedupClient.Dialogs
             var resources = new ComponentResourceManager(typeof(ServerConfigDlg));
             BtnCancel = new Button();
             BtnOkay = new Button();
-            CscComparisonSettings = new Controls.ComparisonSettings.ComparisonSettingsCtrl();
-            LscLogSettings = new Controls.LogSettings.LogSettingsCtrl();
-            RscResolutionSettings = new Controls.ResolutionSettings.ResolutionSettingsCtrl();
-            FscFolderSettings = new Controls.FolderSettings.FolderSettingsCtrl();
+            CscComparisonSettings = new VideoDedupClient.Controls.ComparisonSettings.ComparisonSettingsCtrl();
+            LscLogSettings = new VideoDedupClient.Controls.LogSettings.LogSettingsCtrl();
+            RscResolutionSettings = new VideoDedupClient.Controls.ResolutionSettings.ResolutionSettingsCtrl();
+            DscDedupSettings = new VideoDedupClient.Controls.DedupSettings.DedupSettingsCtrl();
             tabControl1 = new TabControl();
             tabPage1 = new TabPage();
             tabPage2 = new TabPage();
@@ -78,7 +78,7 @@ namespace VideoDedupClient.Dialogs
             CscComparisonSettings.Dock = DockStyle.Fill;
             CscComparisonSettings.Location = new Point(3, 3);
             CscComparisonSettings.Name = "CscComparisonSettings";
-            CscComparisonSettings.Size = new Size(186, 66);
+            CscComparisonSettings.Size = new Size(388, 426);
             CscComparisonSettings.TabIndex = 28;
             CscComparisonSettings.TryComparisonClick += CscComparisonSettings_TryComparisonClick;
             // 
@@ -98,13 +98,13 @@ namespace VideoDedupClient.Dialogs
             RscResolutionSettings.Size = new Size(382, 207);
             RscResolutionSettings.TabIndex = 30;
             // 
-            // FscFolderSettings
+            // DscDedupSettings
             // 
-            FscFolderSettings.Dock = DockStyle.Fill;
-            FscFolderSettings.Location = new Point(3, 3);
-            FscFolderSettings.Name = "FscFolderSettings";
-            FscFolderSettings.Size = new Size(388, 426);
-            FscFolderSettings.TabIndex = 1;
+            DscDedupSettings.Dock = DockStyle.Fill;
+            DscDedupSettings.Location = new Point(3, 3);
+            DscDedupSettings.Name = "DscDedupSettings";
+            DscDedupSettings.Size = new Size(388, 426);
+            DscDedupSettings.TabIndex = 1;
             // 
             // tabControl1
             // 
@@ -120,13 +120,13 @@ namespace VideoDedupClient.Dialogs
             // 
             // tabPage1
             // 
-            tabPage1.Controls.Add(FscFolderSettings);
+            tabPage1.Controls.Add(DscDedupSettings);
             tabPage1.Location = new Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
             tabPage1.Size = new Size(394, 432);
             tabPage1.TabIndex = 0;
-            tabPage1.Text = "Video Input";
+            tabPage1.Text = "Deduplication Input";
             tabPage1.UseVisualStyleBackColor = true;
             // 
             // tabPage2
@@ -135,7 +135,7 @@ namespace VideoDedupClient.Dialogs
             tabPage2.Location = new Point(4, 24);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new Padding(3);
-            tabPage2.Size = new Size(192, 72);
+            tabPage2.Size = new Size(394, 432);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "Comparison";
             tabPage2.UseVisualStyleBackColor = true;
@@ -192,7 +192,7 @@ namespace VideoDedupClient.Dialogs
         #endregion
         private Button BtnCancel;
         private Button BtnOkay;
-        private Controls.FolderSettings.FolderSettingsCtrl FscFolderSettings;
+        private Controls.DedupSettings.DedupSettingsCtrl DscDedupSettings;
         private Controls.ComparisonSettings.ComparisonSettingsCtrl CscComparisonSettings;
         private Controls.LogSettings.LogSettingsCtrl LscLogSettings;
         private Controls.ResolutionSettings.ResolutionSettingsCtrl RscResolutionSettings;

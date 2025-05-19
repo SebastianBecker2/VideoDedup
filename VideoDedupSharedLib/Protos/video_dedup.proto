@@ -216,12 +216,13 @@ message StatusData {
     string log_token = 4;
 }
 
-message FolderSettings {
+message DedupSettings {
     string base_path = 1;
     repeated string excluded_directories = 2;
     repeated string file_extensions = 3;
     bool recursive = 4;
     bool monitor_changes = 5;
+    int32 concurrency_level = 6;
 }
 
 message DurationComparisonSettings {
@@ -262,7 +263,7 @@ message ResolutionSettings {
 }
 
 message ConfigurationSettings {
-  FolderSettings folder_settings = 1;
+  DedupSettings dedup_settings = 1;
   DurationComparisonSettings duration_comparison_settings = 2;
   VideoComparisonSettings video_comparison_settings = 3;
   LogSettings log_settings = 5;

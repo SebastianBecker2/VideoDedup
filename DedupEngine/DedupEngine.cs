@@ -1,7 +1,6 @@
 namespace DedupEngine
 {
     using System.Collections.Concurrent;
-    using System.Diagnostics;
     using EventArgs;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
@@ -59,7 +58,7 @@ namespace DedupEngine
         // ConcurrentDictionary is used as a hash set
         private readonly ConcurrentDictionary<VideoFile, byte> newFiles = new();
         private readonly ConcurrentDictionary<VideoFile, byte> deletedFiles = new();
-        private FolderSettings folderSettings;
+        private DedupSettings dedupSettings;
         private DurationComparisonSettings durationComparisonSettings;
         private VideoComparisonSettings videoComparisonSettings;
         private List<VideoFile> videoFiles = [];
@@ -79,7 +78,7 @@ namespace DedupEngine
             VideoComparer.VideoFile file2) =>
             DuplicateFound?.Invoke(
                 this,
-                new DuplicateFoundEventArgs(folderSettings.BasePath, file1, file2));
+                new DuplicateFoundEventArgs(dedupSettings.BasePath, file1, file2));
 
         public event EventHandler<OperationUpdateEventArgs>? OperationUpdate;
         protected virtual void OnOperationUpdate(
@@ -126,11 +125,11 @@ namespace DedupEngine
 
         public DedupEngine(
             string appDataFolder,
-            FolderSettings folderSettings,
+            DedupSettings dedupSettings,
             DurationComparisonSettings durationComparisonSettings,
             VideoComparisonSettings videoComparisonSettings)
         {
-            this.folderSettings = folderSettings;
+            this.dedupSettings = dedupSettings;
             this.durationComparisonSettings = durationComparisonSettings;
             this.videoComparisonSettings = videoComparisonSettings;
 
@@ -151,18 +150,18 @@ namespace DedupEngine
         }
 
         public bool UpdateConfiguration(
-            FolderSettings folderSettings,
+            DedupSettings dedupSettings,
             DurationComparisonSettings durationComparisonSettings,
             VideoComparisonSettings videoComparisonSettings)
         {
-            if (this.folderSettings.Equals(folderSettings)
+            if (this.dedupSettings.Equals(dedupSettings)
                 && this.durationComparisonSettings.Equals(durationComparisonSettings)
                 && this.videoComparisonSettings.Equals(videoComparisonSettings))
             {
                 return false;
             }
             Stop();
-            this.folderSettings = folderSettings;
+            this.dedupSettings = dedupSettings;
             this.durationComparisonSettings = durationComparisonSettings;
             this.videoComparisonSettings = videoComparisonSettings;
             return true;
@@ -172,7 +171,7 @@ namespace DedupEngine
         {
             OnLogged("Starting DedupEngine");
 
-            if (!Directory.Exists(folderSettings.BasePath))
+            if (!Directory.Exists(dedupSettings.BasePath))
             {
                 throw new InvalidOperationException("Unable to start. " +
                     "Base path is not valid.");
@@ -183,9 +182,9 @@ namespace DedupEngine
                 return;
             }
 
-            FileWatcher.Path = folderSettings.BasePath;
-            FileWatcher.IncludeSubdirectories = folderSettings.Recursive;
-            FileWatcher.EnableRaisingEvents = folderSettings.MonitorChanges;
+            FileWatcher.Path = dedupSettings.BasePath;
+            FileWatcher.IncludeSubdirectories = dedupSettings.Recursive;
+            FileWatcher.EnableRaisingEvents = dedupSettings.MonitorChanges;
 
             lock (DedupLock)
             {
@@ -277,17 +276,17 @@ namespace DedupEngine
 
         private bool IsFilePathRelevant(
             string filePath,
-            FolderSettings folderSettings)
+            DedupSettings dedupSettings)
         {
             if (!filePath.StartsWith(
-                folderSettings.BasePath,
+                dedupSettings.BasePath,
                 StringComparison.OrdinalIgnoreCase))
             {
                 OnLogged($"File not in source folder: {filePath}");
                 return false;
             }
 
-            if (folderSettings.ExcludedDirectories?.Any(p => filePath.StartsWith(
+            if (dedupSettings.ExcludedDirectories?.Any(p => filePath.StartsWith(
                 p,
                 StringComparison.OrdinalIgnoreCase)) ?? false)
             {
@@ -296,7 +295,7 @@ namespace DedupEngine
             }
 
             var extension = Path.GetExtension(filePath);
-            if (!folderSettings.FileExtensions?.Contains(extension) ?? false)
+            if (!dedupSettings.FileExtensions?.Contains(extension) ?? false)
             {
                 OnLogged($"File doesn't have proper file extension: {filePath}");
                 return false;
@@ -307,7 +306,7 @@ namespace DedupEngine
 
         private void HandleDeletedFileEvent(string filePath)
         {
-            if (!IsFilePathRelevant(filePath, folderSettings))
+            if (!IsFilePathRelevant(filePath, dedupSettings))
             {
                 return;
             }
@@ -319,7 +318,7 @@ namespace DedupEngine
 
         private void HandleNewFileEvent(string filePath)
         {
-            if (!IsFilePathRelevant(filePath, folderSettings))
+            if (!IsFilePathRelevant(filePath, dedupSettings))
             {
                 return;
             }
@@ -344,7 +343,7 @@ namespace DedupEngine
 
             var parallelOptions = new ParallelOptions
             {
-                MaxDegreeOfParallelism = Environment.ProcessorCount / 2,
+                MaxDegreeOfParallelism = dedupSettings.ConcurrencyLevel,
                 CancellationToken = cancelToken,
             };
             _ = Parallel.ForEach(videoFiles, parallelOptions, file =>
@@ -398,7 +397,7 @@ namespace DedupEngine
 
             var parallelOptions = new ParallelOptions
             {
-                MaxDegreeOfParallelism = Environment.ProcessorCount / 2,
+                MaxDegreeOfParallelism = dedupSettings.ConcurrencyLevel,
                 CancellationToken = cancelToken,
             };
 
@@ -504,7 +503,7 @@ namespace DedupEngine
                     return;
                 }
 
-                if (!folderSettings.MonitorChanges)
+                if (!dedupSettings.MonitorChanges)
                 {
                     OperationStartTime = DateTime.MinValue;
                     OnOperationUpdate(
@@ -530,10 +529,10 @@ namespace DedupEngine
             OnOperationUpdate(OperationType.Searching, ProgressStyle.Marquee);
 
             videoFiles = [.. DedupHelper.GetAllAccessibleFilesIn(
-                folderSettings.BasePath,
-                folderSettings.ExcludedDirectories,
-                folderSettings.Recursive)
-                .Where(f => folderSettings.FileExtensions?.Contains(
+                dedupSettings.BasePath,
+                dedupSettings.ExcludedDirectories,
+                dedupSettings.Recursive)
+                .Where(f => dedupSettings.FileExtensions?.Contains(
                     Path.GetExtension(f),
                     StringComparer.InvariantCultureIgnoreCase) ?? true)
                 .Select(f => new VideoFile(f))];

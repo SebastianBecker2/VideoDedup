@@ -1,6 +1,6 @@
-namespace VideoDedupClient.Controls.FolderSettings
+namespace VideoDedupClient.Controls.DedupSettings
 {
-    partial class FolderSettingsCtrl
+    partial class DedupSettingsCtrl
     {
         /// <summary> 
         /// Required designer variable.
@@ -28,6 +28,7 @@ namespace VideoDedupClient.Controls.FolderSettings
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             groupBox3 = new GroupBox();
             tableLayoutPanel3 = new TableLayoutPanel();
             BtnSelectSourcePath = new Button();
@@ -44,8 +45,14 @@ namespace VideoDedupClient.Controls.FolderSettings
             LsbExcludedDirectories = new ListBox();
             label10 = new Label();
             ChbMonitorFileChanges = new CheckBox();
+            label2 = new Label();
+            NudConcurrencyLevel = new NumericUpDown();
+            PibConcurrencyLevelHint = new PictureBox();
+            TipHints = new ToolTip(components);
             groupBox3.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)NudConcurrencyLevel).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)PibConcurrencyLevelHint).BeginInit();
             SuspendLayout();
             // 
             // groupBox3
@@ -59,7 +66,7 @@ namespace VideoDedupClient.Controls.FolderSettings
             groupBox3.Size = new Size(440, 540);
             groupBox3.TabIndex = 1;
             groupBox3.TabStop = false;
-            groupBox3.Text = "Video Input";
+            groupBox3.Text = "Deduplication Input";
             // 
             // tableLayoutPanel3
             // 
@@ -81,11 +88,14 @@ namespace VideoDedupClient.Controls.FolderSettings
             tableLayoutPanel3.Controls.Add(LsbExcludedDirectories, 1, 5);
             tableLayoutPanel3.Controls.Add(label10, 0, 3);
             tableLayoutPanel3.Controls.Add(ChbMonitorFileChanges, 1, 2);
+            tableLayoutPanel3.Controls.Add(label2, 0, 7);
+            tableLayoutPanel3.Controls.Add(NudConcurrencyLevel, 1, 7);
+            tableLayoutPanel3.Controls.Add(PibConcurrencyLevelHint, 2, 7);
             tableLayoutPanel3.Dock = DockStyle.Fill;
             tableLayoutPanel3.Location = new Point(4, 19);
             tableLayoutPanel3.Margin = new Padding(4, 3, 4, 3);
             tableLayoutPanel3.Name = "tableLayoutPanel3";
-            tableLayoutPanel3.RowCount = 6;
+            tableLayoutPanel3.RowCount = 8;
             tableLayoutPanel3.RowStyles.Add(new RowStyle());
             tableLayoutPanel3.RowStyles.Add(new RowStyle());
             tableLayoutPanel3.RowStyles.Add(new RowStyle());
@@ -93,13 +103,14 @@ namespace VideoDedupClient.Controls.FolderSettings
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 52.21519F));
             tableLayoutPanel3.RowStyles.Add(new RowStyle());
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 47.78481F));
+            tableLayoutPanel3.RowStyles.Add(new RowStyle());
             tableLayoutPanel3.Size = new Size(432, 518);
             tableLayoutPanel3.TabIndex = 0;
             // 
             // BtnSelectSourcePath
             // 
-            BtnSelectSourcePath.Anchor = AnchorStyles.Right;
-            BtnSelectSourcePath.Location = new Point(404, 3);
+            BtnSelectSourcePath.Anchor = AnchorStyles.None;
+            BtnSelectSourcePath.Location = new Point(401, 3);
             BtnSelectSourcePath.Margin = new Padding(4, 3, 4, 3);
             BtnSelectSourcePath.Name = "BtnSelectSourcePath";
             BtnSelectSourcePath.Size = new Size(24, 27);
@@ -112,7 +123,7 @@ namespace VideoDedupClient.Controls.FolderSettings
             // 
             label1.Anchor = AnchorStyles.Right;
             label1.AutoSize = true;
-            label1.Location = new Point(4, 9);
+            label1.Location = new Point(15, 9);
             label1.Margin = new Padding(4, 0, 4, 0);
             label1.Name = "label1";
             label1.Size = new Size(97, 15);
@@ -122,16 +133,16 @@ namespace VideoDedupClient.Controls.FolderSettings
             // TxtSourcePath
             // 
             TxtSourcePath.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            TxtSourcePath.Location = new Point(109, 5);
+            TxtSourcePath.Location = new Point(120, 5);
             TxtSourcePath.Margin = new Padding(4, 3, 4, 3);
             TxtSourcePath.Name = "TxtSourcePath";
-            TxtSourcePath.Size = new Size(287, 23);
+            TxtSourcePath.Size = new Size(270, 23);
             TxtSourcePath.TabIndex = 0;
             // 
             // BtnRemoveExcludedDirectory
             // 
-            BtnRemoveExcludedDirectory.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            BtnRemoveExcludedDirectory.Location = new Point(404, 344);
+            BtnRemoveExcludedDirectory.Anchor = AnchorStyles.Top;
+            BtnRemoveExcludedDirectory.Location = new Point(401, 324);
             BtnRemoveExcludedDirectory.Margin = new Padding(4, 3, 4, 3);
             BtnRemoveExcludedDirectory.Name = "BtnRemoveExcludedDirectory";
             BtnRemoveExcludedDirectory.Size = new Size(24, 27);
@@ -142,8 +153,8 @@ namespace VideoDedupClient.Controls.FolderSettings
             // 
             // BtnAddExcludedDirectory
             // 
-            BtnAddExcludedDirectory.Anchor = AnchorStyles.Right;
-            BtnAddExcludedDirectory.Location = new Point(404, 311);
+            BtnAddExcludedDirectory.Anchor = AnchorStyles.Top;
+            BtnAddExcludedDirectory.Location = new Point(401, 291);
             BtnAddExcludedDirectory.Margin = new Padding(4, 3, 4, 3);
             BtnAddExcludedDirectory.Name = "BtnAddExcludedDirectory";
             BtnAddExcludedDirectory.Size = new Size(24, 27);
@@ -156,7 +167,7 @@ namespace VideoDedupClient.Controls.FolderSettings
             // 
             label4.Anchor = AnchorStyles.Right;
             label4.AutoSize = true;
-            label4.Location = new Point(39, 317);
+            label4.Location = new Point(50, 297);
             label4.Margin = new Padding(4, 0, 4, 0);
             label4.Name = "label4";
             label4.Size = new Size(62, 15);
@@ -168,16 +179,16 @@ namespace VideoDedupClient.Controls.FolderSettings
             LsbFileExtensions.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             LsbFileExtensions.FormattingEnabled = true;
             LsbFileExtensions.ItemHeight = 15;
-            LsbFileExtensions.Location = new Point(109, 119);
+            LsbFileExtensions.Location = new Point(120, 119);
             LsbFileExtensions.Margin = new Padding(4, 3, 4, 3);
             LsbFileExtensions.Name = "LsbFileExtensions";
-            LsbFileExtensions.Size = new Size(287, 184);
+            LsbFileExtensions.Size = new Size(270, 154);
             LsbFileExtensions.TabIndex = 6;
             // 
             // BtnRemoveFileExtension
             // 
-            BtnRemoveFileExtension.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            BtnRemoveFileExtension.Location = new Point(404, 119);
+            BtnRemoveFileExtension.Anchor = AnchorStyles.Top;
+            BtnRemoveFileExtension.Location = new Point(401, 119);
             BtnRemoveFileExtension.Margin = new Padding(4, 3, 4, 3);
             BtnRemoveFileExtension.Name = "BtnRemoveFileExtension";
             BtnRemoveFileExtension.Size = new Size(24, 27);
@@ -188,8 +199,8 @@ namespace VideoDedupClient.Controls.FolderSettings
             // 
             // BtnAddFileExtension
             // 
-            BtnAddFileExtension.Anchor = AnchorStyles.Right;
-            BtnAddFileExtension.Location = new Point(404, 86);
+            BtnAddFileExtension.Anchor = AnchorStyles.None;
+            BtnAddFileExtension.Location = new Point(401, 86);
             BtnAddFileExtension.Margin = new Padding(4, 3, 4, 3);
             BtnAddFileExtension.Name = "BtnAddFileExtension";
             BtnAddFileExtension.Size = new Size(24, 27);
@@ -201,10 +212,10 @@ namespace VideoDedupClient.Controls.FolderSettings
             // TxtFileExtension
             // 
             TxtFileExtension.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            TxtFileExtension.Location = new Point(109, 88);
+            TxtFileExtension.Location = new Point(120, 88);
             TxtFileExtension.Margin = new Padding(4, 3, 4, 3);
             TxtFileExtension.Name = "TxtFileExtension";
-            TxtFileExtension.Size = new Size(287, 23);
+            TxtFileExtension.Size = new Size(270, 23);
             TxtFileExtension.TabIndex = 4;
             // 
             // ChbRecursive
@@ -213,7 +224,7 @@ namespace VideoDedupClient.Controls.FolderSettings
             ChbRecursive.AutoSize = true;
             ChbRecursive.Checked = true;
             ChbRecursive.CheckState = CheckState.Checked;
-            ChbRecursive.Location = new Point(109, 36);
+            ChbRecursive.Location = new Point(120, 36);
             ChbRecursive.Margin = new Padding(4, 3, 4, 3);
             ChbRecursive.Name = "ChbRecursive";
             ChbRecursive.Size = new Size(76, 19);
@@ -226,18 +237,18 @@ namespace VideoDedupClient.Controls.FolderSettings
             LsbExcludedDirectories.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             LsbExcludedDirectories.FormattingEnabled = true;
             LsbExcludedDirectories.ItemHeight = 15;
-            LsbExcludedDirectories.Location = new Point(109, 311);
+            LsbExcludedDirectories.Location = new Point(120, 291);
             LsbExcludedDirectories.Margin = new Padding(4, 3, 4, 3);
             LsbExcludedDirectories.Name = "LsbExcludedDirectories";
             tableLayoutPanel3.SetRowSpan(LsbExcludedDirectories, 2);
-            LsbExcludedDirectories.Size = new Size(287, 199);
+            LsbExcludedDirectories.Size = new Size(270, 184);
             LsbExcludedDirectories.TabIndex = 8;
             // 
             // label10
             // 
             label10.Anchor = AnchorStyles.Right;
             label10.AutoSize = true;
-            label10.Location = new Point(15, 92);
+            label10.Location = new Point(26, 92);
             label10.Margin = new Padding(4, 0, 4, 0);
             label10.Name = "label10";
             label10.Size = new Size(86, 15);
@@ -250,7 +261,7 @@ namespace VideoDedupClient.Controls.FolderSettings
             ChbMonitorFileChanges.AutoSize = true;
             ChbMonitorFileChanges.Checked = true;
             ChbMonitorFileChanges.CheckState = CheckState.Checked;
-            ChbMonitorFileChanges.Location = new Point(109, 61);
+            ChbMonitorFileChanges.Location = new Point(120, 61);
             ChbMonitorFileChanges.Margin = new Padding(4, 3, 4, 3);
             ChbMonitorFileChanges.Name = "ChbMonitorFileChanges";
             ChbMonitorFileChanges.Size = new Size(135, 19);
@@ -258,16 +269,60 @@ namespace VideoDedupClient.Controls.FolderSettings
             ChbMonitorFileChanges.Text = "Monitor file changes";
             ChbMonitorFileChanges.UseVisualStyleBackColor = true;
             // 
-            // VideoInputCtrl
+            // label2
+            // 
+            label2.Anchor = AnchorStyles.Right;
+            label2.AutoSize = true;
+            label2.Location = new Point(4, 491);
+            label2.Margin = new Padding(4, 0, 4, 0);
+            label2.Name = "label2";
+            label2.Size = new Size(108, 15);
+            label2.TabIndex = 15;
+            label2.Text = "Concurrency Level:";
+            // 
+            // NudConcurrencyLevel
+            // 
+            NudConcurrencyLevel.Anchor = AnchorStyles.Left;
+            NudConcurrencyLevel.Location = new Point(119, 487);
+            NudConcurrencyLevel.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            NudConcurrencyLevel.Name = "NudConcurrencyLevel";
+            NudConcurrencyLevel.Size = new Size(89, 23);
+            NudConcurrencyLevel.TabIndex = 21;
+            NudConcurrencyLevel.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            // 
+            // PibConcurrencyLevelHint
+            // 
+            PibConcurrencyLevelHint.Image = Properties.Resources.information;
+            PibConcurrencyLevelHint.Location = new Point(397, 482);
+            PibConcurrencyLevelHint.Name = "PibConcurrencyLevelHint";
+            PibConcurrencyLevelHint.Size = new Size(32, 32);
+            PibConcurrencyLevelHint.SizeMode = PictureBoxSizeMode.AutoSize;
+            PibConcurrencyLevelHint.TabIndex = 22;
+            PibConcurrencyLevelHint.TabStop = false;
+            PibConcurrencyLevelHint.Click += PibConcurrencyLevelHint_Click;
+            // 
+            // TipHints
+            // 
+            TipHints.AutoPopDelay = 5000;
+            TipHints.BackColor = SystemColors.Window;
+            TipHints.InitialDelay = 500;
+            TipHints.ReshowDelay = 100;
+            TipHints.ShowAlways = true;
+            TipHints.UseAnimation = false;
+            TipHints.UseFading = false;
+            // 
+            // DedupSettingsCtrl
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(groupBox3);
-            Name = "VideoInputCtrl";
+            Name = "DedupSettingsCtrl";
             Size = new Size(440, 540);
             groupBox3.ResumeLayout(false);
             tableLayoutPanel3.ResumeLayout(false);
             tableLayoutPanel3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)NudConcurrencyLevel).EndInit();
+            ((System.ComponentModel.ISupportInitialize)PibConcurrencyLevelHint).EndInit();
             ResumeLayout(false);
         }
 
@@ -289,5 +344,9 @@ namespace VideoDedupClient.Controls.FolderSettings
         public CheckBox ChbRecursive;
         public ListBox LsbExcludedDirectories;
         public CheckBox ChbMonitorFileChanges;
+        private Label label2;
+        private NumericUpDown NudConcurrencyLevel;
+        private PictureBox PibConcurrencyLevelHint;
+        private ToolTip TipHints;
     }
 }

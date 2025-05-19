@@ -1,4 +1,4 @@
-namespace VideoDedupClient.Controls.FolderSettings
+namespace VideoDedupClient.Controls.DedupSettings
 {
     using System;
     using System.Data;
@@ -11,53 +11,70 @@ namespace VideoDedupClient.Controls.FolderSettings
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.ByteStringExtensions;
 
-    public partial class FolderSettingsCtrl : UserControl
+    public partial class DedupSettingsCtrl : UserControl
     {
-        public FolderSettingsCtrl() => InitializeComponent();
-
-        public void ShowSettings(FolderSettings? folderSettings)
+        public DedupSettingsCtrl()
         {
-            if (folderSettings is null)
+            InitializeComponent();
+
+            NudConcurrencyLevel.Maximum = int.MaxValue;
+
+            var text = $"Set the concurrency level for parallel processing. " +
+                $"\r\nHigher values increase performance but may use more " +
+                $"system resources." +
+                $"\r\nDefault: Number of logical CPUs divided by 2. " +
+                $"({Environment.ProcessorCount} / 2 = " +
+                $"{Environment.ProcessorCount / 2})";
+            TipHints.SetToolTip(PibConcurrencyLevelHint, text);
+        }
+
+        public void ShowSettings(DedupSettings? dedupSettings)
+        {
+            if (dedupSettings is null)
             {
                 return;
             }
 
-            TxtSourcePath.Text = folderSettings.BasePath;
-            ChbRecursive.Checked = folderSettings.Recursive;
+            TxtSourcePath.Text = dedupSettings.BasePath;
+            ChbRecursive.Checked = dedupSettings.Recursive;
             ChbMonitorFileChanges.Checked =
-                folderSettings.MonitorChanges;
+                dedupSettings.MonitorChanges;
 
-            if (folderSettings.ExcludedDirectories != null)
+            if (dedupSettings.ExcludedDirectories != null)
             {
                 LsbExcludedDirectories.Items.AddRange(
-                    [.. folderSettings.ExcludedDirectories]);
+                    [.. dedupSettings.ExcludedDirectories]);
             }
 
-            if (folderSettings.FileExtensions != null)
+            if (dedupSettings.FileExtensions != null)
             {
                 LsbFileExtensions.Items.AddRange(
-                    [.. folderSettings.FileExtensions]);
+                    [.. dedupSettings.FileExtensions]);
             }
+
+            NudConcurrencyLevel.Value =
+                dedupSettings.ConcurrencyLevel;
         }
 
-        public FolderSettings GetSettings()
+        public DedupSettings GetSettings()
         {
-            var folderSettings = new FolderSettings()
+            var dedupSettings = new DedupSettings()
             {
                 BasePath = TxtSourcePath.Text,
                 Recursive = ChbRecursive.Checked,
                 MonitorChanges = ChbMonitorFileChanges.Checked,
+                ConcurrencyLevel = (int)NudConcurrencyLevel.Value,
             };
 
-            folderSettings.ExcludedDirectories.Clear();
-            folderSettings.ExcludedDirectories.AddRange(
+            dedupSettings.ExcludedDirectories.Clear();
+            dedupSettings.ExcludedDirectories.AddRange(
                 LsbExcludedDirectories.Items.Cast<string>());
 
-            folderSettings.FileExtensions.Clear();
-            folderSettings.FileExtensions.AddRange(
+            dedupSettings.FileExtensions.Clear();
+            dedupSettings.FileExtensions.AddRange(
                 [.. LsbFileExtensions.Items.Cast<string>()]);
 
-            return folderSettings;
+            return dedupSettings;
         }
 
         private void BtnSelectSourcePath_Click(object sender, EventArgs e)
@@ -197,5 +214,13 @@ namespace VideoDedupClient.Controls.FolderSettings
 
             return dlg.SelectedPath;
         }
+
+        private void PibConcurrencyLevelHint_Click(object sender, EventArgs e) =>
+            TipHints.Show(
+                TipHints.GetToolTip(PibConcurrencyLevelHint),
+                PibConcurrencyLevelHint,
+                0,
+                PibConcurrencyLevelHint.Height,
+                3000);
     }
 }
