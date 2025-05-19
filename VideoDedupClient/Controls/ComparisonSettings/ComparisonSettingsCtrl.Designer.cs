@@ -244,6 +244,7 @@ namespace VideoDedupClient.Controls.ComparisonSettings
             NumMaxDifferentPercentage.Anchor = AnchorStyles.None;
             NumMaxDifferentPercentage.Location = new Point(287, 76);
             NumMaxDifferentPercentage.Margin = new Padding(4, 3, 4, 3);
+            NumMaxDifferentPercentage.Maximum = new decimal(new int[] { 200, 0, 0, 0 });
             NumMaxDifferentPercentage.Name = "NumMaxDifferentPercentage";
             NumMaxDifferentPercentage.Size = new Size(74, 23);
             NumMaxDifferentPercentage.TabIndex = 2;
