@@ -48,22 +48,17 @@ namespace DedupEngine
             List<VideoFile> allVideos,
             DurationComparisonSettings durationComparisonSettings)
         {
-            allVideos = [.. allVideos.OrderBy(f => f.Duration)];
-
             var pairs = new HashSet<Candidate>();
             foreach (var targetVideo in targetVideos)
             {
-                foreach (var otherVideo in allVideos.Where(f => f != targetVideo)
-                    .SkipWhile(f => f.Duration < targetVideo.Duration))
+                foreach (var otherVideo in allVideos.Where(f => f != targetVideo))
                 {
                     if (!targetVideo.IsDurationEqual(
                         otherVideo,
                         durationComparisonSettings))
                     {
-                        // Exit early since list is sorted
-                        break;
+                        continue;
                     }
-
                     _ = pairs.Add(new Candidate(targetVideo, otherVideo));
                 }
             }
