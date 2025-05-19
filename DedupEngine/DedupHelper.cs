@@ -64,8 +64,7 @@ namespace DedupEngine
                         break;
                     }
 
-                    _ = pairs.Add(
-                        new Candidate(targetVideo, otherVideo));
+                    _ = pairs.Add(new Candidate(targetVideo, otherVideo));
                 }
             }
 
