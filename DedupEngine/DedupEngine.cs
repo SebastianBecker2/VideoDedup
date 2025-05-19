@@ -403,7 +403,7 @@ namespace DedupEngine
 
             void ProcessCandidate(Candidate candidate)
             {
-                if (candidate.TryStartProcessing(processingLock))
+                if (!candidate.TryStartProcessing(processingLock))
                 {
                     blockedCandidates.Add(candidate);
                     return;
