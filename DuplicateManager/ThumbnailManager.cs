@@ -52,8 +52,8 @@ namespace DuplicateManager
             {
                 try
                 {
-                    var mpv = new FfmpegWrapper(videoFile.FilePath);
-                    return [.. mpv
+                    var ffmpeg = new FfmpegWrapper(videoFile.FilePath);
+                    return [.. ffmpeg
                         .GetImages(0, Settings.ImageCount, Settings.ImageCount)
                         .Select(i => i is null ? [] : i)];
                 }

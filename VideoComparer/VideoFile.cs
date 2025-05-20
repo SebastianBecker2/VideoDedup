@@ -4,15 +4,9 @@ namespace VideoComparer
     using VideoDedupSharedLib.Interfaces;
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
     using System.Diagnostics;
-#if USE_MPV
-    using MpvLib;
-    using MpvLib.Exceptions;
-    using ImageIndex = MpvLib.ImageIndex;
-#else
     using FfmpegLib;
     using FfmpegLib.Exceptions;
     using ImageIndex = FfmpegLib.ImageIndex;
-#endif
 
     [DebuggerDisplay("{FilePath}")]
     public class VideoFile : IVideoFile
@@ -155,16 +149,6 @@ namespace VideoComparer
             {
                 if (!duration.HasValue)
                 {
-#if USE_MPV
-                    try
-                    {
-                        duration = MpvWrapper.GetDuration(FilePath);
-                    }
-                    catch (MpvException)
-                    {
-                        duration = TimeSpan.Zero;
-                    }
-#else
                     try
                     {
                         duration = FfmpegWrapper.GetDuration(FilePath);
@@ -173,7 +157,6 @@ namespace VideoComparer
                     {
                         duration = TimeSpan.Zero;
                     }
-#endif
                 }
                 return duration.Value;
             }
@@ -187,19 +170,11 @@ namespace VideoComparer
             {
                 if (codecInfo == null)
                 {
-#if USE_MPV
-                    try
-                    {
-                        codecInfo = MpvWrapper.GetCodecInfo(FilePath);
-                    }
-                    catch (MpvException) { }
-#else
                     try
                     {
                         codecInfo = FfmpegWrapper.GetCodecInfo(FilePath);
                     }
                     catch (FfmpegOperationException) { }
-#endif
                 }
                 return codecInfo;
             }
