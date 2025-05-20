@@ -11,7 +11,14 @@ namespace VideoDedupClient.Controls.ComparisonSettings
         protected virtual void OnTryComparisonClick() =>
             TryComparisonClick?.Invoke(this, EventArgs.Empty);
 
-        public ComparisonSettingsCtrl() => InitializeComponent();
+        public ComparisonSettingsCtrl()
+        {
+            InitializeComponent();
+
+            var text = "The difference of two images is provided on a scale " +
+                $"of 0 to 200.{Environment.NewLine}Default: 80";
+            TipHints.SetToolTip(PibMaxDifferentPercentageInfo, text);
+        }
 
         public void ShowSettings(
             VideoComparisonSettings? videoComparisonSettingsm,
@@ -74,5 +81,15 @@ namespace VideoDedupClient.Controls.ComparisonSettings
 
         private void BtnCustomVideoComparison_Click(object sender, EventArgs e) =>
             OnTryComparisonClick();
+
+        private void PibMaxDifferentPercentageInfo_Click(
+            object sender,
+            EventArgs e) =>
+            TipHints.Show(
+                TipHints.GetToolTip(PibMaxDifferentPercentageInfo),
+                PibMaxDifferentPercentageInfo,
+                0,
+                PibMaxDifferentPercentageInfo.Height,
+                3000);
     }
 }
