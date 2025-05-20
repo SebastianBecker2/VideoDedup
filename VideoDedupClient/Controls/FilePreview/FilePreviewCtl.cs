@@ -48,15 +48,13 @@ namespace VideoDedupClient.Controls.FilePreview
                 return;
             }
 
+            ImlThumbnails.Images.Clear();
+            LsvThumbnails.Items.Clear();
+
             DisplayInfo(VideoFile);
 
             var resolution = GetVideoResolution(VideoFile);
             SetThumbnailImageSize(resolution);
-
-            if (VideoFile is null)
-            {
-                return;
-            }
 
             var index = 0;
             foreach (var image in VideoFile.Images)
