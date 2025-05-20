@@ -386,8 +386,8 @@ namespace DedupEngine
             List<Candidate> blockedCandidates;
             var candidateCount = candidates.Count;
 
+            var processedFiles = new ConcurrentDictionary<VideoFile, byte>();
             object processingLock = new();
-            var processedCount = 0;
 
             ThrottledOperationUpdate throttledOperationUpdate =
                 new(OnOperationUpdate)
@@ -416,15 +416,14 @@ namespace DedupEngine
                     return;
                 }
 
-                CompareVideoFiles(
-                        candidate.File1,
-                        candidate.File2,
-                        cancelToken);
+                CompareVideoFiles(candidate.File1, candidate.File2, cancelToken);
+                _ = processedFiles.TryAdd(candidate.File1, 0);
+                _ = processedFiles.TryAdd(candidate.File2, 0);
 
                 throttledOperationUpdate.Raise(
                     OperationType.Comparing,
-                    Interlocked.Increment(ref processedCount),
-                    candidateCount);
+                    processedFiles.Count,
+                    targetVideos.Count);
 
                 candidate.StopProcessing();
             }
@@ -445,8 +444,8 @@ namespace DedupEngine
 
             OnOperationUpdate(
                 OperationType.Comparing,
-                candidateCount,
-                candidateCount);
+                targetVideos.Count,
+                targetVideos.Count);
         }
 
         private void CompareVideoFiles(
