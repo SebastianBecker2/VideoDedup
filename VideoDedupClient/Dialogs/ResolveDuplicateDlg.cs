@@ -58,6 +58,8 @@ namespace VideoDedupClient.Dialogs
             {
                 FpvLeft.VideoFile = duplicate.File1;
                 FpvRight.VideoFile = duplicate.File2;
+
+                FpvLeft.HighlightColor = FpvRight.HighlightColor;
             }
             // If the left file is larger than the right
             else if (sizeDifference > 0)
