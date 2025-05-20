@@ -1,7 +1,6 @@
 namespace VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions
 {
     using System.Globalization;
-    using System.Text;
     using Google.Protobuf.WellKnownTypes;
     using Interfaces;
     using VideoDedupGrpc;
@@ -107,7 +106,7 @@ namespace VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions
 
                 infoText +=
                     $"{newLine}" +
-                    $"Resolution: {res} {codecInfo.FrameRate}{newLine}" +
+                    $"Resolution: {res} @ {codecInfo.FrameRate}{newLine}" +
                     $"Codec:      {codecInfo.Name}";
             }
 
