@@ -66,11 +66,10 @@ namespace DuplicateManager
                     thumbnailManager.RemoveVideoFileReference(d.File2);
                 }
 
-                duplicateList = new HashSet<DuplicateWrapper>(
-                    oldDuplicateList.Select(d => new DuplicateWrapper(
+                duplicateList = [.. oldDuplicateList.Select(d => new DuplicateWrapper(
                         thumbnailManager.AddVideoFileReference(d.File1),
                         thumbnailManager.AddVideoFileReference(d.File2),
-                        d.DuplicateData.BasePath)));
+                        d.DuplicateData.BasePath))];
             }
         }
 
