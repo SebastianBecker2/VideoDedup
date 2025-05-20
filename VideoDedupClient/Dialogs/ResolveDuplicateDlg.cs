@@ -5,54 +5,65 @@ namespace VideoDedupClient.Dialogs
     using Google.Protobuf.WellKnownTypes;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.StringExtensions;
+    using static VideoDedupGrpc.VideoDedupGrpcService;
 
     public partial class ResolveDuplicateDlg : Form
     {
+        private static VideoDedupGrpcServiceClient GrpcClient =>
+            Program.GrpcClient;
+
         private const int MinimumSizeDifference = 100 * 1024; // 100 kB
 
-        public VideoFile? LeftFile { get; set; }
-        public VideoFile? RightFile { get; set; }
-
-        public string? ServerSourcePath { get; set; }
-        public string? ClientSourcePath { get; set; }
-
-        public ResolveOperation ResolveOperation { get; set; }
-        public VideoFile? FileToDelete { get; set; }
+        private DuplicateData? duplicate;
 
         public ResolveDuplicateDlg() => InitializeComponent();
 
         protected override void OnLoad(EventArgs e)
         {
-            if (LeftFile is not null && RightFile is not null)
-            {
-                DisplayVideoFiles();
-            }
+            LoadNextDuplicate();
 
             base.OnLoad(e);
         }
 
-        private void DisplayVideoFiles()
+        private void LoadNextDuplicate()
         {
-            if (LeftFile is null || RightFile is null)
+            try
             {
+                duplicate = GrpcClient.GetDuplicate(new Empty());
+            }
+            catch (Exception)
+            {
+                _ = MessageBox.Show(
+                    $"Unable to process duplicate.{Environment.NewLine}" +
+                    "Connection to server failed.",
+                    "Connection Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                DialogResult = DialogResult.Abort;
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(duplicate?.DuplicateId))
+            {
+                DialogResult = DialogResult.OK;
                 return;
             }
 
             SplitterContainer.SplitterDistance = SplitterContainer.Width / 2;
 
-            var sizeDifference = LeftFile.FileSize - RightFile.FileSize;
+            var sizeDifference =
+                duplicate.File1.FileSize - duplicate.File2.FileSize;
 
             // If files are the same size
             if (Math.Abs(sizeDifference) <= MinimumSizeDifference)
             {
-                FpvLeft.VideoFile = LeftFile;
-                FpvRight.VideoFile = RightFile;
+                FpvLeft.VideoFile = duplicate.File1;
+                FpvRight.VideoFile = duplicate.File2;
             }
             // If the left file is larger than the right
             else if (sizeDifference > 0)
             {
-                FpvLeft.VideoFile = LeftFile;
-                FpvRight.VideoFile = RightFile;
+                FpvLeft.VideoFile = duplicate.File1;
+                FpvRight.VideoFile = duplicate.File2;
 
                 FpvLeft.HighlightColor = Color.LightGreen;
             }
@@ -61,41 +72,46 @@ namespace VideoDedupClient.Dialogs
             {
                 // Switch left and right
                 // Since we want the larger file on the left side
-                FpvLeft.VideoFile = RightFile;
-                FpvRight.VideoFile = LeftFile;
-
-                LeftFile = FpvLeft.VideoFile;
-                RightFile = FpvRight.VideoFile;
+                FpvLeft.VideoFile = duplicate.File2;
+                FpvRight.VideoFile = duplicate.File1;
 
                 FpvLeft.HighlightColor = Color.LightGreen;
             }
         }
 
+        private void ResolveDuplicate(
+            ResolveOperation resolveOperation,
+            VideoFile? fileToDelete = null) =>
+            _ = GrpcClient.ResolveDuplicate(new ResolveDuplicateRequest
+            {
+                DuplicateId = duplicate!.DuplicateId,
+                ResolveOperation = resolveOperation,
+                File = fileToDelete,
+            });
+
         private void BtnDeleteLeft_Click(object sender, EventArgs e)
         {
-            ResolveOperation = ResolveOperation.DeleteFile;
-            FileToDelete = LeftFile;
-            DialogResult = DialogResult.OK;
+            ResolveDuplicate(ResolveOperation.DeleteFile, FpvLeft.VideoFile!);
+            LoadNextDuplicate();
         }
 
         private void BtnDeleteRight_Click(object sender, EventArgs e)
         {
-            ResolveOperation = ResolveOperation.DeleteFile;
-            FileToDelete = RightFile;
-            DialogResult = DialogResult.OK;
+            ResolveDuplicate(ResolveOperation.DeleteFile, FpvRight.VideoFile!);
+            LoadNextDuplicate();
         }
 
         private void OpenFileInExplorer(VideoFile file)
         {
             var filePath = file.FilePath;
 
-            if (!string.IsNullOrWhiteSpace(ClientSourcePath)
-                && !string.IsNullOrWhiteSpace(ServerSourcePath))
+            if (!string.IsNullOrWhiteSpace(Program.Configuration.ClientSourcePath)
+                && !string.IsNullOrWhiteSpace(duplicate!.BasePath))
             {
-                var relFilePath = filePath.MakeRelativePath(ServerSourcePath);
+                var relFilePath = filePath.MakeRelativePath(duplicate.BasePath);
 
                 filePath = Path.Combine(
-                    ClientSourcePath,
+                    Program.Configuration.ClientSourcePath,
                     relFilePath);
             }
 
@@ -116,55 +132,42 @@ namespace VideoDedupClient.Dialogs
             _ = Process.Start("explorer.exe", argument);
         }
 
-        private void BtnShowRight_Click(object sender, EventArgs e)
-        {
-            if (RightFile is null)
-            {
-                return;
-            }
+        private void BtnShowLeft_Click(object sender, EventArgs e) =>
+            OpenFileInExplorer(FpvLeft.VideoFile!);
 
-            OpenFileInExplorer(RightFile);
-        }
-
-        private void BtnShowLeft_Click(object sender, EventArgs e)
-        {
-            if (LeftFile is null)
-            {
-                return;
-            }
-
-            OpenFileInExplorer(LeftFile);
-        }
+        private void BtnShowRight_Click(object sender, EventArgs e) =>
+            OpenFileInExplorer(FpvRight.VideoFile!);
 
         private void BtnSkip_Click(object sender, EventArgs e)
         {
-            ResolveOperation = ResolveOperation.Skip;
-            DialogResult = DialogResult.OK;
+            ResolveDuplicate(ResolveOperation.Skip);
+            LoadNextDuplicate();
         }
 
         private void BtnDiscard_Click(object sender, EventArgs e)
         {
-            ResolveOperation = ResolveOperation.Discard;
-            DialogResult = DialogResult.OK;
+            ResolveDuplicate(ResolveOperation.Discard);
+            LoadNextDuplicate();
         }
 
         private void BtnReviewComparison_Click(object sender, EventArgs e)
         {
-            if (LeftFile is null || RightFile is null)
-            {
-                return;
-            }
-
             using var dlg = new CustomVideoComparisonDlg
             {
                 VideoComparisonSettings =
                     Program.GrpcClient.GetConfiguration(new Empty()).
                         VideoComparisonSettings,
-                LeftFilePath = LeftFile.FilePath,
-                RightFilePath = RightFile.FilePath,
+                LeftFilePath = FpvLeft.VideoFile!.FilePath,
+                RightFilePath = FpvRight.VideoFile!.FilePath,
                 CloseButtons = CustomVideoComparisonDlg.Buttons.Close,
             };
             _ = dlg.ShowDialog();
+        }
+
+        private void BtnClose_Click(object sender, EventArgs e)
+        {
+            ResolveDuplicate(ResolveOperation.Cancel);
+            DialogResult = DialogResult.Cancel;
         }
     }
 }
