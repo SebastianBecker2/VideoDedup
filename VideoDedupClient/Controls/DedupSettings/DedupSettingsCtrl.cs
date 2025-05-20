@@ -19,10 +19,10 @@ namespace VideoDedupClient.Controls.DedupSettings
 
             NudConcurrencyLevel.Maximum = int.MaxValue;
 
-            var text = $"Set the concurrency level for parallel processing. " +
-                $"\r\nHigher values increase performance but may use more " +
-                $"system resources." +
-                $"\r\nDefault: Number of logical CPUs divided by 2. " +
+            var text = $"Set the concurrency level for parallel processing." +
+                $"{Environment.NewLine}Higher values increase performance but " +
+                $"may use more system resources.{Environment.NewLine}" +
+                $"Default: Number of logical CPUs divided by 2. " +
                 $"({Environment.ProcessorCount} / 2 = " +
                 $"{Environment.ProcessorCount / 2})";
             TipHints.SetToolTip(PibConcurrencyLevelHint, text);
