@@ -49,7 +49,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ComparisonManager\ComparisonManager.csproj">
       <Name>ComparisonManager</Name>
-      <Project>{ef86b28e-7402-468a-a19f-13994630e341}</Project>
+      <Project>{a18f7fdb-0a29-49fb-93b2-071413a0e51e}</Project>
       <Private>True</Private>
       <DoNotHarvest>True</DoNotHarvest>
       <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
@@ -66,6 +66,14 @@
     <ProjectReference Include="..\DuplicateManager\DuplicateManager.csproj">
       <Name>DuplicateManager</Name>
       <Project>{ad082bb0-aec6-48a5-9c12-64bc2684b409}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\FfmpegLib\FfmpegLib.csproj">
+      <Name>FfmpegLib</Name>
+      <Project>{b5256b1b-dbba-4935-8ff9-6ada3e6feb23}</Project>
       <Private>True</Private>
       <DoNotHarvest>True</DoNotHarvest>
       <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
