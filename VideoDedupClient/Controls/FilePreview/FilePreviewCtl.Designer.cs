@@ -46,10 +46,10 @@ namespace VideoDedupClient.Controls.FilePreview
             // 
             LsvThumbnails.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             LsvThumbnails.LargeImageList = ImlThumbnails;
-            LsvThumbnails.Location = new Point(4, 137);
+            LsvThumbnails.Location = new Point(4, 132);
             LsvThumbnails.Margin = new Padding(4, 3, 4, 3);
             LsvThumbnails.Name = "LsvThumbnails";
-            LsvThumbnails.Size = new Size(486, 358);
+            LsvThumbnails.Size = new Size(486, 363);
             LsvThumbnails.SmallImageList = ImlThumbnails;
             LsvThumbnails.TabIndex = 2;
             LsvThumbnails.UseCompatibleStateImageBehavior = false;
@@ -57,13 +57,14 @@ namespace VideoDedupClient.Controls.FilePreview
             // TxtInfo
             // 
             TxtInfo.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            TxtInfo.Font = new Font("Consolas", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             TxtInfo.Location = new Point(5, 5);
             TxtInfo.Margin = new Padding(4, 3, 4, 3);
             TxtInfo.Multiline = true;
             TxtInfo.Name = "TxtInfo";
             TxtInfo.ReadOnly = true;
             TxtInfo.ScrollBars = ScrollBars.Both;
-            TxtInfo.Size = new Size(485, 126);
+            TxtInfo.Size = new Size(485, 121);
             TxtInfo.TabIndex = 3;
             // 
             // FilePreviewCtl

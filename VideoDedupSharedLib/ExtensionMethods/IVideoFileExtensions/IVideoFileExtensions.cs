@@ -78,33 +78,40 @@ namespace VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions
 
         public static string GetInfoText(this IVideoFile videoFile)
         {
+            var culture = CultureInfo.CurrentCulture;
+
             var fileSize = videoFile.FileSize;
-            var duration = videoFile.Duration;
-            var codecInfo = videoFile.CodecInfo;
+            var durationFormat =
+                videoFile.Duration.Hours >= 1
+                ? @"hh\:mm\:ss"
+                : @"mm\:ss";
+            var duration = videoFile.Duration.ToString(durationFormat, culture);
             var lastWrite = videoFile.LastWriteTime;
             var creation = videoFile.CreationTime;
             var lastAccess = videoFile.LastAccessTime;
-            var durationFormat = duration.Hours >= 1 ? @"hh\:mm\:ss" : @"mm\:ss";
-            var cul = CultureInfo.CurrentCulture;
+            var codecInfo = videoFile.CodecInfo;
 
-            StringBuilder infoText = new();
-            _ = infoText
-                .AppendLine(cul, $"{videoFile.FilePath}")
-                .AppendLine(cul, $"Size: {fileSize / (1024 * 1024)} MB")
-                .AppendLine(cul, $"Duration: {duration.ToString(durationFormat, cul)}")
-                .AppendLine(cul, $"Created: {creation:yyyy-MM-dd HH:mm:ss}")
-                .AppendLine(cul, $"Modified: {lastWrite:yyyy-MM-dd HH:mm:ss}")
-                .AppendLine(cul, $"Last Access: {lastAccess:yyyy-MM-dd HH:mm:ss}");
+            var newLine = Environment.NewLine;
 
-            if (codecInfo != null)
+            var infoText =
+                $"{videoFile.FilePath}{newLine}" +
+                $"Size:       {fileSize / (1024 * 1024)} MB{newLine}" +
+                $"Duration:   {duration}{newLine}" +
+                $"Created:    {creation:yyyy-MM-dd HH:mm:ss}{newLine}" +
+                $"Modified:   {lastWrite:yyyy-MM-dd HH:mm:ss}{newLine}" +
+                $"Accessed:   {lastAccess:yyyy-MM-dd HH:mm:ss}";
+
+            if (codecInfo is not null)
             {
-                _ = infoText
-                    .AppendLine(cul, $"Resolution: {codecInfo.Size.Width} x " +
-                        $"{codecInfo.Size.Height} @ {codecInfo.FrameRate}")
-                    .AppendLine(cul, $"Codec: {codecInfo.Name}");
+                var res = $"{codecInfo.Size.Width} x {codecInfo.Size.Height}";
+
+                infoText +=
+                    $"{newLine}" +
+                    $"Resolution: {res} {codecInfo.FrameRate}{newLine}" +
+                    $"Codec:      {codecInfo.Name}";
             }
 
-            return infoText.ToString().TrimEnd();
+            return infoText;
         }
 
         public static VideoFile ToVideoFile(this IVideoFile videoFile) =>
