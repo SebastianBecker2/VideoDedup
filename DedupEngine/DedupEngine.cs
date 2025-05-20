@@ -548,6 +548,12 @@ namespace DedupEngine
                 $"{videoFiles.Count} Files.");
 
             // Remove invalid files
+            foreach (var file in
+                videoFiles.Where(f => f.Duration == TimeSpan.Zero))
+            {
+                OnLogged($"Discarding file {file.FilePath} " +
+                    $"Unable to determine duration for file.");
+            }
             videoFiles = [.. videoFiles.Where(f => f.Duration != TimeSpan.Zero)];
             cancelToken.ThrowIfCancellationRequested();
 
