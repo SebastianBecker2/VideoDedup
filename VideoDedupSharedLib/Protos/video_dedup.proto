@@ -146,6 +146,8 @@ message VideoFile {
     CodecInfo codec_info = 4;
     google.protobuf.Timestamp last_write_time = 5;
     repeated google.protobuf.BytesValue images = 6;
+    google.protobuf.Timestamp creation_time = 7;
+    google.protobuf.Timestamp last_access_time = 8;
 }
 
 message DuplicateData {

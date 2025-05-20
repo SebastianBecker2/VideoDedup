@@ -109,6 +109,46 @@ namespace VideoComparer
         }
         private DateTime? lastWriteTime;
 
+        public DateTime CreationTime
+        {
+            get
+            {
+                if (!creationTime.HasValue)
+                {
+                    try
+                    {
+                        creationTime = File.GetCreationTime(FilePath);
+                    }
+                    catch (Exception)
+                    {
+                        creationTime = DateTime.MinValue;
+                    }
+                }
+                return creationTime.Value;
+            }
+        }
+        private DateTime? creationTime;
+
+        public DateTime LastAccessTime
+        {
+            get
+            {
+                if (!lastAccessTime.HasValue)
+                {
+                    try
+                    {
+                        lastAccessTime = File.GetLastAccessTime(FilePath);
+                    }
+                    catch (Exception)
+                    {
+                        lastAccessTime = DateTime.MinValue;
+                    }
+                }
+                return lastAccessTime.Value;
+            }
+        }
+        private DateTime? lastAccessTime;
+
         public TimeSpan Duration
         {
             get

@@ -1,6 +1,7 @@
 namespace VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions
 {
     using System.Globalization;
+    using System.Text;
     using Google.Protobuf.WellKnownTypes;
     using Interfaces;
     using VideoDedupGrpc;
@@ -80,20 +81,30 @@ namespace VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions
             var fileSize = videoFile.FileSize;
             var duration = videoFile.Duration;
             var codecInfo = videoFile.CodecInfo;
+            var lastWrite = videoFile.LastWriteTime;
+            var creation = videoFile.CreationTime;
+            var lastAccess = videoFile.LastAccessTime;
             var durationFormat = duration.Hours >= 1 ? @"hh\:mm\:ss" : @"mm\:ss";
+            var cul = CultureInfo.CurrentCulture;
 
-            var infoText = $"{videoFile.FilePath}{Environment.NewLine}" +
-                $"{fileSize / (1024 * 1024)} MB{Environment.NewLine}" +
-                $"{duration.ToString(durationFormat, CultureInfo.CurrentCulture)}";
+            StringBuilder infoText = new();
+            _ = infoText
+                .AppendLine(cul, $"{videoFile.FilePath}")
+                .AppendLine(cul, $"Size: {fileSize / (1024 * 1024)} MB")
+                .AppendLine(cul, $"Duration: {duration.ToString(durationFormat, cul)}")
+                .AppendLine(cul, $"Created: {creation:yyyy-MM-dd HH:mm:ss}")
+                .AppendLine(cul, $"Modified: {lastWrite:yyyy-MM-dd HH:mm:ss}")
+                .AppendLine(cul, $"Last Access: {lastAccess:yyyy-MM-dd HH:mm:ss}");
 
             if (codecInfo != null)
             {
-                infoText += $"{Environment.NewLine}{codecInfo.Size.Width} x " +
-                    $"{codecInfo.Size.Height} @ {codecInfo.FrameRate} Frames" +
-                    $"{Environment.NewLine}{codecInfo.Name}";
+                _ = infoText
+                    .AppendLine(cul, $"Resolution: {codecInfo.Size.Width} x " +
+                        $"{codecInfo.Size.Height} @ {codecInfo.FrameRate}")
+                    .AppendLine(cul, $"Codec: {codecInfo.Name}");
             }
 
-            return infoText;
+            return infoText.ToString().TrimEnd();
         }
 
         public static VideoFile ToVideoFile(this IVideoFile videoFile) =>
@@ -104,6 +115,10 @@ namespace VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions
                 Duration = Duration.FromTimeSpan(videoFile.Duration),
                 LastWriteTime = Timestamp.FromDateTime(
                     videoFile.LastWriteTime.ToUniversalTime()),
+                CreationTime = Timestamp.FromDateTime(
+                    videoFile.CreationTime.ToUniversalTime()),
+                LastAccessTime = Timestamp.FromDateTime(
+                    videoFile.LastAccessTime.ToUniversalTime()),
                 CodecInfo = videoFile.CodecInfo,
             };
     }

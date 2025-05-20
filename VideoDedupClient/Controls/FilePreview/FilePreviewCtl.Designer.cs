@@ -30,54 +30,53 @@ namespace VideoDedupClient.Controls.FilePreview
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.ImlThumbnails = new System.Windows.Forms.ImageList(this.components);
-            this.LsvThumbnails = new System.Windows.Forms.ListView();
-            this.TxtInfo = new System.Windows.Forms.TextBox();
-            this.SuspendLayout();
+            components = new Container();
+            ImlThumbnails = new ImageList(components);
+            LsvThumbnails = new ListView();
+            TxtInfo = new TextBox();
+            SuspendLayout();
             // 
             // ImlThumbnails
             // 
-            this.ImlThumbnails.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
-            this.ImlThumbnails.ImageSize = new System.Drawing.Size(16, 16);
-            this.ImlThumbnails.TransparentColor = System.Drawing.Color.Transparent;
+            ImlThumbnails.ColorDepth = ColorDepth.Depth8Bit;
+            ImlThumbnails.ImageSize = new Size(16, 16);
+            ImlThumbnails.TransparentColor = Color.Transparent;
             // 
             // LsvThumbnails
             // 
-            this.LsvThumbnails.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.LsvThumbnails.HideSelection = false;
-            this.LsvThumbnails.LargeImageList = this.ImlThumbnails;
-            this.LsvThumbnails.Location = new System.Drawing.Point(3, 80);
-            this.LsvThumbnails.Name = "LsvThumbnails";
-            this.LsvThumbnails.Size = new System.Drawing.Size(417, 350);
-            this.LsvThumbnails.SmallImageList = this.ImlThumbnails;
-            this.LsvThumbnails.TabIndex = 2;
-            this.LsvThumbnails.UseCompatibleStateImageBehavior = false;
+            LsvThumbnails.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            LsvThumbnails.LargeImageList = ImlThumbnails;
+            LsvThumbnails.Location = new Point(4, 137);
+            LsvThumbnails.Margin = new Padding(4, 3, 4, 3);
+            LsvThumbnails.Name = "LsvThumbnails";
+            LsvThumbnails.Size = new Size(486, 358);
+            LsvThumbnails.SmallImageList = ImlThumbnails;
+            LsvThumbnails.TabIndex = 2;
+            LsvThumbnails.UseCompatibleStateImageBehavior = false;
             // 
             // TxtInfo
             // 
-            this.TxtInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.TxtInfo.Location = new System.Drawing.Point(4, 4);
-            this.TxtInfo.Multiline = true;
-            this.TxtInfo.Name = "TxtInfo";
-            this.TxtInfo.ReadOnly = true;
-            this.TxtInfo.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.TxtInfo.Size = new System.Drawing.Size(416, 71);
-            this.TxtInfo.TabIndex = 3;
+            TxtInfo.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            TxtInfo.Location = new Point(5, 5);
+            TxtInfo.Margin = new Padding(4, 3, 4, 3);
+            TxtInfo.Multiline = true;
+            TxtInfo.Name = "TxtInfo";
+            TxtInfo.ReadOnly = true;
+            TxtInfo.ScrollBars = ScrollBars.Both;
+            TxtInfo.Size = new Size(485, 126);
+            TxtInfo.TabIndex = 3;
             // 
-            // FilePreviewDlg
+            // FilePreviewCtl
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.TxtInfo);
-            this.Controls.Add(this.LsvThumbnails);
-            this.Name = "FilePreviewDlg";
-            this.Size = new System.Drawing.Size(423, 433);
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(TxtInfo);
+            Controls.Add(LsvThumbnails);
+            Margin = new Padding(4, 3, 4, 3);
+            Name = "FilePreviewCtl";
+            Size = new Size(493, 500);
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 
