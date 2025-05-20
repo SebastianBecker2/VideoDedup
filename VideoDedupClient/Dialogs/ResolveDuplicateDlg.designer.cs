@@ -33,12 +33,14 @@ namespace VideoDedupClient.Dialogs
         {
             var resources = new ComponentResourceManager(typeof(ResolveDuplicateDlg));
             SplitterContainer = new SplitContainer();
+            tableLayoutPanel1 = new TableLayoutPanel();
             FpvLeft = new FilePreviewCtl();
-            BtnShowLeft = new Button();
             btnDeleteLeft = new Button();
+            BtnShowLeft = new Button();
+            tableLayoutPanel2 = new TableLayoutPanel();
             FpvRight = new FilePreviewCtl();
-            BtnShowRight = new Button();
             btnDeleteRight = new Button();
+            BtnShowRight = new Button();
             BtnClose = new Button();
             BtnSkip = new Button();
             BtnDiscard = new Button();
@@ -47,6 +49,8 @@ namespace VideoDedupClient.Dialogs
             SplitterContainer.Panel1.SuspendLayout();
             SplitterContainer.Panel2.SuspendLayout();
             SplitterContainer.SuspendLayout();
+            tableLayoutPanel1.SuspendLayout();
+            tableLayoutPanel2.SuspendLayout();
             SuspendLayout();
             // 
             // SplitterContainer
@@ -58,43 +62,45 @@ namespace VideoDedupClient.Dialogs
             // 
             // SplitterContainer.Panel1
             // 
-            SplitterContainer.Panel1.Controls.Add(FpvLeft);
-            SplitterContainer.Panel1.Controls.Add(BtnShowLeft);
-            SplitterContainer.Panel1.Controls.Add(btnDeleteLeft);
+            SplitterContainer.Panel1.Controls.Add(tableLayoutPanel1);
             // 
             // SplitterContainer.Panel2
             // 
-            SplitterContainer.Panel2.Controls.Add(FpvRight);
-            SplitterContainer.Panel2.Controls.Add(BtnShowRight);
-            SplitterContainer.Panel2.Controls.Add(btnDeleteRight);
-            SplitterContainer.Size = new Size(630, 467);
-            SplitterContainer.SplitterDistance = 310;
+            SplitterContainer.Panel2.Controls.Add(tableLayoutPanel2);
+            SplitterContainer.Size = new Size(852, 467);
+            SplitterContainer.SplitterDistance = 419;
             SplitterContainer.SplitterWidth = 7;
             SplitterContainer.TabIndex = 0;
             SplitterContainer.TabStop = false;
             // 
+            // tableLayoutPanel1
+            // 
+            tableLayoutPanel1.ColumnCount = 2;
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel1.Controls.Add(FpvLeft, 0, 0);
+            tableLayoutPanel1.Controls.Add(btnDeleteLeft, 1, 1);
+            tableLayoutPanel1.Controls.Add(BtnShowLeft, 0, 1);
+            tableLayoutPanel1.Dock = DockStyle.Fill;
+            tableLayoutPanel1.Location = new Point(0, 0);
+            tableLayoutPanel1.Name = "tableLayoutPanel1";
+            tableLayoutPanel1.RowCount = 2;
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle());
+            tableLayoutPanel1.Size = new Size(419, 467);
+            tableLayoutPanel1.TabIndex = 4;
+            // 
             // FpvLeft
             // 
             FpvLeft.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tableLayoutPanel1.SetColumnSpan(FpvLeft, 2);
             FpvLeft.HighlightColor = SystemColors.Control;
             FpvLeft.Location = new Point(4, 3);
             FpvLeft.Margin = new Padding(4, 3, 4, 3);
             FpvLeft.Name = "FpvLeft";
-            FpvLeft.Size = new Size(302, 428);
+            FpvLeft.Size = new Size(411, 428);
             FpvLeft.TabIndex = 3;
             FpvLeft.VideoFile = null;
-            // 
-            // BtnShowLeft
-            // 
-            BtnShowLeft.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            BtnShowLeft.Location = new Point(4, 437);
-            BtnShowLeft.Margin = new Padding(4, 3, 4, 3);
-            BtnShowLeft.Name = "BtnShowLeft";
-            BtnShowLeft.Size = new Size(113, 27);
-            BtnShowLeft.TabIndex = 1;
-            BtnShowLeft.Text = "&Show in Explorer";
-            BtnShowLeft.UseVisualStyleBackColor = true;
-            BtnShowLeft.Click += BtnShowLeft_Click;
             // 
             // btnDeleteLeft
             // 
@@ -108,33 +114,51 @@ namespace VideoDedupClient.Dialogs
             btnDeleteLeft.UseVisualStyleBackColor = true;
             btnDeleteLeft.Click += BtnDeleteLeft_Click;
             // 
+            // BtnShowLeft
+            // 
+            BtnShowLeft.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            BtnShowLeft.Location = new Point(4, 437);
+            BtnShowLeft.Margin = new Padding(4, 3, 4, 3);
+            BtnShowLeft.Name = "BtnShowLeft";
+            BtnShowLeft.Size = new Size(113, 27);
+            BtnShowLeft.TabIndex = 1;
+            BtnShowLeft.Text = "&Show in Explorer";
+            BtnShowLeft.UseVisualStyleBackColor = true;
+            BtnShowLeft.Click += BtnShowLeft_Click;
+            // 
+            // tableLayoutPanel2
+            // 
+            tableLayoutPanel2.ColumnCount = 2;
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle());
+            tableLayoutPanel2.Controls.Add(btnDeleteRight, 0, 1);
+            tableLayoutPanel2.Controls.Add(FpvRight, 0, 0);
+            tableLayoutPanel2.Controls.Add(BtnShowRight, 1, 1);
+            tableLayoutPanel2.Dock = DockStyle.Fill;
+            tableLayoutPanel2.Location = new Point(0, 0);
+            tableLayoutPanel2.Name = "tableLayoutPanel2";
+            tableLayoutPanel2.RowCount = 2;
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle());
+            tableLayoutPanel2.Size = new Size(426, 467);
+            tableLayoutPanel2.TabIndex = 4;
+            // 
             // FpvRight
             // 
             FpvRight.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tableLayoutPanel2.SetColumnSpan(FpvRight, 2);
             FpvRight.HighlightColor = SystemColors.Control;
             FpvRight.Location = new Point(4, 3);
             FpvRight.Margin = new Padding(4, 3, 4, 3);
             FpvRight.Name = "FpvRight";
-            FpvRight.Size = new Size(293, 428);
+            FpvRight.Size = new Size(418, 428);
             FpvRight.TabIndex = 3;
             FpvRight.VideoFile = null;
-            // 
-            // BtnShowRight
-            // 
-            BtnShowRight.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            BtnShowRight.Location = new Point(184, 437);
-            BtnShowRight.Margin = new Padding(4, 3, 4, 3);
-            BtnShowRight.Name = "BtnShowRight";
-            BtnShowRight.Size = new Size(113, 27);
-            BtnShowRight.TabIndex = 2;
-            BtnShowRight.Text = "Show in &Explorer";
-            BtnShowRight.UseVisualStyleBackColor = true;
-            BtnShowRight.Click += BtnShowRight_Click;
             // 
             // btnDeleteRight
             // 
             btnDeleteRight.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnDeleteRight.Location = new Point(88, 437);
+            btnDeleteRight.Location = new Point(213, 437);
             btnDeleteRight.Margin = new Padding(4, 3, 4, 3);
             btnDeleteRight.Name = "btnDeleteRight";
             btnDeleteRight.Size = new Size(88, 27);
@@ -143,10 +167,22 @@ namespace VideoDedupClient.Dialogs
             btnDeleteRight.UseVisualStyleBackColor = true;
             btnDeleteRight.Click += BtnDeleteRight_Click;
             // 
+            // BtnShowRight
+            // 
+            BtnShowRight.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            BtnShowRight.Location = new Point(309, 437);
+            BtnShowRight.Margin = new Padding(4, 3, 4, 3);
+            BtnShowRight.Name = "BtnShowRight";
+            BtnShowRight.Size = new Size(113, 27);
+            BtnShowRight.TabIndex = 2;
+            BtnShowRight.Text = "Show in &Explorer";
+            BtnShowRight.UseVisualStyleBackColor = true;
+            BtnShowRight.Click += BtnShowRight_Click;
+            // 
             // BtnClose
             // 
             BtnClose.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            BtnClose.Location = new Point(557, 487);
+            BtnClose.Location = new Point(779, 487);
             BtnClose.Margin = new Padding(4, 3, 4, 3);
             BtnClose.Name = "BtnClose";
             BtnClose.Size = new Size(88, 27);
@@ -158,7 +194,7 @@ namespace VideoDedupClient.Dialogs
             // BtnSkip
             // 
             BtnSkip.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            BtnSkip.Location = new Point(462, 487);
+            BtnSkip.Location = new Point(684, 487);
             BtnSkip.Margin = new Padding(4, 3, 4, 3);
             BtnSkip.Name = "BtnSkip";
             BtnSkip.Size = new Size(88, 27);
@@ -170,7 +206,7 @@ namespace VideoDedupClient.Dialogs
             // BtnDiscard
             // 
             BtnDiscard.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            BtnDiscard.Location = new Point(368, 487);
+            BtnDiscard.Location = new Point(590, 487);
             BtnDiscard.Margin = new Padding(4, 3, 4, 3);
             BtnDiscard.Name = "BtnDiscard";
             BtnDiscard.Size = new Size(88, 27);
@@ -182,7 +218,7 @@ namespace VideoDedupClient.Dialogs
             // BtnReviewComparison
             // 
             BtnReviewComparison.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            BtnReviewComparison.Location = new Point(233, 487);
+            BtnReviewComparison.Location = new Point(455, 487);
             BtnReviewComparison.Margin = new Padding(4, 3, 4, 3);
             BtnReviewComparison.Name = "BtnReviewComparison";
             BtnReviewComparison.Size = new Size(127, 27);
@@ -197,7 +233,7 @@ namespace VideoDedupClient.Dialogs
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             CancelButton = BtnClose;
-            ClientSize = new Size(658, 528);
+            ClientSize = new Size(880, 528);
             Controls.Add(BtnReviewComparison);
             Controls.Add(BtnDiscard);
             Controls.Add(BtnSkip);
@@ -212,6 +248,8 @@ namespace VideoDedupClient.Dialogs
             SplitterContainer.Panel2.ResumeLayout(false);
             ((ISupportInitialize)SplitterContainer).EndInit();
             SplitterContainer.ResumeLayout(false);
+            tableLayoutPanel1.ResumeLayout(false);
+            tableLayoutPanel2.ResumeLayout(false);
             ResumeLayout(false);
 
         }
@@ -228,5 +266,7 @@ namespace VideoDedupClient.Dialogs
         private Button BtnReviewComparison;
         private FilePreviewCtl FpvLeft;
         private FilePreviewCtl FpvRight;
+        private TableLayoutPanel tableLayoutPanel1;
+        private TableLayoutPanel tableLayoutPanel2;
     }
 }
