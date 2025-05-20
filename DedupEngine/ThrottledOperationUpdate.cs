@@ -2,7 +2,7 @@ namespace DedupEngine
 {
     using static VideoDedupGrpc.OperationInfo.Types;
 
-    internal class ThrottledOperationUpdate(
+    internal sealed class ThrottledOperationUpdate(
         Action<OperationType, int, int> eventCaller)
         : ThrottledEvent
     {

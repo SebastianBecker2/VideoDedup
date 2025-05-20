@@ -2,7 +2,7 @@ namespace DedupEngine
 {
     using VideoDedupSharedLib.Interfaces;
 
-    internal class VideoFile : VideoComparer.VideoFile
+    internal sealed class VideoFile : VideoComparer.VideoFile
     {
         public VideoFile(VideoComparer.VideoFile other) : base(other)
         {

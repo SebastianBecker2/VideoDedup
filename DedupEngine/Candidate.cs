@@ -1,6 +1,6 @@
 namespace DedupEngine
 {
-    internal class Candidate(VideoFile file1, VideoFile file2)
+    internal sealed class Candidate(VideoFile file1, VideoFile file2)
         : IEquatable<Candidate>
     {
         public VideoFile File1 { get; set; } = file1;

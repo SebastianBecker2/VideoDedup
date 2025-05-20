@@ -8,8 +8,8 @@ namespace VideoDedupClient.Controls.StatusInfo
     {
         private static readonly int ProgressInfoBatchSize = 500;
 
-        private static readonly IReadOnlyDictionary<OperationType, string>
-            OperationTypeTexts = new Dictionary<OperationType, string>
+        private static readonly Dictionary<OperationType, string>
+            OperationTypeTexts = new()
             {
                 { OperationType.Comparing, "Comparing files" },
                 { OperationType.LoadingMedia, "Loading media info" },

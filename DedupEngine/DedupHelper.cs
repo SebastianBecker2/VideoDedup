@@ -2,7 +2,7 @@ namespace DedupEngine
 {
     using VideoDedupGrpc;
 
-    internal class DedupHelper
+    internal sealed class DedupHelper
     {
         public static IEnumerable<string> GetAllAccessibleFilesIn(
             string rootDirectory,
