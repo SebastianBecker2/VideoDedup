@@ -104,6 +104,7 @@ namespace VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions
                 Duration = Duration.FromTimeSpan(videoFile.Duration),
                 LastWriteTime = Timestamp.FromDateTime(
                     videoFile.LastWriteTime.ToUniversalTime()),
+                CodecInfo = videoFile.CodecInfo,
             };
     }
 }
