@@ -17,6 +17,7 @@
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <NeutralLanguage>en-US</NeutralLanguage>
     <ApplicationIcon>Images\film.ico</ApplicationIcon>
+    <PublishDir>bin\publish\</PublishDir>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\Versioning\Versioning.cs" Link="Versioning.cs" />

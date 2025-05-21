@@ -9,6 +9,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Deterministic>false</Deterministic>
     <Configurations>Debug;Release</Configurations>
+    <PublishDir>bin\publish\</PublishDir>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\Versioning\Versioning.cs" Link="Versioning.cs" />

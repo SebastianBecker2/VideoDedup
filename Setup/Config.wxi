@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Include>
+﻿<Include xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <?define Manufacturer = "Sebastian Becker" ?>
   <?define ProductName = "VideoDedup" ?>
   <?define UpgradeCode = "B8349C6D-6053-4016-911A-2731357F663D" ?>
