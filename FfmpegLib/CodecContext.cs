@@ -40,7 +40,37 @@ namespace FfmpegLib
             set => codecContextPtr->bit_rate = value;
         }
 
-        public List<AVPixelFormat> SupportedPixelFormats { get; private set; } = [];
+        public IEnumerable<AVPixelFormat> SupportedPixelFormats
+        {
+            get
+            {
+                if (supportedPixelFormats is null)
+                {
+                    supportedPixelFormats = [];
+
+                    void* pxlFormats = null;
+                    var pxlFormatCount = 0;
+                    var getConfigResult = ffmpeg.avcodec_get_supported_config(
+                        codecContextPtr,
+                        null,
+                        AVCodecConfig.AV_CODEC_CONFIG_PIX_FORMAT,
+                        0,
+                        &pxlFormats,
+                        &pxlFormatCount);
+
+                    if (getConfigResult == 0 && pxlFormats != null)
+                    {
+                        for (var i = 0; i < pxlFormatCount; i++)
+                        {
+                            supportedPixelFormats.Add(
+                                ((AVPixelFormat*)pxlFormats)[i]);
+                        }
+                    }
+                }
+                return supportedPixelFormats;
+            }
+        }
+        private List<AVPixelFormat>? supportedPixelFormats;
 
         public CodecContext(AVCodec* codec)
         {
@@ -51,17 +81,6 @@ namespace FfmpegLib
             {
                 throw new FfmpegOperationException(
                     "Unable to allocate codec context.");
-            }
-
-            var ptr = codecContextPtr->codec->pix_fmts;
-            if (ptr is null)
-            {
-                return;
-            }
-            while (*ptr != AVPixelFormat.AV_PIX_FMT_NONE)
-            {
-                SupportedPixelFormats.Add(*ptr);
-                ptr++;
             }
         }
 
