@@ -22,7 +22,8 @@ namespace VideoDedupClient.Controls.StatusInfo
             };
 
         private OperationInfo OperationInfo { get; set; }
-        private int CurrentDuplicateCount { get; set; }
+        private int TotalDuplicatesCount { get; set; }
+        private int PreparedDuplicatesCount { get; set; }
         private ProgressInfo? LatestProgressInfo { get; set; }
 
         private int progressCount;
@@ -57,10 +58,12 @@ namespace VideoDedupClient.Controls.StatusInfo
 
         public void UpdateStatusInfo(
             OperationInfo operationInfo,
-            int currentDuplicateCount = 0)
+            int totalDuplicatesCount = 0,
+            int preparedDuplicatesCount = 0)
         {
             OperationInfo = operationInfo;
-            CurrentDuplicateCount = currentDuplicateCount;
+            TotalDuplicatesCount = totalDuplicatesCount;
+            PreparedDuplicatesCount = preparedDuplicatesCount;
 
             SetStatusInfo();
             SetDuplicateCount();
@@ -143,7 +146,9 @@ namespace VideoDedupClient.Controls.StatusInfo
         }
 
         private void SetDuplicateCount() =>
-            LblDuplicateCount.Text = $"{CurrentDuplicateCount}";
+            LblDuplicateCount.Text =
+                $"{PreparedDuplicatesCount}/" +
+                $"{TotalDuplicatesCount}";
 
         private void SetFileSpeed()
         {

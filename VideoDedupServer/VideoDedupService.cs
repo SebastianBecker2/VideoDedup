@@ -108,7 +108,11 @@ namespace VideoDedupServer
             var statusData = new StatusData
             {
                 OperationInfo = operationInfo,
-                CurrentDuplicatesCount = duplicateManager.Count,
+                TotalDuplicatesCount = duplicateManager.DuplicatesCount,
+                UnpreparedDuplicatesCount =
+                    duplicateManager.UnpreparedDuplicatesCount,
+                PreparedDuplicatesCount =
+                    duplicateManager.PreparedDuplicatesCount,
             };
 
             lock (logEntriesLock)
@@ -456,9 +460,7 @@ namespace VideoDedupServer
 
             logManager.UpdateConfiguration(settings.LogSettings);
 
-            duplicateManager.UpdateSettings(
-                settings.ResolutionSettings,
-                UpdateSettingsResolution.DiscardDuplicates);
+            duplicateManager.UpdateSettings(settings.ResolutionSettings);
 
             // Adding TrashPath right before we update the configuration
             // to avoid having it permanently in the DedupSettings (so the user

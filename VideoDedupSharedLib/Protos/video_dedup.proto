@@ -213,9 +213,11 @@ message OperationInfo {
 
 message StatusData {
     OperationInfo operation_info = 1;
-    int32 current_duplicates_count = 2;
+    int32 total_duplicates_count = 2;
     int32 log_count = 3;
     string log_token = 4;
+    int32 unprepared_duplicates_count = 5;
+    int32 prepared_duplicates_count = 6;
 }
 
 message DedupSettings {

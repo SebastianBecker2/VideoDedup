@@ -38,7 +38,9 @@ namespace DuplicateManager
         public ResolutionSettings Settings { get; set; } = settings
                 ?? throw new ArgumentNullException(nameof(settings));
 
-        public VideoFile AddVideoFileReference(VideoFile videoFile)
+        public VideoFile AddVideoFileReference(
+            VideoFile videoFile,
+            CancellationToken cancelToken)
         {
             if (uniqueVideoFiles.TryGetValue(
                     new VideoFileRefCounter(videoFile),
@@ -54,7 +56,11 @@ namespace DuplicateManager
                 {
                     var ffmpeg = new FfmpegWrapper(videoFile.FilePath);
                     return [.. ffmpeg
-                        .GetImages(0, Settings.ImageCount, Settings.ImageCount)
+                        .GetImages(
+                            0,
+                            Settings.ImageCount,
+                            Settings.ImageCount,
+                            cancelToken)
                         .Select(i => i is null ? [] : i)];
                 }
                 catch (FfmpegOperationException)

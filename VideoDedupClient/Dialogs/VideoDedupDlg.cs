@@ -75,10 +75,13 @@ namespace VideoDedupClient.Dialogs
 
                     StiProgress.UpdateStatusInfo(
                         status.OperationInfo,
-                        status.CurrentDuplicatesCount);
-                    CurrentDuplicateCount = status.CurrentDuplicatesCount;
-                    BtnResolveDuplicates.Enabled = CurrentDuplicateCount > 0;
-                    BtnDiscardDuplicates.Enabled = CurrentDuplicateCount > 0;
+                        status.TotalDuplicatesCount,
+                        status.PreparedDuplicatesCount);
+
+                    CurrentDuplicateCount = status.TotalDuplicatesCount;
+                    BtnResolveDuplicates.Enabled =
+                        status.PreparedDuplicatesCount > 0;
+                    BtnDiscardDuplicates.Enabled = BtnResolveDuplicates.Enabled;
                 });
             }
             catch (RpcException ex)
