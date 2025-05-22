@@ -17,7 +17,7 @@ namespace VideoDedupClient.Controls.ComparisonSettings
 
             var text = "The difference of two images is provided on a scale " +
                 $"of 0 to 200.{Environment.NewLine}Default: 80";
-            TipHints.SetToolTip(PibMaxDifferentPercentageInfo, text);
+            TipHints.SetToolTip(PibMaxDifferentPercentageHint, text);
         }
 
         public void ShowSettings(
@@ -82,14 +82,14 @@ namespace VideoDedupClient.Controls.ComparisonSettings
         private void BtnCustomVideoComparison_Click(object sender, EventArgs e) =>
             OnTryComparisonClick();
 
-        private void PibMaxDifferentPercentageInfo_Click(
+        private void PibMaxDifferentPercentageHint_Click(
             object sender,
             EventArgs e) =>
             TipHints.Show(
-                TipHints.GetToolTip(PibMaxDifferentPercentageInfo),
-                PibMaxDifferentPercentageInfo,
+                TipHints.GetToolTip(PibMaxDifferentPercentageHint),
+                PibMaxDifferentPercentageHint,
                 0,
-                PibMaxDifferentPercentageInfo.Height,
+                PibMaxDifferentPercentageHint.Height,
                 3000);
     }
 }

@@ -45,7 +45,7 @@ namespace VideoDedupClient.Controls.ComparisonSettings
             label5 = new Label();
             NumMaxDifferentPercentage = new NumericUpDown();
             label3 = new Label();
-            PibMaxDifferentPercentageInfo = new PictureBox();
+            PibMaxDifferentPercentageHint = new PictureBox();
             TipHints = new ToolTip(components);
             tableLayoutPanel1.SuspendLayout();
             groupBox2.SuspendLayout();
@@ -55,7 +55,7 @@ namespace VideoDedupClient.Controls.ComparisonSettings
             ((System.ComponentModel.ISupportInitialize)NumMaxImageComparison).BeginInit();
             ((System.ComponentModel.ISupportInitialize)NumMaxDifferentImages).BeginInit();
             ((System.ComponentModel.ISupportInitialize)NumMaxDifferentPercentage).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)PibMaxDifferentPercentageInfo).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)PibMaxDifferentPercentageHint).BeginInit();
             SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -177,7 +177,7 @@ namespace VideoDedupClient.Controls.ComparisonSettings
             tableLayoutPanel4.Controls.Add(label5, 0, 1);
             tableLayoutPanel4.Controls.Add(NumMaxDifferentPercentage, 1, 2);
             tableLayoutPanel4.Controls.Add(label3, 0, 0);
-            tableLayoutPanel4.Controls.Add(PibMaxDifferentPercentageInfo, 2, 2);
+            tableLayoutPanel4.Controls.Add(PibMaxDifferentPercentageHint, 2, 2);
             tableLayoutPanel4.Dock = DockStyle.Fill;
             tableLayoutPanel4.Location = new Point(4, 19);
             tableLayoutPanel4.Margin = new Padding(4, 3, 4, 3);
@@ -268,14 +268,14 @@ namespace VideoDedupClient.Controls.ComparisonSettings
             // 
             // PibMaxDifferentPercentageInfo
             // 
-            PibMaxDifferentPercentageInfo.Image = Properties.Resources.information;
-            PibMaxDifferentPercentageInfo.Location = new Point(330, 73);
-            PibMaxDifferentPercentageInfo.Name = "PibMaxDifferentPercentageInfo";
-            PibMaxDifferentPercentageInfo.Size = new Size(32, 29);
-            PibMaxDifferentPercentageInfo.SizeMode = PictureBoxSizeMode.AutoSize;
-            PibMaxDifferentPercentageInfo.TabIndex = 14;
-            PibMaxDifferentPercentageInfo.TabStop = false;
-            PibMaxDifferentPercentageInfo.Click += PibMaxDifferentPercentageInfo_Click;
+            PibMaxDifferentPercentageHint.Image = Properties.Resources.information;
+            PibMaxDifferentPercentageHint.Location = new Point(330, 73);
+            PibMaxDifferentPercentageHint.Name = "PibMaxDifferentPercentageInfo";
+            PibMaxDifferentPercentageHint.Size = new Size(32, 29);
+            PibMaxDifferentPercentageHint.SizeMode = PictureBoxSizeMode.AutoSize;
+            PibMaxDifferentPercentageHint.TabIndex = 14;
+            PibMaxDifferentPercentageHint.TabStop = false;
+            PibMaxDifferentPercentageHint.Click += PibMaxDifferentPercentageHint_Click;
             // 
             // ComparisonSettingsCtrl
             // 
@@ -294,7 +294,7 @@ namespace VideoDedupClient.Controls.ComparisonSettings
             ((System.ComponentModel.ISupportInitialize)NumMaxImageComparison).EndInit();
             ((System.ComponentModel.ISupportInitialize)NumMaxDifferentImages).EndInit();
             ((System.ComponentModel.ISupportInitialize)NumMaxDifferentPercentage).EndInit();
-            ((System.ComponentModel.ISupportInitialize)PibMaxDifferentPercentageInfo).EndInit();
+            ((System.ComponentModel.ISupportInitialize)PibMaxDifferentPercentageHint).EndInit();
             ResumeLayout(false);
         }
 
@@ -316,7 +316,7 @@ namespace VideoDedupClient.Controls.ComparisonSettings
         public NumericUpDown NumMaxDurationDifference;
         public RadioButton RdbDurationDifferenceSeconds;
         private Button BtnCustomVideoComparison;
-        private PictureBox PibMaxDifferentPercentageInfo;
+        private PictureBox PibMaxDifferentPercentageHint;
         private ToolTip TipHints;
     }
 }
