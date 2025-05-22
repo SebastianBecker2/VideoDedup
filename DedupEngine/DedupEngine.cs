@@ -189,6 +189,7 @@ namespace DedupEngine
             lock (DedupLock)
             {
                 DedupTask?.Dispose();
+                CancelSource?.Dispose();
                 CancelSource = new CancellationTokenSource();
                 DedupTask = Task.Run(ProcessFolder, CancelSource.Token);
             }
