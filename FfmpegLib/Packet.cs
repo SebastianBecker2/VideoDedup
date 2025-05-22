@@ -3,7 +3,7 @@ namespace FfmpegLib
     using System;
     using FFmpeg.AutoGen;
 
-    internal unsafe class Packet : IDisposable
+    internal sealed unsafe class Packet : IDisposable
     {
         private AVPacket* packetPtr = ffmpeg.av_packet_alloc();
         private bool disposedValue;
@@ -83,7 +83,7 @@ namespace FfmpegLib
             packetPtr = null;
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposedValue)
             {

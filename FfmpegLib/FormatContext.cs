@@ -3,7 +3,7 @@ namespace FfmpegLib
     using System;
     using FFmpeg.AutoGen;
 
-    internal unsafe class FormatContext : IDisposable
+    internal sealed unsafe class FormatContext : IDisposable
     {
         private AVFormatContext* formatContextPtr =
             ffmpeg.avformat_alloc_context();
@@ -97,7 +97,7 @@ namespace FfmpegLib
             formatContextPtr = null;
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposedValue)
             {

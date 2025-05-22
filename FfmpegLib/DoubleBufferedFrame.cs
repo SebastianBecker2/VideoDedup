@@ -4,7 +4,7 @@ namespace FfmpegLib
     using FFmpeg.AutoGen;
     using FfmpegLib.Exceptions;
 
-    internal unsafe class DoubleBufferedFrame : IDisposable, IFrame
+    internal sealed unsafe class DoubleBufferedFrame : IDisposable, IFrame
     {
         private AVFrame* framePtr = ffmpeg.av_frame_alloc();
         private AVFrame* bufferedFramePtr = ffmpeg.av_frame_alloc();
@@ -176,7 +176,7 @@ namespace FfmpegLib
             }
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposedValue)
             {

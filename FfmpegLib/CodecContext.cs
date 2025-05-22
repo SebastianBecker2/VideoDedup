@@ -4,7 +4,7 @@ namespace FfmpegLib
     using FFmpeg.AutoGen;
     using FfmpegLib.Exceptions;
 
-    internal unsafe class CodecContext : IDisposable
+    internal sealed unsafe class CodecContext : IDisposable
     {
         private readonly AVCodecContext* codecContextPtr;
         private bool disposedValue;
@@ -180,7 +180,7 @@ namespace FfmpegLib
             }
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposedValue)
             {
