@@ -23,7 +23,6 @@ namespace VideoDedupServer
         private readonly List<string> logEntries = [];
         private readonly object logEntriesLock = new();
         private readonly ComparisonManager comparisonManager;
-        private readonly CancellationTokenSource cancelTokenSource = new();
         private readonly Task initializationTask;
         private readonly List<ProgressInfo> progressInfos = [];
         private readonly object progressInfoLock = new();
@@ -513,8 +512,6 @@ namespace VideoDedupServer
                 {
                     AddLogEntry("Stopping VideoDedupService");
 
-                    cancelTokenSource.Cancel();
-
                     try
                     {
                         initializationTask.Wait();
@@ -525,7 +522,6 @@ namespace VideoDedupServer
                         exc.Handle(x => x is OperationCanceledException);
                     }
 
-                    cancelTokenSource.Dispose();
                     initializationTask.Dispose();
 
                     AddLogEntry("Stopped VideoDedupService");
