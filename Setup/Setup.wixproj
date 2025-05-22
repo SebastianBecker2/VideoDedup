@@ -3,6 +3,7 @@
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <DefineConstants>Debug</DefineConstants>
     <SuppressIces>ICE61</SuppressIces>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
