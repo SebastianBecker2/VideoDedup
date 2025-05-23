@@ -629,12 +629,11 @@ namespace DedupEngine
             cancelToken.ThrowIfCancellationRequested();
 
             // Cancellable preload of files
-            OnLogged("Starting preloading media info of " +
+            OnLogged("Started preloading meta data of " +
                 $"{videoFiles.Count} Files.");
             PreloadFiles(videoFiles, cancelToken);
             cancelToken.ThrowIfCancellationRequested();
-
-            OnLogged("Finished preloading media info of " +
+            OnLogged("Finished preloading meta data of " +
                 $"{videoFiles.Count} Files.");
 
             // Remove invalid files
@@ -647,7 +646,7 @@ namespace DedupEngine
             videoFiles = [.. videoFiles.Where(f => f.Duration != TimeSpan.Zero)];
             cancelToken.ThrowIfCancellationRequested();
 
-            OnLogged("Starting preparing candidates for " +
+            OnLogged("Started preparing candidates for " +
                 $"{videoFiles.Count} Files.");
             var candidates = PrepareCandidates(
                 videoFiles,
@@ -655,14 +654,15 @@ namespace DedupEngine
                 durationComparisonSettings,
                 cancelToken);
             OnLogged("Finished preparing candidates for " +
-                $"{videoFiles.Count} Files.");
+                $"{videoFiles.Count} Files. Resulting in {candidates.Count} " +
+                $"Candidates.");
 
-            OnLogged("Starting searching for duplicates of " +
-                $"{videoFiles.Count} Files.");
+            OnLogged("Started searching for duplicates of " +
+                $"{candidates.Count} Candidates.");
             FindDuplicates(candidates, videoFiles.Count, cancelToken);
             cancelToken.ThrowIfCancellationRequested();
             OnLogged("Finished searching for duplicates of " +
-                $"{videoFiles.Count} Files.");
+                $"{candidates.Count} Candidates.");
 
             ProcessChangesIfAny();
         }
