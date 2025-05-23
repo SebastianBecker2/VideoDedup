@@ -214,7 +214,7 @@ namespace VideoComparer
         public bool Equals(IVideoFile? other) =>
             other != null && FilePath == other.FilePath;
 
-        public override int GetHashCode() => HashCode.Combine(FilePath);
+        public override int GetHashCode() => FilePath.GetHashCode();
 
         public static bool operator ==(VideoFile left, IVideoFile right) =>
             EqualityComparer<IVideoFile>.Default.Equals(left, right);
