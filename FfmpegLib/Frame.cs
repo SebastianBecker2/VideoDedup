@@ -3,7 +3,7 @@ namespace FfmpegLib
     using System;
     using FFmpeg.AutoGen;
 
-    internal unsafe class Frame : IDisposable, IFrame
+    internal sealed unsafe class Frame : IDisposable, IFrame
     {
         private AVFrame* framePtr = ffmpeg.av_frame_alloc();
         private bool disposedValue;
@@ -64,7 +64,7 @@ namespace FfmpegLib
             framePtr = null;
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!disposedValue)
             {
