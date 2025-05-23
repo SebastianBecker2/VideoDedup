@@ -19,6 +19,7 @@ namespace VideoDedupClient.Controls.StatusInfo
                 { OperationType.Initializing, "Initializing" },
                 { OperationType.Error, "Critical error occurred!" },
                 { OperationType.Connecting, "Connecting..." },
+                { OperationType.Preparing, "Preparing..." },
             };
 
         private OperationInfo OperationInfo { get; set; }

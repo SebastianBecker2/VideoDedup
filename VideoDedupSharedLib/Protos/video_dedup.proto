@@ -196,6 +196,7 @@ message OperationInfo {
         INITIALIZING = 5;
         ERROR = 6;
         CONNECTING = 7;
+        PREPARING = 8;
     }
     enum ProgressStyle {
         MARQUEE = 0;

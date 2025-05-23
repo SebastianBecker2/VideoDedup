@@ -330,6 +330,45 @@ namespace DedupEngine
             StartProcessingChanges();
         }
 
+        private static IEnumerable<string> GetAllAccessibleFilesIn(
+            string rootDirectory,
+            IEnumerable<string>? excludedDirectories = null,
+            bool recursive = true,
+            string searchPattern = "*.*")
+        {
+            if (Path.GetFileName(rootDirectory) == "$RECYCLE.BIN")
+            {
+                return [];
+            }
+
+            IEnumerable<string> files = [];
+            excludedDirectories ??= [];
+
+            try
+            {
+                files = files.Concat(Directory.EnumerateFiles(rootDirectory,
+                    searchPattern, SearchOption.TopDirectoryOnly));
+
+                if (recursive)
+                {
+                    foreach (var directory in Directory
+                        .GetDirectories(rootDirectory)
+                        .Where(d => !excludedDirectories.Contains(d,
+                            StringComparer.InvariantCultureIgnoreCase)))
+                    {
+                        files = files.Concat(GetAllAccessibleFilesIn(directory,
+                            excludedDirectories, recursive, searchPattern));
+                    }
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Don't do anything if we cannot access a file.
+            }
+
+            return files;
+        }
+
         private void PreloadFiles(
             IEnumerable<VideoFile> videoFiles,
             CancellationToken cancelToken)
@@ -370,21 +409,68 @@ namespace DedupEngine
             });
         }
 
-        private void FindDuplicates(
+        private List<Candidate> PrepareCandidates(
             List<VideoFile> targetVideos,
             List<VideoFile> allVideos,
+            DurationComparisonSettings durationComparisonSettings,
+            CancellationToken cancelToken)
+        {
+            OnOperationUpdate(
+                OperationType.Preparing,
+                0,
+                targetVideos.Count);
+
+            var preparedCount = 0;
+            ThrottledOperationUpdate throttledOperationUpdate =
+                new(OnOperationUpdate)
+                {
+                    Time = TimeSpan.FromMilliseconds(50),
+                };
+
+            var pairs = new HashSet<Candidate>();
+            foreach (var targetVideo in targetVideos)
+            {
+                cancelToken.ThrowIfCancellationRequested();
+
+                foreach (var otherVideo in allVideos.Where(f => f != targetVideo))
+                {
+                    cancelToken.ThrowIfCancellationRequested();
+
+                    if (!targetVideo.IsDurationEqual(
+                        otherVideo,
+                        durationComparisonSettings))
+                    {
+                        continue;
+                    }
+                    _ = pairs.Add(new Candidate(targetVideo, otherVideo));
+                }
+
+
+                throttledOperationUpdate.Raise(
+                    OperationType.Preparing,
+                    preparedCount++,
+                    targetVideos.Count);
+            }
+
+            OnOperationUpdate(
+                OperationType.Preparing,
+                targetVideos.Count,
+                targetVideos.Count);
+
+            return [.. pairs];
+        }
+
+        private void FindDuplicates(
+            List<Candidate> candidates,
+            int individualFileCount,
             CancellationToken cancelToken)
         {
             OperationStartTime = DateTime.Now;
             OnOperationUpdate(
                 OperationType.Comparing,
                 0,
-                targetVideos.Count);
+                individualFileCount);
 
-            var candidates = DedupHelper.PrepareCandidates(
-                targetVideos,
-                allVideos,
-                durationComparisonSettings);
             List<Candidate> blockedCandidates;
             var candidateCount = candidates.Count;
 
@@ -427,7 +513,7 @@ namespace DedupEngine
                 throttledOperationUpdate.Raise(
                     OperationType.Comparing,
                     processedFiles.Count,
-                    targetVideos.Count);
+                    individualFileCount);
 
                 candidate.StopProcessing();
             }
@@ -448,8 +534,8 @@ namespace DedupEngine
 
             OnOperationUpdate(
                 OperationType.Comparing,
-                targetVideos.Count,
-                targetVideos.Count);
+                individualFileCount,
+                individualFileCount);
         }
 
         private void CompareVideoFiles(
@@ -531,7 +617,7 @@ namespace DedupEngine
             OperationStartTime = DateTime.Now;
             OnOperationUpdate(OperationType.Searching, ProgressStyle.Marquee);
 
-            videoFiles = [.. DedupHelper.GetAllAccessibleFilesIn(
+            videoFiles = [.. GetAllAccessibleFilesIn(
                 dedupSettings.BasePath,
                 dedupSettings.ExcludedDirectories,
                 dedupSettings.Recursive)
@@ -561,9 +647,19 @@ namespace DedupEngine
             videoFiles = [.. videoFiles.Where(f => f.Duration != TimeSpan.Zero)];
             cancelToken.ThrowIfCancellationRequested();
 
+            OnLogged("Starting preparing candidates for " +
+                $"{videoFiles.Count} Files.");
+            var candidates = PrepareCandidates(
+                videoFiles,
+                videoFiles,
+                durationComparisonSettings,
+                cancelToken);
+            OnLogged("Finished preparing candidates for " +
+                $"{videoFiles.Count} Files.");
+
             OnLogged("Starting searching for duplicates of " +
                 $"{videoFiles.Count} Files.");
-            FindDuplicates(videoFiles, videoFiles, cancelToken);
+            FindDuplicates(candidates, videoFiles.Count, cancelToken);
             cancelToken.ThrowIfCancellationRequested();
             OnLogged("Finished searching for duplicates of " +
                 $"{videoFiles.Count} Files.");
@@ -634,7 +730,13 @@ namespace DedupEngine
                 newFiles.Add(newFile);
             }
 
-            FindDuplicates(newFiles, videoFiles, cancelToken);
+            var candidates = PrepareCandidates(
+                videoFiles,
+                videoFiles,
+                durationComparisonSettings,
+                cancelToken);
+
+            FindDuplicates(candidates, newFiles.Count, cancelToken);
 
             OnOperationUpdate(
                     OperationType.Comparing,
