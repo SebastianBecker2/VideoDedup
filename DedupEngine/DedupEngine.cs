@@ -388,7 +388,9 @@ namespace DedupEngine
             List<Candidate> blockedCandidates;
             var candidateCount = candidates.Count;
 
-            var processedFiles = new ConcurrentDictionary<VideoFile, byte>();
+            var processedFiles = new ConcurrentDictionary<VideoFile, byte>(
+                dedupSettings.ConcurrencyLevel,
+                individualFileCount);
             object processingLock = new();
 
             ThrottledOperationUpdate throttledOperationUpdate =
@@ -419,8 +421,8 @@ namespace DedupEngine
                 }
 
                 CompareVideoFiles(candidate.File1, candidate.File2, cancelToken);
-                _ = processedFiles.TryAdd(candidate.File1, 0);
-                _ = processedFiles.TryAdd(candidate.File2, 0);
+                _ = processedFiles.GetOrAdd(candidate.File1, 0);
+                _ = processedFiles.GetOrAdd(candidate.File2, 0);
 
                 throttledOperationUpdate.Raise(
                     OperationType.Comparing,
