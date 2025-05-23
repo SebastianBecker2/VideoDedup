@@ -240,7 +240,7 @@ namespace DedupEngine
             object sender,
             FileSystemEventArgs e)
         {
-            OnLogged($"{nameof(HandleFileWatcherDeletedEvent)} - {e.FullPath}");
+            OnLogged($"{nameof(HandleFileWatcherDeletedEvent)} - '{e.FullPath}'");
             HandleDeletedFileEvent(e.FullPath);
         }
 
@@ -248,7 +248,7 @@ namespace DedupEngine
             object sender,
             FileSystemEventArgs e)
         {
-            OnLogged($"{nameof(HandleFileWatcherChangedEvent)} - {e.FullPath}");
+            OnLogged($"{nameof(HandleFileWatcherChangedEvent)} - '{e.FullPath}'");
             HandleNewFileEvent(e.FullPath);
         }
 
@@ -256,7 +256,7 @@ namespace DedupEngine
             object sender,
             FileSystemEventArgs e)
         {
-            OnLogged($"{nameof(HandleFileWatcherCreatedEvent)} - {e.FullPath}");
+            OnLogged($"{nameof(HandleFileWatcherCreatedEvent)} - '{e.FullPath}'");
             HandleNewFileEvent(e.FullPath);
         }
 
@@ -264,7 +264,8 @@ namespace DedupEngine
             object sender,
             RenamedEventArgs e)
         {
-            OnLogged($"{nameof(HandleFileWatcherRenamedEvent)} - {e.FullPath} - {e.OldFullPath}");
+            OnLogged($"{nameof(HandleFileWatcherRenamedEvent)} - '{e.FullPath}' " +
+                $"- '{e.OldFullPath}'");
             HandleDeletedFileEvent(e.OldFullPath);
             HandleNewFileEvent(e.FullPath);
         }
@@ -273,7 +274,7 @@ namespace DedupEngine
             object sender,
             ErrorEventArgs e) =>
             OnLogged("FileWatcher crashed! Unable to continue monitoring the" +
-                     " source folder.");
+                     $" source folder '{dedupSettings.BasePath}'.");
 
         private bool IsFilePathRelevant(
             string filePath,
@@ -283,7 +284,7 @@ namespace DedupEngine
                 dedupSettings.BasePath,
                 StringComparison.OrdinalIgnoreCase))
             {
-                OnLogged($"File not in source folder: {filePath}");
+                OnLogged($"File not in source folder: '{filePath}'");
                 return false;
             }
 
@@ -291,14 +292,14 @@ namespace DedupEngine
                 p,
                 StringComparison.OrdinalIgnoreCase)) ?? false)
             {
-                OnLogged($"File is in excluded directory: {filePath}");
+                OnLogged($"File is in excluded directory: '{filePath}'");
                 return false;
             }
 
             var extension = Path.GetExtension(filePath);
             if (!dedupSettings.FileExtensions?.Contains(extension) ?? false)
             {
-                OnLogged($"File doesn't have proper file extension: {filePath}");
+                OnLogged($"File doesn't have proper file extension: '{filePath}'");
                 return false;
             }
 
@@ -313,7 +314,7 @@ namespace DedupEngine
             }
 
             _ = deletedFiles.TryAdd(new VideoFile(filePath), 0);
-            OnLogged($"File deleted: {filePath}");
+            OnLogged($"File deleted: '{filePath}'");
             StartProcessingChanges();
         }
 
@@ -325,7 +326,7 @@ namespace DedupEngine
             }
 
             _ = newFiles.TryAdd(new VideoFile(filePath), 0);
-            OnLogged($"File created: {filePath}");
+            OnLogged($"File created: '{filePath}'");
             StartProcessingChanges();
         }
 
@@ -466,8 +467,8 @@ namespace DedupEngine
                 {
                     return;
                 }
-                OnLogged($"Found duplicate of {left.FilePath} and" +
-                    $" {right.FilePath}");
+                OnLogged($"Found duplicate of '{left.FilePath}' and" +
+                    $" '{right.FilePath}'");
                 OnDuplicateFound(left, right);
             }
             catch (VideoComparer.ComparisonException exc)
@@ -478,12 +479,12 @@ namespace DedupEngine
                     _ = deletedFiles.TryAdd(
                         new VideoFile(exc.VideoFile),
                         0);
-                    OnLogged($"File corrupted: {exc.VideoFile.FilePath}");
+                    OnLogged($"File corrupted: '{exc.VideoFile.FilePath}'");
                 }
                 else
                 {
                     OnLogged($"Comparison failed. Couldn't access: " +
-                        $"{exc.VideoFile.FilePath}");
+                        $"'{exc.VideoFile.FilePath}'");
                 }
             }
             catch (Exception exc)
@@ -552,7 +553,7 @@ namespace DedupEngine
             foreach (var file in
                 videoFiles.Where(f => f.Duration == TimeSpan.Zero))
             {
-                OnLogged($"Discarding file {file.FilePath} " +
+                OnLogged($"Discarding file '{file.FilePath}' " +
                     $"Unable to determine duration for file.");
             }
             videoFiles = [.. videoFiles.Where(f => f.Duration != TimeSpan.Zero)];
@@ -579,12 +580,12 @@ namespace DedupEngine
 
                 if (videoFiles.Remove(deletedFile))
                 {
-                    OnLogged($"Removed file: {deletedFile.FilePath}");
+                    OnLogged($"Removed file: '{deletedFile.FilePath}'");
                 }
                 else
                 {
                     OnLogged("Deleted file not in VideoFile-List: " +
-                        $"{deletedFile.FilePath}");
+                        $"'{deletedFile.FilePath}'");
                 }
                 cancelToken.ThrowIfCancellationRequested();
             }
@@ -603,7 +604,7 @@ namespace DedupEngine
 
                 if (!newFile.WaitForFileAccess(cancelToken))
                 {
-                    OnLogged($"Unable to access new file: {newFile.FileName}");
+                    OnLogged($"Unable to access new file: '{newFile.FileName}'");
                     continue;
                 }
 
@@ -611,7 +612,7 @@ namespace DedupEngine
 
                 if (newFile.Duration == TimeSpan.Zero)
                 {
-                    OnLogged($"New file has no duration: {newFile.FilePath}");
+                    OnLogged($"New file has no duration: '{newFile.FilePath}'");
                     continue;
                 }
 
@@ -620,7 +621,7 @@ namespace DedupEngine
                 if (videoFiles.Contains(newFile))
                 {
                     OnLogged($"New file already in VideoFile-List: " +
-                        $"{newFile.FilePath}");
+                        $"'{newFile.FilePath}'");
                     continue;
                 }
 
