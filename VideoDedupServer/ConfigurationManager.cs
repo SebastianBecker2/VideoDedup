@@ -27,9 +27,9 @@ namespace VideoDedupServer
         public static VideoComparisonSettings GetVideoComparisonSettings() =>
             new()
             {
-                CompareCount = Settings.Default.ImageCompareCount,
-                MaxDifferentImages = Settings.Default.MaxDifferentImages,
-                MaxDifference = Settings.Default.MaxImageDifference,
+                CompareCount = Settings.Default.FrameCompareCount,
+                MaxDifferentFrames = Settings.Default.MaxDifferentFrames,
+                MaxDifference = Settings.Default.MaxFrameDifference,
             };
 
         public static DurationComparisonSettings GetDurationComparisonSettings() =>
@@ -54,7 +54,7 @@ namespace VideoDedupServer
         public static ResolutionSettings GetResolutionSettings() =>
             new()
             {
-                ImageCount = Settings.Default.ThumbnailImageCount,
+                ThumbnailCount = Settings.Default.ThumbnailCount,
                 MoveToTrash = Settings.Default.MoveToTrash,
                 TrashPath = Settings.Default.TrashPath,
             };
@@ -75,9 +75,9 @@ namespace VideoDedupServer
         public static void SetVideoComparisonSettings(
             VideoComparisonSettings settings)
         {
-            Settings.Default.ImageCompareCount = settings.CompareCount;
-            Settings.Default.MaxDifferentImages = settings.MaxDifferentImages;
-            Settings.Default.MaxImageDifference = settings.MaxDifference;
+            Settings.Default.FrameCompareCount = settings.CompareCount;
+            Settings.Default.MaxDifferentFrames = settings.MaxDifferentFrames;
+            Settings.Default.MaxFrameDifference = settings.MaxDifference;
         }
 
         public static void SetDurationComparisonSettings(
@@ -100,7 +100,7 @@ namespace VideoDedupServer
 
         public static void SetResolutionSettings(ResolutionSettings settings)
         {
-            Settings.Default.ThumbnailImageCount = settings.ImageCount;
+            Settings.Default.ThumbnailCount = settings.ThumbnailCount;
             Settings.Default.MoveToTrash = settings.MoveToTrash;
             Settings.Default.TrashPath = settings.TrashPath;
         }

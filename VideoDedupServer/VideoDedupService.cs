@@ -196,14 +196,14 @@ namespace VideoDedupServer
                 request.VideoComparisonSettings,
                 request.LeftFilePath,
                 request.RightFilePath,
-                request.ForceLoadingAllImages));
+                request.ForceLoadingAllFrames));
 
         public override Task<VideoComparisonStatus?> GetVideoComparisonStatus(
             VideoComparisonStatusRequest request,
             ServerCallContext context) =>
             Task.FromResult(comparisonManager.GetStatus(
                 Guid.Parse(request.ComparisonToken),
-                request.ImageComparisonIndex));
+                request.FrameComparisonIndex));
 
         public override Task<Empty> CancelVideoComparison(
             CancelVideoComparisonRequest request,

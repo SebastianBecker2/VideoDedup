@@ -1,13 +1,13 @@
 namespace VideoDedupClient.Dialogs
 {
-    using Controls.ImageComparisonResultView;
+    using Controls.FrameComparisonResultView;
     using Microsoft.WindowsAPICodePack.Dialogs;
     using Properties;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
     using static VideoDedupGrpc.VideoDedupGrpcService;
-    using ImageComparisonResult =
-        Controls.ImageComparisonResultView.ImageComparisonResult;
+    using FrameComparisonResult =
+        Controls.FrameComparisonResultView.FrameComparisonResult;
 
     public partial class CustomVideoComparisonDlg : Form
     {
@@ -53,10 +53,10 @@ namespace VideoDedupClient.Dialogs
         public VideoFile? RightVideoFile { get; set; }
 
         private string? ComparisonToken { get; set; }
-        private int ImageComparisonIndex { get; set; }
+        private int FrameComparisonIndex { get; set; }
         private int? FinishedInLoadLevel { get; set; }
 
-        private List<ImageComparisonResult> ImageComparisons { get; } = [];
+        private List<FrameComparisonResult> FrameComparisons { get; } = [];
         private VideoComparisonResult? VideoComparisonResult { get; set; }
 
         public CustomVideoComparisonDlg()
@@ -66,32 +66,32 @@ namespace VideoDedupClient.Dialogs
             TrbMaxDifferentPercentage.ValueChanged +=
                 (_, _) => NumMaxDifferentPercentage.Value =
                     TrbMaxDifferentPercentage.Value;
-            TrbMaxDifferentImages.ValueChanged +=
-                (_, _) => NumMaxDifferentImages.Value =
-                    TrbMaxDifferentImages.Value;
-            TrbMaxImageComparison.ValueChanged +=
-                (_, _) => NumMaxImageComparison.Value =
-                    TrbMaxImageComparison.Value;
+            TrbMaxDifferentFrames.ValueChanged +=
+                (_, _) => NumMaxDifferentFrames.Value =
+                    TrbMaxDifferentFrames.Value;
+            TrbMaxFrameComparison.ValueChanged +=
+                (_, _) => NumMaxFrameComparison.Value =
+                    TrbMaxFrameComparison.Value;
 
             NumMaxDifferentPercentage.ValueChanged +=
                 (_, _) => TrbMaxDifferentPercentage.Value =
                     (int)NumMaxDifferentPercentage.Value;
-            NumMaxDifferentImages.ValueChanged +=
-                (_, _) => TrbMaxDifferentImages.Value =
-                    (int)NumMaxDifferentImages.Value;
-            NumMaxImageComparison.ValueChanged +=
-                (_, _) => TrbMaxImageComparison.Value =
-                    (int)NumMaxImageComparison.Value;
+            NumMaxDifferentFrames.ValueChanged +=
+                (_, _) => TrbMaxDifferentFrames.Value =
+                    (int)NumMaxDifferentFrames.Value;
+            NumMaxFrameComparison.ValueChanged +=
+                (_, _) => TrbMaxFrameComparison.Value =
+                    (int)NumMaxFrameComparison.Value;
         }
 
         protected override void OnLoad(EventArgs e)
         {
             if (VideoComparisonSettings is not null)
             {
-                NumMaxImageComparison.Value =
+                NumMaxFrameComparison.Value =
                     VideoComparisonSettings.CompareCount;
-                NumMaxDifferentImages.Value =
-                    VideoComparisonSettings.MaxDifferentImages;
+                NumMaxDifferentFrames.Value =
+                    VideoComparisonSettings.MaxDifferentFrames;
                 NumMaxDifferentPercentage.Value =
                     VideoComparisonSettings.MaxDifference;
             }
@@ -166,9 +166,9 @@ namespace VideoDedupClient.Dialogs
         {
             VideoComparisonSettings ??= new VideoComparisonSettings();
             VideoComparisonSettings.CompareCount =
-                (int)NumMaxImageComparison.Value;
-            VideoComparisonSettings.MaxDifferentImages =
-                (int)NumMaxDifferentImages.Value;
+                (int)NumMaxFrameComparison.Value;
+            VideoComparisonSettings.MaxDifferentFrames =
+                (int)NumMaxDifferentFrames.Value;
             VideoComparisonSettings.MaxDifference =
                 (int)NumMaxDifferentPercentage.Value;
 
@@ -192,7 +192,7 @@ namespace VideoDedupClient.Dialogs
 
             CleanUpResult();
 
-            if ((int)NumMaxImageComparison.Value <= 0)
+            if ((int)NumMaxFrameComparison.Value <= 0)
             {
                 return;
             }
@@ -202,13 +202,13 @@ namespace VideoDedupClient.Dialogs
 
             var request = new VideoComparisonConfiguration
             {
-                ForceLoadingAllImages = true,
+                ForceLoadingAllFrames = true,
                 LeftFilePath = LeftFilePath,
                 RightFilePath = RightFilePath,
                 VideoComparisonSettings = new()
                 {
-                    CompareCount = (int)NumMaxImageComparison.Value,
-                    MaxDifferentImages = (int)NumMaxDifferentImages.Value,
+                    CompareCount = (int)NumMaxFrameComparison.Value,
+                    MaxDifferentFrames = (int)NumMaxDifferentFrames.Value,
                     MaxDifference = (int)NumMaxDifferentPercentage.Value
                 }
             };
@@ -230,11 +230,11 @@ namespace VideoDedupClient.Dialogs
             StatusTimer.Start();
         }
 
-        private static List<ImageComparisonResult> ToImageComparisonResultEx(
-            IEnumerable<VideoDedupGrpc.ImageComparisonResult> icrs)
+        private static List<FrameComparisonResult> ToFrameComparisonResultEx(
+            IEnumerable<VideoDedupGrpc.FrameComparisonResult> icrs)
         {
-            var size = ImageComparisonResultViewCtl.ThumbnailSize;
-            return [.. icrs.Select(icr => new ImageComparisonResult(icr, size))];
+            var size = FrameComparisonResultViewCtl.ThumbnailSize;
+            return [.. icrs.Select(icr => new FrameComparisonResult(icr, size))];
         }
 
         private void HandleStatusTimerTick(object sender, EventArgs e)
@@ -244,7 +244,7 @@ namespace VideoDedupClient.Dialogs
                 new VideoComparisonStatusRequest
                 {
                     ComparisonToken = ComparisonToken,
-                    ImageComparisonIndex = ImageComparisonIndex,
+                    FrameComparisonIndex = FrameComparisonIndex,
                 });
 
             LeftVideoFile = status.LeftFile;
@@ -265,7 +265,7 @@ namespace VideoDedupClient.Dialogs
             }
             UpdateVideoComparisonResult(VideoComparisonResult);
 
-            if (status.ImageComparisons.Count == 0)
+            if (status.FrameComparisons.Count == 0)
             {
                 StatusTimer.Start();
                 return;
@@ -273,13 +273,13 @@ namespace VideoDedupClient.Dialogs
 
             var task = Task.Run(() =>
             {
-                var ex = ToImageComparisonResultEx(status.ImageComparisons);
+                var ex = ToFrameComparisonResultEx(status.FrameComparisons);
                 return ex;
             });
             _ = task.ContinueWith(t =>
             {
                 // Try-Catch in case the dialog closed while converting
-                // the ImageComparisonResults.
+                // the FrameComparisonResults.
                 try
                 {
                     Invoke(() =>
@@ -291,14 +291,16 @@ namespace VideoDedupClient.Dialogs
                             return;
                         }
 
-                        ImageComparisons.AddRange(t.Result);
+                        FrameComparisons.AddRange(t.Result);
                         UpdateResultDisplay();
 
-                        ImageComparisonIndex = status.ImageComparisons
-                            .Max(kvp => kvp.Index);
-                        ImageComparisonIndex += 1;
-                        var maxImages = (int)NumMaxImageComparison.Value;
-                        if (ImageComparisonIndex >= maxImages)
+                        static int selector(VideoDedupGrpc.FrameComparisonResult kvp) =>
+                            kvp.Index;
+                        FrameComparisonIndex = status.FrameComparisons
+                            .Max(selector);
+                        FrameComparisonIndex += 1;
+                        var maxFrames = (int)NumMaxFrameComparison.Value;
+                        if (FrameComparisonIndex >= maxFrames)
                         {
                             _ = GrpcClient.CancelVideoComparison(
                                 new CancelVideoComparisonRequest
@@ -318,7 +320,7 @@ namespace VideoDedupClient.Dialogs
 
         private void UpdateResultDisplay()
         {
-            if (ImageComparisons.Count == 0)
+            if (FrameComparisons.Count == 0)
             {
                 return;
             }
@@ -329,13 +331,13 @@ namespace VideoDedupClient.Dialogs
             {
                 GrbVideoTimeline.Visible = false;
 
-                foreach (var loadLevel in ImageComparisons
+                foreach (var loadLevel in FrameComparisons
                              .GroupBy(kvp => kvp.LoadLevel))
                 {
                     var (tlp, tlpResult) = GetLoadLevelControls(loadLevel.Key);
                     tlp.Visible = true;
 
-                    AddImageComparisonsToTableLayoutPanel(tlpResult, loadLevel);
+                    AddFrameComparisonsToTableLayoutPanel(tlpResult, loadLevel);
                 }
             }
             else
@@ -345,37 +347,37 @@ namespace VideoDedupClient.Dialogs
                 TlpSecondLoadLevel.Visible = false;
                 TlpThirdLoadLevel.Visible = false;
 
-                // Get image comparisons in order of timeline
-                var images = ImageComparisons.OrderBy(icr =>
-                    icr.LeftImages.Index.Quotient);
+                // Get frame comparisons in order of timeline
+                var frames = FrameComparisons.OrderBy(icr =>
+                    icr.LeftFrames.Index.Quotient);
 
-                AddImageComparisonsToTableLayoutPanel(
+                AddFrameComparisonsToTableLayoutPanel(
                     TlpVideoTimeline,
-                    images);
+                    frames);
             }
         }
 
-        private void AddImageComparisonsToTableLayoutPanel(
+        private void AddFrameComparisonsToTableLayoutPanel(
             TableLayoutPanel tableLayoutPanel,
-            IEnumerable<ImageComparisonResult> imageComparisonResults)
+            IEnumerable<FrameComparisonResult> frameComparisonResults)
         {
             var lastComparedIndex = VideoComparisonResult?.LastComparedIndex;
             if (lastComparedIndex != null)
             {
-                FinishedInLoadLevel = imageComparisonResults
+                FinishedInLoadLevel = frameComparisonResults
                     .FirstOrDefault(icr => icr.Index == lastComparedIndex.Value)
                     ?.LoadLevel ?? FinishedInLoadLevel;
             }
 
-            ImageComparisonResultViewCtl ToView(ImageComparisonResult icr) =>
+            FrameComparisonResultViewCtl ToView(FrameComparisonResult icr) =>
                 new()
                 {
-                    ImageComparisonIndex = icr.Index,
-                    ImageComparisonResult = icr,
+                    FrameComparisonIndex = icr.Index,
+                    FrameComparisonResult = icr,
                     ComparisonAlreadyFinished =
                         lastComparedIndex != null
                         && icr.Index > lastComparedIndex,
-                    ImageLoaded = FinishedInLoadLevel == null
+                    FrameLoaded = FinishedInLoadLevel == null
                         || icr.LoadLevel <= FinishedInLoadLevel,
                     MaximumDifferencePercentage =
                         (int)NumMaxDifferentPercentage.Value,
@@ -386,36 +388,36 @@ namespace VideoDedupClient.Dialogs
                     LoadedColor = LoadedColor,
                     NotLoadedColor = NotLoadedColor,
                     LeftTimestamp = LeftVideoFile!.Duration.ToTimeSpan().Multiply(
-                        icr.LeftImages.Index.Quotient),
+                        icr.LeftFrames.Index.Quotient),
                     RightTimestamp = RightVideoFile!.Duration.ToTimeSpan().Multiply(
-                        icr.RightImages.Index.Quotient),
+                        icr.RightFrames.Index.Quotient),
                 };
 
 
             var resultViews = tableLayoutPanel.Controls
-                .Cast<ImageComparisonResultViewCtl>();
+                .Cast<FrameComparisonResultViewCtl>();
 
             // Get all icrs that are missing.
             // Add them.
             // Then iterate over all with index to set ALL the new row indexes.
             tableLayoutPanel.SuspendLayout();
-            tableLayoutPanel.Controls.AddRange([.. imageComparisonResults
-                .Where(icr => !resultViews.Any(view => view.ImageComparisonResult == icr))
+            tableLayoutPanel.Controls.AddRange([.. frameComparisonResults
+                .Where(icr => !resultViews.Any(view => view.FrameComparisonResult == icr))
                 .Select(ToView)]);
             tableLayoutPanel.ResumeLayout();
 
             var indexed = Enumerable
-                .Range(0, imageComparisonResults.Count())
-                .Zip(imageComparisonResults, (rowIndex, icr) => new
+                .Range(0, frameComparisonResults.Count())
+                .Zip(frameComparisonResults, (rowIndex, icr) => new
                 {
                     RowIndex = rowIndex,
                     Result = icr,
                 });
 
-            foreach (ImageComparisonResultViewCtl view in tableLayoutPanel.Controls)
+            foreach (FrameComparisonResultViewCtl view in tableLayoutPanel.Controls)
             {
                 var rowIndex = indexed
-                    .First(comparison => comparison.Result == view.ImageComparisonResult)
+                    .First(comparison => comparison.Result == view.FrameComparisonResult)
                     .RowIndex;
 
                 tableLayoutPanel.SetCellPosition(
@@ -493,9 +495,9 @@ namespace VideoDedupClient.Dialogs
             TxtLeftFileInfo.Text = "";
             TxtRightFileInfo.Text = "";
 
-            ImageComparisons.Clear();
+            FrameComparisons.Clear();
 
-            ImageComparisonIndex = 0;
+            FrameComparisonIndex = 0;
             FinishedInLoadLevel = null;
 
             PnlResult.Visible = false;

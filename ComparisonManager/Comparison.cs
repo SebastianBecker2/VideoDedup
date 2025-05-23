@@ -19,7 +19,7 @@ namespace ComparisonManager
         private readonly CancellationTokenSource cancelTokenSource = new();
         private readonly VideoComparer comparer;
         private readonly Task comparerTask;
-        private readonly List<ImageComparisonResult> imageComparisons = [];
+        private readonly List<FrameComparisonResult> frameComparisons = [];
         private readonly object statusLock = new();
 
         private VideoComparisonResult? comparisonResult;
@@ -29,7 +29,7 @@ namespace ComparisonManager
             VideoComparisonSettings settings,
             string leftFilePath,
             string rightFilePath,
-            bool forceLoadingAllImages,
+            bool forceLoadingAllFrames,
             ILogger? logger = null)
         {
             Logger = logger;
@@ -55,10 +55,10 @@ namespace ComparisonManager
                 new VideoFile(leftFilePath),
                 new VideoFile(rightFilePath))
             {
-                ForceLoadingAllImages = forceLoadingAllImages,
+                ForceLoadingAllFrames = forceLoadingAllFrames,
             };
 
-            comparer.ImageCompared += HandleImageCompared;
+            comparer.FrameCompared += HandleFrameCompared;
             comparer.ComparisonFinished += HandleComparisonFinished;
 
             comparerTask = Task.Run(Compare);
@@ -67,7 +67,7 @@ namespace ComparisonManager
         public void CancelComparison() => cancelTokenSource.Cancel();
 
         public VideoComparisonStatus GetStatus(
-            int imageComparisonIndex = 0)
+            int frameComparisonIndex = 0)
         {
             lock (statusLock)
             {
@@ -79,8 +79,8 @@ namespace ComparisonManager
                     VideoComparisonResult = comparisonResult,
                 };
 
-                status.ImageComparisons.AddRange(
-                    [.. imageComparisons.Skip(imageComparisonIndex)]);
+                status.FrameComparisons.AddRange(
+                    [.. frameComparisons.Skip(frameComparisonIndex)]);
 
                 return status;
             }
@@ -97,7 +97,7 @@ namespace ComparisonManager
             {
                 lock (statusLock)
                 {
-                    var last = imageComparisons.LastOrDefault();
+                    var last = frameComparisons.LastOrDefault();
                     comparisonResult = new VideoComparisonResult
                     {
                         Reason = exc.Message,
@@ -127,7 +127,7 @@ namespace ComparisonManager
                     return;
                 }
 
-                var last = imageComparisons.LastOrDefault();
+                var last = frameComparisons.LastOrDefault();
                 comparisonResult = new VideoComparisonResult
                 {
                     Reason = "Comparison cancelled",
@@ -139,12 +139,12 @@ namespace ComparisonManager
             Logger?.Information($"Comparison {Token} was cancelled");
         }
 
-        private void HandleImageCompared(
+        private void HandleFrameCompared(
             object? sender,
-            ImageComparedEventArgs e)
+            FrameComparedEventArgs e)
         {
-            Logger?.Debug($"Comparison {Token} compared image " +
-                $"{e.ImageComparisonIndex}");
+            Logger?.Debug($"Comparison {Token} compared frame " +
+                $"{e.FrameComparisonIndex}");
             lock (statusLock)
             {
                 if (e.VideoComparisonResult != ComparisonResult.NoResult
@@ -154,18 +154,18 @@ namespace ComparisonManager
                     {
                         Reason = "Comparison ran to completion",
                         ComparisonResult = e.VideoComparisonResult,
-                        LastComparedIndex = e.ImageComparisonIndex,
+                        LastComparedIndex = e.FrameComparisonIndex,
                     };
                 }
 
-                imageComparisons.Add(new ImageComparisonResult
+                frameComparisons.Add(new FrameComparisonResult
                 {
-                    Index = e.ImageComparisonIndex,
-                    ComparisonResult = e.ImageComparisonResult,
+                    Index = e.FrameComparisonIndex,
+                    ComparisonResult = e.FrameComparisonResult,
                     Difference = e.Difference,
-                    LoadLevel = e.ImageLoadLevelIndex,
-                    LeftImages = e.LeftImages,
-                    RightImages = e.RightImages,
+                    LoadLevel = e.FrameLoadLevelIndex,
+                    LeftFrames = e.LeftFrames,
+                    RightFrames = e.RightFrames,
                 });
             }
         }

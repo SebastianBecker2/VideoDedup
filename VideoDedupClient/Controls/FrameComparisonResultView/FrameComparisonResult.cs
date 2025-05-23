@@ -1,30 +1,30 @@
-namespace VideoDedupClient.Controls.ImageComparisonResultView
+namespace VideoDedupClient.Controls.FrameComparisonResultView
 {
     using Size = Size;
 
-    public class ImageComparisonResult : IDisposable
+    public class FrameComparisonResult : IDisposable
     {
         private bool disposedValue;
 
-        public ImageComparisonResult(
-            VideoDedupGrpc.ImageComparisonResult imageComparisonResult,
+        public FrameComparisonResult(
+            VideoDedupGrpc.FrameComparisonResult frameComparisonResult,
             Size containerSize)
         {
-            InnerResult = imageComparisonResult;
+            InnerResult = frameComparisonResult;
 
-            LeftImages = new ImageSet(
-                InnerResult.LeftImages,
+            LeftFrames = new FrameSet(
+                InnerResult.LeftFrames,
                 containerSize);
 
-            RightImages = new ImageSet(
-                InnerResult.RightImages,
+            RightFrames = new FrameSet(
+                InnerResult.RightFrames,
                 containerSize);
         }
 
-        private VideoDedupGrpc.ImageComparisonResult InnerResult { get; }
+        private VideoDedupGrpc.FrameComparisonResult InnerResult { get; }
         public int Index => InnerResult.Index;
-        public ImageSet LeftImages { get; set; }
-        public ImageSet RightImages { get; set; }
+        public FrameSet LeftFrames { get; set; }
+        public FrameSet RightFrames { get; set; }
         public double Difference => InnerResult.Difference;
         public int LoadLevel => InnerResult.LoadLevel;
         public VideoDedupGrpc.ComparisonResult ComparisonResult =>
@@ -36,8 +36,8 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
             {
                 if (disposing)
                 {
-                    LeftImages.Dispose();
-                    RightImages.Dispose();
+                    LeftFrames.Dispose();
+                    RightFrames.Dispose();
                 }
 
                 disposedValue = true;

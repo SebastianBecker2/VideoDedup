@@ -45,7 +45,7 @@
     <Compile Update="Controls\FilePreview\FilePreviewCtl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Controls\ImageComparisonResultView\ImageComparisonResultViewCtl.cs">
+    <Compile Update="Controls\FrameComparisonResultView\FrameComparisonResultViewCtl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="Controls\StatusInfo\StatusInfoCtl.cs">

@@ -1,4 +1,4 @@
-namespace VideoDedupClient.Controls.ImageComparisonResultView
+namespace VideoDedupClient.Controls.FrameComparisonResultView
 {
     using System;
     using System.Collections.Generic;
@@ -8,7 +8,7 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.TimeSpanExtensions;
 
-    public partial class ImageComparisonResultViewCtl : UserControl
+    public partial class FrameComparisonResultViewCtl : UserControl
     {
         public static readonly System.Drawing.Size ThumbnailSize = new(256, 256);
 
@@ -45,10 +45,10 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
                 },
             };
 
-        public int ImageComparisonIndex { get; set; }
-        public ImageComparisonResult? ImageComparisonResult { get; set; }
+        public int FrameComparisonIndex { get; set; }
+        public FrameComparisonResult? FrameComparisonResult { get; set; }
         public bool ComparisonAlreadyFinished { get; set; }
-        public bool ImageLoaded { get; set; }
+        public bool FrameLoaded { get; set; }
         public int MaximumDifferencePercentage { get; set; }
         public TimeSpan LeftTimestamp { get; set; }
         public TimeSpan RightTimestamp { get; set; }
@@ -63,7 +63,7 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
         private PictureBox RightShowDetailArrow { get; }
         private TableLayoutPanel TlpDetails { get; }
 
-        public ImageComparisonResultViewCtl()
+        public FrameComparisonResultViewCtl()
         {
             InitializeComponent();
 
@@ -118,49 +118,49 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
                 SizeType = SizeType.Percent,
                 Width = 100,
             });
-            TlpImageComparison.Controls.Add(TlpDetails, 0, 1);
-            TlpImageComparison.SetColumnSpan(TlpDetails, 3);
+            TlpFrameComparison.Controls.Add(TlpDetails, 0, 1);
+            TlpFrameComparison.SetColumnSpan(TlpDetails, 3);
         }
 
         protected override void OnLoad(EventArgs e)
         {
-            TlpImageComparison.SuspendLayout();
+            TlpFrameComparison.SuspendLayout();
             try
             {
-                if (ImageComparisonResult is null)
+                if (FrameComparisonResult is null)
                 {
                     return;
                 }
 
                 // Main View
-                TlpImageComparison.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.LeftImages.Original));
-                TlpImageComparison.Controls.Add(GetComparisonResult());
-                TlpImageComparison.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.RightImages.Original));
+                TlpFrameComparison.Controls.Add(
+                    GetPictureBox(FrameComparisonResult.LeftFrames.Original));
+                TlpFrameComparison.Controls.Add(GetComparisonResult());
+                TlpFrameComparison.Controls.Add(
+                    GetPictureBox(FrameComparisonResult.RightFrames.Original));
 
                 // Detail View
                 TlpDetails.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.LeftImages.Cropped));
+                    GetPictureBox(FrameComparisonResult.LeftFrames.Cropped));
                 TlpDetails.Controls.Add(GetDetailInfo(DetailLevel.Crop));
                 TlpDetails.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.RightImages.Cropped));
+                    GetPictureBox(FrameComparisonResult.RightFrames.Cropped));
 
                 TlpDetails.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.LeftImages.Resized));
+                    GetPictureBox(FrameComparisonResult.LeftFrames.Resized));
                 TlpDetails.Controls.Add(GetDetailInfo(DetailLevel.Resize));
                 TlpDetails.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.RightImages.Resized));
+                    GetPictureBox(FrameComparisonResult.RightFrames.Resized));
 
                 TlpDetails.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.LeftImages.Greyscaled));
+                    GetPictureBox(FrameComparisonResult.LeftFrames.Greyscaled));
                 TlpDetails.Controls.Add(GetDetailInfo(DetailLevel.Greyscale));
                 TlpDetails.Controls.Add(
-                    GetPictureBox(ImageComparisonResult.RightImages.Greyscaled));
+                    GetPictureBox(FrameComparisonResult.RightFrames.Greyscaled));
             }
             finally
             {
-                TlpImageComparison.ResumeLayout();
+                TlpFrameComparison.ResumeLayout();
 
                 base.OnLoad(e);
             }
@@ -168,7 +168,7 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
 
         protected override void OnBackColorChanged(EventArgs e)
         {
-            TlpImageComparison.BackColor = BackColor;
+            TlpFrameComparison.BackColor = BackColor;
             base.OnBackColorChanged(e);
         }
 
@@ -266,33 +266,33 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
 
         private string GetResultText()
         {
-            var text = $"{ImageComparisonIndex + 1}. Comparison:" +
+            var text = $"{FrameComparisonIndex + 1}. Comparison:" +
                 $"{Environment.NewLine}{LeftTimestamp.ToPrettyString()}  |  " +
                 $"{RightTimestamp.ToPrettyString()}{Environment.NewLine}";
             if (ComparisonAlreadyFinished)
             {
                 text += $"Result already determined.{Environment.NewLine}";
-                if (ImageLoaded)
+                if (FrameLoaded)
                 {
-                    text += "Images loaded but comparison was skipped.";
+                    text += "Frames loaded but comparison was skipped.";
                 }
                 else
                 {
-                    text += "Images have not been loaded.";
+                    text += "Frames have not been loaded.";
                 }
             }
-            else if (ImageComparisonResult!.ComparisonResult
+            else if (FrameComparisonResult!.ComparisonResult
                      == ComparisonResult.NoResult)
             {
-                text += $"Unable to load image.{Environment.NewLine}" +
+                text += $"Unable to load frame.{Environment.NewLine}" +
                     "Comparison was skipped.";
             }
             else
             {
-                text += $"Images loaded and compared.{Environment.NewLine}"
+                text += $"Frames loaded and compared.{Environment.NewLine}"
                     + "Difference "
-                    + $"{ImageComparisonResult.Difference * 100:0.00} is ";
-                if (ImageComparisonResult.ComparisonResult
+                    + $"{FrameComparisonResult.Difference * 100:0.00} is ";
+                if (FrameComparisonResult.ComparisonResult
                     == ComparisonResult.Different)
                 {
                     text += "higher";
@@ -310,20 +310,20 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
         {
             if (ComparisonAlreadyFinished)
             {
-                if (ImageLoaded)
+                if (FrameLoaded)
                 {
                     return LoadedColor;
                 }
                 return NotLoadedColor;
             }
 
-            if (ImageComparisonResult!.ComparisonResult
+            if (FrameComparisonResult!.ComparisonResult
                 == ComparisonResult.NoResult)
             {
                 return DifferentColor;
             }
 
-            if (ImageComparisonResult!.ComparisonResult
+            if (FrameComparisonResult!.ComparisonResult
                 == ComparisonResult.Different)
             {
                 return DifferentColor;
@@ -388,7 +388,7 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
             if (disposing && (components != null))
             {
                 components.Dispose();
-                ImageComparisonResult?.Dispose();
+                FrameComparisonResult?.Dispose();
             }
             base.Dispose(disposing);
         }

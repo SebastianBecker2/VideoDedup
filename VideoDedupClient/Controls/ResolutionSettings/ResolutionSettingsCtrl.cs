@@ -21,7 +21,7 @@ namespace VideoDedupClient.Controls.ResolutionSettings
                 return;
             }
 
-            NumThumbnailViewCount.Value = resolutionSettings.ImageCount;
+            NumThumbnailViewCount.Value = resolutionSettings.ThumbnailCount;
             RdbMoveToTrash.Checked = resolutionSettings.MoveToTrash;
             RdbDeleteFiles.Checked = !resolutionSettings.MoveToTrash;
         }
@@ -29,7 +29,7 @@ namespace VideoDedupClient.Controls.ResolutionSettings
         public ResolutionSettings GetSettings() =>
             new()
             {
-                ImageCount = (int)NumThumbnailViewCount.Value,
+                ThumbnailCount = (int)NumThumbnailViewCount.Value,
                 MoveToTrash = RdbMoveToTrash.Checked,
             };
 

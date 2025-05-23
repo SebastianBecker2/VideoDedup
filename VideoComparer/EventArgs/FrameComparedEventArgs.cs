@@ -4,16 +4,16 @@ namespace VideoComparer.EventArgs
     using VideoDedupGrpc;
     using VideoFile = VideoFile;
 
-    public class ImageComparedEventArgs : EventArgs
+    public class FrameComparedEventArgs : EventArgs
     {
         public VideoFile? LeftVideoFile { get; set; }
         public VideoFile? RightVideoFile { get; set; }
-        public ImageSet? LeftImages { get; set; }
-        public ImageSet? RightImages { get; set; }
+        public FrameSet? LeftFrames { get; set; }
+        public FrameSet? RightFrames { get; set; }
         public double Difference { get; set; }
-        public int ImageLoadLevelIndex { get; set; }
-        public int ImageComparisonIndex { get; set; }
-        public ComparisonResult ImageComparisonResult { get; set; }
+        public int FrameLoadLevelIndex { get; set; }
+        public int FrameComparisonIndex { get; set; }
+        public ComparisonResult FrameComparisonResult { get; set; }
         public ComparisonResult VideoComparisonResult { get; set; }
     }
 }

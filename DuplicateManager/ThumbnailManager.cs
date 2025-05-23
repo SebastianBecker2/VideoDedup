@@ -56,22 +56,22 @@ namespace DuplicateManager
                 {
                     var ffmpeg = new FfmpegWrapper(videoFile.FilePath);
                     return [.. ffmpeg
-                        .GetImages(
+                        .GetFrames(
                             0,
-                            Settings.ImageCount,
-                            Settings.ImageCount,
+                            Settings.ThumbnailCount,
+                            Settings.ThumbnailCount,
                             cancelToken)
                         .Select(i => i is null ? [] : i)];
                 }
                 catch (FfmpegOperationException)
                 {
-                    return new byte[Settings.ImageCount][];
+                    return new byte[Settings.ThumbnailCount][];
                 }
             }
 
             var p = GetThumbnails();
 
-            videoFile.Images.AddRange(
+            videoFile.Frames.AddRange(
                 p.Select(ByteString.CopyFrom));
 
             _ = uniqueVideoFiles.Add(new VideoFileRefCounter(videoFile));

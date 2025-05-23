@@ -6,7 +6,7 @@ namespace VideoComparer
     using System.Diagnostics;
     using FfmpegLib;
     using FfmpegLib.Exceptions;
-    using ImageIndex = FfmpegLib.ImageIndex;
+    using FrameIndex = FfmpegLib.FrameIndex;
 
     [DebuggerDisplay("{FilePath}")]
     public class VideoFile : IVideoFile
@@ -17,7 +17,7 @@ namespace VideoComparer
 
             // We have to do a bit more work here since we can't use
             // the other ctors because we don't want to eagerly load
-            // the images when we can copy them from the other file.
+            // the frames when we can copy them from the other file.
             FilePath = other.FilePath;
             fileSize = other.fileSize;
             lastWriteTime = other.lastWriteTime;
@@ -25,13 +25,13 @@ namespace VideoComparer
             codecInfo = other.codecInfo;
 
 
-            if (other.ImageCount == 0)
+            if (other.FrameCount == 0)
             {
                 return;
             }
 
-            ImageCount = other.ImageCount;
-            ImageBytes = new Dictionary<ImageIndex, byte[]?>(other.ImageBytes);
+            FrameCount = other.FrameCount;
+            FrameBytes = new Dictionary<FrameIndex, byte[]?>(other.FrameBytes);
         }
 
         public VideoFile(IVideoFile other)
@@ -181,10 +181,10 @@ namespace VideoComparer
         }
         private CodecInfo? codecInfo;
 
-        public IDictionary<ImageIndex, byte[]?> ImageBytes { get; } =
-            new Dictionary<ImageIndex, byte[]?>();
+        public IDictionary<FrameIndex, byte[]?> FrameBytes { get; } =
+            new Dictionary<FrameIndex, byte[]?>();
 
-        public int ImageCount { get; set; }
+        public int FrameCount { get; set; }
 
         public bool IsDurationEqual(
             IVideoFile other,

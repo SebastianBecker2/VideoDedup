@@ -15,7 +15,7 @@ namespace VideoDedupClient.Controls.ComparisonSettings
         {
             InitializeComponent();
 
-            var text = "The difference of two images is provided on a scale " +
+            var text = "The difference of two frames is provided on a scale " +
                 $"of 0 to 200.{Environment.NewLine}Default: 80";
             TipHints.SetToolTip(PibMaxDifferentPercentageHint, text);
         }
@@ -26,10 +26,10 @@ namespace VideoDedupClient.Controls.ComparisonSettings
         {
             if (videoComparisonSettingsm is not null)
             {
-                NumMaxImageComparison.Value =
+                NumMaxFrameComparison.Value =
                     videoComparisonSettingsm.CompareCount;
-                NumMaxDifferentImages.Value =
-                    videoComparisonSettingsm.MaxDifferentImages;
+                NumMaxDifferentFrames.Value =
+                    videoComparisonSettingsm.MaxDifferentFrames;
                 NumMaxDifferentPercentage.Value =
                     videoComparisonSettingsm.MaxDifference;
             }
@@ -50,8 +50,8 @@ namespace VideoDedupClient.Controls.ComparisonSettings
         public VideoComparisonSettings GetVideoComparisonSettings() =>
             new()
             {
-                CompareCount = (int)NumMaxImageComparison.Value,
-                MaxDifferentImages = (int)NumMaxDifferentImages.Value,
+                CompareCount = (int)NumMaxFrameComparison.Value,
+                MaxDifferentFrames = (int)NumMaxDifferentFrames.Value,
                 MaxDifference = (int)NumMaxDifferentPercentage.Value,
             };
 

@@ -7,7 +7,7 @@ namespace FfmpegLib
     using FFmpeg.AutoGen;
     using FfmpegLib.Exceptions;
 
-    public sealed class FfmpegImageEnumerator :
+    public sealed class FrameEnumerator :
         IEnumerable<byte[]?>,
         IEnumerator<byte[]?>
     {
@@ -16,19 +16,19 @@ namespace FfmpegLib
         private readonly string filePath;
         private readonly CancellationToken? cancelToken;
 
-        public FfmpegImageEnumerator(
+        public FrameEnumerator(
             string filePath,
             CancellationToken? cancelToken,
-            IEnumerable<ImageIndex> indices)
+            IEnumerable<FrameIndex> indices)
         {
             this.filePath = filePath;
             this.cancelToken = cancelToken;
 
             tasks = [.. indices.Select(index =>
-                Task.Run(() => ExtractImageAtIndex(index)))];
+                Task.Run(() => ExtractFrameAtIndex(index)))];
         }
 
-        private unsafe byte[]? ExtractImageAtIndex(ImageIndex index)
+        private unsafe byte[]? ExtractFrameAtIndex(FrameIndex index)
         {
             try
             {
@@ -39,7 +39,7 @@ namespace FfmpegLib
                 var timestamp =
                     stream->duration / index.Denominator * index.Numerator;
 
-                return ExtractImageAtTimestamp(
+                return ExtractFrameAtTimestamp(
                     formatContext,
                     streamContext,
                     stream->index,
@@ -93,7 +93,7 @@ namespace FfmpegLib
             }
         }
 
-        private static unsafe byte[]? ExtractImageAtTimestamp(
+        private static unsafe byte[]? ExtractFrameAtTimestamp(
             FormatContext formatContext,
             CodecContext streamContext,
             int streamIndex,
@@ -115,14 +115,14 @@ namespace FfmpegLib
             if (frame.GetPointer() is null)
             {
                 throw new FfmpegOperationException(
-                    "Unable to extract images. " +
+                    "Unable to extract frames. " +
                     "Unable to allocate frame.");
             }
             using var jpegPacket = new Packet();
             if (jpegPacket.GetPointer() is null)
             {
                 throw new FfmpegOperationException(
-                    "Unable to extract images. " +
+                    "Unable to extract frames. " +
                     "Unable to allocate packet.");
             }
 
@@ -137,7 +137,7 @@ namespace FfmpegLib
             if (jpegCodec == null)
             {
                 throw new FfmpegOperationException(
-                    "Unable to extract images. " +
+                    "Unable to extract frames. " +
                     "Jpeg codec not found.");
             }
 
@@ -146,14 +146,14 @@ namespace FfmpegLib
             if (jpegContext.SendFrame(frame) < 0)
             {
                 throw new FfmpegOperationException(
-                    "Unable to extract images. " +
+                    "Unable to extract frames. " +
                     "Unable to decode frame.");
             }
 
             if (jpegPacket.ReceivePacket(jpegContext) < 0)
             {
                 throw new FfmpegOperationException(
-                    "Unable to extract images. " +
+                    "Unable to extract frames. " +
                     "Unable to decode frame.");
             }
 
@@ -176,7 +176,7 @@ namespace FfmpegLib
             if (packet.GetPointer() is null)
             {
                 throw new FfmpegOperationException(
-                    "Unable to extract images. " +
+                    "Unable to extract frames. " +
                     "Unable to allocate packet.");
             }
 
@@ -186,7 +186,7 @@ namespace FfmpegLib
                 if (result < 0 && result != ffmpeg.AVERROR_EOF)
                 {
                     throw new FfmpegOperationException(
-                        "Unable to extract images. " +
+                        "Unable to extract frames. " +
                         "Unable to decode frame.");
                 }
 
@@ -195,7 +195,7 @@ namespace FfmpegLib
                     if (streamContext.SendPacket(packet) != 0)
                     {
                         throw new FfmpegOperationException(
-                            "Unable to extract images. " +
+                            "Unable to extract frames. " +
                             "Unable to decode frame.");
                     }
 
@@ -213,7 +213,7 @@ namespace FfmpegLib
                         return;
                     }
                     throw new FfmpegOperationException(
-                        "Unable to extract images. " +
+                        "Unable to extract frames. " +
                         "Unable to decode frame.");
                 }
             }
@@ -235,7 +235,7 @@ namespace FfmpegLib
                         return true;
                     }
                     throw new FfmpegOperationException(
-                        "Unable to extract images. " +
+                        "Unable to extract frames. " +
                         "Unable to decode frame.");
                 }
                 if (result == ffmpeg.AVERROR(ffmpeg.EAGAIN))
@@ -245,7 +245,7 @@ namespace FfmpegLib
                 if (result < 0)
                 {
                     throw new FfmpegOperationException(
-                        "Unable to extract images. " +
+                        "Unable to extract frames. " +
                         "Unable to decode frame.");
                 }
 
@@ -262,7 +262,7 @@ namespace FfmpegLib
                         return true;
                     }
                     throw new FfmpegOperationException(
-                        "Unable to extract images. " +
+                        "Unable to extract frames. " +
                         "Unable to decode frame.");
                 }
 
@@ -278,7 +278,7 @@ namespace FfmpegLib
             if (codec is null)
             {
                 throw new FfmpegOperationException(
-                    "Unable to extract images. " +
+                    "Unable to extract frames. " +
                     "Decoder not found.");
             }
             return codec;
@@ -293,21 +293,21 @@ namespace FfmpegLib
             if (formatContext.GetPointer() is null)
             {
                 throw new FfmpegOperationException(
-                    "Unable to extract images. " +
+                    "Unable to extract frames. " +
                     "Unable to allocate format context.");
             }
 
             if (formatContext.Open(filePath) != 0)
             {
                 throw new FfmpegOperationException(
-                    "Unable to extract images. " +
+                    "Unable to extract frames. " +
                     "Unable to open file.");
             }
 
             if (formatContext.FindStreamInfo() < 0)
             {
                 throw new FfmpegOperationException(
-                    "Unable to extract images. " +
+                    "Unable to extract frames. " +
                     "Video stream not found.");
             }
 
@@ -327,21 +327,21 @@ namespace FfmpegLib
                 if (context.GetPointer() is null)
                 {
                     throw new FfmpegOperationException(
-                        "Unable to extract images. " +
+                        "Unable to extract frames. " +
                         "Unable to allocate stream codec context.");
                 }
 
                 if (context.ParametersToContext(stream->codecpar) < 0)
                 {
                     throw new FfmpegOperationException(
-                        "Unable to extract images. " +
+                        "Unable to extract frames. " +
                         "Unable to allocate stream codec context.");
                 }
 
                 if (context.Open(codec) < 0)
                 {
                     throw new FfmpegOperationException(
-                        "Unable to extract images. " +
+                        "Unable to extract frames. " +
                         "Could not stream codec context.");
                 }
 
@@ -351,7 +351,7 @@ namespace FfmpegLib
             catch (InvalidOperationException)
             {
                 throw new FfmpegOperationException(
-                    "Unable to extract images. " +
+                    "Unable to extract frames. " +
                     "Unable to allocate stream codec context.");
             }
         }
@@ -364,7 +364,7 @@ namespace FfmpegLib
             if (jpegCodec == null)
             {
                 throw new FfmpegOperationException(
-                    "Unable to extract images. " +
+                    "Unable to extract frames. " +
                     "Jpeg codec not found.");
             }
 
@@ -382,14 +382,14 @@ namespace FfmpegLib
                 if (jpegContext.GetPointer() is null)
                 {
                     throw new FfmpegOperationException(
-                        "Unable to extract images." +
+                        "Unable to extract frames." +
                         " Unable to allocate jpeg codec context.");
                 }
 
                 if (jpegContext.Open(jpegCodec) < 0)
                 {
                     throw new FfmpegOperationException(
-                        "Unable to extract images. " +
+                        "Unable to extract frames. " +
                         "Could not open jpeg codec context.");
                 }
 
@@ -398,7 +398,7 @@ namespace FfmpegLib
             catch (InvalidOperationException)
             {
                 throw new FfmpegOperationException(
-                    "Unable to extract images. " +
+                    "Unable to extract frames. " +
                     "Unable to allocate jpeg codec context.");
             }
         }

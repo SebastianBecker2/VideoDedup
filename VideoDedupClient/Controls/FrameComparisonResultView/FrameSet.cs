@@ -1,4 +1,4 @@
-namespace VideoDedupClient.Controls.ImageComparisonResultView
+namespace VideoDedupClient.Controls.FrameComparisonResultView
 {
     using System.Drawing;
     using Google.Protobuf;
@@ -8,7 +8,7 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
     using VideoDedupSharedLib.ExtensionMethods.ImageExtensions;
     using Size = Size;
 
-    public class ImageSet(VideoDedupGrpc.ImageSet imageSet, Size containerSize)
+    public class FrameSet(VideoDedupGrpc.FrameSet frameSet, Size containerSize)
         : IDisposable
     {
         private bool disposedValue;
@@ -58,15 +58,15 @@ namespace VideoDedupClient.Controls.ImageComparisonResultView
                 System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor);
         }
 
-        public ImageIndex Index => imageSet.Index;
+        public FrameIndex Index => frameSet.Index;
         public Image Original { get; set; } =
-            StreamToFittedImage(imageSet.Original, containerSize);
+            StreamToFittedImage(frameSet.Original, containerSize);
         public Image Cropped { get; set; } =
-            StreamToFittedImage(imageSet.Cropped, containerSize);
+            StreamToFittedImage(frameSet.Cropped, containerSize);
         public Image Resized { get; set; } =
-            StreamToFittedImage(imageSet.Resized, containerSize);
+            StreamToFittedImage(frameSet.Resized, containerSize);
         public Image Greyscaled { get; set; } =
-            StreamToFittedImage(imageSet.Greyscaled, containerSize);
+            StreamToFittedImage(frameSet.Greyscaled, containerSize);
 
         protected virtual void Dispose(bool disposing)
         {

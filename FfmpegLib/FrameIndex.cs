@@ -3,8 +3,8 @@ namespace FfmpegLib
     using System.Diagnostics;
 
     [DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
-    public class ImageIndex(int numerator, int denominator)
-        : IEquatable<ImageIndex>
+    public class FrameIndex(int numerator, int denominator)
+        : IEquatable<FrameIndex>
     {
         public int Numerator { get; } = numerator;
         public int Denominator { get; } = denominator;
@@ -16,29 +16,29 @@ namespace FfmpegLib
 
         private string GetDebuggerDisplay() => ToPrettyString();
 
-        public static implicit operator VideoDedupGrpc.ImageIndex(
-            ImageIndex index) =>
+        public static implicit operator VideoDedupGrpc.FrameIndex(
+            FrameIndex index) =>
             new()
             {
                 Denominator = index.Denominator,
                 Numerator = index.Numerator
             };
 
-        public static implicit operator ImageIndex(
-            VideoDedupGrpc.ImageIndex index) =>
+        public static implicit operator FrameIndex(
+            VideoDedupGrpc.FrameIndex index) =>
             new(index.Numerator, index.Denominator);
 
-        public static ImageIndex CreateImageIndex(int index, int count)
+        public static FrameIndex CreateFrameIndex(int index, int count)
         {
             var gcd = CalculateGcd(index, count + 1);
-            return new ImageIndex(index / gcd, (count + 1) / gcd);
+            return new FrameIndex(index / gcd, (count + 1) / gcd);
         }
 
-        public static IEnumerable<ImageIndex> CreateImageIndices(
-            int imageCount) =>
+        public static IEnumerable<FrameIndex> CreateFrameIndices(
+            int frameCount) =>
             Enumerable
-                .Range(1, imageCount)
-                .Select(i => CreateImageIndex(i, imageCount));
+                .Range(1, frameCount)
+                .Select(i => CreateFrameIndex(i, frameCount));
 
         // Calculate greatest common divisor (GCD)
         private static int CalculateGcd(int a, int b)
@@ -56,20 +56,20 @@ namespace FfmpegLib
             return CalculateGcd(b, a % b);
         }
 
-        public bool Equals(ImageIndex? other) =>
+        public bool Equals(FrameIndex? other) =>
             other is not null
             && other.Numerator == Numerator
             && other.Denominator == Denominator;
 
-        public override bool Equals(object? obj) => Equals(obj as ImageIndex);
+        public override bool Equals(object? obj) => Equals(obj as FrameIndex);
 
         public override int GetHashCode() =>
             HashCode.Combine(Numerator, Denominator);
 
-        public static bool operator ==(ImageIndex left, ImageIndex right) =>
-            EqualityComparer<ImageIndex>.Default.Equals(left, right);
+        public static bool operator ==(FrameIndex left, FrameIndex right) =>
+            EqualityComparer<FrameIndex>.Default.Equals(left, right);
 
-        public static bool operator !=(ImageIndex left, ImageIndex right) =>
+        public static bool operator !=(FrameIndex left, FrameIndex right) =>
             !(left == right);
     }
 }

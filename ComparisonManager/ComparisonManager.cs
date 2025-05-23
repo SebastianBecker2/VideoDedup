@@ -37,7 +37,7 @@ namespace ComparisonManager
             VideoComparisonSettings settings,
             string leftFilePath,
             string rightFilePath,
-            bool forceLoadingAllImages)
+            bool forceLoadingAllFrames)
         {
             Logger?.Information($"Starting comparison '{leftFilePath}' - " +
                 $"'{rightFilePath}'");
@@ -48,7 +48,7 @@ namespace ComparisonManager
                     settings,
                     leftFilePath,
                     rightFilePath,
-                    forceLoadingAllImages,
+                    forceLoadingAllFrames,
                     Logger);
 
                 lock (ComparisonsLock)
@@ -81,7 +81,7 @@ namespace ComparisonManager
 
         public VideoComparisonStatus? GetStatus(
             Guid token,
-            int imageComparisonIndex = 0)
+            int frameComparisonIndex = 0)
         {
             lock (ComparisonsLock)
             {
@@ -91,7 +91,7 @@ namespace ComparisonManager
                 }
 
                 LastRequests[token] = DateTime.Now;
-                return comparison.GetStatus(imageComparisonIndex);
+                return comparison.GetStatus(frameComparisonIndex);
             }
         }
 

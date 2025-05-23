@@ -11,13 +11,13 @@
     <Setting Name="FileExtensions" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="ImageCompareCount" Type="System.Int32" Scope="User">
+    <Setting Name="FrameCompareCount" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">20</Value>
     </Setting>
-    <Setting Name="MaxDifferentImages" Type="System.Int32" Scope="User">
+    <Setting Name="MaxDifferentFrames" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">4</Value>
     </Setting>
-    <Setting Name="MaxImageDifference" Type="System.Int32" Scope="User">
+    <Setting Name="MaxFrameDifference" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">80</Value>
     </Setting>
     <Setting Name="MaxDurationDifference" Type="System.Int32" Scope="User">
@@ -26,7 +26,7 @@
     <Setting Name="DurationDifferenceType" Type="System.String" Scope="User">
       <Value Profile="(Default)">Seconds</Value>
     </Setting>
-    <Setting Name="ThumbnailImageCount" Type="System.Int32" Scope="User">
+    <Setting Name="ThumbnailCount" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">8</Value>
     </Setting>
     <Setting Name="Recursive" Type="System.Boolean" Scope="User">

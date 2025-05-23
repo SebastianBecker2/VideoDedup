@@ -129,20 +129,20 @@ namespace FfmpegLib
             FilePath = filePath;
         }
 
-        public IEnumerable<byte[]?> GetImages(
+        public IEnumerable<byte[]?> GetFrames(
             int index,
             int count,
             int divisionCount) =>
-            GetImages(null, index, count, divisionCount);
+            GetFrames(null, index, count, divisionCount);
 
-        public IEnumerable<byte[]?> GetImages(
+        public IEnumerable<byte[]?> GetFrames(
             int index,
             int count,
             int divisionCount,
             CancellationToken cancelToken) =>
-            GetImages(cancelToken, index, count, divisionCount);
+            GetFrames(cancelToken, index, count, divisionCount);
 
-        private IEnumerable<byte[]?> GetImages(
+        private IEnumerable<byte[]?> GetFrames(
             CancellationToken? cancelToken,
             int index,
             int count,
@@ -151,7 +151,7 @@ namespace FfmpegLib
             if (!File.Exists(FilePath))
             {
                 throw new FfmpegFileNotFoundException(
-                    "Unable to extract images. File not found.",
+                    "Unable to extract frames. File not found.",
                     FilePath);
             }
 
@@ -183,39 +183,39 @@ namespace FfmpegLib
             }
 
             var indices = Enumerable.Range(index, count)
-                .Select(i => new ImageIndex(i + 1, divisionCount + 1));
+                .Select(i => new FrameIndex(i + 1, divisionCount + 1));
 
-            return GetImages(cancelToken, indices);
+            return GetFrames(cancelToken, indices);
         }
 
-        public IEnumerable<byte[]?> GetImages(
-            IEnumerable<ImageIndex> indices) =>
-            GetImages(null, indices);
+        public IEnumerable<byte[]?> GetFrames(
+            IEnumerable<FrameIndex> indices) =>
+            GetFrames(null, indices);
 
-        public IEnumerable<byte[]?> GetImages(
-            IEnumerable<ImageIndex> indices,
+        public IEnumerable<byte[]?> GetFrames(
+            IEnumerable<FrameIndex> indices,
             CancellationToken cancelToken) =>
-            GetImages(cancelToken, indices);
+            GetFrames(cancelToken, indices);
 
-        private IEnumerable<byte[]?> GetImages(
+        private IEnumerable<byte[]?> GetFrames(
             CancellationToken? cancelToken,
-            IEnumerable<ImageIndex> indices)
+            IEnumerable<FrameIndex> indices)
         {
             if (!File.Exists(FilePath))
             {
                 throw new FfmpegFileNotFoundException(
-                    "Unable to extract images. File not found.",
+                    "Unable to extract frames. File not found.",
                     FilePath);
             }
 
-            using var enumerator = new FfmpegImageEnumerator(
+            using var enumerator = new FrameEnumerator(
                 FilePath,
                 cancelToken,
                 indices);
 
-            foreach (var image in enumerator)
+            foreach (var frame in enumerator)
             {
-                yield return image;
+                yield return frame;
             }
         }
     }

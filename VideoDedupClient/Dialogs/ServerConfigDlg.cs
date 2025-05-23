@@ -61,9 +61,9 @@ namespace VideoDedupClient.Dialogs
             dlg.VideoComparisonSettings = new VideoComparisonSettings
             {
                 CompareCount =
-                    (int)CscComparisonSettings.NumMaxImageComparison.Value,
-                MaxDifferentImages =
-                    (int)CscComparisonSettings.NumMaxDifferentImages.Value,
+                    (int)CscComparisonSettings.NumMaxFrameComparison.Value,
+                MaxDifferentFrames =
+                    (int)CscComparisonSettings.NumMaxDifferentFrames.Value,
                 MaxDifference =
                     (int)CscComparisonSettings.NumMaxDifferentPercentage.Value,
             };
@@ -73,10 +73,10 @@ namespace VideoDedupClient.Dialogs
                 return;
             }
 
-            CscComparisonSettings.NumMaxImageComparison.Value =
+            CscComparisonSettings.NumMaxFrameComparison.Value =
                 dlg.VideoComparisonSettings.CompareCount;
-            CscComparisonSettings.NumMaxDifferentImages.Value =
-                dlg.VideoComparisonSettings.MaxDifferentImages;
+            CscComparisonSettings.NumMaxDifferentFrames.Value =
+                dlg.VideoComparisonSettings.MaxDifferentFrames;
             CscComparisonSettings.NumMaxDifferentPercentage.Value =
                 dlg.VideoComparisonSettings.MaxDifference;
         }
