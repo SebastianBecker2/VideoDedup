@@ -90,6 +90,10 @@ namespace VideoDedupClient
             Settings.Default.ClientSourcePath =
                 configuration.ClientSourcePath;
             Settings.Default.Save();
+            lock (GrpcClientLock)
+            {
+                grpcChannel = null;
+            }
         }
 
         /// <summary>
