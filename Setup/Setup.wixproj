@@ -41,6 +41,6 @@
     </ProjectReference>
   </ItemGroup>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="dotnet publish &quot;$(ProjectDir)..\VideoDedupClient&quot; -c $(ConfigurationName) --runtime win-x64 --framework net8.0-windows --no-self-contained /p:PublishReadyToRun=true&#xA;dotnet publish &quot;$(ProjectDir)..\VideoDedupService&quot; -c $(ConfigurationName) --runtime win-x64 --framework net8.0-windows --no-self-contained /p:PublishReadyToRun=true" />
+    <Exec Command="dotnet publish &quot;$(ProjectDir)..\VideoDedupClient&quot; -c $(ConfigurationName) --runtime win-x64 --framework net8.0-windows --no-self-contained /p:PublishReadyToRun=true&#xA;dotnet publish &quot;$(ProjectDir)..\VideoDedupService&quot; -c $(ConfigurationName) --runtime win-x64 --framework net8.0 --no-self-contained /p:PublishReadyToRun=true" />
   </Target>
 </Project>
