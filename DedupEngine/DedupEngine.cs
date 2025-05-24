@@ -382,6 +382,12 @@ namespace DedupEngine
                 counter,
                 fileCount);
 
+            ThrottledOperationUpdate throttledOperationUpdate =
+                new(OnOperationUpdate)
+                {
+                    Time = TimeSpan.FromMilliseconds(50),
+                };
+
             var parallelOptions = new ParallelOptions
             {
                 MaxDegreeOfParallelism = dedupSettings.ConcurrencyLevel,
@@ -400,13 +406,18 @@ namespace DedupEngine
                     datastore.InsertVideoFile(file);
                 }
 
-                OnOperationUpdate(
+                throttledOperationUpdate.Raise(
                     OperationType.LoadingMedia,
                     ++counter,
                     fileCount);
 
                 cancelToken.ThrowIfCancellationRequested();
             });
+
+            OnOperationUpdate(
+                OperationType.LoadingMedia,
+                fileCount,
+                fileCount);
         }
 
         private List<Candidate> PrepareCandidates(
@@ -448,7 +459,7 @@ namespace DedupEngine
 
                 throttledOperationUpdate.Raise(
                     OperationType.Preparing,
-                    preparedCount++,
+                    ++preparedCount,
                     targetVideos.Count);
             }
 
