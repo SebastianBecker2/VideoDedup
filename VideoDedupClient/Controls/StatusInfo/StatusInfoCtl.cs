@@ -104,6 +104,7 @@ namespace VideoDedupClient.Controls.StatusInfo
             {
                 LatestProgressInfo = null;
                 PrgProgress.Clear();
+                PrgProgress.MaxProgress = MaximumFiles;
                 progressCount = 0;
                 progressToken = OperationInfo.ProgressToken;
             }
