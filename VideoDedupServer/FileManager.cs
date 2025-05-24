@@ -2,20 +2,18 @@ namespace VideoDedupServer
 {
     using System;
     using System.Collections.Generic;
-    using System.Drawing.Imaging;
     using System.Linq;
     using Google.Protobuf;
     using Google.Protobuf.WellKnownTypes;
     using VideoDedupGrpc;
     using VideoDedupServer.Properties;
     using VideoDedupSharedLib;
-    using VideoDedupSharedLib.ExtensionMethods.ImageExtensions;
     using static VideoDedupGrpc.GetFolderContentResponse.Types;
 
     internal static class FileManager
     {
         private static readonly ByteString DriveIcon =
-            ByteString.FromStream(Resources.drive.ToMemoryStream(ImageFormat.Png));
+            ByteString.CopyFrom(Resources.drive);
 
         public static IEnumerable<FileAttributes> GetFolderContent(
             string path,
