@@ -1,16 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <Platforms>x64;x86</Platforms>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" />
   <ItemGroup>
-    <PackageReference Include="KGySoft.Drawing" Version="8.1.0" />
+    <PackageReference Include="KGySoft.Drawing" Version="9.2.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MpvLib\MpvLib.csproj" />
+    <ProjectReference Include="..\FfmpegLib\FfmpegLib.csproj" />
     <ProjectReference Include="..\VideoDedupSharedLib\VideoDedupSharedLib.csproj" />
   </ItemGroup>
 </Project>

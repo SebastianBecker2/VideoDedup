@@ -23,7 +23,6 @@ namespace VideoDedupServer
         private readonly List<string> logEntries = [];
         private readonly object logEntriesLock = new();
         private readonly ComparisonManager comparisonManager;
-        private readonly CancellationTokenSource cancelTokenSource = new();
         private readonly Task initializationTask;
         private readonly List<ProgressInfo> progressInfos = [];
         private readonly object progressInfoLock = new();
@@ -53,14 +52,14 @@ namespace VideoDedupServer
             comparisonManager = new(logManager.ComparisonManagerLogger);
 
             // Adding TrashPath right before we create DedupEngine to avoid
-            // having it permanently in the FolderSettings (so the user won't
+            // having it permanently in the DedupSettings (so the user won't
             // see it).
-            settings.FolderSettings.ExcludedDirectories.Add(
+            settings.DedupSettings.ExcludedDirectories.Add(
                 settings.ResolutionSettings.TrashPath);
 
             dedupEngine = new DedupEngine(
                 appDataFolderPath,
-                settings.FolderSettings,
+                settings.DedupSettings,
                 settings.DurationComparisonSettings,
                 settings.VideoComparisonSettings);
             dedupEngine.OperationUpdate += DedupEngine_OperationUpdate;
@@ -93,7 +92,7 @@ namespace VideoDedupServer
             ConfigurationSettings request,
             ServerCallContext context)
         {
-            var fs = request.FolderSettings;
+            var fs = request.DedupSettings;
             var rs = request.ResolutionSettings;
             rs.TrashPath = Path.Combine(fs.BasePath, TrashFolderName);
 
@@ -109,7 +108,11 @@ namespace VideoDedupServer
             var statusData = new StatusData
             {
                 OperationInfo = operationInfo,
-                CurrentDuplicatesCount = duplicateManager.Count,
+                TotalDuplicatesCount = duplicateManager.DuplicatesCount,
+                UnpreparedDuplicatesCount =
+                    duplicateManager.UnpreparedDuplicatesCount,
+                PreparedDuplicatesCount =
+                    duplicateManager.PreparedDuplicatesCount,
             };
 
             lock (logEntriesLock)
@@ -181,7 +184,7 @@ namespace VideoDedupServer
 
                 var response = new GetLogEntriesResponse();
                 response.LogEntries.AddRange(
-                    logEntries.Skip(request.Start).Take(request.Count).ToList());
+                    [.. logEntries.Skip(request.Start).Take(request.Count)]);
                 return Task.FromResult(response);
             }
         }
@@ -193,14 +196,14 @@ namespace VideoDedupServer
                 request.VideoComparisonSettings,
                 request.LeftFilePath,
                 request.RightFilePath,
-                request.ForceLoadingAllImages));
+                request.ForceLoadingAllFrames));
 
         public override Task<VideoComparisonStatus?> GetVideoComparisonStatus(
             VideoComparisonStatusRequest request,
             ServerCallContext context) =>
             Task.FromResult(comparisonManager.GetStatus(
                 Guid.Parse(request.ComparisonToken),
-                request.ImageComparisonIndex));
+                request.FrameComparisonIndex));
 
         public override Task<Empty> CancelVideoComparison(
             CancelVideoComparisonRequest request,
@@ -258,10 +261,9 @@ namespace VideoDedupServer
                 }
 
                 var response = new GetProgressInfoResponse();
-                response.ProgressInfos.AddRange(progressInfos
+                response.ProgressInfos.AddRange([.. progressInfos
                     .Skip(request.Start)
-                    .Take(request.Count)
-                    .ToList());
+                    .Take(request.Count)]);
                 return Task.FromResult(response);
             }
         }
@@ -419,7 +421,7 @@ namespace VideoDedupServer
 
             var configuration = new ConfigurationSettings()
             {
-                FolderSettings = ConfigurationManager.GetFolderSettings(),
+                DedupSettings = ConfigurationManager.GetDedupSettings(),
                 VideoComparisonSettings =
                     ConfigurationManager.GetVideoComparisonSettings(),
                 DurationComparisonSettings =
@@ -438,7 +440,7 @@ namespace VideoDedupServer
         {
             AddLogEntry("Saving configuration");
 
-            ConfigurationManager.SetFolderSettings(settings.FolderSettings);
+            ConfigurationManager.SetDedupSettings(settings.DedupSettings);
             ConfigurationManager.SetVideoComparisonSettings(
                 settings.VideoComparisonSettings);
             ConfigurationManager.SetDurationComparisonSettings(
@@ -458,18 +460,16 @@ namespace VideoDedupServer
 
             logManager.UpdateConfiguration(settings.LogSettings);
 
-            duplicateManager.UpdateSettings(
-                settings.ResolutionSettings,
-                UpdateSettingsResolution.DiscardDuplicates);
+            duplicateManager.UpdateSettings(settings.ResolutionSettings);
 
             // Adding TrashPath right before we update the configuration
-            // to avoid having it permanently in the FolderSettings (so the user
+            // to avoid having it permanently in the DedupSettings (so the user
             // won't see it).
-            settings.FolderSettings.ExcludedDirectories.Add(
+            settings.DedupSettings.ExcludedDirectories.Add(
                 settings.ResolutionSettings.TrashPath);
 
             var restartNecessary = dedupEngine.UpdateConfiguration(
-                settings.FolderSettings,
+                settings.DedupSettings,
                 settings.DurationComparisonSettings,
                 settings.VideoComparisonSettings);
 
@@ -514,8 +514,6 @@ namespace VideoDedupServer
                 {
                     AddLogEntry("Stopping VideoDedupService");
 
-                    cancelTokenSource.Cancel();
-
                     try
                     {
                         initializationTask.Wait();
@@ -526,7 +524,6 @@ namespace VideoDedupServer
                         exc.Handle(x => x is OperationCanceledException);
                     }
 
-                    cancelTokenSource.Dispose();
                     initializationTask.Dispose();
 
                     AddLogEntry("Stopped VideoDedupService");

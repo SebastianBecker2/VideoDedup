@@ -1,14 +1,10 @@
 namespace DedupEngine
 {
     using System.Collections.Concurrent;
-    using System.Diagnostics;
     using EventArgs;
-    using VideoComparer;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.IVideoFileExtensions;
-    using VideoDedupSharedLib.ExtensionMethods.TimeSpanExtensions;
     using static VideoDedupGrpc.OperationInfo.Types;
-    using VideoFile = VideoComparer.VideoFile;
 
     public class DedupEngine : IDisposable
     {
@@ -62,7 +58,7 @@ namespace DedupEngine
         // ConcurrentDictionary is used as a hash set
         private readonly ConcurrentDictionary<VideoFile, byte> newFiles = new();
         private readonly ConcurrentDictionary<VideoFile, byte> deletedFiles = new();
-        private FolderSettings folderSettings;
+        private DedupSettings dedupSettings;
         private DurationComparisonSettings durationComparisonSettings;
         private VideoComparisonSettings videoComparisonSettings;
         private List<VideoFile> videoFiles = [];
@@ -78,14 +74,15 @@ namespace DedupEngine
 
         public event EventHandler<DuplicateFoundEventArgs>? DuplicateFound;
         protected virtual void OnDuplicateFound(
-            VideoFile file1,
-            VideoFile file2) =>
+            VideoComparer.VideoFile file1,
+            VideoComparer.VideoFile file2) =>
             DuplicateFound?.Invoke(
                 this,
-                new DuplicateFoundEventArgs(folderSettings.BasePath, file1, file2));
+                new DuplicateFoundEventArgs(dedupSettings.BasePath, file1, file2));
 
         public event EventHandler<OperationUpdateEventArgs>? OperationUpdate;
-        protected virtual void OnOperationUpdate(OperationType type,
+        protected virtual void OnOperationUpdate(
+            OperationType type,
             int counter,
             int maxCount)
         {
@@ -103,8 +100,8 @@ namespace DedupEngine
                 StartTime = OperationStartTime,
             });
         }
-
-        protected virtual void OnOperationUpdate(OperationType type,
+        protected virtual void OnOperationUpdate(
+            OperationType type,
             ProgressStyle style)
         {
             OperationType = type;
@@ -128,11 +125,11 @@ namespace DedupEngine
 
         public DedupEngine(
             string appDataFolder,
-            FolderSettings folderSettings,
+            DedupSettings dedupSettings,
             DurationComparisonSettings durationComparisonSettings,
             VideoComparisonSettings videoComparisonSettings)
         {
-            this.folderSettings = folderSettings;
+            this.dedupSettings = dedupSettings;
             this.durationComparisonSettings = durationComparisonSettings;
             this.videoComparisonSettings = videoComparisonSettings;
 
@@ -153,18 +150,18 @@ namespace DedupEngine
         }
 
         public bool UpdateConfiguration(
-            FolderSettings folderSettings,
+            DedupSettings dedupSettings,
             DurationComparisonSettings durationComparisonSettings,
             VideoComparisonSettings videoComparisonSettings)
         {
-            if (this.folderSettings.Equals(folderSettings)
+            if (this.dedupSettings.Equals(dedupSettings)
                 && this.durationComparisonSettings.Equals(durationComparisonSettings)
                 && this.videoComparisonSettings.Equals(videoComparisonSettings))
             {
                 return false;
             }
             Stop();
-            this.folderSettings = folderSettings;
+            this.dedupSettings = dedupSettings;
             this.durationComparisonSettings = durationComparisonSettings;
             this.videoComparisonSettings = videoComparisonSettings;
             return true;
@@ -174,7 +171,7 @@ namespace DedupEngine
         {
             OnLogged("Starting DedupEngine");
 
-            if (!Directory.Exists(folderSettings.BasePath))
+            if (!Directory.Exists(dedupSettings.BasePath))
             {
                 throw new InvalidOperationException("Unable to start. " +
                     "Base path is not valid.");
@@ -185,13 +182,14 @@ namespace DedupEngine
                 return;
             }
 
-            FileWatcher.Path = folderSettings.BasePath;
-            FileWatcher.IncludeSubdirectories = folderSettings.Recursive;
-            FileWatcher.EnableRaisingEvents = folderSettings.MonitorChanges;
+            FileWatcher.Path = dedupSettings.BasePath;
+            FileWatcher.IncludeSubdirectories = dedupSettings.Recursive;
+            FileWatcher.EnableRaisingEvents = dedupSettings.MonitorChanges;
 
             lock (DedupLock)
             {
                 DedupTask?.Dispose();
+                CancelSource?.Dispose();
                 CancelSource = new CancellationTokenSource();
                 DedupTask = Task.Run(ProcessFolder, CancelSource.Token);
             }
@@ -242,7 +240,7 @@ namespace DedupEngine
             object sender,
             FileSystemEventArgs e)
         {
-            OnLogged($"{nameof(HandleFileWatcherDeletedEvent)} - {e.FullPath}");
+            OnLogged($"{nameof(HandleFileWatcherDeletedEvent)} - '{e.FullPath}'");
             HandleDeletedFileEvent(e.FullPath);
         }
 
@@ -250,7 +248,7 @@ namespace DedupEngine
             object sender,
             FileSystemEventArgs e)
         {
-            OnLogged($"{nameof(HandleFileWatcherChangedEvent)} - {e.FullPath}");
+            OnLogged($"{nameof(HandleFileWatcherChangedEvent)} - '{e.FullPath}'");
             HandleNewFileEvent(e.FullPath);
         }
 
@@ -258,7 +256,7 @@ namespace DedupEngine
             object sender,
             FileSystemEventArgs e)
         {
-            OnLogged($"{nameof(HandleFileWatcherCreatedEvent)} - {e.FullPath}");
+            OnLogged($"{nameof(HandleFileWatcherCreatedEvent)} - '{e.FullPath}'");
             HandleNewFileEvent(e.FullPath);
         }
 
@@ -266,7 +264,8 @@ namespace DedupEngine
             object sender,
             RenamedEventArgs e)
         {
-            OnLogged($"{nameof(HandleFileWatcherRenamedEvent)} - {e.FullPath} - {e.OldFullPath}");
+            OnLogged($"{nameof(HandleFileWatcherRenamedEvent)} - '{e.FullPath}' " +
+                $"- '{e.OldFullPath}'");
             HandleDeletedFileEvent(e.OldFullPath);
             HandleNewFileEvent(e.FullPath);
         }
@@ -275,32 +274,32 @@ namespace DedupEngine
             object sender,
             ErrorEventArgs e) =>
             OnLogged("FileWatcher crashed! Unable to continue monitoring the" +
-                     " source folder.");
+                     $" source folder '{dedupSettings.BasePath}'.");
 
         private bool IsFilePathRelevant(
             string filePath,
-            FolderSettings folderSettings)
+            DedupSettings dedupSettings)
         {
             if (!filePath.StartsWith(
-                folderSettings.BasePath,
+                dedupSettings.BasePath,
                 StringComparison.OrdinalIgnoreCase))
             {
-                OnLogged($"File not in source folder: {filePath}");
+                OnLogged($"File not in source folder: '{filePath}'");
                 return false;
             }
 
-            if (folderSettings.ExcludedDirectories?.Any(p => filePath.StartsWith(
+            if (dedupSettings.ExcludedDirectories?.Any(p => filePath.StartsWith(
                 p,
                 StringComparison.OrdinalIgnoreCase)) ?? false)
             {
-                OnLogged($"File is in excluded directory: {filePath}");
+                OnLogged($"File is in excluded directory: '{filePath}'");
                 return false;
             }
 
             var extension = Path.GetExtension(filePath);
-            if (!folderSettings.FileExtensions?.Contains(extension) ?? false)
+            if (!dedupSettings.FileExtensions?.Contains(extension) ?? false)
             {
-                OnLogged($"File doesn't have proper file extension: {filePath}");
+                OnLogged($"File doesn't have proper file extension: '{filePath}'");
                 return false;
             }
 
@@ -309,25 +308,25 @@ namespace DedupEngine
 
         private void HandleDeletedFileEvent(string filePath)
         {
-            if (!IsFilePathRelevant(filePath, folderSettings))
+            if (!IsFilePathRelevant(filePath, dedupSettings))
             {
                 return;
             }
 
             _ = deletedFiles.TryAdd(new VideoFile(filePath), 0);
-            OnLogged($"File deleted: {filePath}");
+            OnLogged($"File deleted: '{filePath}'");
             StartProcessingChanges();
         }
 
         private void HandleNewFileEvent(string filePath)
         {
-            if (!IsFilePathRelevant(filePath, folderSettings))
+            if (!IsFilePathRelevant(filePath, dedupSettings))
             {
                 return;
             }
 
             _ = newFiles.TryAdd(new VideoFile(filePath), 0);
-            OnLogged($"File created: {filePath}");
+            OnLogged($"File created: '{filePath}'");
             StartProcessingChanges();
         }
 
@@ -370,22 +369,6 @@ namespace DedupEngine
             return files;
         }
 
-        private IEnumerable<VideoFile> GetVideoFileList(
-            FolderSettings folderSettings)
-        {
-            OperationStartTime = DateTime.Now;
-            OnOperationUpdate(OperationType.Searching, ProgressStyle.Marquee);
-
-            return GetAllAccessibleFilesIn(
-                folderSettings.BasePath,
-                folderSettings.ExcludedDirectories,
-                folderSettings.Recursive)
-                .Where(f => folderSettings.FileExtensions?.Contains(
-                    Path.GetExtension(f),
-                    StringComparer.InvariantCultureIgnoreCase) ?? true)
-                .Select(f => new VideoFile(f));
-        }
-
         private void PreloadFiles(
             IEnumerable<VideoFile> videoFiles,
             CancellationToken cancelToken)
@@ -399,7 +382,18 @@ namespace DedupEngine
                 counter,
                 fileCount);
 
-            foreach (var file in videoFiles)
+            ThrottledOperationUpdate throttledOperationUpdate =
+                new(OnOperationUpdate)
+                {
+                    Time = TimeSpan.FromMilliseconds(50),
+                };
+
+            var parallelOptions = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = dedupSettings.ConcurrencyLevel,
+                CancellationToken = cancelToken,
+            };
+            _ = Parallel.ForEach(videoFiles, parallelOptions, file =>
             {
                 var duration = datastore.GetVideoFileDuration(file);
                 if (duration.HasValue)
@@ -412,102 +406,147 @@ namespace DedupEngine
                     datastore.InsertVideoFile(file);
                 }
 
-                OnOperationUpdate(
+                throttledOperationUpdate.Raise(
                     OperationType.LoadingMedia,
                     ++counter,
                     fileCount);
 
-                if (cancelToken.IsCancellationRequested)
-                {
-                    break;
-                }
-            }
+                cancelToken.ThrowIfCancellationRequested();
+            });
+
+            OnOperationUpdate(
+                OperationType.LoadingMedia,
+                fileCount,
+                fileCount);
         }
 
-        private void FindDuplicates(CancellationToken cancelToken)
+        private List<Candidate> PrepareCandidates(
+            List<VideoFile> targetVideos,
+            List<VideoFile> allVideos,
+            DurationComparisonSettings durationComparisonSettings,
+            CancellationToken cancelToken)
+        {
+            OnOperationUpdate(
+                OperationType.Preparing,
+                0,
+                targetVideos.Count);
+
+            var preparedCount = 0;
+            ThrottledOperationUpdate throttledOperationUpdate =
+                new(OnOperationUpdate)
+                {
+                    Time = TimeSpan.FromMilliseconds(50),
+                };
+
+            var pairs = new HashSet<Candidate>();
+            foreach (var targetVideo in targetVideos)
+            {
+                cancelToken.ThrowIfCancellationRequested();
+
+                foreach (var otherVideo in allVideos.Where(f => f != targetVideo))
+                {
+                    cancelToken.ThrowIfCancellationRequested();
+
+                    if (!targetVideo.IsDurationEqual(
+                        otherVideo,
+                        durationComparisonSettings))
+                    {
+                        continue;
+                    }
+                    _ = pairs.Add(new Candidate(targetVideo, otherVideo));
+                }
+
+
+                throttledOperationUpdate.Raise(
+                    OperationType.Preparing,
+                    ++preparedCount,
+                    targetVideos.Count);
+            }
+
+            OnOperationUpdate(
+                OperationType.Preparing,
+                targetVideos.Count,
+                targetVideos.Count);
+
+            return [.. pairs];
+        }
+
+        private void FindDuplicates(
+            List<Candidate> candidates,
+            int individualFileCount,
+            CancellationToken cancelToken)
         {
             OperationStartTime = DateTime.Now;
             OnOperationUpdate(
                 OperationType.Comparing,
                 0,
-                videoFiles.Count);
+                individualFileCount);
 
-            var timer = Stopwatch.StartNew();
+            List<Candidate> blockedCandidates;
+            var candidateCount = candidates.Count;
 
-            videoFiles = [.. videoFiles.OrderBy(f => f.Duration)];
+            var processedFiles = new ConcurrentDictionary<VideoFile, byte>(
+                dedupSettings.ConcurrencyLevel,
+                individualFileCount);
+            object processingLock = new();
 
-            foreach (var index in
-                Enumerable.Range(0, Math.Max(videoFiles.Count - 1, 0)))
+            ThrottledOperationUpdate throttledOperationUpdate =
+                new(OnOperationUpdate)
+                {
+                    Time = TimeSpan.FromMilliseconds(100),
+                };
+
+            var parallelOptions = new ParallelOptions
             {
-                if (cancelToken.IsCancellationRequested)
+                MaxDegreeOfParallelism = dedupSettings.ConcurrencyLevel,
+                CancellationToken = cancelToken,
+            };
+
+            void ProcessCandidate(Candidate candidate)
+            {
+                if (!candidate.TryStartProcessing(processingLock))
+                {
+                    blockedCandidates.Add(candidate);
+                    return;
+                }
+
+                cancelToken.ThrowIfCancellationRequested();
+
+                if (candidate.IsErrorCountExceeded(DamagedFileRetryCount))
                 {
                     return;
                 }
 
-                var file = videoFiles[index];
+                CompareVideoFiles(candidate.File1, candidate.File2, cancelToken);
+                _ = processedFiles.GetOrAdd(candidate.File1, 0);
+                _ = processedFiles.GetOrAdd(candidate.File2, 0);
 
-                OnLogged($"Checking: {file.FilePath} - Duration: " +
-                    $"{file.Duration.ToPrettyString()}");
+                throttledOperationUpdate.Raise(
+                    OperationType.Comparing,
+                    processedFiles.Count,
+                    individualFileCount);
 
-                foreach (var other in videoFiles
-                    .Skip(index + 1)
-                    .TakeWhile(f =>
-                        file.IsDurationEqual(f, durationComparisonSettings))
-                    .Where(f => f.ErrorCount <= DamagedFileRetryCount))
-                {
-                    if (file.ErrorCount > DamagedFileRetryCount)
-                    {
-                        break;
-                    }
-
-                    if (cancelToken.IsCancellationRequested)
-                    {
-                        return;
-                    }
-
-                    CompareVideoFiles(file, other, cancelToken);
-                }
-
-                OnOperationUpdate(
-                        OperationType.Comparing,
-                        index + 1,
-                        videoFiles.Count);
+                candidate.StopProcessing();
             }
 
-            timer.Stop();
-            Debug.Print($"Dedup took {timer.ElapsedMilliseconds} ms");
+            // Process candidates in parallel
+            // until all candidates are processed
+            while (candidates.Count > 0)
+            {
+                blockedCandidates = new List<Candidate>(candidates.Count);
+
+                _ = Parallel.ForEach(
+                    candidates,
+                    parallelOptions,
+                    ProcessCandidate);
+
+                candidates = blockedCandidates;
+            }
 
             OnOperationUpdate(
                 OperationType.Comparing,
-                videoFiles.Count,
-                videoFiles.Count);
-        }
-
-        private void FindDuplicatesOf(
-            IEnumerable<VideoFile> videoFiles,
-            VideoFile file,
-            CancellationToken cancelToken)
-        {
-            OnLogged($"Checking: {file.FilePath} - Duration: " +
-                    $"{file.Duration.ToPrettyString()}");
-
-            foreach (var other in videoFiles
-                .Where(f => f != file)
-                .Where(f => f.IsDurationEqual(file, durationComparisonSettings))
-                .Where(f => f.ErrorCount <= DamagedFileRetryCount))
-            {
-                if (file.ErrorCount > DamagedFileRetryCount)
-                {
-                    break;
-                }
-
-                if (cancelToken.IsCancellationRequested)
-                {
-                    return;
-                }
-
-                CompareVideoFiles(file, other, cancelToken);
-            }
+                individualFileCount,
+                individualFileCount);
         }
 
         private void CompareVideoFiles(
@@ -517,7 +556,7 @@ namespace DedupEngine
         {
             try
             {
-                var comparer = new VideoComparer(
+                var comparer = new VideoComparer.VideoComparer(
                         videoComparisonSettings,
                         datastore.DatastoreFilePath,
                         left,
@@ -527,23 +566,24 @@ namespace DedupEngine
                 {
                     return;
                 }
-                OnLogged($"Found duplicate of {left.FilePath} and" +
-                    $" {right.FilePath}");
+                OnLogged($"Found duplicate of '{left.FilePath}' and" +
+                    $" '{right.FilePath}'");
                 OnDuplicateFound(left, right);
             }
-            catch (ComparisonException exc)
+            catch (VideoComparer.ComparisonException exc)
             {
-                if (++exc.VideoFile.ErrorCount > DamagedFileRetryCount)
+                exc.VideoFile.IncrementErrorCount();
+                if (exc.VideoFile.ErrorCount > DamagedFileRetryCount)
                 {
                     _ = deletedFiles.TryAdd(
                         new VideoFile(exc.VideoFile),
                         0);
-                    OnLogged($"File corrupted: {exc.VideoFile.FilePath}");
+                    OnLogged($"File corrupted: '{exc.VideoFile.FilePath}'");
                 }
                 else
                 {
                     OnLogged($"Comparison failed. Couldn't access: " +
-                        $"{exc.VideoFile.FilePath}");
+                        $"'{exc.VideoFile.FilePath}'");
                 }
             }
             catch (Exception exc)
@@ -563,7 +603,7 @@ namespace DedupEngine
                     return;
                 }
 
-                if (!folderSettings.MonitorChanges)
+                if (!dedupSettings.MonitorChanges)
                 {
                     OperationStartTime = DateTime.MinValue;
                     OnOperationUpdate(
@@ -585,35 +625,55 @@ namespace DedupEngine
         {
             var cancelToken = CancelSource.Token;
 
-            videoFiles = GetVideoFileList(folderSettings).ToList();
+            OperationStartTime = DateTime.Now;
+            OnOperationUpdate(OperationType.Searching, ProgressStyle.Marquee);
+
+            videoFiles = [.. GetAllAccessibleFilesIn(
+                dedupSettings.BasePath,
+                dedupSettings.ExcludedDirectories,
+                dedupSettings.Recursive)
+                .Where(f => dedupSettings.FileExtensions?.Contains(
+                    Path.GetExtension(f),
+                    StringComparer.InvariantCultureIgnoreCase) ?? true)
+                .Select(f => new VideoFile(f))];
+
             cancelToken.ThrowIfCancellationRequested();
 
             // Cancellable preload of files
-            OnLogged("Starting preloading media info of " +
+            OnLogged("Started preloading meta data of " +
                 $"{videoFiles.Count} Files.");
             PreloadFiles(videoFiles, cancelToken);
-            if (cancelToken.IsCancellationRequested)
-            {
-                cancelToken.ThrowIfCancellationRequested();
-            }
-            OnLogged("Finished preloading media info of " +
+            cancelToken.ThrowIfCancellationRequested();
+            OnLogged("Finished preloading meta data of " +
                 $"{videoFiles.Count} Files.");
 
             // Remove invalid files
-            videoFiles = videoFiles
-                .Where(f => f.Duration != TimeSpan.Zero)
-                .ToList();
+            foreach (var file in
+                videoFiles.Where(f => f.Duration == TimeSpan.Zero))
+            {
+                OnLogged($"Discarding file '{file.FilePath}' " +
+                    $"Unable to determine duration for file.");
+            }
+            videoFiles = [.. videoFiles.Where(f => f.Duration != TimeSpan.Zero)];
             cancelToken.ThrowIfCancellationRequested();
 
-            OnLogged("Starting searching for duplicates of " +
+            OnLogged("Started preparing candidates for " +
                 $"{videoFiles.Count} Files.");
-            FindDuplicates(cancelToken);
-            if (cancelToken.IsCancellationRequested)
-            {
-                cancelToken.ThrowIfCancellationRequested();
-            }
+            var candidates = PrepareCandidates(
+                videoFiles,
+                videoFiles,
+                durationComparisonSettings,
+                cancelToken);
+            OnLogged("Finished preparing candidates for " +
+                $"{videoFiles.Count} Files. Resulting in {candidates.Count} " +
+                $"Candidates.");
+
+            OnLogged("Started searching for duplicates of " +
+                $"{candidates.Count} Candidates.");
+            FindDuplicates(candidates, videoFiles.Count, cancelToken);
+            cancelToken.ThrowIfCancellationRequested();
             OnLogged("Finished searching for duplicates of " +
-                $"{videoFiles.Count} Files.");
+                $"{candidates.Count} Candidates.");
 
             ProcessChangesIfAny();
         }
@@ -629,64 +689,70 @@ namespace DedupEngine
 
                 if (videoFiles.Remove(deletedFile))
                 {
-                    OnLogged($"Removed file: {deletedFile.FilePath}");
+                    OnLogged($"Removed file: '{deletedFile.FilePath}'");
                 }
                 else
                 {
                     OnLogged("Deleted file not in VideoFile-List: " +
-                        $"{deletedFile.FilePath}");
+                        $"'{deletedFile.FilePath}'");
                 }
                 cancelToken.ThrowIfCancellationRequested();
             }
 
             OperationStartTime = DateTime.Now;
-            OnOperationUpdate(OperationType.Comparing, 0, newFiles.Count);
-            // We need to count for the ProgressUpdate since we shrink
-            // the Queue on every iteration.
-            var filesProcessed = 1;
-            while (!newFiles.IsEmpty)
+            OnOperationUpdate(OperationType.Comparing, 0, this.newFiles.Count);
+
+            var newFiles = new List<VideoFile>();
+            foreach (var newFile in this.newFiles.Keys)
             {
-                var newFile = newFiles.First().Key;
-                _ = newFiles.TryRemove(newFile, out var _);
-                filesProcessed++;
+                if (!this.newFiles.TryRemove(newFile, out _))
+                {
+                    continue;
+                }
+                cancelToken.ThrowIfCancellationRequested();
 
                 if (!newFile.WaitForFileAccess(cancelToken))
                 {
-                    OnLogged($"Unable to access new file: {newFile.FileName}");
-                    cancelToken.ThrowIfCancellationRequested();
+                    OnLogged($"Unable to access new file: '{newFile.FileName}'");
                     continue;
                 }
+
                 cancelToken.ThrowIfCancellationRequested();
 
                 if (newFile.Duration == TimeSpan.Zero)
                 {
-                    OnLogged($"New file has no duration: {newFile.FilePath}");
+                    OnLogged($"New file has no duration: '{newFile.FilePath}'");
                     continue;
                 }
+
                 cancelToken.ThrowIfCancellationRequested();
 
-                if (!videoFiles.Contains(newFile))
+                if (videoFiles.Contains(newFile))
                 {
-                    OnLogged($"New file added to VideoFile-List: {newFile.FilePath}");
-                    videoFiles.Add(newFile);
-                    datastore.InsertVideoFile(newFile);
-                }
-                else
-                {
-                    OnLogged($"New file already in VideoFile-List: {newFile.FilePath}");
+                    OnLogged($"New file already in VideoFile-List: " +
+                        $"'{newFile.FilePath}'");
                     continue;
                 }
-                cancelToken.ThrowIfCancellationRequested();
-
-                FindDuplicatesOf(videoFiles, newFile, cancelToken);
-
-                OnOperationUpdate(
-                    OperationType.Comparing,
-                    filesProcessed,
-                    filesProcessed + newFiles.Count);
 
                 cancelToken.ThrowIfCancellationRequested();
+
+                videoFiles.Add(newFile);
+                datastore.InsertVideoFile(newFile);
+                newFiles.Add(newFile);
             }
+
+            var candidates = PrepareCandidates(
+                videoFiles,
+                videoFiles,
+                durationComparisonSettings,
+                cancelToken);
+
+            FindDuplicates(candidates, newFiles.Count, cancelToken);
+
+            OnOperationUpdate(
+                    OperationType.Comparing,
+                    newFiles.Count,
+                    newFiles.Count);
 
             ProcessChangesIfAny();
         }

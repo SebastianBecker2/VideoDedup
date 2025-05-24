@@ -1,93 +1,70 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
   <?include $(sys.CURRENTDIR)\Config.wxi?>
   
-  <Product Id="*"
-           Name="$(var.ProductName)"
+  <Package Name="$(var.ProductName)"
            Language="1033"
            Version="!(bind.FileVersion.Client_VideoDedupClient.exe)"
            Manufacturer="$(var.Manufacturer)"
            UpgradeCode="$(var.UpgradeCode)">
 
-    <Package InstallerVersion="200"
-             Compressed="yes"
-             InstallScope="perMachine" />
-
-    <MajorUpgrade AllowSameVersionUpgrades="yes" 
+    <MajorUpgrade AllowSameVersionUpgrades="yes"
                   DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
-    <MediaTemplate />
 
-    <?if $(var.Platform) = x64 ?>
-      <?define Win64 = "yes" ?>
-      <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
-    <?else ?>
-      <?define Win64 = "no" ?>
-      <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
-    <?endif ?>
-
-    <Feature Id="ClientFeature" Title="$(var.ClientComponent)" Level="1">
+    <Feature Id="ClientFeature"
+             Title="$(var.ClientComponent)"
+             Level="1">
       <ComponentGroupRef Id="ClientComponents" />
     </Feature>
 
-    <Feature Id="ServerFeature" Title="$(var.ServerComponent)" Level="1">
+    <Feature Id="ServerFeature"
+             Title="$(var.ServerComponent)"
+             Level="1">
       <ComponentGroupRef Id="ServerComponents" />
     </Feature>
 
     <UIRef Id="UISequence" />
-  </Product>
+  </Package>
 
   <!-- Directory definitions -->
   <Fragment>
-    <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="$(var.PlatformProgramFilesFolder)">
-        <Directory Id="SERVERFOLDER" Name="$(var.ServerComponent)">
-        </Directory>
-        <Directory Id="CLIENTFOLDER" Name="$(var.ClientComponent)">
-        </Directory>
-      </Directory>
+    <Directory Id="VideoDedupServicePublishDir"
+               FileSource="$(var.VideoDedupService.ProjectDir)bin\publish" />
 
-      <Directory Id="ProgramMenuFolder"/>
-    </Directory>
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="SERVERFOLDER"
+                 Name="$(var.ServerComponent)" >
+          
+      </Directory>
+      <Directory Id="CLIENTFOLDER"
+                 Name="$(var.ClientComponent)" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder" />
   </Fragment>
 
   <!-- Icon definition -->
   <Fragment>
-    <Icon Id="ClientIcon.ico" SourceFile="$(var.SolutionDir)VideoDedupClient\Images\film.ico" />
-    <Property Id="ARPPRODUCTICON" Value="ClientIcon.ico" />
+    <Icon Id="ClientIcon.ico"
+          SourceFile="$(var.VideoDedupClient.ProjectDir)Images\film.ico" />
+    <Property Id="ARPPRODUCTICON"
+              Value="ClientIcon.ico" />
   </Fragment>
   
   <!-- File actions -->
   <Fragment>
-    <ComponentGroup Id="ClientComponents" Directory="CLIENTFOLDER">
-      <Component Id="ClientComponent" Win64="$(var.Win64)" Guid="3378ED6E-B4A9-49D2-B7A3-F768FE027DB6">
-        <File Id="Client_VideoDedupClient.exe"
-              Source="$(var.VideoDedupClient.TargetDir)VideoDedupClient.exe" />
-
-        <File Id="Client_CircularBuffer.dll"
-              Source="$(var.VideoDedupClient.TargetDir)CircularBuffer.dll" />
-        <File Id="Client_Google.Protobuf.dll"
-              Source="$(var.VideoDedupClient.TargetDir)Google.Protobuf.dll" />
-        <File Id="Client_Grpc.Core.Api.dll"
-              Source="$(var.VideoDedupClient.TargetDir)Grpc.Core.Api.dll" />
-        <File Id="Client_Grpc.Net.Client.dll"
-              Source="$(var.VideoDedupClient.TargetDir)Grpc.Net.Client.dll" />
-        <File Id="Client_Grpc.Net.ClientFactory.dll"
-              Source="$(var.VideoDedupClient.TargetDir)Grpc.Net.ClientFactory.dll" />
-        <File Id="Client_Grpc.Net.Common.dll"
-              Source="$(var.VideoDedupClient.TargetDir)Grpc.Net.Common.dll" />
-        <File Id="Client_Microsoft.WindowsAPICodePack.dll"
-              Source="$(var.VideoDedupClient.TargetDir)Microsoft.WindowsAPICodePack.dll" />
-        <File Id="Client_Microsoft.WindowsAPICodePack.Shell.dll"
-              Source="$(var.VideoDedupClient.TargetDir)Microsoft.WindowsAPICodePack.Shell.dll" />
-        <File Id="Client_SmartTimer.dll"
-              Source="$(var.SmartTimer.TargetPath)" />
-        <File Id="Client_VideoDedupClient.dll"
-              Source="$(var.VideoDedupClient.TargetDir)VideoDedupClient.dll" />
-        <File Id="Client_VideoDedupClient.runtimeconfig.json"
-              Source="$(var.VideoDedupClient.TargetDir)VideoDedupClient.runtimeconfig.json" />
-        <File Id="Client_VideoDedupSharedLib.dll"
-              Source="$(var.VideoDedupSharedLib.TargetPath)" />
+    <ComponentGroup Id="ClientComponents"
+                    Directory="CLIENTFOLDER">
+      <Files Include="$(var.VideoDedupClient.ProjectDir)bin\publish\*.*">
+        <Exclude Files="$(var.VideoDedupClient.ProjectDir)bin\publish\VideoDedupClient.exe" />
+      </Files>
         
+      <Component Id="ClientComponent"
+                 Guid="3378ED6E-B4A9-49D2-B7A3-F768FE027DB6"
+                 Bitness="always64">
+        <File Id="Client_VideoDedupClient.exe"
+              Source="$(var.VideoDedupClient.ProjectDir)bin\publish\VideoDedupClient.exe" />
+
         <Shortcut Id="ClientStartMenuShortcut"
                   Directory="ProgramMenuFolder"
                   Name="$(var.ProductName)"
@@ -98,102 +75,28 @@
       </Component>
     </ComponentGroup>
     
-    <ComponentGroup Id="ServerComponents" 
+    <ComponentGroup Id="ServerComponents"
                     Directory="SERVERFOLDER">
-      <Component Id="ServerComponent" 
-                 Win64="$(var.Win64)" 
-                 Guid="B3034FC0-CCFB-44AC-A9B3-7E912B885254">
-        <File Id="Server_VideoDedupService.exe" 
-              Source="$(var.VideoDedupService.TargetDir)VideoDedupService.exe" />
-
-        <File Id="Server_Accessibility.dll"
-              Source="$(var.VideoDedupService.TargetDir)Accessibility.dll" />
-        <File Id="Server_appsettings.json"
-              Source="$(var.VideoDedupService.TargetDir)appsettings.json" />
-        <File Id="Server_ComparisonManager.dll"
-              Source="$(var.ComparisonManager.TargetPath)" />
-        <File Id="Server_DedupEngine.dll"
-              Source="$(var.DedupEngine.TargetPath)" />
-        <File Id="Server_DuplicateManager.dll"
-              Source="$(var.DuplicateManager.TargetPath)" />
-        <File Id="Server_e_sqlite3.dll"
-              Source="$(var.VideoDedupService.TargetDir)runtimes\win-$(var.Platform)\native\e_sqlite3.dll" />
-        <File Id="Server_Google.Protobuf.dll"
-              Source="$(var.VideoDedupService.TargetDir)Google.Protobuf.dll" />
-        <File Id="Server_Grpc.AspNetCore.Server.ClientFactory.dll"
-              Source="$(var.VideoDedupService.TargetDir)Grpc.AspNetCore.Server.ClientFactory.dll" />
-        <File Id="Server_Grpc.AspNetCore.Server.dll"
-              Source="$(var.VideoDedupService.TargetDir)Grpc.AspNetCore.Server.dll" />
-        <File Id="Server_Grpc.Core.Api.dll"
-              Source="$(var.VideoDedupService.TargetDir)Grpc.Core.Api.dll" />
-        <File Id="Server_Grpc.Net.Client.dll"
-              Source="$(var.VideoDedupService.TargetDir)Grpc.Net.Client.dll" />
-        <File Id="Server_Grpc.Net.ClientFactory.dll"
-              Source="$(var.VideoDedupService.TargetDir)Grpc.Net.ClientFactory.dll" />
-        <File Id="Server_Grpc.Net.Common.dll"
-              Source="$(var.VideoDedupService.TargetDir)Grpc.Net.Common.dll" />
-        <File Id="Server_KGySoft.CoreLibraries.dll"
-              Source="$(var.VideoDedupService.TargetDir)KGySoft.CoreLibraries.dll" />
-        <File Id="Server_KGySoft.Drawing.dll"
-              Source="$(var.VideoDedupService.TargetDir)KGySoft.Drawing.dll" />
-        <File Id="Server_Microsoft.Data.Sqlite.dll"
-              Source="$(var.VideoDedupService.TargetDir)Microsoft.Data.Sqlite.dll" />
-        <File Id="Server_Microsoft.Extensions.Hosting.WindowsServices.dll"
-              Source="$(var.VideoDedupService.TargetDir)Microsoft.Extensions.Hosting.WindowsServices.dll" />
-        <File Id="Server_Microsoft.Win32.SystemEvents.dll"
-              Source="$(var.VideoDedupService.TargetDir)runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll" />
-        <File Id="Server_mpv_1.dll"
-              Source="$(var.VideoDedupService.TargetDir)mpv-1.dll" />
-        <File Id="Server_MpvLib.dll"
-              Source="$(var.MpvLib.TargetPath)" />
-        <File Id="Server_Newtonsoft.Json.dll"
-              Source="$(var.VideoDedupService.TargetDir)Newtonsoft.Json.dll" />
-        <File Id="Server_SmartTimer.dll"
-              Source="$(var.SmartTimer.TargetPath)" />
-        <File Id="Server_SQLitePCLRaw.batteries_v2.dll"
-              Source="$(var.VideoDedupService.TargetDir)SQLitePCLRaw.batteries_v2.dll" />
-        <File Id="Server_SQLitePCLRaw.core.dll"
-              Source="$(var.VideoDedupService.TargetDir)SQLitePCLRaw.core.dll" />
-        <File Id="Server_SQLitePCLRaw.provider.e_sqlite3.dll"
-              Source="$(var.VideoDedupService.TargetDir)SQLitePCLRaw.provider.e_sqlite3.dll" />
-        <File Id="Server_System.Configuration.ConfigurationManager.dll"
-              Source="$(var.VideoDedupService.TargetDir)System.Configuration.ConfigurationManager.dll" />
-        <File Id="Server_System.Deployment.dll"
-              Source="$(var.VideoDedupService.TargetDir)System.Deployment.dll" />
-        <File Id="Server_System.Drawing.Common.dll"
-              Source="$(var.VideoDedupService.TargetDir)runtimes\win\lib\net6.0\System.Drawing.Common.dll" />
-        <File Id="Server_System.Runtime.Serialization.Formatters.Soap.dll"
-              Source="$(var.VideoDedupService.TargetDir)System.Runtime.Serialization.Formatters.Soap.dll" />
-        <File Id="Server_System.Security.Cryptography.ProtectedData.dll"
-              Source="$(var.VideoDedupService.TargetDir)System.Security.Cryptography.ProtectedData.dll" />
-        <File Id="Server_System.Security.Permissions.dll"
-              Source="$(var.VideoDedupService.TargetDir)System.Security.Permissions.dll" />
-        <File Id="Server_System.ServiceProcess.ServiceController.dll"
-              Source="$(var.VideoDedupService.TargetDir)runtimes\win\lib\net6.0\System.ServiceProcess.ServiceController.dll" />
-        <File Id="Server_System.Windows.Extensions.dll"
-              Source="$(var.VideoDedupService.TargetDir)System.Windows.Extensions.dll" />
-        <File Id="Server_System.Windows.Forms.dll"
-              Source="$(var.VideoDedupService.TargetDir)System.Windows.Forms.dll" />
-        <File Id="Server_VideoComparer.dll"
-              Source="$(var.VideoComparer.TargetPath)" />
-        <File Id="Server_VideoDedupServer.dll"
-              Source="$(var.VideoDedupServer.TargetDir)VideoDedupServer.dll" />
-        <File Id="Server_VideoDedupService.dll"
-              Source="$(var.VideoDedupService.TargetDir)VideoDedupService.dll" />
-        <File Id="Server_VideoDedupService.runtimeconfig.json"
-              Source="$(var.VideoDedupService.TargetDir)VideoDedupService.runtimeconfig.json" />
-        <File Id="Server_VideoDedupSharedLib.dll"
-              Source="$(var.VideoDedupSharedLib.TargetPath)" />
+      <Files Include="$(var.VideoDedupService.ProjectDir)bin\publish\*.*">
+        <Exclude Files="$(var.VideoDedupService.ProjectDir)bin\publish\VideoDedupService.exe" />
+      </Files>
+      <Files Include="$(var.VideoDedupService.ProjectDir)bin\publish\fr\*.*"
+             Subdirectory="fr"/>
+        
+      <Component Id="ServerComponent"
+                 Guid="B3034FC0-CCFB-44AC-A9B3-7E912B885254"
+                 Bitness="always64">
+        <File Id="Server_VideoDedupService.exe"
+              Source="$(var.VideoDedupService.ProjectDir)bin\publish\VideoDedupService.exe" />
 
         <ServiceInstall Id="InstallService"
                         Name="$(var.ServerComponent)"
                         Description="Backend for VideoDedup. Allows background deduplication and monitoring."
-                        Type ="ownProcess"
+                        Type="ownProcess"
                         DisplayName="$(var.ServerComponent)"
                         Start="auto"
                         Account="LocalSystem"
-                        ErrorControl="normal">
-        </ServiceInstall>
+                        ErrorControl="normal" />
 
         <ServiceControl Id="StartService"
                         Start="install"
@@ -208,18 +111,18 @@
   <!-- UI Sequence -->
   <Fragment>
     <UI Id="UISequence">
-      <UIRef Id="WixUI_FeatureTree" />
+      <ui:WixUI Id="WixUI_FeatureTree" />
       <!--Skip license dialog-->
-      <Publish Dialog="WelcomeDlg" 
-               Control="Next" 
-               Event="NewDialog" 
-               Value="CustomizeDlg" 
-               Order="2">1</Publish>
-      <Publish Dialog="CustomizeDlg" 
-               Control="Back" 
-               Event="NewDialog" 
-               Value="WelcomeDlg" 
-               Order="2">1</Publish>
+      <Publish Dialog="WelcomeDlg"
+               Control="Next"
+               Event="NewDialog"
+               Value="CustomizeDlg"
+               Order="2" />
+      <Publish Dialog="CustomizeDlg"
+               Control="Back"
+               Event="NewDialog"
+               Value="WelcomeDlg"
+               Order="2" />
     </UI>
   </Fragment>
 </Wix>

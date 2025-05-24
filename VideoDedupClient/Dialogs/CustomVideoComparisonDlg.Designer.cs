@@ -61,7 +61,7 @@ namespace VideoDedupClient.Dialogs
             this.BtnCancel = new System.Windows.Forms.Button();
             this.BtnOkay = new System.Windows.Forms.Button();
             this.TlpSettings = new System.Windows.Forms.TableLayoutPanel();
-            this.TrbMaxImageComparison = new System.Windows.Forms.TrackBar();
+            this.TrbMaxFrameComparison = new System.Windows.Forms.TrackBar();
             this.label1 = new System.Windows.Forms.Label();
             this.BtnStartComparison = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
@@ -72,10 +72,10 @@ namespace VideoDedupClient.Dialogs
             this.label5 = new System.Windows.Forms.Label();
             this.BtnSelectLeftFilePath = new System.Windows.Forms.Button();
             this.BtnSelectRightFilePath = new System.Windows.Forms.Button();
-            this.TrbMaxDifferentImages = new System.Windows.Forms.TrackBar();
+            this.TrbMaxDifferentFrames = new System.Windows.Forms.TrackBar();
             this.TrbMaxDifferentPercentage = new System.Windows.Forms.TrackBar();
-            this.NumMaxImageComparison = new System.Windows.Forms.NumericUpDown();
-            this.NumMaxDifferentImages = new System.Windows.Forms.NumericUpDown();
+            this.NumMaxFrameComparison = new System.Windows.Forms.NumericUpDown();
+            this.NumMaxDifferentFrames = new System.Windows.Forms.NumericUpDown();
             this.NumMaxDifferentPercentage = new System.Windows.Forms.NumericUpDown();
             this.label6 = new System.Windows.Forms.Label();
             this.RdbSortByProcessingOrder = new System.Windows.Forms.RadioButton();
@@ -98,11 +98,11 @@ namespace VideoDedupClient.Dialogs
             this.PnlResult.SuspendLayout();
             this.GrbResult.SuspendLayout();
             this.TlpSettings.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.TrbMaxImageComparison)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.TrbMaxDifferentImages)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TrbMaxFrameComparison)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TrbMaxDifferentFrames)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TrbMaxDifferentPercentage)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxImageComparison)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentImages)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumMaxFrameComparison)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentFrames)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentPercentage)).BeginInit();
             this.GrbSettings.SuspendLayout();
             this.SuspendLayout();
@@ -173,7 +173,7 @@ namespace VideoDedupClient.Dialogs
             this.LblThirdLoadLevel.Name = "LblThirdLoadLevel";
             this.LblThirdLoadLevel.Size = new System.Drawing.Size(983, 38);
             this.LblThirdLoadLevel.TabIndex = 1;
-            this.LblThirdLoadLevel.Text = "Third level image load";
+            this.LblThirdLoadLevel.Text = "Third level frame load";
             this.LblThirdLoadLevel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.LblThirdLoadLevel.Click += new System.EventHandler(this.ThirdLoadLevelHeaderClicked);
             // 
@@ -232,7 +232,7 @@ namespace VideoDedupClient.Dialogs
             this.LblSecondLoadLevel.Name = "LblSecondLoadLevel";
             this.LblSecondLoadLevel.Size = new System.Drawing.Size(983, 38);
             this.LblSecondLoadLevel.TabIndex = 2;
-            this.LblSecondLoadLevel.Text = "Second level image load";
+            this.LblSecondLoadLevel.Text = "Second level frame load";
             this.LblSecondLoadLevel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.LblSecondLoadLevel.Click += new System.EventHandler(this.SecondLoadLevelHeaderClicked);
             // 
@@ -313,7 +313,7 @@ namespace VideoDedupClient.Dialogs
             this.LblFirstLoadLevel.Name = "LblFirstLoadLevel";
             this.LblFirstLoadLevel.Size = new System.Drawing.Size(983, 38);
             this.LblFirstLoadLevel.TabIndex = 1;
-            this.LblFirstLoadLevel.Text = "First level image load";
+            this.LblFirstLoadLevel.Text = "First level frame load";
             this.LblFirstLoadLevel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.LblFirstLoadLevel.Click += new System.EventHandler(this.FirstLoadLevelHeaderClicked);
             // 
@@ -497,7 +497,7 @@ namespace VideoDedupClient.Dialogs
             this.TlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             this.TlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.TlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.TlpSettings.Controls.Add(this.TrbMaxImageComparison, 2, 2);
+            this.TlpSettings.Controls.Add(this.TrbMaxFrameComparison, 2, 2);
             this.TlpSettings.Controls.Add(this.label1, 0, 0);
             this.TlpSettings.Controls.Add(this.BtnStartComparison, 8, 4);
             this.TlpSettings.Controls.Add(this.label2, 0, 1);
@@ -508,10 +508,10 @@ namespace VideoDedupClient.Dialogs
             this.TlpSettings.Controls.Add(this.label5, 0, 4);
             this.TlpSettings.Controls.Add(this.BtnSelectLeftFilePath, 9, 0);
             this.TlpSettings.Controls.Add(this.BtnSelectRightFilePath, 9, 1);
-            this.TlpSettings.Controls.Add(this.TrbMaxDifferentImages, 2, 3);
+            this.TlpSettings.Controls.Add(this.TrbMaxDifferentFrames, 2, 3);
             this.TlpSettings.Controls.Add(this.TrbMaxDifferentPercentage, 2, 4);
-            this.TlpSettings.Controls.Add(this.NumMaxImageComparison, 3, 2);
-            this.TlpSettings.Controls.Add(this.NumMaxDifferentImages, 3, 3);
+            this.TlpSettings.Controls.Add(this.NumMaxFrameComparison, 3, 2);
+            this.TlpSettings.Controls.Add(this.NumMaxDifferentFrames, 3, 3);
             this.TlpSettings.Controls.Add(this.NumMaxDifferentPercentage, 3, 4);
             this.TlpSettings.Controls.Add(this.label6, 5, 2);
             this.TlpSettings.Controls.Add(this.RdbSortByProcessingOrder, 6, 2);
@@ -528,19 +528,19 @@ namespace VideoDedupClient.Dialogs
             this.TlpSettings.Size = new System.Drawing.Size(1033, 136);
             this.TlpSettings.TabIndex = 24;
             // 
-            // TrbMaxImageComparison
+            // TrbMaxFrameComparison
             // 
-            this.TrbMaxImageComparison.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.TrbMaxFrameComparison.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.TrbMaxImageComparison.Location = new System.Drawing.Point(193, 57);
-            this.TrbMaxImageComparison.Maximum = 100;
-            this.TrbMaxImageComparison.Minimum = 1;
-            this.TrbMaxImageComparison.Name = "TrbMaxImageComparison";
-            this.TrbMaxImageComparison.Size = new System.Drawing.Size(144, 21);
-            this.TrbMaxImageComparison.TabIndex = 32;
-            this.TrbMaxImageComparison.TickFrequency = 2;
-            this.TrbMaxImageComparison.Value = 1;
+            this.TrbMaxFrameComparison.Location = new System.Drawing.Point(193, 57);
+            this.TrbMaxFrameComparison.Maximum = 100;
+            this.TrbMaxFrameComparison.Minimum = 1;
+            this.TrbMaxFrameComparison.Name = "TrbMaxFrameComparison";
+            this.TrbMaxFrameComparison.Size = new System.Drawing.Size(144, 21);
+            this.TrbMaxFrameComparison.TabIndex = 32;
+            this.TrbMaxFrameComparison.TickFrequency = 2;
+            this.TrbMaxFrameComparison.Value = 1;
             // 
             // label1
             // 
@@ -601,7 +601,7 @@ namespace VideoDedupClient.Dialogs
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(152, 13);
             this.label3.TabIndex = 21;
-            this.label3.Text = "Number of Images to compare:";
+            this.label3.Text = "Number of Frames to compare:";
             // 
             // label4
             // 
@@ -612,7 +612,7 @@ namespace VideoDedupClient.Dialogs
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(184, 13);
             this.label4.TabIndex = 22;
-            this.label4.Text = "Accepted number of different Images:";
+            this.label4.Text = "Accepted number of different Frames:";
             // 
             // label5
             // 
@@ -647,17 +647,17 @@ namespace VideoDedupClient.Dialogs
             this.BtnSelectRightFilePath.UseVisualStyleBackColor = true;
             this.BtnSelectRightFilePath.Click += new System.EventHandler(this.BtnSelectRightFilePath_Click);
             // 
-            // TrbMaxDifferentImages
+            // TrbMaxDifferentFrames
             // 
-            this.TrbMaxDifferentImages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.TrbMaxDifferentFrames.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.TrbMaxDifferentImages.Location = new System.Drawing.Point(193, 84);
-            this.TrbMaxDifferentImages.Maximum = 100;
-            this.TrbMaxDifferentImages.Name = "TrbMaxDifferentImages";
-            this.TrbMaxDifferentImages.Size = new System.Drawing.Size(144, 21);
-            this.TrbMaxDifferentImages.TabIndex = 32;
-            this.TrbMaxDifferentImages.TickFrequency = 2;
+            this.TrbMaxDifferentFrames.Location = new System.Drawing.Point(193, 84);
+            this.TrbMaxDifferentFrames.Maximum = 100;
+            this.TrbMaxDifferentFrames.Name = "TrbMaxDifferentFrames";
+            this.TrbMaxDifferentFrames.Size = new System.Drawing.Size(144, 21);
+            this.TrbMaxDifferentFrames.TabIndex = 32;
+            this.TrbMaxDifferentFrames.TickFrequency = 2;
             // 
             // TrbMaxDifferentPercentage
             // 
@@ -672,31 +672,31 @@ namespace VideoDedupClient.Dialogs
             this.TrbMaxDifferentPercentage.TickFrequency = 2;
             this.TrbMaxDifferentPercentage.Value = 1;
             // 
-            // NumMaxImageComparison
+            // NumMaxFrameComparison
             // 
-            this.NumMaxImageComparison.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.NumMaxImageComparison.Location = new System.Drawing.Point(343, 57);
-            this.NumMaxImageComparison.Minimum = new decimal(new int[] {
+            this.NumMaxFrameComparison.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.NumMaxFrameComparison.Location = new System.Drawing.Point(343, 57);
+            this.NumMaxFrameComparison.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
-            this.NumMaxImageComparison.Name = "NumMaxImageComparison";
-            this.NumMaxImageComparison.Size = new System.Drawing.Size(63, 20);
-            this.NumMaxImageComparison.TabIndex = 4;
-            this.NumMaxImageComparison.Value = new decimal(new int[] {
+            this.NumMaxFrameComparison.Name = "NumMaxFrameComparison";
+            this.NumMaxFrameComparison.Size = new System.Drawing.Size(63, 20);
+            this.NumMaxFrameComparison.TabIndex = 4;
+            this.NumMaxFrameComparison.Value = new decimal(new int[] {
             1,
             0,
             0,
             0});
             // 
-            // NumMaxDifferentImages
+            // NumMaxDifferentFrames
             // 
-            this.NumMaxDifferentImages.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.NumMaxDifferentImages.Location = new System.Drawing.Point(343, 84);
-            this.NumMaxDifferentImages.Name = "NumMaxDifferentImages";
-            this.NumMaxDifferentImages.Size = new System.Drawing.Size(63, 20);
-            this.NumMaxDifferentImages.TabIndex = 5;
+            this.NumMaxDifferentFrames.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.NumMaxDifferentFrames.Location = new System.Drawing.Point(343, 84);
+            this.NumMaxDifferentFrames.Name = "NumMaxDifferentFrames";
+            this.NumMaxDifferentFrames.Size = new System.Drawing.Size(63, 20);
+            this.NumMaxDifferentFrames.TabIndex = 5;
             // 
             // NumMaxDifferentPercentage
             // 
@@ -714,7 +714,7 @@ namespace VideoDedupClient.Dialogs
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(79, 13);
             this.label6.TabIndex = 21;
-            this.label6.Text = "Sort images by:";
+            this.label6.Text = "Sort frames by:";
             // 
             // RdbSortByProcessingOrder
             // 
@@ -811,11 +811,11 @@ namespace VideoDedupClient.Dialogs
             this.GrbResult.PerformLayout();
             this.TlpSettings.ResumeLayout(false);
             this.TlpSettings.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.TrbMaxImageComparison)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.TrbMaxDifferentImages)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TrbMaxFrameComparison)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TrbMaxDifferentFrames)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.TrbMaxDifferentPercentage)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxImageComparison)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentImages)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumMaxFrameComparison)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentFrames)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentPercentage)).EndInit();
             this.GrbSettings.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -842,8 +842,8 @@ namespace VideoDedupClient.Dialogs
         private Label label3;
         private Label label4;
         private Label label5;
-        private NumericUpDown NumMaxImageComparison;
-        private NumericUpDown NumMaxDifferentImages;
+        private NumericUpDown NumMaxFrameComparison;
+        private NumericUpDown NumMaxDifferentFrames;
         private NumericUpDown NumMaxDifferentPercentage;
         private GroupBox GrbResult;
         private Label LblResult;
@@ -856,10 +856,10 @@ namespace VideoDedupClient.Dialogs
         private ProgressBar PgbComparisonProgress;
         private GroupBox GrbVideoTimeline;
         private TableLayoutPanel TlpVideoTimeline;
-        private TrackBar TrbMaxImageComparison;
+        private TrackBar TrbMaxFrameComparison;
         private RadioButton RdbSortByProcessingOrder;
         private RadioButton RdbSortByTimeline;
-        private TrackBar TrbMaxDifferentImages;
+        private TrackBar TrbMaxDifferentFrames;
         private TrackBar TrbMaxDifferentPercentage;
         private Label label6;
         private GroupBox GrbSettings;

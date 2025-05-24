@@ -2,18 +2,31 @@ namespace DuplicateManager
 {
     using EventArgs;
     using VideoDedupGrpc;
+    using VideoDedupSharedLib;
 
-    public class DuplicateManager(
-        ResolutionSettings settings)
+    public class DuplicateManager : IDisposable
     {
-        private readonly ThumbnailManager thumbnailManager = new(settings);
+        private readonly ThumbnailManager thumbnailManager;
         private readonly object duplicateLock = new();
+        private readonly HashSet<DuplicateWrapper> duplicateList = [];
+        private readonly ActiveWorkProcessor<DuplicateWrapper> prepareProcessor;
 
-        private HashSet<DuplicateWrapper> duplicateList = [];
+        private int allDuplicatesCount;
+        private bool disposedValue;
 
         public ResolutionSettings Settings => thumbnailManager.Settings;
 
-        public int Count
+        public int DuplicatesCount
+        {
+            get
+            {
+                lock (duplicateLock)
+                {
+                    return allDuplicatesCount;
+                }
+            }
+        }
+        public int PreparedDuplicatesCount
         {
             get
             {
@@ -23,18 +36,28 @@ namespace DuplicateManager
                 }
             }
         }
+        public int UnpreparedDuplicatesCount
+        {
+            get
+            {
+                lock (duplicateLock)
+                {
+                    return prepareProcessor.Count;
+                }
+            }
+        }
 
         public event EventHandler<DuplicateAddedEventArgs>? DuplicateAdded;
         protected virtual void OnDuplicateAdded(DuplicateData duplicate) =>
             DuplicateAdded?.Invoke(
                 this,
-                new DuplicateAddedEventArgs(duplicate, Count));
+                new DuplicateAddedEventArgs(duplicate, DuplicatesCount));
 
         public event EventHandler<DuplicateRemovedEventArgs>? DuplicateRemoved;
         protected virtual void OnDuplicateRemoved(DuplicateData duplicate) =>
             DuplicateRemoved?.Invoke(
                 this,
-                new DuplicateRemovedEventArgs(duplicate, Count));
+                new DuplicateRemovedEventArgs(duplicate, DuplicatesCount));
 
         public event EventHandler<DuplicateResolvedEventArgs>? DuplicateResolved;
         protected virtual void OnDuplicateResolved(
@@ -44,34 +67,16 @@ namespace DuplicateManager
                 this,
                 new DuplicateResolvedEventArgs(duplicate, operation));
 
-        public void UpdateSettings(
-            ResolutionSettings settings,
-            UpdateSettingsResolution resolution =
-                UpdateSettingsResolution.DiscardDuplicates)
+        public DuplicateManager(ResolutionSettings settings)
+        {
+            thumbnailManager = new(settings);
+            prepareProcessor = new(PrepareDuplicate);
+        }
+
+        public void UpdateSettings(ResolutionSettings settings)
         {
             thumbnailManager.Settings = settings;
-            if (resolution == UpdateSettingsResolution.DiscardDuplicates)
-            {
-                DiscardAll();
-                return;
-            }
-
-            lock (duplicateLock)
-            {
-                var oldDuplicateList = duplicateList;
-
-                foreach (var d in duplicateList)
-                {
-                    thumbnailManager.RemoveVideoFileReference(d.File1);
-                    thumbnailManager.RemoveVideoFileReference(d.File2);
-                }
-
-                duplicateList = new HashSet<DuplicateWrapper>(
-                    oldDuplicateList.Select(d => new DuplicateWrapper(
-                        thumbnailManager.AddVideoFileReference(d.File1),
-                        thumbnailManager.AddVideoFileReference(d.File2),
-                        d.DuplicateData.BasePath)));
-            }
+            DiscardAll();
         }
 
         public DuplicateData GetDuplicate()
@@ -110,6 +115,7 @@ namespace DuplicateManager
 
         public void DiscardAll()
         {
+            prepareProcessor.Clear();
             lock (duplicateLock)
             {
                 foreach (var duplicate in duplicateList)
@@ -118,6 +124,7 @@ namespace DuplicateManager
                     thumbnailManager.RemoveVideoFileReference(duplicate.File2);
                 }
                 duplicateList.Clear();
+                _ = Interlocked.Exchange(ref allDuplicatesCount, 0);
             }
         }
 
@@ -126,12 +133,8 @@ namespace DuplicateManager
             VideoFile file2,
             string basePath)
         {
-            var videoFilePreview1 = thumbnailManager.AddVideoFileReference(file1);
-            var videoFilePreview2 = thumbnailManager.AddVideoFileReference(file2);
-            AddDuplicate(new DuplicateWrapper(
-                videoFilePreview1,
-                videoFilePreview2,
-                basePath));
+            prepareProcessor.Enqueue(new DuplicateWrapper(file1, file2, basePath));
+            _ = Interlocked.Increment(ref allDuplicatesCount);
         }
 
         private void AddDuplicate(
@@ -160,8 +163,7 @@ namespace DuplicateManager
             }
         }
 
-        private void RemoveDuplicate(
-            DuplicateWrapper duplicate)
+        private void RemoveDuplicate(DuplicateWrapper duplicate)
         {
             lock (duplicateLock)
             {
@@ -196,11 +198,11 @@ namespace DuplicateManager
 
             if (Settings.MoveToTrash)
             {
-                Directory.CreateDirectory(Settings.TrashPath);
+                _ = Directory.CreateDirectory(Settings.TrashPath);
 
                 var folder =
                     Path.Combine(Settings.TrashPath, $"{Guid.NewGuid()}");
-                Directory.CreateDirectory(folder);
+                _ = Directory.CreateDirectory(folder);
 
                 var trashFile =
                     Path.Combine(folder, Path.GetFileName(file.FilePath));
@@ -257,6 +259,49 @@ namespace DuplicateManager
 
                 OnDuplicateResolved(duplicate.DuplicateData, resolveOperation);
             }
+        }
+
+        private void PrepareDuplicate(
+            DuplicateWrapper duplicate,
+            CancellationToken cancelToken)
+        {
+            if (cancelToken.IsCancellationRequested)
+            {
+                return;
+            }
+
+            _ = thumbnailManager.AddVideoFileReference(
+                duplicate.File1,
+                cancelToken);
+
+            if (cancelToken.IsCancellationRequested)
+            {
+                return;
+            }
+
+            _ = thumbnailManager.AddVideoFileReference(
+                duplicate.File2,
+                cancelToken);
+
+            AddDuplicate(duplicate);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    prepareProcessor.Dispose();
+                }
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

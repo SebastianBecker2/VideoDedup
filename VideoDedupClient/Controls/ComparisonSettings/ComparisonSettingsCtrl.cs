@@ -11,7 +11,14 @@ namespace VideoDedupClient.Controls.ComparisonSettings
         protected virtual void OnTryComparisonClick() =>
             TryComparisonClick?.Invoke(this, EventArgs.Empty);
 
-        public ComparisonSettingsCtrl() => InitializeComponent();
+        public ComparisonSettingsCtrl()
+        {
+            InitializeComponent();
+
+            var text = "The difference of two frames is provided on a scale " +
+                $"of 0 to 200.{Environment.NewLine}Default: 80";
+            TipHints.SetToolTip(PibMaxDifferentPercentageHint, text);
+        }
 
         public void ShowSettings(
             VideoComparisonSettings? videoComparisonSettingsm,
@@ -19,10 +26,10 @@ namespace VideoDedupClient.Controls.ComparisonSettings
         {
             if (videoComparisonSettingsm is not null)
             {
-                NumMaxImageComparison.Value =
+                NumMaxFrameComparison.Value =
                     videoComparisonSettingsm.CompareCount;
-                NumMaxDifferentImages.Value =
-                    videoComparisonSettingsm.MaxDifferentImages;
+                NumMaxDifferentFrames.Value =
+                    videoComparisonSettingsm.MaxDifferentFrames;
                 NumMaxDifferentPercentage.Value =
                     videoComparisonSettingsm.MaxDifference;
             }
@@ -43,8 +50,8 @@ namespace VideoDedupClient.Controls.ComparisonSettings
         public VideoComparisonSettings GetVideoComparisonSettings() =>
             new()
             {
-                CompareCount = (int)NumMaxImageComparison.Value,
-                MaxDifferentImages = (int)NumMaxDifferentImages.Value,
+                CompareCount = (int)NumMaxFrameComparison.Value,
+                MaxDifferentFrames = (int)NumMaxDifferentFrames.Value,
                 MaxDifference = (int)NumMaxDifferentPercentage.Value,
             };
 
@@ -74,5 +81,15 @@ namespace VideoDedupClient.Controls.ComparisonSettings
 
         private void BtnCustomVideoComparison_Click(object sender, EventArgs e) =>
             OnTryComparisonClick();
+
+        private void PibMaxDifferentPercentageHint_Click(
+            object sender,
+            EventArgs e) =>
+            TipHints.Show(
+                TipHints.GetToolTip(PibMaxDifferentPercentageHint),
+                PibMaxDifferentPercentageHint,
+                0,
+                PibMaxDifferentPercentageHint.Height,
+                3000);
     }
 }

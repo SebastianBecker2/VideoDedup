@@ -8,8 +8,8 @@ namespace VideoDedupClient.Controls.StatusInfo
     {
         private static readonly int ProgressInfoBatchSize = 500;
 
-        private static readonly IReadOnlyDictionary<OperationType, string>
-            OperationTypeTexts = new Dictionary<OperationType, string>
+        private static readonly Dictionary<OperationType, string>
+            OperationTypeTexts = new()
             {
                 { OperationType.Comparing, "Comparing files" },
                 { OperationType.LoadingMedia, "Loading media info" },
@@ -19,10 +19,12 @@ namespace VideoDedupClient.Controls.StatusInfo
                 { OperationType.Initializing, "Initializing" },
                 { OperationType.Error, "Critical error occurred!" },
                 { OperationType.Connecting, "Connecting..." },
+                { OperationType.Preparing, "Preparing..." },
             };
 
         private OperationInfo OperationInfo { get; set; }
-        private int CurrentDuplicateCount { get; set; }
+        private int TotalDuplicatesCount { get; set; }
+        private int PreparedDuplicatesCount { get; set; }
         private ProgressInfo? LatestProgressInfo { get; set; }
 
         private int progressCount;
@@ -57,10 +59,12 @@ namespace VideoDedupClient.Controls.StatusInfo
 
         public void UpdateStatusInfo(
             OperationInfo operationInfo,
-            int currentDuplicateCount = 0)
+            int totalDuplicatesCount = 0,
+            int preparedDuplicatesCount = 0)
         {
             OperationInfo = operationInfo;
-            CurrentDuplicateCount = currentDuplicateCount;
+            TotalDuplicatesCount = totalDuplicatesCount;
+            PreparedDuplicatesCount = preparedDuplicatesCount;
 
             SetStatusInfo();
             SetDuplicateCount();
@@ -100,6 +104,7 @@ namespace VideoDedupClient.Controls.StatusInfo
             {
                 LatestProgressInfo = null;
                 PrgProgress.Clear();
+                PrgProgress.MaxProgress = MaximumFiles;
                 progressCount = 0;
                 progressToken = OperationInfo.ProgressToken;
             }
@@ -143,7 +148,9 @@ namespace VideoDedupClient.Controls.StatusInfo
         }
 
         private void SetDuplicateCount() =>
-            LblDuplicateCount.Text = $"{CurrentDuplicateCount}";
+            LblDuplicateCount.Text =
+                $"{PreparedDuplicatesCount}/" +
+                $"{TotalDuplicatesCount}";
 
         private void SetFileSpeed()
         {

@@ -8,5 +8,9 @@ namespace VideoDedupGrpc
         TimeSpan IVideoFile.Duration => Duration.ToTimeSpan();
 
         DateTime IVideoFile.LastWriteTime => LastWriteTime.ToDateTime();
+
+        DateTime IVideoFile.CreationTime => CreationTime.ToDateTime();
+
+        DateTime IVideoFile.LastAccessTime => LastAccessTime.ToDateTime();
     }
 }

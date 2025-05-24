@@ -8,12 +8,12 @@ namespace VideoComparer
     using EventArgs;
     using Google.Protobuf;
     using KGySoft.Drawing;
-    using MpvLib;
-    using MpvLib.Exceptions;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.ImageExtensions;
-    using ImageIndex = MpvLib.ImageIndex;
     using Size = System.Drawing.Size;
+    using FfmpegLib;
+    using FfmpegLib.Exceptions;
+    using FrameIndex = FfmpegLib.FrameIndex;
 
     public class VideoComparer(
         VideoComparisonSettings settings,
@@ -43,66 +43,66 @@ namespace VideoComparer
             }
         }
 
-        private sealed class CacheableImageSet
+        private sealed class CacheableFrameSet
         {
-            private CacheableImageSet(ImageIndex index) =>
+            private CacheableFrameSet(FrameIndex index) =>
                 Index = index;
 
-            public static CacheableImageSet FromPreprocessedImage(
-                ImageIndex index,
-                byte[]? preprocessedImage,
+            public static CacheableFrameSet FromPreprocessedFrame(
+                FrameIndex index,
+                byte[]? preprocessedFrame,
                 bool loaded = false) =>
                 new(index)
                 {
-                    Bytes = preprocessedImage,
+                    Bytes = preprocessedFrame,
                     Loaded = loaded
                 };
 
-            public static CacheableImageSet FromOriginalImage(
-                ImageIndex index,
-                byte[]? originalImage,
-                bool provideIntermediateImages = false)
+            public static CacheableFrameSet FromOriginalFrame(
+                FrameIndex index,
+                byte[]? originalFrame,
+                bool provideIntermediateFrames = false)
             {
-                if (originalImage is null)
+                if (originalFrame is null)
                 {
                     return new(index);
                 }
 
                 try
                 {
-                    var stream = new MemoryStream(originalImage);
-                    using var image = (Bitmap)Image.FromStream(stream);
-                    using var cropped = image.CropBlackBars();
+                    var stream = new MemoryStream(originalFrame);
+                    using var frame = (Bitmap)Image.FromStream(stream);
+                    using var cropped = frame.CropBlackBars();
                     using var small = cropped?.Resize(
                         DownscaleSize,
                         ScalingMode.NearestNeighbor,
                         false);
                     using var greyscaled = small?.MakeGrayScale();
 
-                    var imageSet = new CacheableImageSet(index)
+                    var frameSet = new CacheableFrameSet(index)
                     {
                         Original = stream,
-                        Bytes = GetImageBytes(greyscaled),
+                        Bytes = GetFrameBytes(greyscaled),
                         Loaded = true,
                     };
 
-                    if (provideIntermediateImages)
+                    if (provideIntermediateFrames)
                     {
-                        imageSet.Cropped = cropped?.ToMemoryStream();
-                        imageSet.Resized = small?.ToMemoryStream();
-                        imageSet.Greyscaled = greyscaled?.ToMemoryStream();
+                        frameSet.Cropped = cropped?.ToMemoryStream();
+                        frameSet.Resized = small?.ToMemoryStream();
+                        frameSet.Greyscaled = greyscaled?.ToMemoryStream();
                     }
 
-                    imageSet.Original.Position = 0;
-                    return imageSet;
+                    frameSet.Original.Position = 0;
+                    return frameSet;
                 }
                 catch (ArgumentNullException)
                 {
-                    return new CacheableImageSet(index);
+                    return new CacheableFrameSet(index);
                 }
             }
 
-            public ImageSet ToImageSet()
+            public FrameSet ToFrameSet()
             {
                 static ByteString ToByteString(Stream? stream)
                 {
@@ -123,7 +123,7 @@ namespace VideoComparer
                 };
             }
 
-            public ImageIndex Index { get; }
+            public FrameIndex Index { get; }
             private MemoryStream? Original { get; init; }
             private MemoryStream? Cropped { get; set; }
             private MemoryStream? Resized { get; set; }
@@ -132,34 +132,34 @@ namespace VideoComparer
             public bool Loaded { get; set; }
         }
 
-        private static IList<ImageIndex>? imageIndices;
-        private static IEnumerable<ImageIndex> GetOrderedImageIndices(
-            int imageCount)
+        private static IList<FrameIndex>? frameIndices;
+        private static IEnumerable<FrameIndex> GetOrderedFrameIndices(
+            int frameCount)
         {
             // Make local copy of the reference
-            var indices = imageIndices;
-            if (indices is null || indices.Count != imageCount)
+            var indices = frameIndices;
+            if (indices is null || indices.Count != frameCount)
             {
-                indices = [.. ImageIndex
-                    .CreateImageIndices(imageCount)
+                indices = [.. FrameIndex
+                    .CreateFrameIndices(frameCount)
                     .OrderBy(i => i.Denominator)
                     .ThenBy(i => i.Numerator)];
-                imageIndices = indices;
+                frameIndices = indices;
             }
             return indices;
         }
 
-        private static IEnumerable<ImageIndex> GetOrderedImageIndices(
-            int imageCount,
+        private static IEnumerable<FrameIndex> GetOrderedFrameIndices(
+            int frameCount,
             LoadLevel loadLevel) =>
-            GetOrderedImageIndices(imageCount)
-                .Skip(loadLevel.ImageStartIndex)
-                .Take(loadLevel.ImageCount);
+            GetOrderedFrameIndices(frameCount)
+                .Skip(loadLevel.FrameStartIndex)
+                .Take(loadLevel.FrameCount);
 
         private sealed class LoadLevel
         {
-            public int ImageCount { get; init; }
-            public int ImageStartIndex { get; init; }
+            public int FrameCount { get; init; }
+            public int FrameStartIndex { get; init; }
         }
 
         private const int LoadLevelCount = 3;
@@ -167,30 +167,29 @@ namespace VideoComparer
         private static readonly Size DownscaleSize = new(16, 16);
         private const int ByteDifferenceThreshold = 3;
 
-        private static byte[]? GetImageBytes(Bitmap? image)
+        private static byte[]? GetFrameBytes(Bitmap? frame)
         {
-            if (image is null)
+            if (frame is null)
             {
                 return null;
             }
             unsafe
             {
-                var bitmapData = image.LockBits(
-                    new Rectangle(0, 0, image.Width, image.Height),
+                var bitmapData = frame.LockBits(
+                    new Rectangle(0, 0, frame.Width, frame.Height),
                     ImageLockMode.ReadOnly,
-                    image.PixelFormat);
+                    frame.PixelFormat);
 
                 var bytesPerPixel =
-                    Image.GetPixelFormatSize(image.PixelFormat) / 8;
-                return Enumerable
-                    .Range(0, image.Height)
+                    Image.GetPixelFormatSize(frame.PixelFormat) / 8;
+                return [.. Enumerable
+                    .Range(0, frame.Height)
                     .SelectMany(y => Enumerable
-                        .Range(0, image.Width)
+                        .Range(0, frame.Width)
                         .Select(x =>
                             ((byte*)bitmapData.Scan0
                                 + (y * bitmapData.Stride)
-                                + (x * bytesPerPixel))[0]))
-                    .ToArray();
+                                + (x * bytesPerPixel))[0]))];
             }
         }
 
@@ -313,17 +312,17 @@ namespace VideoComparer
 
         public VideoFile RightVideoFile { get; } = rightVideoFile;
 
-        public bool ForceLoadingAllImages { get; set; }
+        public bool ForceLoadingAllFrames { get; set; }
 
-        public event EventHandler<ImageComparedEventArgs>? ImageCompared;
-        protected virtual void OnImageCompared(
-            Func<ImageComparedEventArgs> eventArgsCreator) =>
-            ImageCompared?.Invoke(this, eventArgsCreator.Invoke());
-        private ImageComparedEventArgs CreateImageComparedEventArgs(
-            int imageComparisonIndex,
-            CacheableImageSet leftImages,
-            CacheableImageSet rightImages,
-            ComparisonResult imageComparisonResult,
+        public event EventHandler<FrameComparedEventArgs>? FrameCompared;
+        protected virtual void OnFrameCompared(
+            Func<FrameComparedEventArgs> eventArgsCreator) =>
+            FrameCompared?.Invoke(this, eventArgsCreator.Invoke());
+        private FrameComparedEventArgs CreateFrameComparedEventArgs(
+            int frameComparisonIndex,
+            CacheableFrameSet leftFrames,
+            CacheableFrameSet rightFrames,
+            ComparisonResult frameComparisonResult,
             ComparisonResult videoComparisonResult,
             double difference,
             int loadLevel) =>
@@ -331,13 +330,13 @@ namespace VideoComparer
             {
                 LeftVideoFile = LeftVideoFile,
                 RightVideoFile = RightVideoFile,
-                LeftImages = leftImages.ToImageSet(),
-                RightImages = rightImages.ToImageSet(),
-                ImageComparisonResult = imageComparisonResult,
+                LeftFrames = leftFrames.ToFrameSet(),
+                RightFrames = rightFrames.ToFrameSet(),
+                FrameComparisonResult = frameComparisonResult,
                 VideoComparisonResult = videoComparisonResult,
                 Difference = difference,
-                ImageLoadLevelIndex = loadLevel,
-                ImageComparisonIndex = imageComparisonIndex,
+                FrameLoadLevelIndex = loadLevel,
+                FrameComparisonIndex = frameComparisonIndex,
             };
 
         public event EventHandler<ComparisonFinishedEventArgs>? ComparisonFinished;
@@ -363,139 +362,137 @@ namespace VideoComparer
             if (loadLevelIndex == 1)
             {
                 startIndex = 0;
-                count = settings.MaxDifferentImages + 1;
+                count = settings.MaxDifferentFrames + 1;
             }
             else if (loadLevelIndex == 2)
             {
-                startIndex = settings.MaxDifferentImages + 1;
+                startIndex = settings.MaxDifferentFrames + 1;
                 count = settings.CompareCount
-                    - (settings.MaxDifferentImages + 1)
-                    - settings.MaxDifferentImages;
+                    - (settings.MaxDifferentFrames + 1)
+                    - settings.MaxDifferentFrames;
             }
             else
             {
                 startIndex = Math.Max(
-                    settings.CompareCount - settings.MaxDifferentImages,
-                    settings.MaxDifferentImages + 1);
+                    settings.CompareCount - settings.MaxDifferentFrames,
+                    settings.MaxDifferentFrames + 1);
                 count = Math.Min(
-                    settings.MaxDifferentImages,
-                    settings.CompareCount - (settings.MaxDifferentImages + 1));
+                    settings.MaxDifferentFrames,
+                    settings.CompareCount - (settings.MaxDifferentFrames + 1));
             }
 
-            // Make sure we are between 0 and MaxImageCompares at all time
+            // Make sure we are between 0 and MaxFrameCompares at all time
             count = Math.Max(count, 0);
             count = Math.Min(count, settings.CompareCount);
             startIndex = Math.Max(startIndex, 0);
             startIndex = Math.Min(startIndex, settings.CompareCount - 1);
             return new LoadLevel
             {
-                ImageCount = count,
-                ImageStartIndex = startIndex
+                FrameCount = count,
+                FrameStartIndex = startIndex
             };
         }
 
-        private IEnumerable<CacheableImageSet> LoadImagesFromFile(
+        private IEnumerable<CacheableFrameSet> LoadFramesFromFile(
             VideoFile videoFile,
-            IEnumerable<ImageIndex> indices,
+            IEnumerable<FrameIndex> indices,
             CancellationToken cancelToken)
         {
             try
             {
-                using var mpv = new MpvWrapper(
-                   videoFile.FilePath,
-                   videoFile.Duration);
-                var images = mpv.GetImages(indices, cancelToken)
+                var ffmpeg = new FfmpegWrapper(videoFile.FilePath);
+                var frames = ffmpeg.GetFrames(indices, cancelToken)
                     .ToList()
                     .Zip(indices, (stream, index) => (index, stream))
-                    // Converting to image set including the intermediate
-                    // images if necessary.
-                    .Select(kvp => CacheableImageSet.FromOriginalImage(
+                    // Converting to frame set including the intermediate
+                    // frames if necessary.
+                    .Select(kvp => CacheableFrameSet.FromOriginalFrame(
                         kvp.index,
                         kvp.stream,
-                        ImageCompared != null));
+                        FrameCompared != null));
 
-                foreach (var image in images)
+                foreach (var frame in frames)
                 {
                     // Cache in memory
-                    videoFile.ImageBytes[image.Index] = image.Bytes;
+                    videoFile.FrameBytes[frame.Index] = frame.Bytes;
 
                     // Cache in DB if we have a DB cache
-                    comparerDatastore?.InsertImage(
-                        image.Index,
-                        image.Bytes,
+                    comparerDatastore?.InsertFrame(
+                        frame.Index,
+                        frame.Bytes,
                         videoFile);
                 }
 
-                return images;
+                return frames;
             }
-            catch (MpvException exc)
+            catch (FfmpegException exc)
             {
                 throw new ComparisonException(exc.Message, videoFile, exc);
             }
         }
 
-        private IEnumerable<CacheableImageSet> GetImagesFromFile(
+        private IEnumerable<CacheableFrameSet> GetFramesFromFile(
             VideoFile videoFile,
             LoadLevel loadLevel,
             CancellationToken cancelToken)
         {
-            if (videoFile.ImageCount != Settings.CompareCount)
+            if (videoFile.FrameCount != Settings.CompareCount)
             {
-                videoFile.ImageBytes.Clear();
-                videoFile.ImageCount = Settings.CompareCount;
+                videoFile.FrameBytes.Clear();
+                videoFile.FrameCount = Settings.CompareCount;
             }
 
-            var indices = GetOrderedImageIndices(
+            var indices = GetOrderedFrameIndices(
                 Settings.CompareCount,
                 loadLevel);
 
-            // If we need to call the ImageCompared event, we
-            // cannot use the cached images since they are
+            // If we need to call the FrameCompared event, we
+            // cannot use the cached frames since they are
             // already prepared and scaled down versions of the
-            // images. For the ImageCompared event, we need
-            // a copy of the image in every state.
-            if (ImageCompared != null)
+            // frames. For the FrameCompared event, we need
+            // a copy of the frame in every state.
+            if (FrameCompared != null)
             {
-                return LoadImagesFromFile(videoFile, indices, cancelToken);
+                return LoadFramesFromFile(videoFile, indices, cancelToken);
             }
 
-            var images = indices.Select(index =>
+            var frames = indices.Select(index =>
             {
-                // Try to get image from memory cache
-                _ = videoFile.ImageBytes.TryGetValue(
+                // Try to get frame from memory cache
+                _ = videoFile.FrameBytes.TryGetValue(
                     index,
                     out var bytes);
-                return CacheableImageSet.FromPreprocessedImage(index, bytes);
+                return CacheableFrameSet.FromPreprocessedFrame(index, bytes);
             }).ToList();
 
-            // Try to get the image from DB cache
-            if (comparerDatastore is not null && images.Any(i => !i.Loaded))
+            // Try to get the frame from DB cache
+            if (comparerDatastore is not null && frames.Any(i => !i.Loaded))
             {
-                foreach (var (index, bytes) in comparerDatastore.GetImages(
-                    images.Where(i => !i.Loaded).Select(i => i.Index),
+                foreach (var (index, bytes) in comparerDatastore.GetFrames(
+                    frames.Where(i => !i.Loaded).Select(i => i.Index),
                     videoFile))
                 {
-                    var image = images.First(i => i.Index == index);
-                    image.Bytes = bytes;
-                    image.Loaded = true;
-                    // And advance the image into memory cache
-                    videoFile.ImageBytes[index] = bytes;
+                    var frame = frames.First(i => i.Index == index);
+                    frame.Bytes = bytes;
+                    frame.Loaded = true;
+                    // And advance the frame into memory cache
+                    videoFile.FrameBytes[index] = bytes;
                 }
             }
 
-            // Try to load the image from file
-            if (images.Any(i => !i.Loaded))
+            // Try to load the frame from file
+            if (frames.Any(i => !i.Loaded))
             {
-                foreach (var image in LoadImagesFromFile(
+                foreach (var frame in LoadFramesFromFile(
                     videoFile,
-                    images.Where(i => !i.Loaded).Select(i => i.Index),
+                    frames.Where(i => !i.Loaded).Select(i => i.Index),
                     cancelToken))
                 {
-                    images.First(i => i.Index == image.Index).Bytes = image.Bytes;
+                    frames.First(i => i.Index == frame.Index).Bytes = frame.Bytes;
                 }
             }
 
-            return images;
+            return frames;
         }
 
         private ComparisonResult CompareLoadLevel(
@@ -505,12 +502,12 @@ namespace VideoComparer
         {
             var loadLevel = CalculateLoadLevel(loadLevelIndex, Settings);
 
-            var leftImages = GetImagesFromFile(
+            var leftFrames = GetFramesFromFile(
                 LeftVideoFile,
                 loadLevel,
                 cancelToken).ToList();
 
-            var rightImages = GetImagesFromFile(
+            var rightFrames = GetFramesFromFile(
                 RightVideoFile,
                 loadLevel,
                 cancelToken).ToList();
@@ -518,7 +515,7 @@ namespace VideoComparer
             var videoComparisonResult = ComparisonResult.NoResult;
 
             foreach (var index in Enumerable
-                    .Range(0, loadLevel.ImageCount))
+                    .Range(0, loadLevel.FrameCount))
             {
                 if (cancelToken.IsCancellationRequested)
                 {
@@ -526,66 +523,66 @@ namespace VideoComparer
                     break;
                 }
 
-                ComparisonResult imageComparisonResult;
+                ComparisonResult frameComparisonResult;
                 var diff = 0.0f;
 
-                var leftImageBytes = leftImages[index].Bytes;
-                var rightImageBytes = rightImages[index].Bytes;
-                // If we don't have either one of the images, we don't have
+                var leftFrameBytes = leftFrames[index].Bytes;
+                var rightFrameBytes = rightFrames[index].Bytes;
+                // If we don't have either one of the frames, we don't have
                 // a result, but consider them different.
-                if (leftImageBytes == null || rightImageBytes == null)
+                if (leftFrameBytes == null || rightFrameBytes == null)
                 {
-                    imageComparisonResult = ComparisonResult.NoResult;
+                    frameComparisonResult = ComparisonResult.NoResult;
                     ++differenceCount;
 
                     // Early return when we already exceeded the number of
-                    // MaxDifferentImages
-                    if (differenceCount > Settings.MaxDifferentImages)
+                    // MaxDifferentFrames
+                    if (differenceCount > Settings.MaxDifferentFrames)
                     {
                         videoComparisonResult = ComparisonResult.Different;
                     }
                 }
                 else
                 {
-                    diff = GetDifferenceOfBytes(leftImageBytes, rightImageBytes);
+                    diff = GetDifferenceOfBytes(leftFrameBytes, rightFrameBytes);
 
                     if (diff <= (double)Settings.MaxDifference / 100)
                     {
-                        imageComparisonResult = ComparisonResult.Duplicate;
+                        frameComparisonResult = ComparisonResult.Duplicate;
 
-                        // Early return when there are not enough images left to
-                        // compare to exceed the MaxDifferentImages
-                        if ((Settings.CompareCount - (index + loadLevel.ImageStartIndex + 1))
-                            <= (Settings.MaxDifferentImages - differenceCount))
+                        // Early return when there are not enough frames left to
+                        // compare to exceed the MaxDifferentFrames
+                        if ((Settings.CompareCount - (index + loadLevel.FrameStartIndex + 1))
+                            <= (Settings.MaxDifferentFrames - differenceCount))
                         {
                             videoComparisonResult = ComparisonResult.Duplicate;
                         }
                     }
                     else
                     {
-                        imageComparisonResult = ComparisonResult.Different;
+                        frameComparisonResult = ComparisonResult.Different;
                         ++differenceCount;
 
                         // Early return when we already exceeded the number of
-                        // MaxDifferentImages
-                        if (differenceCount > Settings.MaxDifferentImages)
+                        // MaxDifferentFrames
+                        if (differenceCount > Settings.MaxDifferentFrames)
                         {
                             videoComparisonResult = ComparisonResult.Different;
                         }
                     }
                 }
 
-                OnImageCompared(() => CreateImageComparedEventArgs(
-                    index + loadLevel.ImageStartIndex,
-                    leftImages[index],
-                    rightImages[index],
-                    imageComparisonResult,
+                OnFrameCompared(() => CreateFrameComparedEventArgs(
+                    index + loadLevel.FrameStartIndex,
+                    leftFrames[index],
+                    rightFrames[index],
+                    frameComparisonResult,
                     videoComparisonResult,
                     diff,
                     loadLevelIndex));
 
                 if (videoComparisonResult != ComparisonResult.NoResult
-                    && !ForceLoadingAllImages)
+                    && !ForceLoadingAllFrames)
                 {
                     break;
                 }
@@ -625,7 +622,7 @@ namespace VideoComparer
                     cancelToken);
 
                 if (comparisonResult != ComparisonResult.NoResult
-                    && !ForceLoadingAllImages)
+                    && !ForceLoadingAllFrames)
                 {
                     break;
                 }

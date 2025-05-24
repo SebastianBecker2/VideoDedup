@@ -12,7 +12,7 @@ namespace VideoDedupServer {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.11.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.13.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -62,36 +62,36 @@ namespace VideoDedupServer {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("20")]
-        public int ImageCompareCount {
+        public int FrameCompareCount {
             get {
-                return ((int)(this["ImageCompareCount"]));
+                return ((int)(this["FrameCompareCount"]));
             }
             set {
-                this["ImageCompareCount"] = value;
+                this["FrameCompareCount"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("4")]
-        public int MaxDifferentImages {
+        public int MaxDifferentFrames {
             get {
-                return ((int)(this["MaxDifferentImages"]));
+                return ((int)(this["MaxDifferentFrames"]));
             }
             set {
-                this["MaxDifferentImages"] = value;
+                this["MaxDifferentFrames"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("80")]
-        public int MaxImageDifference {
+        public int MaxFrameDifference {
             get {
-                return ((int)(this["MaxImageDifference"]));
+                return ((int)(this["MaxFrameDifference"]));
             }
             set {
-                this["MaxImageDifference"] = value;
+                this["MaxFrameDifference"] = value;
             }
         }
         
@@ -122,12 +122,12 @@ namespace VideoDedupServer {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("8")]
-        public int ThumbnailImageCount {
+        public int ThumbnailCount {
             get {
-                return ((int)(this["ThumbnailImageCount"]));
+                return ((int)(this["ThumbnailCount"]));
             }
             set {
-                this["ThumbnailImageCount"] = value;
+                this["ThumbnailCount"] = value;
             }
         }
         
@@ -236,6 +236,18 @@ namespace VideoDedupServer {
             }
             set {
                 this["TrashPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int DedupEngineConcurrencyLevel {
+            get {
+                return ((int)(this["DedupEngineConcurrencyLevel"]));
+            }
+            set {
+                this["DedupEngineConcurrencyLevel"] = value;
             }
         }
     }

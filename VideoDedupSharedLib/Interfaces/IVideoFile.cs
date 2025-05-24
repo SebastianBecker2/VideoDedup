@@ -9,5 +9,7 @@ namespace VideoDedupSharedLib.Interfaces
         TimeSpan Duration { get; }
         CodecInfo? CodecInfo { get; }
         DateTime LastWriteTime { get; }
+        DateTime CreationTime { get; }
+        DateTime LastAccessTime { get; }
     }
 }

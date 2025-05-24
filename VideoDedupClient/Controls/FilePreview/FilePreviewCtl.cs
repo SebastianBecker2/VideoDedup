@@ -48,26 +48,24 @@ namespace VideoDedupClient.Controls.FilePreview
                 return;
             }
 
+            ImlThumbnails.Images.Clear();
+            LsvThumbnails.Items.Clear();
+
             DisplayInfo(VideoFile);
 
             var resolution = GetVideoResolution(VideoFile);
-            SetThumbnailImageSize(resolution);
-
-            if (VideoFile is null)
-            {
-                return;
-            }
+            SetThumbnailSize(resolution);
 
             var index = 0;
-            foreach (var image in VideoFile.Images)
+            foreach (var frame in VideoFile.Frames)
             {
-                if (image is null)
+                if (frame.Length == 0)
                 {
                     ImlThumbnails.Images.Add(Resources.BrokenImageIcon);
                 }
                 else
                 {
-                    ImlThumbnails.Images.Add(image.ToImage());
+                    ImlThumbnails.Images.Add(frame.ToImage());
                 }
                 _ = LsvThumbnails.Items.Add(new ListViewItem
                 {
@@ -79,7 +77,7 @@ namespace VideoDedupClient.Controls.FilePreview
         /// <summary>
         /// We can't rely on having the codec information of the video.
         /// So if we are missing those, we use the resolution of the
-        /// first available image from the video. If we don't have any
+        /// first available frame from the video. If we don't have any
         /// we use the resolution of the "BrokenImageIcon", since that
         /// is what we will display anyways.
         /// </summary>
@@ -92,7 +90,7 @@ namespace VideoDedupClient.Controls.FilePreview
                 return file.CodecInfo.Size;
             }
 
-            var img = file.Images.FirstOrDefault(i => i != null);
+            var img = file.Frames.FirstOrDefault(i => i.Length != 0);
             if (img != null)
             {
                 return img.ToImage().Size;
@@ -106,7 +104,7 @@ namespace VideoDedupClient.Controls.FilePreview
         /// but keeping the aspect ratio
         /// </summary>
         /// <param name="originalSize"></param>
-        private void SetThumbnailImageSize(System.Drawing.Size originalSize)
+        private void SetThumbnailSize(System.Drawing.Size originalSize)
         {
             var width = originalSize.Width;
             var height = originalSize.Height;

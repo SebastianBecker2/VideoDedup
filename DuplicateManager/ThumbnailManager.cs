@@ -1,9 +1,9 @@
 namespace DuplicateManager
 {
     using Google.Protobuf;
-    using MpvLib;
-    using MpvLib.Exceptions;
+    using FfmpegLib;
     using VideoDedupGrpc;
+    using FfmpegLib.Exceptions;
 
     internal sealed class ThumbnailManager(ResolutionSettings settings)
     {
@@ -38,7 +38,9 @@ namespace DuplicateManager
         public ResolutionSettings Settings { get; set; } = settings
                 ?? throw new ArgumentNullException(nameof(settings));
 
-        public VideoFile AddVideoFileReference(VideoFile videoFile)
+        public VideoFile AddVideoFileReference(
+            VideoFile videoFile,
+            CancellationToken cancelToken)
         {
             if (uniqueVideoFiles.TryGetValue(
                     new VideoFileRefCounter(videoFile),
@@ -52,21 +54,25 @@ namespace DuplicateManager
             {
                 try
                 {
-                    using var mpv = new MpvWrapper(
-                        videoFile.FilePath,
-                        videoFile.Duration?.ToTimeSpan());
-                    return mpv
-                        .GetImages(0, Settings.ImageCount, Settings.ImageCount)
-                        .ToList();
+                    var ffmpeg = new FfmpegWrapper(videoFile.FilePath);
+                    return [.. ffmpeg
+                        .GetFrames(
+                            0,
+                            Settings.ThumbnailCount,
+                            Settings.ThumbnailCount,
+                            cancelToken)
+                        .Select(i => i is null ? [] : i)];
                 }
-                catch (MpvOperationException)
+                catch (FfmpegOperationException)
                 {
-                    return new byte[Settings.ImageCount][];
+                    return new byte[Settings.ThumbnailCount][];
                 }
             }
 
-            videoFile.Images.AddRange(
-                GetThumbnails().Select(ByteString.CopyFrom));
+            var p = GetThumbnails();
+
+            videoFile.Frames.AddRange(
+                p.Select(ByteString.CopyFrom));
 
             _ = uniqueVideoFiles.Add(new VideoFileRefCounter(videoFile));
             return videoFile;

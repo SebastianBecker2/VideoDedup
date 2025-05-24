@@ -28,6 +28,7 @@ namespace VideoDedupClient.Controls.ComparisonSettings
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             tableLayoutPanel1 = new TableLayoutPanel();
             groupBox2 = new GroupBox();
             LblMaxDurationDifferenceUnit = new Label();
@@ -38,20 +39,23 @@ namespace VideoDedupClient.Controls.ComparisonSettings
             groupBox1 = new GroupBox();
             tableLayoutPanel4 = new TableLayoutPanel();
             BtnCustomVideoComparison = new Button();
-            NumMaxImageComparison = new NumericUpDown();
+            NumMaxFrameComparison = new NumericUpDown();
             label6 = new Label();
-            NumMaxDifferentImages = new NumericUpDown();
+            NumMaxDifferentFrames = new NumericUpDown();
             label5 = new Label();
             NumMaxDifferentPercentage = new NumericUpDown();
             label3 = new Label();
+            PibMaxDifferentPercentageHint = new PictureBox();
+            TipHints = new ToolTip(components);
             tableLayoutPanel1.SuspendLayout();
             groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)NumMaxDurationDifference).BeginInit();
             groupBox1.SuspendLayout();
             tableLayoutPanel4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)NumMaxImageComparison).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)NumMaxDifferentImages).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)NumMaxFrameComparison).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)NumMaxDifferentFrames).BeginInit();
             ((System.ComponentModel.ISupportInitialize)NumMaxDifferentPercentage).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)PibMaxDifferentPercentageHint).BeginInit();
             SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -158,20 +162,22 @@ namespace VideoDedupClient.Controls.ComparisonSettings
             groupBox1.Size = new Size(373, 163);
             groupBox1.TabIndex = 24;
             groupBox1.TabStop = false;
-            groupBox1.Text = "Comparing Images";
+            groupBox1.Text = "Comparing Frames";
             // 
             // tableLayoutPanel4
             // 
-            tableLayoutPanel4.ColumnCount = 2;
+            tableLayoutPanel4.ColumnCount = 3;
             tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle());
+            tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle());
             tableLayoutPanel4.Controls.Add(BtnCustomVideoComparison, 0, 3);
-            tableLayoutPanel4.Controls.Add(NumMaxImageComparison, 1, 0);
+            tableLayoutPanel4.Controls.Add(NumMaxFrameComparison, 1, 0);
             tableLayoutPanel4.Controls.Add(label6, 0, 2);
-            tableLayoutPanel4.Controls.Add(NumMaxDifferentImages, 1, 1);
+            tableLayoutPanel4.Controls.Add(NumMaxDifferentFrames, 1, 1);
             tableLayoutPanel4.Controls.Add(label5, 0, 1);
             tableLayoutPanel4.Controls.Add(NumMaxDifferentPercentage, 1, 2);
             tableLayoutPanel4.Controls.Add(label3, 0, 0);
+            tableLayoutPanel4.Controls.Add(PibMaxDifferentPercentageHint, 2, 2);
             tableLayoutPanel4.Dock = DockStyle.Fill;
             tableLayoutPanel4.Location = new Point(4, 19);
             tableLayoutPanel4.Margin = new Padding(4, 3, 4, 3);
@@ -188,7 +194,7 @@ namespace VideoDedupClient.Controls.ComparisonSettings
             // 
             BtnCustomVideoComparison.Anchor = AnchorStyles.Right;
             tableLayoutPanel4.SetColumnSpan(BtnCustomVideoComparison, 2);
-            BtnCustomVideoComparison.Location = new Point(217, 109);
+            BtnCustomVideoComparison.Location = new Point(179, 109);
             BtnCustomVideoComparison.Margin = new Padding(4, 3, 4, 3);
             BtnCustomVideoComparison.Name = "BtnCustomVideoComparison";
             BtnCustomVideoComparison.Size = new Size(144, 27);
@@ -197,53 +203,54 @@ namespace VideoDedupClient.Controls.ComparisonSettings
             BtnCustomVideoComparison.UseVisualStyleBackColor = true;
             BtnCustomVideoComparison.Click += BtnCustomVideoComparison_Click;
             // 
-            // NumMaxImageComparison
+            // NumMaxFrameComparison
             // 
-            NumMaxImageComparison.Anchor = AnchorStyles.None;
-            NumMaxImageComparison.Location = new Point(287, 6);
-            NumMaxImageComparison.Margin = new Padding(4, 3, 4, 3);
-            NumMaxImageComparison.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
-            NumMaxImageComparison.Name = "NumMaxImageComparison";
-            NumMaxImageComparison.Size = new Size(74, 23);
-            NumMaxImageComparison.TabIndex = 0;
-            NumMaxImageComparison.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            NumMaxFrameComparison.Anchor = AnchorStyles.None;
+            NumMaxFrameComparison.Location = new Point(249, 6);
+            NumMaxFrameComparison.Margin = new Padding(4, 3, 4, 3);
+            NumMaxFrameComparison.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            NumMaxFrameComparison.Name = "NumMaxFrameComparison";
+            NumMaxFrameComparison.Size = new Size(74, 23);
+            NumMaxFrameComparison.TabIndex = 0;
+            NumMaxFrameComparison.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // label6
             // 
             label6.Anchor = AnchorStyles.Right;
             label6.AutoSize = true;
-            label6.Location = new Point(87, 80);
+            label6.Location = new Point(49, 80);
             label6.Margin = new Padding(4, 0, 4, 0);
             label6.Name = "label6";
             label6.Size = new Size(192, 15);
             label6.TabIndex = 13;
             label6.Text = "Accepted percentage of difference:";
             // 
-            // NumMaxDifferentImages
+            // NumMaxDifferentFrames
             // 
-            NumMaxDifferentImages.Anchor = AnchorStyles.None;
-            NumMaxDifferentImages.Location = new Point(287, 41);
-            NumMaxDifferentImages.Margin = new Padding(4, 3, 4, 3);
-            NumMaxDifferentImages.Name = "NumMaxDifferentImages";
-            NumMaxDifferentImages.Size = new Size(74, 23);
-            NumMaxDifferentImages.TabIndex = 1;
+            NumMaxDifferentFrames.Anchor = AnchorStyles.None;
+            NumMaxDifferentFrames.Location = new Point(249, 41);
+            NumMaxDifferentFrames.Margin = new Padding(4, 3, 4, 3);
+            NumMaxDifferentFrames.Name = "NumMaxDifferentFrames";
+            NumMaxDifferentFrames.Size = new Size(74, 23);
+            NumMaxDifferentFrames.TabIndex = 1;
             // 
             // label5
             // 
             label5.Anchor = AnchorStyles.Right;
             label5.AutoSize = true;
-            label5.Location = new Point(71, 45);
+            label5.Location = new Point(33, 45);
             label5.Margin = new Padding(4, 0, 4, 0);
             label5.Name = "label5";
             label5.Size = new Size(208, 15);
             label5.TabIndex = 12;
-            label5.Text = "Accepted number of different Images:";
+            label5.Text = "Accepted number of different Frames:";
             // 
             // NumMaxDifferentPercentage
             // 
             NumMaxDifferentPercentage.Anchor = AnchorStyles.None;
-            NumMaxDifferentPercentage.Location = new Point(287, 76);
+            NumMaxDifferentPercentage.Location = new Point(249, 76);
             NumMaxDifferentPercentage.Margin = new Padding(4, 3, 4, 3);
+            NumMaxDifferentPercentage.Maximum = new decimal(new int[] { 200, 0, 0, 0 });
             NumMaxDifferentPercentage.Name = "NumMaxDifferentPercentage";
             NumMaxDifferentPercentage.Size = new Size(74, 23);
             NumMaxDifferentPercentage.TabIndex = 2;
@@ -252,12 +259,23 @@ namespace VideoDedupClient.Controls.ComparisonSettings
             // 
             label3.Anchor = AnchorStyles.Right;
             label3.AutoSize = true;
-            label3.Location = new Point(106, 10);
+            label3.Location = new Point(68, 10);
             label3.Margin = new Padding(4, 0, 4, 0);
             label3.Name = "label3";
             label3.Size = new Size(173, 15);
             label3.TabIndex = 11;
-            label3.Text = "Number of Images to compare:";
+            label3.Text = "Number of Frames to compare:";
+            // 
+            // PibMaxDifferentPercentageInfo
+            // 
+            PibMaxDifferentPercentageHint.Image = Properties.Resources.information;
+            PibMaxDifferentPercentageHint.Location = new Point(330, 73);
+            PibMaxDifferentPercentageHint.Name = "PibMaxDifferentPercentageInfo";
+            PibMaxDifferentPercentageHint.Size = new Size(32, 29);
+            PibMaxDifferentPercentageHint.SizeMode = PictureBoxSizeMode.AutoSize;
+            PibMaxDifferentPercentageHint.TabIndex = 14;
+            PibMaxDifferentPercentageHint.TabStop = false;
+            PibMaxDifferentPercentageHint.Click += PibMaxDifferentPercentageHint_Click;
             // 
             // ComparisonSettingsCtrl
             // 
@@ -273,9 +291,10 @@ namespace VideoDedupClient.Controls.ComparisonSettings
             groupBox1.ResumeLayout(false);
             tableLayoutPanel4.ResumeLayout(false);
             tableLayoutPanel4.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)NumMaxImageComparison).EndInit();
-            ((System.ComponentModel.ISupportInitialize)NumMaxDifferentImages).EndInit();
+            ((System.ComponentModel.ISupportInitialize)NumMaxFrameComparison).EndInit();
+            ((System.ComponentModel.ISupportInitialize)NumMaxDifferentFrames).EndInit();
             ((System.ComponentModel.ISupportInitialize)NumMaxDifferentPercentage).EndInit();
+            ((System.ComponentModel.ISupportInitialize)PibMaxDifferentPercentageHint).EndInit();
             ResumeLayout(false);
         }
 
@@ -290,12 +309,14 @@ namespace VideoDedupClient.Controls.ComparisonSettings
         private GroupBox groupBox2;
         private Label LblMaxDurationDifferenceUnit;
         private Label label7;
-        public NumericUpDown NumMaxImageComparison;
-        public NumericUpDown NumMaxDifferentImages;
+        public NumericUpDown NumMaxFrameComparison;
+        public NumericUpDown NumMaxDifferentFrames;
         public NumericUpDown NumMaxDifferentPercentage;
         public RadioButton RdbDurationDifferencePercent;
         public NumericUpDown NumMaxDurationDifference;
         public RadioButton RdbDurationDifferenceSeconds;
         private Button BtnCustomVideoComparison;
+        private PictureBox PibMaxDifferentPercentageHint;
+        private ToolTip TipHints;
     }
 }

@@ -23,8 +23,6 @@ namespace VideoDedupClient.Dialogs
 
         private Timer StatusTimer { get; }
 
-        private WindowGeometry? resolveDuplicateDlgGeometry;
-
         public VideoDedupDlg()
         {
             InitializeComponent();
@@ -77,10 +75,13 @@ namespace VideoDedupClient.Dialogs
 
                     StiProgress.UpdateStatusInfo(
                         status.OperationInfo,
-                        status.CurrentDuplicatesCount);
-                    CurrentDuplicateCount = status.CurrentDuplicatesCount;
-                    BtnResolveDuplicates.Enabled = CurrentDuplicateCount > 0;
-                    BtnDiscardDuplicates.Enabled = CurrentDuplicateCount > 0;
+                        status.TotalDuplicatesCount,
+                        status.PreparedDuplicatesCount);
+
+                    CurrentDuplicateCount = status.TotalDuplicatesCount;
+                    BtnResolveDuplicates.Enabled =
+                        status.PreparedDuplicatesCount > 0;
+                    BtnDiscardDuplicates.Enabled = BtnResolveDuplicates.Enabled;
                 });
             }
             catch (RpcException ex)
@@ -258,53 +259,8 @@ namespace VideoDedupClient.Dialogs
 
         private void BtnResolveConflicts_Click(object sender, EventArgs e)
         {
-            try
-            {
-                while (true)
-                {
-                    var duplicate = GrpcClient.GetDuplicate(new Empty());
-                    if (string.IsNullOrWhiteSpace(duplicate.DuplicateId))
-                    {
-                        return;
-                    }
-
-                    using var dlg = new ResolveDuplicateDlg();
-                    resolveDuplicateDlgGeometry?.ApplyToForm(dlg);
-                    dlg.LeftFile = duplicate.File1;
-                    dlg.RightFile = duplicate.File2;
-                    dlg.ServerSourcePath = duplicate.BasePath;
-                    dlg.ClientSourcePath = Program.Configuration.ClientSourcePath;
-
-                    var result = dlg.ShowDialog();
-                    resolveDuplicateDlgGeometry = WindowGeometry.FromForm(dlg);
-
-                    if (result == DialogResult.Cancel)
-                    {
-                        _ = GrpcClient.ResolveDuplicate(new ResolveDuplicateRequest
-                        {
-                            DuplicateId = duplicate.DuplicateId,
-                            ResolveOperation = ResolveOperation.Cancel,
-                        });
-                        return;
-                    }
-
-                    _ = GrpcClient.ResolveDuplicate(new ResolveDuplicateRequest
-                    {
-                        DuplicateId = duplicate.DuplicateId,
-                        ResolveOperation = dlg.ResolveOperation,
-                        File = dlg.FileToDelete,
-                    });
-                }
-            }
-            catch (Exception)
-            {
-                _ = MessageBox.Show(
-                    $"Unable to process duplicate.{Environment.NewLine}" +
-                    "Connection to server failed.",
-                    "Connection Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-            }
+            using var dlg = new ResolveDuplicateDlg();
+            var result = dlg.ShowDialog();
         }
 
         private void CloseToolStripMenuItem_Click(object sender, EventArgs e) =>

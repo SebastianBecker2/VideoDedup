@@ -9,7 +9,8 @@ namespace VideoDedupSharedLib
         protected string ConnectionString =>
             $"Data Source={DatastoreFilePath}; Cache=Shared; Foreign Keys=true";
 
-        private bool isInitialized;
+        // Thread safe lazy initialization
+        private readonly Lazy<bool> lazyInitializer;
 
         protected Datastore(string filePath)
         {
@@ -25,21 +26,23 @@ namespace VideoDedupSharedLib
             }
 
             DatastoreFilePath = filePath;
+
+            lazyInitializer = new Lazy<bool>(() =>
+            {
+                Initialize();
+                return true;
+            }, isThreadSafe: true);
         }
 
         protected SqliteConnection OpenConnection()
         {
-            if (!isInitialized)
-            {
-                isInitialized = true;
-                CreateTables();
-            }
+            _ = lazyInitializer.Value;
 
             var connection = new SqliteConnection(ConnectionString);
             connection.Open();
             return connection;
         }
 
-        protected abstract void CreateTables();
+        protected abstract void Initialize();
     }
 }

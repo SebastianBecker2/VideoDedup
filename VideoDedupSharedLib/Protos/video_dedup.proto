@@ -71,7 +71,7 @@ message CancelVideoComparisonRequest {
 
 message VideoComparisonStatusRequest {
     string comparison_token = 1;
-    int32 image_comparison_index = 2;
+    int32 frame_comparison_index = 2;
 }
 
 message VideoComparisonResult {
@@ -80,13 +80,13 @@ message VideoComparisonResult {
     string reason = 3;
 }
 
-message ImageIndex {
+message FrameIndex {
     int32 numerator = 1;
     int32 denominator = 2;
 }
 
-message ImageSet {
-    ImageIndex index = 1;
+message FrameSet {
+    FrameIndex index = 1;
     google.protobuf.BytesValue original = 2;
     google.protobuf.BytesValue cropped = 3;
     google.protobuf.BytesValue resized = 4;
@@ -94,10 +94,10 @@ message ImageSet {
     google.protobuf.BytesValue bytes = 6;
 }
 
-message ImageComparisonResult {
+message FrameComparisonResult {
     int32 index = 1;
-    ImageSet left_images = 2;
-    ImageSet right_images = 3;
+    FrameSet left_frames = 2;
+    FrameSet right_frames = 3;
     double difference = 4;
     int32 load_level = 5;
     ComparisonResult comparison_result = 6;
@@ -107,7 +107,7 @@ message VideoComparisonStatus {
     string comparison_token = 1;
     VideoFile left_file = 2;
     VideoFile right_file = 3;
-    repeated ImageComparisonResult image_comparisons = 4;
+    repeated FrameComparisonResult frame_comparisons = 4;
     VideoComparisonResult video_comparison_result = 5;
 }
 
@@ -115,7 +115,7 @@ message VideoComparisonConfiguration {
     VideoComparisonSettings video_comparison_settings = 1;
     string left_file_path = 2;
     string right_file_path = 3;
-    bool force_loading_all_images = 4;
+    bool force_loading_all_frames = 4;
 }
 
 message GetLogEntriesRequest {
@@ -145,7 +145,9 @@ message VideoFile {
     google.protobuf.Duration duration = 3;
     CodecInfo codec_info = 4;
     google.protobuf.Timestamp last_write_time = 5;
-    repeated google.protobuf.BytesValue images = 6;
+    repeated google.protobuf.BytesValue frames = 6;
+    google.protobuf.Timestamp creation_time = 7;
+    google.protobuf.Timestamp last_access_time = 8;
 }
 
 message DuplicateData {
@@ -194,6 +196,7 @@ message OperationInfo {
         INITIALIZING = 5;
         ERROR = 6;
         CONNECTING = 7;
+        PREPARING = 8;
     }
     enum ProgressStyle {
         MARQUEE = 0;
@@ -211,17 +214,20 @@ message OperationInfo {
 
 message StatusData {
     OperationInfo operation_info = 1;
-    int32 current_duplicates_count = 2;
+    int32 total_duplicates_count = 2;
     int32 log_count = 3;
     string log_token = 4;
+    int32 unprepared_duplicates_count = 5;
+    int32 prepared_duplicates_count = 6;
 }
 
-message FolderSettings {
+message DedupSettings {
     string base_path = 1;
     repeated string excluded_directories = 2;
     repeated string file_extensions = 3;
     bool recursive = 4;
     bool monitor_changes = 5;
+    int32 concurrency_level = 6;
 }
 
 message DurationComparisonSettings {
@@ -236,7 +242,7 @@ message DurationComparisonSettings {
 
 message VideoComparisonSettings {
     int32 compare_count = 1;
-    int32 max_different_images = 2;
+    int32 max_different_frames = 2;
     int32 max_difference = 3;
 }
 
@@ -256,13 +262,13 @@ message LogSettings {
 }
 
 message ResolutionSettings {
-    int32 image_count = 1;
+    int32 thumbnail_count = 1;
     bool move_to_trash = 2;
     string trash_path = 3;
 }
 
 message ConfigurationSettings {
-  FolderSettings folder_settings = 1;
+  DedupSettings dedup_settings = 1;
   DurationComparisonSettings duration_comparison_settings = 2;
   VideoComparisonSettings video_comparison_settings = 3;
   LogSettings log_settings = 5;

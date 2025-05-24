@@ -4,8 +4,8 @@ namespace VideoDedupClient.Dialogs
 
     public partial class ServerConfigDlg : Form
     {
-        private FolderSettings? FolderSettings =>
-            ConfigurationSettings?.FolderSettings;
+        private DedupSettings? DedupSettings =>
+            ConfigurationSettings?.DedupSettings;
         private DurationComparisonSettings? DurationComparisonSettings =>
             ConfigurationSettings?.DurationComparisonSettings;
         private VideoComparisonSettings? VideoComparisonSettings =>
@@ -20,7 +20,7 @@ namespace VideoDedupClient.Dialogs
 
         protected override void OnLoad(EventArgs e)
         {
-            FscFolderSettings.ShowSettings(FolderSettings);
+            DscDedupSettings.ShowSettings(DedupSettings);
 
             CscComparisonSettings.ShowSettings(
                 VideoComparisonSettings,
@@ -37,8 +37,8 @@ namespace VideoDedupClient.Dialogs
         {
             ConfigurationSettings ??= new ConfigurationSettings();
 
-            ConfigurationSettings.FolderSettings =
-                FscFolderSettings.GetSettings();
+            ConfigurationSettings.DedupSettings =
+                DscDedupSettings.GetSettings();
 
             ConfigurationSettings.VideoComparisonSettings =
                 CscComparisonSettings.GetVideoComparisonSettings();
@@ -61,9 +61,9 @@ namespace VideoDedupClient.Dialogs
             dlg.VideoComparisonSettings = new VideoComparisonSettings
             {
                 CompareCount =
-                    (int)CscComparisonSettings.NumMaxImageComparison.Value,
-                MaxDifferentImages =
-                    (int)CscComparisonSettings.NumMaxDifferentImages.Value,
+                    (int)CscComparisonSettings.NumMaxFrameComparison.Value,
+                MaxDifferentFrames =
+                    (int)CscComparisonSettings.NumMaxDifferentFrames.Value,
                 MaxDifference =
                     (int)CscComparisonSettings.NumMaxDifferentPercentage.Value,
             };
@@ -73,10 +73,10 @@ namespace VideoDedupClient.Dialogs
                 return;
             }
 
-            CscComparisonSettings.NumMaxImageComparison.Value =
+            CscComparisonSettings.NumMaxFrameComparison.Value =
                 dlg.VideoComparisonSettings.CompareCount;
-            CscComparisonSettings.NumMaxDifferentImages.Value =
-                dlg.VideoComparisonSettings.MaxDifferentImages;
+            CscComparisonSettings.NumMaxDifferentFrames.Value =
+                dlg.VideoComparisonSettings.MaxDifferentFrames;
             CscComparisonSettings.NumMaxDifferentPercentage.Value =
                 dlg.VideoComparisonSettings.MaxDifference;
         }

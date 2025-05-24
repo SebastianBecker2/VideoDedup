@@ -1,4 +1,4 @@
-﻿namespace VideoDedupClient.Controls.ResolutionSettings
+namespace VideoDedupClient.Controls.ResolutionSettings
 {
     partial class ResolutionSettingsCtrl
     {
@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             groupBox4 = new GroupBox();
             tableLayoutPanel1 = new TableLayoutPanel();
             label9 = new Label();
@@ -35,10 +36,13 @@
             tableLayoutPanel2 = new TableLayoutPanel();
             RdbDeleteFiles = new RadioButton();
             RdbMoveToTrash = new RadioButton();
+            PibMoveToTrashHint = new PictureBox();
+            TipHints = new ToolTip(components);
             groupBox4.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)NumThumbnailViewCount).BeginInit();
             tableLayoutPanel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)PibMoveToTrashHint).BeginInit();
             SuspendLayout();
             // 
             // groupBox4
@@ -66,9 +70,8 @@
             tableLayoutPanel1.Location = new Point(4, 19);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
             tableLayoutPanel1.RowCount = 2;
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 33.3333321F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 66.6666641F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             tableLayoutPanel1.Size = new Size(344, 237);
             tableLayoutPanel1.TabIndex = 20;
             // 
@@ -76,17 +79,17 @@
             // 
             label9.Anchor = AnchorStyles.Right;
             label9.AutoSize = true;
-            label9.Location = new Point(5, 31);
+            label9.Location = new Point(5, 51);
             label9.Margin = new Padding(4, 0, 4, 0);
             label9.Name = "label9";
             label9.Size = new Size(163, 15);
             label9.TabIndex = 19;
-            label9.Text = "Number of Images to display:";
+            label9.Text = "Number of Frames to display:";
             // 
             // NumThumbnailViewCount
             // 
             NumThumbnailViewCount.Anchor = AnchorStyles.None;
-            NumThumbnailViewCount.Location = new Point(221, 27);
+            NumThumbnailViewCount.Location = new Point(221, 47);
             NumThumbnailViewCount.Margin = new Padding(4, 3, 4, 3);
             NumThumbnailViewCount.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             NumThumbnailViewCount.Name = "NumThumbnailViewCount";
@@ -97,27 +100,28 @@
             // tableLayoutPanel2
             // 
             tableLayoutPanel2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom;
-            tableLayoutPanel2.ColumnCount = 1;
+            tableLayoutPanel2.ColumnCount = 2;
             tableLayoutPanel1.SetColumnSpan(tableLayoutPanel2, 2);
             tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle());
             tableLayoutPanel2.Controls.Add(RdbDeleteFiles, 0, 0);
             tableLayoutPanel2.Controls.Add(RdbMoveToTrash, 0, 1);
-            tableLayoutPanel2.Location = new Point(83, 81);
+            tableLayoutPanel2.Controls.Add(PibMoveToTrashHint, 1, 1);
+            tableLayoutPanel2.Location = new Point(83, 121);
             tableLayoutPanel2.Name = "tableLayoutPanel2";
             tableLayoutPanel2.RowCount = 2;
             tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel2.Size = new Size(178, 153);
+            tableLayoutPanel2.Size = new Size(178, 113);
             tableLayoutPanel2.TabIndex = 22;
             // 
             // RdbDeleteFiles
             // 
             RdbDeleteFiles.Anchor = AnchorStyles.Left;
             RdbDeleteFiles.AutoSize = true;
-            RdbDeleteFiles.Location = new Point(3, 28);
+            RdbDeleteFiles.Location = new Point(3, 18);
             RdbDeleteFiles.Name = "RdbDeleteFiles";
-            RdbDeleteFiles.Size = new Size(153, 19);
+            RdbDeleteFiles.Size = new Size(134, 19);
             RdbDeleteFiles.TabIndex = 20;
             RdbDeleteFiles.TabStop = true;
             RdbDeleteFiles.Text = "Delete Files immediately";
@@ -127,13 +131,25 @@
             // 
             RdbMoveToTrash.Anchor = AnchorStyles.Left;
             RdbMoveToTrash.AutoSize = true;
-            RdbMoveToTrash.Location = new Point(3, 105);
+            RdbMoveToTrash.Location = new Point(3, 75);
             RdbMoveToTrash.Name = "RdbMoveToTrash";
-            RdbMoveToTrash.Size = new Size(167, 19);
+            RdbMoveToTrash.Size = new Size(134, 19);
             RdbMoveToTrash.TabIndex = 20;
             RdbMoveToTrash.TabStop = true;
             RdbMoveToTrash.Text = "Move deleted Files to Trash";
             RdbMoveToTrash.UseVisualStyleBackColor = true;
+            // 
+            // PibMoveToTrashHint
+            // 
+            PibMoveToTrashHint.Anchor = AnchorStyles.Left;
+            PibMoveToTrashHint.Image = Properties.Resources.information;
+            PibMoveToTrashHint.Location = new Point(143, 68);
+            PibMoveToTrashHint.Name = "PibMoveToTrashHint";
+            PibMoveToTrashHint.Size = new Size(32, 32);
+            PibMoveToTrashHint.SizeMode = PictureBoxSizeMode.AutoSize;
+            PibMoveToTrashHint.TabIndex = 21;
+            PibMoveToTrashHint.TabStop = false;
+            PibMoveToTrashHint.Click += PibMoveToTrashHint_Click;
             // 
             // ResolutionSettingsCtrl
             // 
@@ -148,6 +164,7 @@
             ((System.ComponentModel.ISupportInitialize)NumThumbnailViewCount).EndInit();
             tableLayoutPanel2.ResumeLayout(false);
             tableLayoutPanel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)PibMoveToTrashHint).EndInit();
             ResumeLayout(false);
         }
 
@@ -160,5 +177,7 @@
         public RadioButton RdbDeleteFiles;
         public RadioButton RdbMoveToTrash;
         private TableLayoutPanel tableLayoutPanel2;
+        private PictureBox PibMoveToTrashHint;
+        private ToolTip TipHints;
     }
 }

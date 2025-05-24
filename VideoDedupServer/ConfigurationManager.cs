@@ -8,13 +8,14 @@ namespace VideoDedupServer
 
     internal static class ConfigurationManager
     {
-        public static FolderSettings GetFolderSettings()
+        public static DedupSettings GetDedupSettings()
         {
-            var settings = new FolderSettings
+            var settings = new DedupSettings
             {
                 BasePath = Settings.Default.BasePath,
                 Recursive = Settings.Default.Recursive,
                 MonitorChanges = Settings.Default.MonitorFileChanges,
+                ConcurrencyLevel = GetDedupEngineConcurrencyLevel(),
             };
 
             settings.ExcludedDirectories.AddRange(GetExcludedDirectories());
@@ -26,9 +27,9 @@ namespace VideoDedupServer
         public static VideoComparisonSettings GetVideoComparisonSettings() =>
             new()
             {
-                CompareCount = Settings.Default.ImageCompareCount,
-                MaxDifferentImages = Settings.Default.MaxDifferentImages,
-                MaxDifference = Settings.Default.MaxImageDifference,
+                CompareCount = Settings.Default.FrameCompareCount,
+                MaxDifferentFrames = Settings.Default.MaxDifferentFrames,
+                MaxDifference = Settings.Default.MaxFrameDifference,
             };
 
         public static DurationComparisonSettings GetDurationComparisonSettings() =>
@@ -53,12 +54,12 @@ namespace VideoDedupServer
         public static ResolutionSettings GetResolutionSettings() =>
             new()
             {
-                ImageCount = Settings.Default.ThumbnailImageCount,
+                ThumbnailCount = Settings.Default.ThumbnailCount,
                 MoveToTrash = Settings.Default.MoveToTrash,
                 TrashPath = Settings.Default.TrashPath,
             };
 
-        public static void SetFolderSettings(FolderSettings settings)
+        public static void SetDedupSettings(DedupSettings settings)
         {
             Settings.Default.BasePath = settings.BasePath;
             Settings.Default.ExcludedDirectories =
@@ -67,14 +68,16 @@ namespace VideoDedupServer
                 JsonConvert.SerializeObject(settings.FileExtensions);
             Settings.Default.Recursive = settings.Recursive;
             Settings.Default.MonitorFileChanges = settings.MonitorChanges;
+            Settings.Default.DedupEngineConcurrencyLevel =
+                settings.ConcurrencyLevel;
         }
 
         public static void SetVideoComparisonSettings(
             VideoComparisonSettings settings)
         {
-            Settings.Default.ImageCompareCount = settings.CompareCount;
-            Settings.Default.MaxDifferentImages = settings.MaxDifferentImages;
-            Settings.Default.MaxImageDifference = settings.MaxDifference;
+            Settings.Default.FrameCompareCount = settings.CompareCount;
+            Settings.Default.MaxDifferentFrames = settings.MaxDifferentFrames;
+            Settings.Default.MaxFrameDifference = settings.MaxDifference;
         }
 
         public static void SetDurationComparisonSettings(
@@ -97,7 +100,7 @@ namespace VideoDedupServer
 
         public static void SetResolutionSettings(ResolutionSettings settings)
         {
-            Settings.Default.ThumbnailImageCount = settings.ImageCount;
+            Settings.Default.ThumbnailCount = settings.ThumbnailCount;
             Settings.Default.MoveToTrash = settings.MoveToTrash;
             Settings.Default.TrashPath = settings.TrashPath;
         }
@@ -121,6 +124,15 @@ namespace VideoDedupServer
                 ".mp4", ".mpg", ".avi", ".wmv", ".flv", ".m4v", ".mov",
                 ".mpeg", ".rm", ".3gp"
             ];
+        }
+
+        private static int GetDedupEngineConcurrencyLevel()
+        {
+            if (Settings.Default.DedupEngineConcurrencyLevel <= 0)
+            {
+                return Environment.ProcessorCount / 2;
+            }
+            return Settings.Default.DedupEngineConcurrencyLevel;
         }
 
         private static DurationDifferenceType ToDurationDifferenceType(

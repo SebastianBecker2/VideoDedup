@@ -1,12 +1,14 @@
 namespace VideoComparer
 {
-    using MpvLib;
-    using MpvLib.Exceptions;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.Interfaces;
     using static VideoDedupGrpc.DurationComparisonSettings.Types;
-    using ImageIndex = MpvLib.ImageIndex;
+    using System.Diagnostics;
+    using FfmpegLib;
+    using FfmpegLib.Exceptions;
+    using FrameIndex = FfmpegLib.FrameIndex;
 
+    [DebuggerDisplay("{FilePath}")]
     public class VideoFile : IVideoFile
     {
         public VideoFile(VideoFile other)
@@ -15,7 +17,7 @@ namespace VideoComparer
 
             // We have to do a bit more work here since we can't use
             // the other ctors because we don't want to eagerly load
-            // the images when we can copy them from the other file.
+            // the frames when we can copy them from the other file.
             FilePath = other.FilePath;
             fileSize = other.fileSize;
             lastWriteTime = other.lastWriteTime;
@@ -23,13 +25,13 @@ namespace VideoComparer
             codecInfo = other.codecInfo;
 
 
-            if (other.ImageCount == 0)
+            if (other.FrameCount == 0)
             {
                 return;
             }
 
-            ImageCount = other.ImageCount;
-            ImageBytes = new Dictionary<ImageIndex, byte[]?>(other.ImageBytes);
+            FrameCount = other.FrameCount;
+            FrameBytes = new Dictionary<FrameIndex, byte[]?>(other.FrameBytes);
         }
 
         public VideoFile(IVideoFile other)
@@ -101,6 +103,46 @@ namespace VideoComparer
         }
         private DateTime? lastWriteTime;
 
+        public DateTime CreationTime
+        {
+            get
+            {
+                if (!creationTime.HasValue)
+                {
+                    try
+                    {
+                        creationTime = File.GetCreationTime(FilePath);
+                    }
+                    catch (Exception)
+                    {
+                        creationTime = DateTime.MinValue;
+                    }
+                }
+                return creationTime.Value;
+            }
+        }
+        private DateTime? creationTime;
+
+        public DateTime LastAccessTime
+        {
+            get
+            {
+                if (!lastAccessTime.HasValue)
+                {
+                    try
+                    {
+                        lastAccessTime = File.GetLastAccessTime(FilePath);
+                    }
+                    catch (Exception)
+                    {
+                        lastAccessTime = DateTime.MinValue;
+                    }
+                }
+                return lastAccessTime.Value;
+            }
+        }
+        private DateTime? lastAccessTime;
+
         public TimeSpan Duration
         {
             get
@@ -109,9 +151,9 @@ namespace VideoComparer
                 {
                     try
                     {
-                        duration = MpvWrapper.GetDuration(FilePath);
+                        duration = FfmpegWrapper.GetDuration(FilePath);
                     }
-                    catch (MpvOperationException)
+                    catch (FfmpegOperationException)
                     {
                         duration = TimeSpan.Zero;
                     }
@@ -130,19 +172,19 @@ namespace VideoComparer
                 {
                     try
                     {
-                        codecInfo = MpvWrapper.GetCodecInfo(FilePath);
+                        codecInfo = FfmpegWrapper.GetCodecInfo(FilePath);
                     }
-                    catch (MpvOperationException) { }
+                    catch (FfmpegOperationException) { }
                 }
                 return codecInfo;
             }
         }
         private CodecInfo? codecInfo;
 
-        public IDictionary<ImageIndex, byte[]?> ImageBytes { get; } =
-            new Dictionary<ImageIndex, byte[]?>();
+        public IDictionary<FrameIndex, byte[]?> FrameBytes { get; } =
+            new Dictionary<FrameIndex, byte[]?>();
 
-        public int ImageCount { get; set; }
+        public int FrameCount { get; set; }
 
         public bool IsDurationEqual(
             IVideoFile other,
@@ -163,14 +205,16 @@ namespace VideoComparer
             }
         }
 
-        public int ErrorCount { get; set; }
+        public int ErrorCount { get => errorCount; set => errorCount = value; }
+        private int errorCount;
+        public void IncrementErrorCount() => Interlocked.Increment(ref errorCount);
 
         public override bool Equals(object? obj) => Equals(obj as IVideoFile);
 
         public bool Equals(IVideoFile? other) =>
             other != null && FilePath == other.FilePath;
 
-        public override int GetHashCode() => HashCode.Combine(FilePath);
+        public override int GetHashCode() => FilePath.GetHashCode();
 
         public static bool operator ==(VideoFile left, IVideoFile right) =>
             EqualityComparer<IVideoFile>.Default.Equals(left, right);
