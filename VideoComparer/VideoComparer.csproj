@@ -9,9 +9,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" />
   <ItemGroup>
-    <PackageReference Include="KGySoft.Drawing" Version="9.2.0" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\FfmpegLib\FfmpegLib.csproj" />
     <ProjectReference Include="..\VideoDedupSharedLib\VideoDedupSharedLib.csproj" />
   </ItemGroup>

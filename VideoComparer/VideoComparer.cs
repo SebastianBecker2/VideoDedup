@@ -1,18 +1,15 @@
 namespace VideoComparer
 {
-    using System.Drawing;
-    using System.Drawing.Imaging;
     using System.Numerics;
-    using System.Runtime.Intrinsics.X86;
     using System.Runtime.Intrinsics;
+    using System.Runtime.Intrinsics.X86;
     using EventArgs;
-    using Google.Protobuf;
-    using KGySoft.Drawing;
-    using VideoDedupGrpc;
-    using VideoDedupSharedLib.ExtensionMethods.ImageExtensions;
-    using Size = System.Drawing.Size;
     using FfmpegLib;
     using FfmpegLib.Exceptions;
+    using Google.Protobuf;
+    using SkiaSharp;
+    using VideoDedupGrpc;
+    using VideoDedupSharedLib.ExtensionMethods.SkiaSharpExtensions;
     using FrameIndex = FfmpegLib.FrameIndex;
 
     public class VideoComparer(
@@ -70,18 +67,18 @@ namespace VideoComparer
 
                 try
                 {
-                    var stream = new MemoryStream(originalFrame);
-                    using var frame = (Bitmap)Image.FromStream(stream);
-                    using var cropped = frame.CropBlackBars();
-                    using var small = cropped?.Resize(
+                    using var stream = new MemoryStream(originalFrame);
+                    using var frame = SKBitmap.Decode(stream);
+                    using var cropped = frame.Copy();
+                    cropped.CropBlackBars();
+                    using var small = cropped.Resize(
                         DownscaleSize,
-                        ScalingMode.NearestNeighbor,
-                        false);
-                    using var greyscaled = small?.MakeGrayScale();
-
+                        SKFilterMode.Nearest);
+                    using var greyscaled = small.Copy();
+                    greyscaled.MakeGrayScale();
                     var frameSet = new CacheableFrameSet(index)
                     {
-                        Original = stream,
+                        Original = new MemoryStream(originalFrame),
                         Bytes = GetFrameBytes(greyscaled),
                         Loaded = true,
                     };
@@ -93,7 +90,6 @@ namespace VideoComparer
                         frameSet.Greyscaled = greyscaled?.ToMemoryStream();
                     }
 
-                    frameSet.Original.Position = 0;
                     return frameSet;
                 }
                 catch (ArgumentNullException)
@@ -164,32 +160,30 @@ namespace VideoComparer
 
         private const int LoadLevelCount = 3;
 
-        private static readonly Size DownscaleSize = new(16, 16);
+        private static readonly SKSizeI DownscaleSize = new(16, 16);
         private const int ByteDifferenceThreshold = 3;
 
-        private static byte[]? GetFrameBytes(Bitmap? frame)
+        private static byte[]? GetFrameBytes(SKBitmap? frame)
         {
             if (frame is null)
             {
                 return null;
             }
+
+            var pixelPtr = frame.GetPixels();
+            var bytesPerPixel = frame.BytesPerPixel;
+            var stride = frame.RowBytes;
+            var width = frame.Width;
+            var height = frame.Height;
+
             unsafe
             {
-                var bitmapData = frame.LockBits(
-                    new Rectangle(0, 0, frame.Width, frame.Height),
-                    ImageLockMode.ReadOnly,
-                    frame.PixelFormat);
-
-                var bytesPerPixel =
-                    Image.GetPixelFormatSize(frame.PixelFormat) / 8;
+                var ptr = (byte*)pixelPtr;
                 return [.. Enumerable
-                    .Range(0, frame.Height)
+                    .Range(0, height)
                     .SelectMany(y => Enumerable
-                        .Range(0, frame.Width)
-                        .Select(x =>
-                            ((byte*)bitmapData.Scan0
-                                + (y * bitmapData.Stride)
-                                + (x * bytesPerPixel))[0]))];
+                        .Range(0, width)
+                        .Select(x => ptr[(y * stride) + (x * bytesPerPixel)]))];
             }
         }
 

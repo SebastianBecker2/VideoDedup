@@ -3,6 +3,7 @@ namespace VideoDedupSharedLib.ExtensionMethods.ImageExtensions
     using System.Drawing;
     using System.Drawing.Drawing2D;
     using System.Drawing.Imaging;
+    using System.IO;
 
     public static class ImageExtensions
     {
@@ -95,7 +96,7 @@ namespace VideoDedupSharedLib.ExtensionMethods.ImageExtensions
                 var width = image.Width;
                 var height = image.Height;
 
-                var leftBarTask = Task.Run(() =>
+                using var leftBarTask = Task.Run(() =>
                 {
                     int? maybeLeftBar = null;
                     foreach (var x in Enumerable.Range(0, width / 2))
@@ -119,7 +120,7 @@ namespace VideoDedupSharedLib.ExtensionMethods.ImageExtensions
                     return maybeLeftBar ?? width / 2;
                 });
 
-                var rightBarTask = Task.Run(() =>
+                using var rightBarTask = Task.Run(() =>
                 {
                     int? maybeRightBar = null;
                     foreach (var x in Enumerable
@@ -150,7 +151,7 @@ namespace VideoDedupSharedLib.ExtensionMethods.ImageExtensions
 
                 width = rightBar - leftBar + 1;
 
-                var topBarTask = Task.Run(() =>
+                using var topBarTask = Task.Run(() =>
                 {
                     int? maybeTopBar = null;
                     foreach (var y in Enumerable.Range(0, height / 2))
@@ -174,7 +175,7 @@ namespace VideoDedupSharedLib.ExtensionMethods.ImageExtensions
                     return maybeTopBar ?? height / 2;
                 });
 
-                var bottomBarTask = Task.Run(() =>
+                using var bottomBarTask = Task.Run(() =>
                 {
                     int? maybeBottomBar = null;
                     foreach (var y in Enumerable

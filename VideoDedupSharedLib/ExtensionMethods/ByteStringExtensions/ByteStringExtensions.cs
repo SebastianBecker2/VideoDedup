@@ -1,6 +1,7 @@
 namespace VideoDedupSharedLib.ExtensionMethods.ByteStringExtensions
 {
     using System.Drawing;
+    using System.IO;
     using Google.Protobuf;
 
     public static class ByteStringExtensions

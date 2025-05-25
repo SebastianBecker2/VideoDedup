@@ -13,7 +13,7 @@ namespace VideoComparer
     internal sealed class ComparerDatastore(string filePath)
         : Datastore(filePath)
     {
-        private static readonly int DatastoreVersion = 1;
+        private static readonly int DatastoreVersion = 2;
         private static readonly Dictionary<Tuple<FrameIndex, IVideoFile>, byte[]?>
             FrameCache = [];
         private static readonly object FrameCacheMutex = new();
