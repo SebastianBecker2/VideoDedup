@@ -16,8 +16,6 @@ namespace FfmpegLib
                     filePath);
             }
 
-            ffmpeg.avdevice_register_all();
-
             using var context = new FormatContext();
             if (context.GetPointer() is null)
             {
