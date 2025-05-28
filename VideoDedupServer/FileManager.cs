@@ -21,13 +21,7 @@ namespace VideoDedupServer
         {
             if (string.IsNullOrWhiteSpace(path))
             {
-                return DriveInfo.GetDrives().Select(drive =>
-                    new FileAttributes
-                    {
-                        Name = drive.Name,
-                        Type = FileType.Folder,
-                        Icon = DriveIcon,
-                    });
+                return GetDrives();
             }
 
             if (!Directory.Exists(path))
@@ -53,15 +47,48 @@ namespace VideoDedupServer
                     _ => Directory.EnumerateFileSystemEntries
                 };
 
-            // Add a backslash at the end to make sure we never try to get
-            // the content of the current drive without a backslash or slash
-            // at the end. If the current working directory is "d:\subfolder"
-            // and we try to get the file system entries from "d:", we would
-            // get the file system entries from "d:\subfolder" instead.
-            // Adding the backslash prevents that.
-            return enumerator(path + "\\")
+            if (OperatingSystem.IsWindows())
+            {
+                // Add a backslash at the end to make sure we never try to get
+                // the content of the current drive without a backslash or slash
+                // at the end. If the current working directory is "d:\subfolder"
+                // and we try to get the file system entries from "d:", we would
+                // get the file system entries from "d:\subfolder" instead.
+                // Adding the backslash prevents that.
+                path += "\\";
+            }
+            return enumerator(path)
                 .Select(ToFileAttributes)
                 .Where(e => e is not null)!;
+        }
+
+        private static IEnumerable<FileAttributes> GetDrives()
+        {
+            if (OperatingSystem.IsLinux()
+                || OperatingSystem.IsMacOS())
+            {
+                return [new FileAttributes
+                {
+                    Name = "/",
+                    Type = FileType.Folder,
+                    Icon = DriveIcon,
+                }];
+            }
+
+            if (OperatingSystem.IsWindows())
+            {
+                // Use platform-specific code for Windows
+                return DriveInfo.GetDrives().Select(drive =>
+                new FileAttributes
+                {
+                    Name = drive.Name,
+                    Type = FileType.Folder,
+                    Icon = DriveIcon,
+                });
+            }
+
+            throw new PlatformNotSupportedException(
+                "This functionality is only supported on Windows.");
         }
 
         private static FileAttributes? ToFileAttributes(string path)
@@ -96,15 +123,30 @@ namespace VideoDedupServer
         }
 
         private static IEnumerable<FileAttributes> GetServerShares(
-            string serverName) =>
-            new Vanara.SharedDevices(serverName)
-                .Where(kvp => !kvp.Value.IsSpecial && kvp.Value.IsDiskVolume)
-                .Select(kvp =>
-                    new FileAttributes
-                    {
-                        Name = kvp.Key,
-                        Type = FileType.Folder
-                    });
+            string serverName)
+        {
+            if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
+            {
+                return [];
+            }
 
+            if (OperatingSystem.IsWindows())
+            {
+                // Use platform-specific code for Windows
+#pragma warning disable CA1416 // Validate platform compatibility
+                return new Vanara.SharedDevices(serverName)
+                    .Where(kvp => !kvp.Value.IsSpecial && kvp.Value.IsDiskVolume)
+                    .Select(kvp =>
+                        new FileAttributes
+                        {
+                            Name = kvp.Key,
+                            Type = FileType.Folder
+                        });
+#pragma warning restore CA1416 // Validate platform compatibility
+            }
+
+            throw new PlatformNotSupportedException(
+                "This functionality is only supported on Windows.");
+        }
     }
 }
