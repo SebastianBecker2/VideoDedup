@@ -54,22 +54,31 @@ namespace VideoDedupSharedLib
 
         public static string? GetMimeType(string file)
         {
-            try
+            if (OperatingSystem.IsWindows())
             {
-                if (SHGetFileInfo(
-                        file,
-                        FILE_ATTRIBUTE.FILE_ATTRIBUTE_NORMAL,
-                        out var info,
-                        (uint)Marshal.SizeOf<SHFILEINFO>(),
-                        SHGFI.SHGFI_TYPENAME | SHGFI.SHGFI_USEFILEATTRIBUTES) !=
-                    IntPtr.Zero)
+                try
                 {
-                    return info.szTypeName;
+                    if (SHGetFileInfo(
+                            file,
+                            FILE_ATTRIBUTE.FILE_ATTRIBUTE_NORMAL,
+                            out var info,
+                            (uint)Marshal.SizeOf<SHFILEINFO>(),
+                            SHGFI.SHGFI_TYPENAME | SHGFI.SHGFI_USEFILEATTRIBUTES) !=
+                        IntPtr.Zero)
+                    {
+                        return info.szTypeName;
+                    }
                 }
-            }
-            catch (ArgumentException) { }
+                catch (ArgumentException) { }
 
-            return null;
+                return null;
+            }
+
+            if (!MimeTypes.TryGetMimeType(file, out var mimeType))
+            {
+                return "";
+            }
+            return mimeType;
         }
 
         private static readonly ConcurrentDictionary<string, Bitmap?>
