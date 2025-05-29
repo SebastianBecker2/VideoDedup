@@ -191,12 +191,21 @@ namespace VideoDedupClient.Controls.DedupSettings
                 dlg.RootEntries = rootFolderRequest.Files.Select(ToEntry);
             }
 
-            dlg.ContentRequested += (_, args) =>
+            dlg.ContentRequested += (obj, args) =>
             {
+                if (args.Path is null)
+                {
+                    if (obj is not CustomSelectFileDialog dlg)
+                    {
+                        return;
+                    }
+                    dlg.CurrentPath = dlg.RootEntries?.FirstOrDefault()?.Name;
+                    return;
+                }
                 var contentRequest = Program.GrpcClient.GetFolderContent(
                     new GetFolderContentRequest
                     {
-                        Path = args.Path,
+                        Path = args.Path ?? "",
                         TypeRestriction = FileType.Folder
                     });
                 if (contentRequest.RequestFailed)
