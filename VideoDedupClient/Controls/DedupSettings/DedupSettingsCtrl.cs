@@ -2,14 +2,9 @@ namespace VideoDedupClient.Controls.DedupSettings
 {
     using System;
     using System.Data;
-    using System.Globalization;
     using System.Linq;
     using System.Windows.Forms;
-    using CustomSelectFileDlg;
-    using CustomSelectFileDlg.Exceptions;
-    using Microsoft.WindowsAPICodePack.Dialogs;
     using VideoDedupGrpc;
-    using VideoDedupSharedLib.ExtensionMethods.ByteStringExtensions;
 
     public partial class DedupSettingsCtrl : UserControl
     {
@@ -79,20 +74,10 @@ namespace VideoDedupClient.Controls.DedupSettings
 
         private void BtnSelectSourcePath_Click(object sender, EventArgs e)
         {
-            static string? ShowFolderSelection(string initialFolder)
-            {
-                var serverAddress = Program.Configuration.ServerAddress.ToLower(
-                    CultureInfo.InvariantCulture);
-
-                if (serverAddress is "localhost" or "127.0.0.1")
-                {
-                    return ShowFolderSelectionLocally(initialFolder);
-                }
-
-                return ShowFolderSelectionRemote(initialFolder);
-            }
-
-            var newPath = ShowFolderSelection(TxtSourcePath.Text);
+            var newPath = SelectFileDialog.Show(
+                TxtSourcePath.Text,
+                "Select source directory",
+                CustomSelectFileDlg.RequestedEntryType.Folders);
             if (newPath is null)
             {
                 return;
@@ -103,15 +88,16 @@ namespace VideoDedupClient.Controls.DedupSettings
 
         private void BtnAddExcludedDirectory_Click(object sender, EventArgs e)
         {
-            using var dlg = new CommonOpenFileDialog();
-            dlg.IsFolderPicker = true;
-
-            if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
+            var newPath = SelectFileDialog.Show(
+                TxtSourcePath.Text,
+                "Select excluded directory",
+                CustomSelectFileDlg.RequestedEntryType.Folders);
+            if (newPath is null)
             {
                 return;
             }
 
-            _ = LsbExcludedDirectories.Items.Add(dlg.FileName);
+            _ = LsbExcludedDirectories.Items.Add(newPath);
         }
 
         private void BtnRemoveExcludedDirectory_Click(object sender, EventArgs e)
@@ -144,84 +130,6 @@ namespace VideoDedupClient.Controls.DedupSettings
             {
                 LsbFileExtensions.Items.Remove(s);
             }
-        }
-        private static string? ShowFolderSelectionLocally(string initialPath)
-        {
-            using var dlg = new CommonOpenFileDialog();
-            dlg.IsFolderPicker = true;
-            dlg.InitialDirectory = initialPath;
-
-            if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
-            {
-                return null;
-            }
-
-            return dlg.FileName;
-        }
-
-        private static string? ShowFolderSelectionRemote(string initialPath)
-        {
-            static Entry ToEntry(
-                GetFolderContentResponse.Types.FileAttributes f) =>
-                new(f.Name)
-                {
-                    DateModified = f.DateModified?.ToDateTime(),
-                    Size = f.Type == FileType.Folder ? null : f.Size,
-                    Type = f.Type == FileType.Folder
-                        ? EntryType.Folder
-                        : EntryType.File,
-                    MimeType = f.MimeType,
-                    Icon = f.Icon?.ToImage(),
-                };
-
-            using var dlg = new CustomSelectFileDialog();
-            dlg.IsFolderSelector = true;
-            dlg.CurrentPath = initialPath;
-            dlg.ButtonUpEnabled = ButtonUpEnabledWhen.Always;
-            dlg.EntryIconStyle = IconStyle.FallbackToExtensionSpecificIcons;
-
-            var rootFolderRequest = Program.GrpcClient.GetFolderContent(
-                new GetFolderContentRequest
-                {
-                    Path = "",
-                    TypeRestriction = FileType.Folder
-                });
-            if (!rootFolderRequest.RequestFailed)
-            {
-                dlg.RootEntries = rootFolderRequest.Files.Select(ToEntry);
-            }
-
-            dlg.ContentRequested += (obj, args) =>
-            {
-                if (args.Path is null)
-                {
-                    if (obj is not CustomSelectFileDialog dlg)
-                    {
-                        return;
-                    }
-                    dlg.CurrentPath = dlg.RootEntries?.FirstOrDefault()?.Name;
-                    return;
-                }
-                var contentRequest = Program.GrpcClient.GetFolderContent(
-                    new GetFolderContentRequest
-                    {
-                        Path = args.Path ?? "",
-                        TypeRestriction = FileType.Folder
-                    });
-                if (contentRequest.RequestFailed)
-                {
-                    args.Entries = [];
-                    throw new InvalidContentRequestException();
-                }
-                args.Entries = contentRequest.Files.Select(ToEntry);
-            };
-
-            if (dlg.ShowDialog() != DialogResult.OK)
-            {
-                return null;
-            }
-
-            return dlg.SelectedPath;
         }
 
         private void PibConcurrencyLevelHint_Click(object sender, EventArgs e) =>

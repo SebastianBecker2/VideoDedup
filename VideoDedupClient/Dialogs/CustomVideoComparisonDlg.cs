@@ -142,24 +142,30 @@ namespace VideoDedupClient.Dialogs
 
         private void BtnSelectLeftFilePath_Click(object sender, EventArgs e)
         {
-            using var dlg = new CommonOpenFileDialog();
-            if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
+            var newPath = SelectFileDialog.Show(
+                TxtLeftFilePath.Text,
+                "Select left video file",
+                CustomSelectFileDlg.RequestedEntryType.FilesAndFolders);
+            if (newPath is null)
             {
                 return;
             }
 
-            LeftFilePath = dlg.FileName;
+            LeftFilePath = newPath;
         }
 
         private void BtnSelectRightFilePath_Click(object sender, EventArgs e)
         {
-            using var dlg = new CommonOpenFileDialog();
-            if (dlg.ShowDialog() != CommonFileDialogResult.Ok)
+            var newPath = SelectFileDialog.Show(
+                TxtRightFilePath.Text,
+                "Select right video file",
+                CustomSelectFileDlg.RequestedEntryType.FilesAndFolders);
+            if (newPath is null)
             {
                 return;
             }
 
-            RightFilePath = dlg.FileName;
+            RightFilePath = newPath;
         }
 
         private void BtnOkay_Click(object sender, EventArgs e)
