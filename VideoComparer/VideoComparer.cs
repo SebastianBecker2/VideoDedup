@@ -96,6 +96,10 @@ namespace VideoComparer
                 {
                     return new CacheableFrameSet(index);
                 }
+                finally
+                {
+                    GC.Collect();
+                }
             }
 
             public FrameSet ToFrameSet()
