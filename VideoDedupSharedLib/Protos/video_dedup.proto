@@ -22,6 +22,7 @@ service VideoDedupGrpcService {
   rpc CancelVideoComparison (CancelVideoComparisonRequest) returns (google.protobuf.Empty);
   rpc GetFolderContent (GetFolderContentRequest) returns (GetFolderContentResponse);
   rpc GetProgressInfo (GetProgressInfoRequest) returns (GetProgressInfoResponse);
+  rpc GetSystemInfo (google.protobuf.Empty) returns (GetSystemInfoResponse);
 }
 
 enum ComparisonResult {
@@ -273,4 +274,28 @@ message ConfigurationSettings {
   VideoComparisonSettings video_comparison_settings = 3;
   LogSettings log_settings = 5;
   ResolutionSettings resolution_settings = 6;
+}
+
+message GetSystemInfoResponse {
+    message NetworkAdapterInfo {
+        string name = 1;
+        string status = 2;
+        string type = 3;
+        string mac = 4;
+        repeated string ip_addresses = 5;
+    }
+
+    int32 processor_count = 1;
+    string machine_name = 2;
+    string os_version = 3;
+    string os_description = 4;
+    int32 process_id = 5;
+    string process_path = 6;
+    string uptime = 7;
+    string username = 8;
+    string framework_description = 9;
+    string os_architecture = 10;
+    string process_architecture = 11;
+    string runtime_identifier = 12;
+    repeated NetworkAdapterInfo network_adapters = 13;
 }

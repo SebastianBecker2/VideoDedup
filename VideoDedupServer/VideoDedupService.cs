@@ -1,6 +1,8 @@
 namespace VideoDedupServer
 {
     using System.IO;
+    using System.Net.NetworkInformation;
+    using System.Runtime.InteropServices;
     using ComparisonManager;
     using DedupEngine;
     using DedupEngine.EventArgs;
@@ -266,6 +268,48 @@ namespace VideoDedupServer
                     .Take(request.Count)]);
                 return Task.FromResult(response);
             }
+        }
+
+        public override Task<GetSystemInfoResponse> GetSystemInfo(
+            Empty request,
+            ServerCallContext context)
+        {
+            var response = new GetSystemInfoResponse
+            {
+                ProcessorCount = Environment.ProcessorCount,
+                MachineName = Environment.MachineName,
+                OsVersion = Environment.OSVersion.ToString(),
+                OsDescription = RuntimeInformation.OSDescription,
+                ProcessId = Environment.ProcessId,
+                ProcessPath = Environment.ProcessPath ?? string.Empty,
+                Uptime = TimeSpan.FromMilliseconds(Environment.TickCount64).ToString(),
+                Username = Environment.UserName,
+                FrameworkDescription = RuntimeInformation.FrameworkDescription,
+                OsArchitecture = RuntimeInformation.OSArchitecture.ToString(),
+                ProcessArchitecture = RuntimeInformation.ProcessArchitecture.ToString(),
+                RuntimeIdentifier = RuntimeInformation.RuntimeIdentifier,
+            };
+
+            response.NetworkAdapters.AddRange(NetworkInterface.GetAllNetworkInterfaces()
+                .Select(adapter =>
+                {
+                    var nai = new GetSystemInfoResponse.Types.NetworkAdapterInfo
+                    {
+                        Name = adapter.Name,
+                        Status = adapter.OperationalStatus.ToString(),
+                        Type = adapter.NetworkInterfaceType.ToString(),
+                        Mac = adapter.GetPhysicalAddress().ToString(),
+                    };
+
+                    nai.IpAddresses.AddRange(
+                        adapter.GetIPProperties().UnicastAddresses
+                            .Select(ip => $"{ip.Address}/{ip.PrefixLength}"
+                        ));
+
+                    return nai;
+                }));
+
+            return Task.FromResult(response);
         }
 
         private void DedupEngine_OperationUpdate(

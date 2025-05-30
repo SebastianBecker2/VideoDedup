@@ -200,6 +200,7 @@ namespace VideoDedupClient.Dialogs
             {
                 dlg.ConfigurationSettings =
                     GrpcClient.GetConfiguration(new Empty());
+                dlg.SystemInfo = GrpcClient.GetSystemInfo(new Empty());
             }
             catch (Exception)
             {

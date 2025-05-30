@@ -15,12 +15,15 @@ namespace VideoDedupClient.Dialogs
             ConfigurationSettings?.ResolutionSettings;
 
         public ConfigurationSettings? ConfigurationSettings { get; set; }
+        public GetSystemInfoResponse? SystemInfo { get; set; }
 
         public ServerConfigDlg() => InitializeComponent();
 
         protected override void OnLoad(EventArgs e)
         {
-            DscDedupSettings.ShowSettings(DedupSettings);
+            DscDedupSettings.ShowSettings(
+                DedupSettings,
+                SystemInfo?.ProcessorCount);
 
             CscComparisonSettings.ShowSettings(
                 VideoComparisonSettings,
@@ -29,6 +32,8 @@ namespace VideoDedupClient.Dialogs
             LscLogSettings.ShowSettings(LogSettings);
 
             RscResolutionSettings.ShowSettings(ResolutionSettings);
+
+            SicSystemInfo.ShowSystemInfo(SystemInfo);
 
             base.OnLoad(e);
         }

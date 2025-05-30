@@ -42,18 +42,21 @@ namespace VideoDedupClient.Dialogs
             tabPage2 = new TabPage();
             tabPage3 = new TabPage();
             tableLayoutPanel3 = new TableLayoutPanel();
+            tabPage4 = new TabPage();
+            SicSystemInfo = new VideoDedupClient.Controls.SystemInfo.SystemInfoCtrl();
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
             tabPage2.SuspendLayout();
             tabPage3.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
+            tabPage4.SuspendLayout();
             SuspendLayout();
             // 
             // BtnCancel
             // 
             BtnCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             BtnCancel.DialogResult = DialogResult.Cancel;
-            BtnCancel.Location = new Point(325, 478);
+            BtnCancel.Location = new Point(404, 478);
             BtnCancel.Margin = new Padding(4, 3, 4, 3);
             BtnCancel.Name = "BtnCancel";
             BtnCancel.Size = new Size(88, 27);
@@ -64,7 +67,7 @@ namespace VideoDedupClient.Dialogs
             // BtnOkay
             // 
             BtnOkay.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            BtnOkay.Location = new Point(230, 478);
+            BtnOkay.Location = new Point(309, 478);
             BtnOkay.Margin = new Padding(4, 3, 4, 3);
             BtnOkay.Name = "BtnOkay";
             BtnOkay.Size = new Size(88, 27);
@@ -78,16 +81,16 @@ namespace VideoDedupClient.Dialogs
             CscComparisonSettings.Dock = DockStyle.Fill;
             CscComparisonSettings.Location = new Point(3, 3);
             CscComparisonSettings.Name = "CscComparisonSettings";
-            CscComparisonSettings.Size = new Size(388, 426);
+            CscComparisonSettings.Size = new Size(186, 66);
             CscComparisonSettings.TabIndex = 28;
             CscComparisonSettings.TryComparisonClick += CscComparisonSettings_TryComparisonClick;
             // 
             // LscLogSettings
             // 
             LscLogSettings.Dock = DockStyle.Fill;
-            LscLogSettings.Location = new Point(3, 216);
+            LscLogSettings.Location = new Point(3, 36);
             LscLogSettings.Name = "LscLogSettings";
-            LscLogSettings.Size = new Size(382, 207);
+            LscLogSettings.Size = new Size(180, 27);
             LscLogSettings.TabIndex = 29;
             // 
             // RscResolutionSettings
@@ -95,7 +98,7 @@ namespace VideoDedupClient.Dialogs
             RscResolutionSettings.Dock = DockStyle.Fill;
             RscResolutionSettings.Location = new Point(3, 3);
             RscResolutionSettings.Name = "RscResolutionSettings";
-            RscResolutionSettings.Size = new Size(382, 207);
+            RscResolutionSettings.Size = new Size(180, 27);
             RscResolutionSettings.TabIndex = 30;
             // 
             // DscDedupSettings
@@ -103,7 +106,7 @@ namespace VideoDedupClient.Dialogs
             DscDedupSettings.Dock = DockStyle.Fill;
             DscDedupSettings.Location = new Point(3, 3);
             DscDedupSettings.Name = "DscDedupSettings";
-            DscDedupSettings.Size = new Size(388, 426);
+            DscDedupSettings.Size = new Size(398, 426);
             DscDedupSettings.TabIndex = 1;
             // 
             // tabControl1
@@ -112,10 +115,11 @@ namespace VideoDedupClient.Dialogs
             tabControl1.Controls.Add(tabPage1);
             tabControl1.Controls.Add(tabPage2);
             tabControl1.Controls.Add(tabPage3);
+            tabControl1.Controls.Add(tabPage4);
             tabControl1.Location = new Point(12, 12);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(402, 460);
+            tabControl1.Size = new Size(481, 460);
             tabControl1.TabIndex = 28;
             // 
             // tabPage1
@@ -124,7 +128,7 @@ namespace VideoDedupClient.Dialogs
             tabPage1.Location = new Point(4, 24);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(394, 432);
+            tabPage1.Size = new Size(404, 432);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Deduplication Input";
             tabPage1.UseVisualStyleBackColor = true;
@@ -135,7 +139,7 @@ namespace VideoDedupClient.Dialogs
             tabPage2.Location = new Point(4, 24);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new Padding(3);
-            tabPage2.Size = new Size(394, 432);
+            tabPage2.Size = new Size(192, 72);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "Comparison";
             tabPage2.UseVisualStyleBackColor = true;
@@ -146,7 +150,7 @@ namespace VideoDedupClient.Dialogs
             tabPage3.Location = new Point(4, 24);
             tabPage3.Name = "tabPage3";
             tabPage3.Padding = new Padding(3);
-            tabPage3.Size = new Size(394, 432);
+            tabPage3.Size = new Size(192, 72);
             tabPage3.TabIndex = 2;
             tabPage3.Text = "Duplicates and Logging";
             tabPage3.UseVisualStyleBackColor = true;
@@ -163,8 +167,27 @@ namespace VideoDedupClient.Dialogs
             tableLayoutPanel3.RowCount = 2;
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel3.Size = new Size(388, 426);
+            tableLayoutPanel3.Size = new Size(186, 66);
             tableLayoutPanel3.TabIndex = 31;
+            // 
+            // tabPage4
+            // 
+            tabPage4.Controls.Add(SicSystemInfo);
+            tabPage4.Location = new Point(4, 24);
+            tabPage4.Name = "tabPage4";
+            tabPage4.Padding = new Padding(3);
+            tabPage4.Size = new Size(473, 432);
+            tabPage4.TabIndex = 3;
+            tabPage4.Text = "System Info";
+            tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // SicSystemInfo
+            // 
+            SicSystemInfo.Dock = DockStyle.Fill;
+            SicSystemInfo.Location = new Point(3, 3);
+            SicSystemInfo.Name = "SicSystemInfo";
+            SicSystemInfo.Size = new Size(467, 426);
+            SicSystemInfo.TabIndex = 0;
             // 
             // ServerConfigDlg
             // 
@@ -172,7 +195,7 @@ namespace VideoDedupClient.Dialogs
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             CancelButton = BtnCancel;
-            ClientSize = new Size(426, 519);
+            ClientSize = new Size(505, 519);
             Controls.Add(tabControl1);
             Controls.Add(BtnCancel);
             Controls.Add(BtnOkay);
@@ -186,6 +209,7 @@ namespace VideoDedupClient.Dialogs
             tabPage2.ResumeLayout(false);
             tabPage3.ResumeLayout(false);
             tableLayoutPanel3.ResumeLayout(false);
+            tabPage4.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -201,5 +225,7 @@ namespace VideoDedupClient.Dialogs
         private TabPage tabPage2;
         private TabPage tabPage3;
         private TableLayoutPanel tableLayoutPanel3;
+        private TabPage tabPage4;
+        private Controls.SystemInfo.SystemInfoCtrl SicSystemInfo;
     }
 }
