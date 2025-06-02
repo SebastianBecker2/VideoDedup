@@ -7,32 +7,60 @@ namespace FfmpegLib
     using FFmpeg.AutoGen;
     using FfmpegLib.Exceptions;
 
-    public sealed class FrameEnumerator :
+    internal sealed class FrameEnumerator :
         IEnumerable<byte[]?>,
         IEnumerator<byte[]?>
     {
-        private readonly List<Task<byte[]?>> tasks;
+        private readonly Task? task;
         private int currentMoveIndex;
-        private readonly string filePath;
-        private readonly CancellationToken? cancelToken;
+        private readonly string path;
+        private readonly ParallelOptions options;
+        private readonly List<Tuple<FrameIndex, TaskCompletionSource<byte[]?>>>?
+            results;
+        private readonly List<FrameIndex> indices;
 
         public FrameEnumerator(
             string filePath,
-            CancellationToken? cancelToken,
-            IEnumerable<FrameIndex> indices)
+            IEnumerable<FrameIndex> indices,
+            ParallelOptions parallelOptions)
         {
-            this.filePath = filePath;
-            this.cancelToken = cancelToken;
+            if (parallelOptions.MaxDegreeOfParallelism == 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(parallelOptions),
+                    "MaxDegreeOfParallelism must be greater than zero.");
+            }
 
-            tasks = [.. indices.Select(index =>
-                Task.Run(() => ExtractFrameAtIndex(index)))];
+            path = filePath;
+            options = parallelOptions;
+            this.indices = [.. indices];
+
+            if (parallelOptions.MaxDegreeOfParallelism == 1)
+            {
+                return;
+            }
+
+            results = [.. indices.Select(index => Tuple.Create(
+                index,
+                new TaskCompletionSource<byte[]?>()))];
+
+            task = Task.Run(() =>
+            {
+                try
+                {
+                    _ = Parallel.ForEach(this.indices, parallelOptions, index =>
+                        results.First(x => x.Item1.Equals(index)).Item2
+                            .SetResult(ExtractFrameAtIndex(index)));
+                }
+                catch (OperationCanceledException) { }
+            });
         }
 
         private unsafe byte[]? ExtractFrameAtIndex(FrameIndex index)
         {
             try
             {
-                using var formatContext = AllocateFormatContext(filePath);
+                using var formatContext = AllocateFormatContext(path);
                 var stream = formatContext.GetVideoStream(true);
                 var codec = GetDecoder(stream);
                 using var streamContext = AllocateStreamContext(stream, codec);
@@ -61,16 +89,37 @@ namespace FfmpegLib
 
         public bool MoveNext()
         {
-            if (currentMoveIndex >= tasks.Count
-                || cancelToken?.IsCancellationRequested == true)
-            {
-                Current = null;
-                return false;
-            }
-
             try
             {
-                Current = tasks[currentMoveIndex].Result;
+                if (options.CancellationToken.IsCancellationRequested)
+                {
+                    Current = null;
+                    return false;
+                }
+
+                if (options.MaxDegreeOfParallelism == 1)
+                {
+                    if (currentMoveIndex >= indices.Count)
+                    {
+                        Current = null;
+                        return false;
+                    }
+
+                    Current = ExtractFrameAtIndex(indices[currentMoveIndex]);
+                    currentMoveIndex++;
+                    return true;
+                }
+
+                if (results is null || currentMoveIndex >= results!.Count)
+                {
+                    Current = null;
+                    return false;
+                }
+
+                var result = results[currentMoveIndex].Item2;
+                result.Task.Wait(options.CancellationToken);
+                Current = result.Task.Result;
+
                 currentMoveIndex++;
                 return true;
             }
@@ -86,11 +135,13 @@ namespace FfmpegLib
 
         public void Dispose()
         {
-            foreach (var thread in tasks)
-            {
-                thread.Wait();
-                thread.Dispose();
-            }
+            task?.Wait();
+            task?.Dispose();
+            //foreach (var thread in tasks)
+            //{
+            //    thread.Wait();
+            //    thread.Dispose();
+            //}
         }
 
         private static unsafe byte[]? ExtractFrameAtTimestamp(

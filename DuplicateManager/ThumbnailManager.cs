@@ -60,7 +60,10 @@ namespace DuplicateManager
                             0,
                             Settings.ThumbnailCount,
                             Settings.ThumbnailCount,
-                            cancelToken)
+                            new ParallelOptions
+                            {
+                                CancellationToken = cancelToken
+                            })
                         .Select(i => i is null ? [] : i)];
                 }
                 catch (FfmpegOperationException)

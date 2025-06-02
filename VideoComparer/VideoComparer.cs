@@ -394,12 +394,12 @@ namespace VideoComparer
         private IEnumerable<CacheableFrameSet> LoadFramesFromFile(
             VideoFile videoFile,
             IEnumerable<FrameIndex> indices,
-            CancellationToken cancelToken)
+            ParallelOptions parallelOptions)
         {
             try
             {
                 var ffmpeg = new FfmpegWrapper(videoFile.FilePath);
-                var frames = ffmpeg.GetFrames(indices, cancelToken)
+                var frames = ffmpeg.GetFrames(indices, parallelOptions)
                     .ToList()
                     .Zip(indices, (stream, index) => (index, stream))
                     // Converting to frame set including the intermediate
@@ -432,7 +432,7 @@ namespace VideoComparer
         private IEnumerable<CacheableFrameSet> GetFramesFromFile(
             VideoFile videoFile,
             LoadLevel loadLevel,
-            CancellationToken cancelToken)
+            ParallelOptions parallelOptions)
         {
             if (videoFile.FrameCount != Settings.CompareCount)
             {
@@ -451,7 +451,7 @@ namespace VideoComparer
             // a copy of the frame in every state.
             if (FrameCompared != null)
             {
-                return LoadFramesFromFile(videoFile, indices, cancelToken);
+                return LoadFramesFromFile(videoFile, indices, parallelOptions);
             }
 
             var frames = indices.Select(index =>
@@ -484,7 +484,7 @@ namespace VideoComparer
                 foreach (var frame in LoadFramesFromFile(
                     videoFile,
                     frames.Where(i => !i.Loaded).Select(i => i.Index),
-                    cancelToken))
+                    parallelOptions))
                 {
                     frames.First(i => i.Index == frame.Index).Bytes = frame.Bytes;
                 }
@@ -496,26 +496,26 @@ namespace VideoComparer
         private ComparisonResult CompareLoadLevel(
             int loadLevelIndex,
             ref int differenceCount,
-            CancellationToken cancelToken)
+            ParallelOptions parallelOptions)
         {
             var loadLevel = CalculateLoadLevel(loadLevelIndex, Settings);
 
             var leftFrames = GetFramesFromFile(
                 LeftVideoFile,
                 loadLevel,
-                cancelToken).ToList();
+                parallelOptions).ToList();
 
             var rightFrames = GetFramesFromFile(
                 RightVideoFile,
                 loadLevel,
-                cancelToken).ToList();
+                parallelOptions).ToList();
 
             var videoComparisonResult = ComparisonResult.NoResult;
 
             foreach (var index in Enumerable
                     .Range(0, loadLevel.FrameCount))
             {
-                if (cancelToken.IsCancellationRequested)
+                if (parallelOptions.CancellationToken.IsCancellationRequested)
                 {
                     videoComparisonResult = ComparisonResult.Cancelled;
                     break;
@@ -589,7 +589,7 @@ namespace VideoComparer
             return videoComparisonResult;
         }
 
-        public ComparisonResult Compare(CancellationToken cancelToken)
+        public ComparisonResult Compare(ParallelOptions parallelOptions)
         {
             if (LeftVideoFile is null)
             {
@@ -608,7 +608,7 @@ namespace VideoComparer
             var comparisonResult = ComparisonResult.NoResult;
             foreach (var loadLevelIndex in Enumerable.Range(1, LoadLevelCount))
             {
-                if (cancelToken.IsCancellationRequested)
+                if (parallelOptions.CancellationToken.IsCancellationRequested)
                 {
                     comparisonResult = ComparisonResult.Cancelled;
                     break;
@@ -617,7 +617,7 @@ namespace VideoComparer
                 comparisonResult = CompareLoadLevel(
                     loadLevelIndex,
                     ref differenceCount,
-                    cancelToken);
+                    parallelOptions);
 
                 if (comparisonResult != ComparisonResult.NoResult
                     && !ForceLoadingAllFrames)

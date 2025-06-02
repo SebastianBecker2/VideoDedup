@@ -47,12 +47,11 @@ namespace VideoDedupClient.Controls.DedupSettings
             var text = $"Set the concurrency level for parallel processing." +
                 $"{Environment.NewLine}Higher values increase performance but " +
                 $"may use more system resources.{Environment.NewLine}" +
-                $"Default: Number of logical CPUs divided by 2.";
+                $"Default: Number of logical CPUs.";
 
             if (processorCount is not null)
             {
-                text += $" ({processorCount} / 2 = " +
-                    $"{processorCount / 2})";
+                text += $" ({processorCount})";
             }
 
             TipHints.SetToolTip(PibConcurrencyLevelHint, text);

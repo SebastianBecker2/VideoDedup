@@ -91,7 +91,10 @@ namespace ComparisonManager
             try
             {
                 Logger?.Information($"Comparison {Token} is comparing");
-                _ = comparer.Compare(cancelTokenSource.Token);
+                _ = comparer.Compare(new ParallelOptions
+                {
+                    CancellationToken = cancelTokenSource.Token,
+                });
             }
             catch (Exception exc)
             {

@@ -56,6 +56,8 @@ namespace FfmpegLib
             return CalculateGcd(b, a % b);
         }
 
+        public override string ToString() => ToPrettyString();
+
         public bool Equals(FrameIndex? other) =>
             other is not null
             && other.Numerator == Numerator

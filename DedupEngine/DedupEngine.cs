@@ -561,8 +561,12 @@ namespace DedupEngine
                         datastore.DatastoreFilePath,
                         left,
                         right);
-                if (comparer.Compare(cancelToken)
-                    != ComparisonResult.Duplicate)
+                var parallelOptions = new ParallelOptions
+                {
+                    CancellationToken = cancelToken,
+                    MaxDegreeOfParallelism = 1,
+                };
+                if (comparer.Compare(parallelOptions) != ComparisonResult.Duplicate)
                 {
                     return;
                 }
