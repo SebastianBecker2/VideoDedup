@@ -1,5 +1,6 @@
 namespace VideoDedupClient.Controls.StatusInfo
 {
+    using Google.Protobuf.WellKnownTypes;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.TimeSpanExtensions;
     using static VideoDedupGrpc.OperationInfo.Types;
@@ -55,6 +56,34 @@ namespace VideoDedupClient.Controls.StatusInfo
             LblDuplicateCount.Text = "";
             LblFileCountSpeed.Text = "0";
             LblDuplicateSpeed.Text = "0";
+        }
+
+        public void Clear()
+        {
+            OperationInfo = new OperationInfo
+            {
+                OperationType = OperationType.Connecting,
+                MaximumFiles = 0,
+                ProgressStyle = ProgressStyle.NoProgress,
+                ProgressCount = 0,
+                ProgressToken = "",
+                StartTime = Timestamp.FromDateTime(DateTime.UtcNow),
+            };
+            LatestProgressInfo = null;
+            progressCount = 0;
+            progressToken = "";
+            PrgProgress.Clear();
+            PrgProgress.MaxProgress = 0;
+            PrgProgress.Refresh();
+            LblStatusInfo.Text = OperationTypeTexts[OperationType.Connecting];
+            // Workaround! Empty LblCurrentFileCount causes the table layout
+            // panel to resize incorrectly, so we set it to a space character.
+            LblCurrentFileCount.Text = " ";
+            LblDuplicateCount.Text = "";
+            LblFileCountSpeed.Text = "0";
+            LblDuplicateSpeed.Text = "0";
+            LblElapsedTime.Text = TimeSpan.Zero.ToPrettyString();
+            LblRemainingTime.Text = TimeSpan.Zero.ToPrettyString();
         }
 
         public void UpdateStatusInfo(

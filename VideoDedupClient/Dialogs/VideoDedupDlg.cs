@@ -252,6 +252,14 @@ namespace VideoDedupClient.Dialogs
                 return;
             }
 
+            if (Program.Configuration.ServerAddress
+                != dlg.Configuration.ServerAddress)
+            {
+                DgvLog.RowCount = 0;
+                LogEntries.Clear();
+                StiProgress.Clear();
+            }
+
             Program.Configuration = dlg.Configuration;
             Program.SaveConfig();
             _ = StatusTimer.StartSingle(

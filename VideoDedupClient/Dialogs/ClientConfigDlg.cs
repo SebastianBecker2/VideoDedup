@@ -36,12 +36,13 @@ namespace VideoDedupClient.Dialogs
                 return;
             }
 
-            Configuration ??= new ConfigData();
-
-            Configuration.ServerAddress = TxtServerAddress.Text;
-            Configuration.StatusRequestInterval = TimeSpan.FromMilliseconds(
-                (int)NudStatusRequestInterval.Value);
-            Configuration.ClientSourcePath = TxtClientSourcePath.Text;
+            Configuration = new ConfigData
+            {
+                ServerAddress = TxtServerAddress.Text,
+                StatusRequestInterval = TimeSpan.FromMilliseconds(
+                    (int)NudStatusRequestInterval.Value),
+                ClientSourcePath = TxtClientSourcePath.Text
+            };
 
             DialogResult = DialogResult.OK;
         }
