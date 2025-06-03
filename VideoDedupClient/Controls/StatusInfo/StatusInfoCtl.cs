@@ -128,6 +128,14 @@ namespace VideoDedupClient.Controls.StatusInfo
 
         private IEnumerable<ProgressInfo> GetNextProgressInfo()
         {
+            // If we don't have a progress token and neither had one before,
+            // we don't want to clear anymore. It's already cleared.
+            // Otherwise we stop the marquee each time, which looks weird.
+            if (string.IsNullOrWhiteSpace(OperationInfo.ProgressToken)
+                && OperationInfo.ProgressToken == progressToken)
+            {
+                yield break;
+            }
             if (string.IsNullOrWhiteSpace(OperationInfo.ProgressToken)
                 || OperationInfo.ProgressToken != progressToken)
             {
