@@ -46,10 +46,20 @@ namespace VideoDedupClient.Dialogs
         {
             try
             {
+                var prevAddress = Program.Configuration.ServerAddress;
                 var status = GrpcClient.GetCurrentStatus(new Empty());
 
                 this.InvokeIfRequired(() =>
                 {
+                    // Workaround! We have to make sure the Status response
+                    // is from the current ServerAddress. If the address changed
+                    // while we were waiting for the response, we get into
+                    // trouble! This is not perfect, but it works for now.
+                    if (prevAddress != Program.Configuration.ServerAddress)
+                    {
+                        return;
+                    }
+
                     if (logToken != status.LogToken)
                     {
                         // Has to be in this order
