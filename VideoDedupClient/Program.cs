@@ -6,6 +6,7 @@ namespace VideoDedupClient
     using Properties;
     using Dialogs;
     using static VideoDedupGrpc.VideoDedupGrpcService;
+    using System.Net;
 
     internal static class Program
     {
@@ -44,6 +45,17 @@ namespace VideoDedupClient
                     RetryableStatusCodes = { StatusCode.Unavailable }
                 },
             };
+
+        private static string BuildUrl(string serverAddress, int port)
+        {
+            if (IPAddress.TryParse(Configuration.ServerAddress, out var ip)
+                && ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
+            {
+                return $"http://[{serverAddress}]:{port}";
+            }
+            return $"http://{serverAddress}:{port}";
+        }
+
         internal static VideoDedupGrpcServiceClient GrpcClient
         {
             get
@@ -51,7 +63,7 @@ namespace VideoDedupClient
                 lock (GrpcClientLock)
                 {
                     grpcChannel ??= GrpcChannel.ForAddress(
-                        $"http://{Configuration.ServerAddress}:41722",
+                        BuildUrl(Configuration.ServerAddress, 41722),
                         new GrpcChannelOptions
                         {
                             MaxReconnectBackoff = TimeSpan.FromSeconds(10),

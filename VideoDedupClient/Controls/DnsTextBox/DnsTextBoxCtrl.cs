@@ -127,6 +127,11 @@ namespace VideoDedupClient.Controls.DnsTextBox
 
         public static bool IsDnsNameValid(string dnsName)
         {
+            if (IPAddress.TryParse(dnsName, out _))
+            {
+                return true;
+            }
+
             if (dnsName.Length > MaximumLength)
             {
                 return false;
