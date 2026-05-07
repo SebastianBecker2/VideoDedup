@@ -42,6 +42,51 @@ namespace VideoDedupClient.Dialogs
             base.OnLoad(e);
         }
 
+        private void OfferUpdateServerCertificate()
+        {
+            if (System.Windows.Forms.MessageBox.Show(
+                    this,
+                    "The connection to the server failed, possibly because the TLS " +
+                    "certificate is missing or out of date.\n\n" +
+                    "Do you want to select the VideoDedup.crt file from your server now?",
+                    "VideoDedup",
+                    System.Windows.Forms.MessageBoxButtons.YesNo,
+                    System.Windows.Forms.MessageBoxIcon.Question) != System.Windows.Forms.DialogResult.Yes)
+            {
+                return;
+            }
+
+            using var dlg = new System.Windows.Forms.OpenFileDialog
+            {
+                Filter = "Certificate (*.crt)|*.crt|All files (*.*)|*.*",
+                Title = "Select VideoDedup.crt from the server",
+            };
+            if (dlg.ShowDialog(this) != System.Windows.Forms.DialogResult.OK)
+            {
+                return;
+            }
+
+            if (!Program.TryImportPinnedServerCertificate(
+                    dlg.FileName,
+                    out var err))
+            {
+                _ = System.Windows.Forms.MessageBox.Show(
+                    this,
+                    "Could not import the certificate:\n" + err,
+                    "VideoDedup",
+                    System.Windows.Forms.MessageBoxButtons.OK,
+                    System.Windows.Forms.MessageBoxIcon.Warning);
+                return;
+            }
+
+            _ = System.Windows.Forms.MessageBox.Show(
+                this,
+                "The server certificate was saved. The app will try to reconnect.",
+                "VideoDedup",
+                System.Windows.Forms.MessageBoxButtons.OK,
+                System.Windows.Forms.MessageBoxIcon.Information);
+        }
+
         private void StatusTimerCallback(object? param)
         {
             try
@@ -97,6 +142,11 @@ namespace VideoDedupClient.Dialogs
             catch (RpcException ex)
             {
                 Debug.Print("Status request failed with: " + ex.Message);
+                if (Program.IsLikelyCertificateOrTlsFailure(ex))
+                {
+                    this.InvokeIfRequired(this.OfferUpdateServerCertificate);
+                }
+
                 this.InvokeIfRequired(() =>
                 {
                     BtnResolveDuplicates.Enabled = false;
@@ -262,8 +312,16 @@ namespace VideoDedupClient.Dialogs
                 return;
             }
 
-            if (Program.Configuration.ServerAddress
-                != dlg.Configuration.ServerAddress)
+            if (dlg.Configuration is null)
+            {
+                return;
+            }
+
+            var previousConfig = Program.Configuration;
+            if (previousConfig.ServerAddress != dlg.Configuration.ServerAddress
+                || previousConfig.Port != dlg.Configuration.Port
+                || previousConfig.Protocol != dlg.Configuration.Protocol
+                || previousConfig.PinnedCertificatePath != dlg.Configuration.PinnedCertificatePath)
             {
                 DgvLog.RowCount = 0;
                 LogEntries.Clear();

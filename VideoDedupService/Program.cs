@@ -36,6 +36,15 @@ namespace VideoDedupService
                 Args = args,
             });
 
+            _ = builder.WebHost.ConfigureKestrel((context, options) =>
+            {
+                var env = context.HostingEnvironment.EnvironmentName;
+                var section = env == "Development"
+                    ? "KestrelDevelopment"
+                    : "Kestrel";
+                options.Configure(context.Configuration.GetSection(section));
+            });
+
             _ = builder.Services.AddGrpc(options =>
             {
                 options.ResponseCompressionAlgorithm = "gzip";

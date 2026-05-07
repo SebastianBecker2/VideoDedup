@@ -16,6 +16,13 @@ namespace FfmpegLib
                     filePath);
             }
 
+#if DEBUG
+            if (OperatingSystem.IsLinux())
+            {
+                ffmpeg.RootPath = "/home/sebastian/ffmpeg/ffmpeg-n7.1-latest-linux64-lgpl-shared-7.1/lib/";
+            }
+#endif
+
             using var context = new FormatContext();
             if (context.GetPointer() is null)
             {
@@ -69,6 +76,13 @@ namespace FfmpegLib
                     "Unable to read duration. The specified file was not found.",
                     filePath);
             }
+
+#if DEBUG
+            if (OperatingSystem.IsLinux())
+            {
+                ffmpeg.RootPath = "/home/sebastian/ffmpeg/ffmpeg-n7.1-latest-linux64-lgpl-shared-7.1/lib/";
+            }
+#endif
 
             using var context = new FormatContext();
             if (context.GetPointer() is null)
@@ -125,6 +139,13 @@ namespace FfmpegLib
             }
 
             FilePath = filePath;
+
+#if DEBUG
+            if (OperatingSystem.IsLinux())
+            {
+                ffmpeg.RootPath = "/home/sebastian/ffmpeg/ffmpeg-n7.1-latest-linux64-lgpl-shared-7.1/lib/";
+            }
+#endif
         }
 
         public IEnumerable<byte[]?> GetFrames(

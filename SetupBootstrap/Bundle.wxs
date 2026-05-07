@@ -1,0 +1,54 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+  <Bundle Id="SebastianBecker.VideoDedup" Name="VideoDedup" Manufacturer="SebastianBecker" Version="1.0.0.0">
+    <!--
+      WiX 6 out-of-proc BA: Burn launches SetupBootstrapperUI.exe directly.
+      Program.Main() calls ManagedBootstrapperApplication.Run() to connect via IPC.
+    -->
+    <Variable Name="ClientCertSource" Type="string" Value="" bal:Overridable="yes" />
+    <Variable Name="TriggerClientCertImport" Type="string" Value="" bal:Overridable="yes" />
+    <!-- Must be declared so the managed BA can call Engine.GetVariableString after detect.
+         util:RegistrySearch fills these when keys exist. -->
+    <Variable Name="ServerCertPath" Type="string" Value="" />
+    <Variable Name="ServerCertThumbprint" Type="string" Value="" />
+    <Variable Name="ClientInstallFolderMarker" Type="string" Value="" />
+
+    <util:RegistrySearch Id="SearchServerCertPath"
+                         Root="HKLM"
+                         Key="SOFTWARE\SebastianBecker\VideoDedup\Server"
+                         Value="CertPath"
+                         Variable="ServerCertPath"
+                         Result="value" />
+    <util:RegistrySearch Id="SearchServerCertThumbprint"
+                         Root="HKLM"
+                         Key="SOFTWARE\SebastianBecker\VideoDedup\Server"
+                         Value="CertThumbprint"
+                         Variable="ServerCertThumbprint"
+                         Result="value" />
+    <util:RegistrySearch Id="SearchClientInstallFolder"
+                         Root="HKLM"
+                         Key="SOFTWARE\SebastianBecker\VideoDedup\Client"
+                         Value="InstallFolder"
+                         Variable="ClientInstallFolderMarker"
+                         Result="value" />
+
+    <BootstrapperApplication SourceFile="$(var.SetupBootstrapperUI.TargetPath)">
+      <Payload SourceFile="$(var.SetupBootstrapperUI.TargetDir)WixToolset.BootstrapperApplicationApi.dll" />
+      <Payload SourceFile="$(var.SetupBootstrapperUI.TargetDir)mbanative.dll" />
+      <Payload SourceFile="$(var.SetupBootstrapperUI.TargetPath).config" />
+    </BootstrapperApplication>
+
+    <Chain>
+      <MsiPackage SourceFile="$(var.Setup.TargetPath)"
+                  Id="VideoDedupMsi"
+                  DisplayName="Video Dedup Installer"
+                  Compressed="yes"
+                  EnableFeatureSelection="yes">
+        <MsiProperty Name="CLIENTCERTSOURCE" Value="[ClientCertSource]" />
+        <MsiProperty Name="VIDEODEDUP_IMPORTCLIENTCERT" Value="[TriggerClientCertImport]" />
+      </MsiPackage>
+    </Chain>
+
+  </Bundle>
+</Wix>

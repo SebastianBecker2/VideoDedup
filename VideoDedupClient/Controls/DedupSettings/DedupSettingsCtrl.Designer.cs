@@ -167,10 +167,10 @@ namespace VideoDedupClient.Controls.DedupSettings
             // 
             label4.Anchor = AnchorStyles.Right;
             label4.AutoSize = true;
-            label4.Location = new Point(50, 297);
+            label4.Location = new Point(51, 297);
             label4.Margin = new Padding(4, 0, 4, 0);
             label4.Name = "label4";
-            label4.Size = new Size(62, 15);
+            label4.Size = new Size(61, 15);
             label4.TabIndex = 15;
             label4.Text = "Excluding:";
             // 
@@ -248,10 +248,10 @@ namespace VideoDedupClient.Controls.DedupSettings
             // 
             label10.Anchor = AnchorStyles.Right;
             label10.AutoSize = true;
-            label10.Location = new Point(26, 92);
+            label10.Location = new Point(27, 92);
             label10.Margin = new Padding(4, 0, 4, 0);
             label10.Name = "label10";
-            label10.Size = new Size(86, 15);
+            label10.Size = new Size(85, 15);
             label10.TabIndex = 20;
             label10.Text = "File Extentions:";
             // 

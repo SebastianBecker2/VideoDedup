@@ -1,7 +1,8 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
-     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
+     xmlns:fire="http://wixtoolset.org/schemas/v4/wxs/firewall">
   <?include $(sys.CURRENTDIR)\Config.wxi?>
-  
+    
   <Package Name="$(var.ProductName)"
            Language="1033"
            Version="!(bind.FileVersion.Client_VideoDedupClient.exe)"
@@ -24,6 +25,112 @@
     </Feature>
 
     <UIRef Id="UISequence" />
+
+    <Property Id="CLIENTCERTSOURCE" Secure="yes" />
+    <Property Id="VIDEODEDUP_IMPORTCLIENTCERT" Secure="yes" />
+
+    <Binary Id ="SetupActionCert"
+            SourceFile="$(var.SetupActionCertificate.TargetDir)\SetupActionCertificate.CA.dll" />
+
+    <CustomAction Id="SetInstallPath_Install"
+                  Property="GenerateSelfSignedCertFunc"
+                  Value="SERVERFOLDER=[SERVERFOLDER]"
+                  Execute="immediate"/>
+    <CustomAction Id="GenerateSelfSignedCertFunc"
+                  BinaryRef="SetupActionCert"
+                  DllEntry="GenerateSelfSignedCert"
+                  Execute="deferred"
+                  Impersonate="no"/>
+
+    <CustomAction Id="SetInstallPath_Uninstall"
+                  Property="RemoveSelfSignedCertFunc"
+                  Value="SERVERFOLDER=[SERVERFOLDER]"
+                  Execute="immediate"/>
+    <CustomAction Id="RemoveSelfSignedCertFunc"
+                  BinaryRef="SetupActionCert"
+                  DllEntry="RemoveSelfSignedCert"
+                  Execute="deferred"
+                  Impersonate="no"/>
+
+    <CustomAction Id="SetImportClientCertAfterServer"
+                  Property="ImportClientCertAfterServer"
+                  Value="CLIENTFOLDER=[CLIENTFOLDER];CLIENTCERTSOURCE=[CLIENTCERTSOURCE]"
+                  Execute="immediate"/>
+    <CustomAction Id="ImportClientCertAfterServer"
+                  BinaryRef="SetupActionCert"
+                  DllEntry="ImportClientCertificate"
+                  Execute="deferred"
+                  Impersonate="no"/>
+
+    <CustomAction Id="SetImportClientCertAfterFiles"
+                  Property="ImportClientCertAfterFiles"
+                  Value="CLIENTFOLDER=[CLIENTFOLDER];CLIENTCERTSOURCE=[CLIENTCERTSOURCE]"
+                  Execute="immediate"/>
+    <CustomAction Id="ImportClientCertAfterFiles"
+                  BinaryRef="SetupActionCert"
+                  DllEntry="ImportClientCertificate"
+                  Execute="deferred"
+                  Impersonate="no"/>
+
+    <CustomAction Id="SetImportClientCertMaint"
+                  Property="ImportClientCertMaint"
+                  Value="CLIENTFOLDER=[CLIENTFOLDER];CLIENTCERTSOURCE=[CLIENTCERTSOURCE]"
+                  Execute="immediate"/>
+    <CustomAction Id="ImportClientCertMaint"
+                  BinaryRef="SetupActionCert"
+                  DllEntry="ImportClientCertificate"
+                  Execute="deferred"
+                  Impersonate="no"/>
+
+    <CustomAction Id="SetRemoveClientCert"
+                  Property="RemoveClientCertificateFunc"
+                  Value="CLIENTFOLDER=[CLIENTFOLDER]"
+                  Execute="immediate"/>
+    <CustomAction Id="RemoveClientCertificateFunc"
+                  BinaryRef="SetupActionCert"
+                  DllEntry="RemoveClientCertificate"
+                  Execute="deferred"
+                  Impersonate="no"/>
+
+    <InstallExecuteSequence>
+      <Custom Action="SetInstallPath_Install"
+              Before="GenerateSelfSignedCertFunc"/>
+        
+      <Custom Action="GenerateSelfSignedCertFunc"
+              After="InstallFiles"
+              Condition="&amp;ServerFeature=3"/>
+
+      <Custom Action="SetImportClientCertAfterServer"
+              Before="ImportClientCertAfterServer"/>
+      <Custom Action="ImportClientCertAfterServer"
+              After="GenerateSelfSignedCertFunc"
+              Condition="&amp;ClientFeature=3 AND &amp;ServerFeature=3"/>
+
+      <Custom Action="SetImportClientCertAfterFiles"
+              Before="ImportClientCertAfterFiles"/>
+      <Custom Action="ImportClientCertAfterFiles"
+              After="InstallFiles"
+              Condition="&amp;ClientFeature=3 AND NOT &amp;ServerFeature=3 AND NOT (VIDEODEDUP_IMPORTCLIENTCERT=1)"/>
+
+      <Custom Action="SetImportClientCertMaint"
+              Before="ImportClientCertMaint"/>
+      <Custom Action="ImportClientCertMaint"
+              After="InstallFiles"
+              Condition="CLIENTCERTSOURCE AND VIDEODEDUP_IMPORTCLIENTCERT=1"/>
+
+      <Custom Action="SetInstallPath_Uninstall"
+              Before="RemoveSelfSignedCertFunc"/>
+        
+      <Custom Action="RemoveSelfSignedCertFunc"
+              After="InstallInitialize"
+              Condition='&amp;ServerFeature=2'/>
+
+      <Custom Action="SetRemoveClientCert"
+              Before="RemoveClientCertificateFunc"/>
+      <Custom Action="RemoveClientCertificateFunc"
+              After="InstallInitialize"
+              Condition="&amp;ClientFeature=2"/>
+    </InstallExecuteSequence>
   </Package>
 
   <!-- Directory definitions -->
@@ -33,9 +140,7 @@
 
     <StandardDirectory Id="ProgramFiles64Folder">
       <Directory Id="SERVERFOLDER"
-                 Name="$(var.ServerComponent)" >
-          
-      </Directory>
+                 Name="$(var.ServerComponent)" />
       <Directory Id="CLIENTFOLDER"
                  Name="$(var.ClientComponent)" />
     </StandardDirectory>
@@ -73,12 +178,26 @@
                   Advertise="yes" />
 
       </Component>
+
+      <Component Id="ClientInstallRegistry"
+                 Guid="E2D3A4B5-8C9D-4E1F-9A0B-1C2D3E4F5A6B"
+                 Bitness="always64"
+                 Directory="CLIENTFOLDER">
+        <RegistryValue Id="ClientInstallFolderValue"
+                       Root="HKLM"
+                       Key="SOFTWARE\SebastianBecker\VideoDedup\Client"
+                       Name="InstallFolder"
+                       Value="[CLIENTFOLDER]"
+                       Type="string"
+                       KeyPath="yes" />
+      </Component>
     </ComponentGroup>
     
     <ComponentGroup Id="ServerComponents"
                     Directory="SERVERFOLDER">
       <Files Include="$(var.VideoDedupService.ProjectDir)bin\publish\*.*">
         <Exclude Files="$(var.VideoDedupService.ProjectDir)bin\publish\VideoDedupService.exe" />
+        <Exclude Files="$(var.VideoDedupService.ProjectDir)bin\publish\appsettings.Development.json" />
       </Files>
       <Files Include="$(var.VideoDedupService.ProjectDir)bin\publish\fr\*.*"
              Subdirectory="fr"/>
@@ -104,6 +223,18 @@
                         Remove="uninstall"
                         Name="$(var.ServerComponent)"
                         Wait="yes" />
+
+        <fire:FirewallException Id="VideoDedupServerFirewall"
+                                Name="VideoDedupServer"
+                                Description="Allows VideoDedupServer to communicate over the network."
+                                Enabled="yes"
+                                Action="allow"
+                                Scope="any"
+                                IgnoreFailure="no"
+                                Program="[SERVERFOLDER]VideoDedupService.exe"
+                                Profile="all"
+                                Protocol="tcp"
+                                Port="51726" />
       </Component>
     </ComponentGroup>
   </Fragment>

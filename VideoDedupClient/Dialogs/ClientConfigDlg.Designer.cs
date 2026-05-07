@@ -31,223 +31,407 @@ namespace VideoDedupClient.Dialogs
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ClientConfigDlg));
-            this.BtnCancel = new System.Windows.Forms.Button();
-            this.BtnOkay = new System.Windows.Forms.Button();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.TxtServerAddress = new VideoDedupClient.Controls.DnsTextBox.DnsTextBoxCtrl();
-            this.NudStatusRequestInterval = new System.Windows.Forms.NumericUpDown();
-            this.TxtClientSourcePath = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.BtnSelectClientSourcePath = new System.Windows.Forms.Button();
-            this.PibServerAddressLoading = new System.Windows.Forms.PictureBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.groupBox1.SuspendLayout();
-            this.tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.NudStatusRequestInterval)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.PibServerAddressLoading)).BeginInit();
-            this.SuspendLayout();
+            var resources = new ComponentResourceManager(typeof(ClientConfigDlg));
+            BtnCancel = new Button();
+            BtnOkay = new Button();
+            groupBox1 = new GroupBox();
+            tableLayoutPanel2 = new TableLayoutPanel();
+            tableLayoutPanel7 = new TableLayoutPanel();
+            label7 = new Label();
+            TxtPinnedCertificatePath = new TextBox();
+            BtnBrowsePinnedCertificate = new Button();
+            label4 = new Label();
+            tableLayoutPanel3 = new TableLayoutPanel();
+            PibServerAddressLoading = new PictureBox();
+            TxtServerAddress = new DnsTextBoxCtrl();
+            label1 = new Label();
+            tableLayoutPanel4 = new TableLayoutPanel();
+            label5 = new Label();
+            label6 = new Label();
+            CmbProtocol = new ComboBox();
+            NudPort = new NumericUpDown();
+            tableLayoutPanel5 = new TableLayoutPanel();
+            label2 = new Label();
+            NudStatusRequestInterval = new NumericUpDown();
+            tableLayoutPanel6 = new TableLayoutPanel();
+            TxtClientSourcePath = new TextBox();
+            label3 = new Label();
+            BtnSelectClientSourcePath = new Button();
+            groupBox1.SuspendLayout();
+            tableLayoutPanel2.SuspendLayout();
+            tableLayoutPanel3.SuspendLayout();
+            ((ISupportInitialize)PibServerAddressLoading).BeginInit();
+            tableLayoutPanel4.SuspendLayout();
+            ((ISupportInitialize)NudPort).BeginInit();
+            tableLayoutPanel5.SuspendLayout();
+            ((ISupportInitialize)NudStatusRequestInterval).BeginInit();
+            tableLayoutPanel6.SuspendLayout();
+            tableLayoutPanel7.SuspendLayout();
+            SuspendLayout();
             // 
             // BtnCancel
             // 
-            this.BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.BtnCancel.Location = new System.Drawing.Point(294, 189);
-            this.BtnCancel.Name = "BtnCancel";
-            this.BtnCancel.Size = new System.Drawing.Size(75, 23);
-            this.BtnCancel.TabIndex = 1;
-            this.BtnCancel.Text = "&Cancel";
-            this.BtnCancel.UseVisualStyleBackColor = true;
+            BtnCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            BtnCancel.DialogResult = DialogResult.Cancel;
+            BtnCancel.Location = new Point(402, 360);
+            BtnCancel.Margin = new Padding(4, 3, 4, 3);
+            BtnCancel.Name = "BtnCancel";
+            BtnCancel.Size = new Size(88, 27);
+            BtnCancel.TabIndex = 1;
+            BtnCancel.Text = "&Cancel";
+            BtnCancel.UseVisualStyleBackColor = true;
             // 
             // BtnOkay
             // 
-            this.BtnOkay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnOkay.Location = new System.Drawing.Point(213, 189);
-            this.BtnOkay.Name = "BtnOkay";
-            this.BtnOkay.Size = new System.Drawing.Size(75, 23);
-            this.BtnOkay.TabIndex = 0;
-            this.BtnOkay.Text = "&OK";
-            this.BtnOkay.UseVisualStyleBackColor = true;
-            this.BtnOkay.Click += new System.EventHandler(this.BtnOkay_Click);
+            BtnOkay.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            BtnOkay.Location = new Point(307, 360);
+            BtnOkay.Margin = new Padding(4, 3, 4, 3);
+            BtnOkay.Name = "BtnOkay";
+            BtnOkay.Size = new Size(88, 27);
+            BtnOkay.TabIndex = 0;
+            BtnOkay.Text = "&OK";
+            BtnOkay.UseVisualStyleBackColor = true;
+            BtnOkay.Click += BtnOkay_Click;
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.tableLayoutPanel1);
-            this.groupBox1.Location = new System.Drawing.Point(12, 12);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(357, 171);
-            this.groupBox1.TabIndex = 24;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Server Connection";
+            groupBox1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            groupBox1.Controls.Add(tableLayoutPanel2);
+            groupBox1.Location = new Point(14, 14);
+            groupBox1.Margin = new Padding(4, 3, 4, 3);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Padding = new Padding(4, 3, 4, 3);
+            groupBox1.Size = new Size(475, 335);
+            groupBox1.TabIndex = 24;
+            groupBox1.TabStop = false;
+            groupBox1.Text = "Server Connection";
             // 
-            // tableLayoutPanel1
+            // tableLayoutPanel2
             // 
-            this.tableLayoutPanel1.ColumnCount = 5;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.label2, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.TxtServerAddress, 1, 0);
-            this.tableLayoutPanel1.Controls.Add(this.NudStatusRequestInterval, 2, 1);
-            this.tableLayoutPanel1.Controls.Add(this.TxtClientSourcePath, 1, 2);
-            this.tableLayoutPanel1.Controls.Add(this.label3, 0, 2);
-            this.tableLayoutPanel1.Controls.Add(this.BtnSelectClientSourcePath, 4, 2);
-            this.tableLayoutPanel1.Controls.Add(this.PibServerAddressLoading, 3, 0);
-            this.tableLayoutPanel1.Controls.Add(this.label4, 0, 3);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 16);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 4;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(351, 152);
-            this.tableLayoutPanel1.TabIndex = 0;
-            // 
-            // label1
-            // 
-            this.label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(10, 12);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(82, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Server Address:";
-            // 
-            // label2
-            // 
-            this.label2.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label2.AutoSize = true;
-            this.tableLayoutPanel1.SetColumnSpan(this.label2, 2);
-            this.label2.Location = new System.Drawing.Point(10, 49);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(191, 13);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "Status Request Interval in milliseconds:";
-            // 
-            // TxtServerAddress
-            // 
-            this.TxtServerAddress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tableLayoutPanel1.SetColumnSpan(this.TxtServerAddress, 2);
-            this.TxtServerAddress.Location = new System.Drawing.Point(98, 8);
-            this.TxtServerAddress.Name = "TxtServerAddress";
-            this.TxtServerAddress.ResolvedSuccessfully = false;
-            this.TxtServerAddress.Resolving = false;
-            this.TxtServerAddress.Size = new System.Drawing.Size(212, 20);
-            this.TxtServerAddress.TabIndex = 0;
-            this.TxtServerAddress.ResolveStarted += new System.EventHandler<ResolveStartedEventArgs>(this.TxtServerAddress_ResolveStarted);
-            this.TxtServerAddress.ResolveSuccessful += new System.EventHandler<ResolveSuccessfulEventArgs>(this.TxtServerAddress_ResolveSuccessful);
-            this.TxtServerAddress.ResolveFailed += new System.EventHandler<ResolveFailedEventArgs>(this.TxtServerAddress_ResolveFailed);
-            // 
-            // NudStatusRequestInterval
-            // 
-            this.NudStatusRequestInterval.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.tableLayoutPanel1.SetColumnSpan(this.NudStatusRequestInterval, 3);
-            this.NudStatusRequestInterval.Location = new System.Drawing.Point(207, 45);
-            this.NudStatusRequestInterval.Maximum = new decimal(new int[] {
-            10000,
-            0,
-            0,
-            0});
-            this.NudStatusRequestInterval.Minimum = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            this.NudStatusRequestInterval.Name = "NudStatusRequestInterval";
-            this.NudStatusRequestInterval.Size = new System.Drawing.Size(58, 20);
-            this.NudStatusRequestInterval.TabIndex = 1;
-            this.NudStatusRequestInterval.Value = new decimal(new int[] {
-            10000,
-            0,
-            0,
-            0});
-            // 
-            // TxtClientSourcePath
-            // 
-            this.TxtClientSourcePath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.tableLayoutPanel1.SetColumnSpan(this.TxtClientSourcePath, 3);
-            this.TxtClientSourcePath.Location = new System.Drawing.Point(98, 82);
-            this.TxtClientSourcePath.Name = "TxtClientSourcePath";
-            this.TxtClientSourcePath.Size = new System.Drawing.Size(223, 20);
-            this.TxtClientSourcePath.TabIndex = 2;
-            // 
-            // label3
-            // 
-            this.label3.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(3, 79);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(89, 26);
-            this.label3.TabIndex = 0;
-            this.label3.Text = "Client-Side\r\nSource Directory:";
-            // 
-            // BtnSelectClientSourcePath
-            // 
-            this.BtnSelectClientSourcePath.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.BtnSelectClientSourcePath.Location = new System.Drawing.Point(327, 81);
-            this.BtnSelectClientSourcePath.Name = "BtnSelectClientSourcePath";
-            this.BtnSelectClientSourcePath.Size = new System.Drawing.Size(21, 23);
-            this.BtnSelectClientSourcePath.TabIndex = 3;
-            this.BtnSelectClientSourcePath.Text = "...";
-            this.BtnSelectClientSourcePath.UseVisualStyleBackColor = true;
-            this.BtnSelectClientSourcePath.Click += new System.EventHandler(this.BtnSelectClientSourcePath_Click);
-            // 
-            // PibServerAddressLoading
-            // 
-            this.PibServerAddressLoading.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.tableLayoutPanel1.SetColumnSpan(this.PibServerAddressLoading, 2);
-            this.PibServerAddressLoading.InitialImage = null;
-            this.PibServerAddressLoading.Location = new System.Drawing.Point(316, 3);
-            this.PibServerAddressLoading.Name = "PibServerAddressLoading";
-            this.PibServerAddressLoading.Size = new System.Drawing.Size(32, 31);
-            this.PibServerAddressLoading.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.PibServerAddressLoading.TabIndex = 2;
-            this.PibServerAddressLoading.TabStop = false;
+            tableLayoutPanel2.ColumnCount = 1;
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel2.Controls.Add(label4, 0, 5);
+            tableLayoutPanel2.Controls.Add(tableLayoutPanel7, 0, 4);
+            tableLayoutPanel2.Controls.Add(tableLayoutPanel3, 0, 0);
+            tableLayoutPanel2.Controls.Add(tableLayoutPanel4, 0, 1);
+            tableLayoutPanel2.Controls.Add(tableLayoutPanel5, 0, 2);
+            tableLayoutPanel2.Controls.Add(tableLayoutPanel6, 0, 3);
+            tableLayoutPanel2.Dock = DockStyle.Fill;
+            tableLayoutPanel2.Location = new Point(4, 19);
+            tableLayoutPanel2.Name = "tableLayoutPanel2";
+            tableLayoutPanel2.RowCount = 6;
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 17F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 17F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 17F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 17F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 48F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 32F));
+            tableLayoutPanel2.Size = new Size(467, 310);
+            tableLayoutPanel2.TabIndex = 1;
             // 
             // label4
             // 
-            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.label4.AutoSize = true;
-            this.tableLayoutPanel1.SetColumnSpan(this.label4, 5);
-            this.label4.Location = new System.Drawing.Point(3, 112);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(345, 39);
-            this.label4.TabIndex = 21;
-            this.label4.Text = "Set the path to the Source Directory from Clients point of view. If Server and Cl" +
-    "ient are on the same system, you can leave this empty to use the same path.";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            label4.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            label4.AutoSize = true;
+            label4.Location = new Point(4, 232);
+            label4.Margin = new Padding(4, 0, 4, 0);
+            label4.Name = "label4";
+            label4.Size = new Size(459, 30);
+            label4.TabIndex = 21;
+            label4.Text = "Set the path to the Source Directory from Clients point of view. If Server and Client are on the same system, you can leave this empty to use the same path.";
+            label4.TextAlign = ContentAlignment.TopCenter;
+            // 
+            // tableLayoutPanel7
+            // 
+            tableLayoutPanel7.ColumnCount = 3;
+            tableLayoutPanel7.ColumnStyles.Add(new ColumnStyle());
+            tableLayoutPanel7.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel7.ColumnStyles.Add(new ColumnStyle());
+            tableLayoutPanel7.Controls.Add(TxtPinnedCertificatePath, 1, 0);
+            tableLayoutPanel7.Controls.Add(label7, 0, 0);
+            tableLayoutPanel7.Controls.Add(BtnBrowsePinnedCertificate, 2, 0);
+            tableLayoutPanel7.Dock = DockStyle.Fill;
+            tableLayoutPanel7.Location = new Point(0, 220);
+            tableLayoutPanel7.Margin = new Padding(0);
+            tableLayoutPanel7.Name = "tableLayoutPanel7";
+            tableLayoutPanel7.RowCount = 1;
+            tableLayoutPanel7.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel7.Size = new Size(467, 48);
+            tableLayoutPanel7.TabIndex = 4;
+            // 
+            // label7
+            // 
+            label7.Anchor = AnchorStyles.Right;
+            label7.AutoSize = true;
+            label7.Location = new Point(4, 16);
+            label7.Margin = new Padding(4, 0, 4, 0);
+            label7.Name = "label7";
+            label7.Size = new Size(97, 15);
+            label7.TabIndex = 0;
+            label7.Text = "Server certificate:";
+            // 
+            // TxtPinnedCertificatePath
+            // 
+            TxtPinnedCertificatePath.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            TxtPinnedCertificatePath.Location = new Point(109, 12);
+            TxtPinnedCertificatePath.Margin = new Padding(4, 3, 4, 3);
+            TxtPinnedCertificatePath.Name = "TxtPinnedCertificatePath";
+            TxtPinnedCertificatePath.PlaceholderText = "Leave empty to use install folder cert";
+            TxtPinnedCertificatePath.Size = new Size(322, 23);
+            TxtPinnedCertificatePath.TabIndex = 1;
+            // 
+            // BtnBrowsePinnedCertificate
+            // 
+            BtnBrowsePinnedCertificate.Anchor = AnchorStyles.Right;
+            BtnBrowsePinnedCertificate.Location = new Point(439, 10);
+            BtnBrowsePinnedCertificate.Margin = new Padding(4, 3, 4, 3);
+            BtnBrowsePinnedCertificate.Name = "BtnBrowsePinnedCertificate";
+            BtnBrowsePinnedCertificate.Size = new Size(24, 27);
+            BtnBrowsePinnedCertificate.TabIndex = 2;
+            BtnBrowsePinnedCertificate.Text = "...";
+            BtnBrowsePinnedCertificate.UseVisualStyleBackColor = true;
+            BtnBrowsePinnedCertificate.Click += BtnBrowsePinnedCertificate_Click;
+            // 
+            // tableLayoutPanel3
+            // 
+            tableLayoutPanel3.ColumnCount = 3;
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle());
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle());
+            tableLayoutPanel3.Controls.Add(PibServerAddressLoading, 2, 0);
+            tableLayoutPanel3.Controls.Add(TxtServerAddress, 1, 0);
+            tableLayoutPanel3.Controls.Add(label1, 0, 0);
+            tableLayoutPanel3.Dock = DockStyle.Fill;
+            tableLayoutPanel3.Location = new Point(0, 0);
+            tableLayoutPanel3.Margin = new Padding(0);
+            tableLayoutPanel3.Name = "tableLayoutPanel3";
+            tableLayoutPanel3.RowCount = 1;
+            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel3.Size = new Size(467, 55);
+            tableLayoutPanel3.TabIndex = 0;
+            // 
+            // PibServerAddressLoading
+            // 
+            PibServerAddressLoading.Anchor = AnchorStyles.Left;
+            PibServerAddressLoading.InitialImage = null;
+            PibServerAddressLoading.Location = new Point(426, 11);
+            PibServerAddressLoading.Margin = new Padding(4, 3, 4, 3);
+            PibServerAddressLoading.Name = "PibServerAddressLoading";
+            PibServerAddressLoading.Size = new Size(37, 33);
+            PibServerAddressLoading.SizeMode = PictureBoxSizeMode.Zoom;
+            PibServerAddressLoading.TabIndex = 2;
+            PibServerAddressLoading.TabStop = false;
+            // 
+            // TxtServerAddress
+            // 
+            TxtServerAddress.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            TxtServerAddress.Location = new Point(99, 16);
+            TxtServerAddress.Margin = new Padding(4, 3, 4, 3);
+            TxtServerAddress.Name = "TxtServerAddress";
+            TxtServerAddress.ResolvedSuccessfully = false;
+            TxtServerAddress.Resolving = false;
+            TxtServerAddress.Size = new Size(319, 23);
+            TxtServerAddress.TabIndex = 0;
+            TxtServerAddress.ResolveStarted += TxtServerAddress_ResolveStarted;
+            TxtServerAddress.ResolveSuccessful += TxtServerAddress_ResolveSuccessful;
+            TxtServerAddress.ResolveFailed += TxtServerAddress_ResolveFailed;
+            // 
+            // label1
+            // 
+            label1.Anchor = AnchorStyles.Right;
+            label1.AutoSize = true;
+            label1.Location = new Point(4, 20);
+            label1.Margin = new Padding(4, 0, 4, 0);
+            label1.Name = "label1";
+            label1.Size = new Size(87, 15);
+            label1.TabIndex = 0;
+            label1.Text = "Server Address:";
+            // 
+            // tableLayoutPanel4
+            // 
+            tableLayoutPanel4.ColumnCount = 4;
+            tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            tableLayoutPanel4.Controls.Add(label5, 0, 0);
+            tableLayoutPanel4.Controls.Add(label6, 2, 0);
+            tableLayoutPanel4.Controls.Add(CmbProtocol, 1, 0);
+            tableLayoutPanel4.Controls.Add(NudPort, 3, 0);
+            tableLayoutPanel4.Dock = DockStyle.Fill;
+            tableLayoutPanel4.Location = new Point(0, 55);
+            tableLayoutPanel4.Margin = new Padding(0);
+            tableLayoutPanel4.Name = "tableLayoutPanel4";
+            tableLayoutPanel4.RowCount = 1;
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel4.Size = new Size(467, 55);
+            tableLayoutPanel4.TabIndex = 1;
+            // 
+            // label5
+            // 
+            label5.Anchor = AnchorStyles.Right;
+            label5.AutoSize = true;
+            label5.Location = new Point(58, 20);
+            label5.Name = "label5";
+            label5.Size = new Size(55, 15);
+            label5.TabIndex = 0;
+            label5.Text = "Protocol:";
+            // 
+            // label6
+            // 
+            label6.Anchor = AnchorStyles.Right;
+            label6.AutoSize = true;
+            label6.Location = new Point(313, 20);
+            label6.Name = "label6";
+            label6.Size = new Size(32, 15);
+            label6.TabIndex = 1;
+            label6.Text = "Port:";
+            // 
+            // CmbProtocol
+            // 
+            CmbProtocol.Anchor = AnchorStyles.Left;
+            CmbProtocol.DropDownStyle = ComboBoxStyle.DropDownList;
+            CmbProtocol.FormattingEnabled = true;
+            CmbProtocol.Items.AddRange(new object[] { "https", "http" });
+            CmbProtocol.Location = new Point(119, 16);
+            CmbProtocol.Name = "CmbProtocol";
+            CmbProtocol.Size = new Size(110, 23);
+            CmbProtocol.TabIndex = 2;
+            // 
+            // NudPort
+            // 
+            NudPort.Anchor = AnchorStyles.Left;
+            NudPort.Location = new Point(351, 16);
+            NudPort.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
+            NudPort.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            NudPort.Name = "NudPort";
+            NudPort.Size = new Size(91, 23);
+            NudPort.TabIndex = 3;
+            NudPort.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            // 
+            // tableLayoutPanel5
+            // 
+            tableLayoutPanel5.ColumnCount = 2;
+            tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel5.Controls.Add(label2, 0, 0);
+            tableLayoutPanel5.Controls.Add(NudStatusRequestInterval, 1, 0);
+            tableLayoutPanel5.Dock = DockStyle.Fill;
+            tableLayoutPanel5.Location = new Point(0, 110);
+            tableLayoutPanel5.Margin = new Padding(0);
+            tableLayoutPanel5.Name = "tableLayoutPanel5";
+            tableLayoutPanel5.RowCount = 1;
+            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel5.Size = new Size(467, 55);
+            tableLayoutPanel5.TabIndex = 2;
+            // 
+            // label2
+            // 
+            label2.Anchor = AnchorStyles.Right;
+            label2.AutoSize = true;
+            label2.Location = new Point(18, 20);
+            label2.Margin = new Padding(4, 0, 4, 0);
+            label2.Name = "label2";
+            label2.Size = new Size(211, 15);
+            label2.TabIndex = 0;
+            label2.Text = "Status Request Interval in milliseconds:";
+            // 
+            // NudStatusRequestInterval
+            // 
+            NudStatusRequestInterval.Anchor = AnchorStyles.Left;
+            NudStatusRequestInterval.Location = new Point(237, 16);
+            NudStatusRequestInterval.Margin = new Padding(4, 3, 4, 3);
+            NudStatusRequestInterval.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
+            NudStatusRequestInterval.Minimum = new decimal(new int[] { 10, 0, 0, 0 });
+            NudStatusRequestInterval.Name = "NudStatusRequestInterval";
+            NudStatusRequestInterval.Size = new Size(68, 23);
+            NudStatusRequestInterval.TabIndex = 1;
+            NudStatusRequestInterval.Value = new decimal(new int[] { 10000, 0, 0, 0 });
+            // 
+            // tableLayoutPanel6
+            // 
+            tableLayoutPanel6.ColumnCount = 3;
+            tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle());
+            tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle());
+            tableLayoutPanel6.Controls.Add(TxtClientSourcePath, 1, 0);
+            tableLayoutPanel6.Controls.Add(label3, 0, 0);
+            tableLayoutPanel6.Controls.Add(BtnSelectClientSourcePath, 2, 0);
+            tableLayoutPanel6.Dock = DockStyle.Fill;
+            tableLayoutPanel6.Location = new Point(0, 165);
+            tableLayoutPanel6.Margin = new Padding(0);
+            tableLayoutPanel6.Name = "tableLayoutPanel6";
+            tableLayoutPanel6.RowCount = 1;
+            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel6.Size = new Size(467, 55);
+            tableLayoutPanel6.TabIndex = 3;
+            // 
+            // TxtClientSourcePath
+            // 
+            TxtClientSourcePath.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            TxtClientSourcePath.Location = new Point(109, 16);
+            TxtClientSourcePath.Margin = new Padding(4, 3, 4, 3);
+            TxtClientSourcePath.Name = "TxtClientSourcePath";
+            TxtClientSourcePath.Size = new Size(322, 23);
+            TxtClientSourcePath.TabIndex = 2;
+            // 
+            // label3
+            // 
+            label3.Anchor = AnchorStyles.Right;
+            label3.AutoSize = true;
+            label3.Location = new Point(4, 12);
+            label3.Margin = new Padding(4, 0, 4, 0);
+            label3.Name = "label3";
+            label3.Size = new Size(97, 30);
+            label3.TabIndex = 0;
+            label3.Text = "Client-Side\r\nSource Directory:";
+            // 
+            // BtnSelectClientSourcePath
+            // 
+            BtnSelectClientSourcePath.Anchor = AnchorStyles.Right;
+            BtnSelectClientSourcePath.Location = new Point(439, 14);
+            BtnSelectClientSourcePath.Margin = new Padding(4, 3, 4, 3);
+            BtnSelectClientSourcePath.Name = "BtnSelectClientSourcePath";
+            BtnSelectClientSourcePath.Size = new Size(24, 27);
+            BtnSelectClientSourcePath.TabIndex = 3;
+            BtnSelectClientSourcePath.Text = "...";
+            BtnSelectClientSourcePath.UseVisualStyleBackColor = true;
+            BtnSelectClientSourcePath.Click += BtnSelectClientSourcePath_Click;
             // 
             // ClientConfigDlg
             // 
-            this.AcceptButton = this.BtnOkay;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.CancelButton = this.BtnCancel;
-            this.ClientSize = new System.Drawing.Size(381, 224);
-            this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.BtnCancel);
-            this.Controls.Add(this.BtnOkay);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "ClientConfigDlg";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Client Configuration";
-            this.groupBox1.ResumeLayout(false);
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.tableLayoutPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.NudStatusRequestInterval)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.PibServerAddressLoading)).EndInit();
-            this.ResumeLayout(false);
+            AcceptButton = BtnOkay;
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            CancelButton = BtnCancel;
+            ClientSize = new Size(503, 400);
+            Controls.Add(groupBox1);
+            Controls.Add(BtnCancel);
+            Controls.Add(BtnOkay);
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            Margin = new Padding(4, 3, 4, 3);
+            Name = "ClientConfigDlg";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "Client Configuration";
+            groupBox1.ResumeLayout(false);
+            tableLayoutPanel2.ResumeLayout(false);
+            tableLayoutPanel2.PerformLayout();
+            tableLayoutPanel3.ResumeLayout(false);
+            tableLayoutPanel3.PerformLayout();
+            ((ISupportInitialize)PibServerAddressLoading).EndInit();
+            tableLayoutPanel4.ResumeLayout(false);
+            tableLayoutPanel4.PerformLayout();
+            ((ISupportInitialize)NudPort).EndInit();
+            tableLayoutPanel5.ResumeLayout(false);
+            tableLayoutPanel5.PerformLayout();
+            ((ISupportInitialize)NudStatusRequestInterval).EndInit();
+            tableLayoutPanel6.ResumeLayout(false);
+            tableLayoutPanel6.PerformLayout();
+            tableLayoutPanel7.ResumeLayout(false);
+            tableLayoutPanel7.PerformLayout();
+            ResumeLayout(false);
 
         }
 
@@ -256,7 +440,6 @@ namespace VideoDedupClient.Dialogs
         private Button BtnCancel;
         private Button BtnOkay;
         private GroupBox groupBox1;
-        private TableLayoutPanel tableLayoutPanel1;
         private Label label1;
         private Label label2;
         private PictureBox PibServerAddressLoading;
@@ -266,5 +449,18 @@ namespace VideoDedupClient.Dialogs
         private Label label3;
         private Button BtnSelectClientSourcePath;
         private Label label4;
+        private TableLayoutPanel tableLayoutPanel2;
+        private TableLayoutPanel tableLayoutPanel3;
+        private TableLayoutPanel tableLayoutPanel4;
+        private Label label5;
+        private Label label6;
+        private ComboBox CmbProtocol;
+        private NumericUpDown NudPort;
+        private TableLayoutPanel tableLayoutPanel5;
+        private TableLayoutPanel tableLayoutPanel6;
+        private TableLayoutPanel tableLayoutPanel7;
+        private Label label7;
+        private TextBox TxtPinnedCertificatePath;
+        private Button BtnBrowsePinnedCertificate;
     }
 }

@@ -29,4 +29,14 @@ VidepDedup is using the following tools and libraries:
 - [Newtonsoft.Json](https://www.newtonsoft.com/json)
 - [WindowsAPICodePack](https://github.com/contre/Windows-API-Code-Pack-1.1)
 - The amazing [FatCow IconPack](https://www.fatcow.com/free-icons)
-- [WiX Toolset 5](https://wixtoolset.org)
+- [WiX Toolset 6](https://wixtoolset.org)
+
+## Two-PC setup (server and client on different machines)
+
+The client talks to the server over **HTTPS** with a **self-signed** server certificate. The client does **not** use the Windows Trusted Root store for that server; it **pins** the exact public certificate (`VideoDedup.crt`).
+
+1. **Server PC** — Run the **bundle** installer (`SetupBootstrap` output), enable **Server**, complete setup. When installation finishes, the bootstrapper shows where `VideoDedup.crt` is stored. Use **Save copy as…** or **Open folder** to copy it to a USB drive or network share.
+2. **Client PC** — Run the same bundle, enable **Client** only (or install Client with Server unchecked). Browse to the `VideoDedup.crt` you copied, or skip and import later.
+3. **Later / certificate rotation** — Re-run the bundle on the client PC and choose **Import server certificate…** (maintenance), or in the running client use **Client Configuration** to set the certificate path, or accept the prompt if the connection fails after a server reinstall.
+
+The server’s public certificate is also written under `%ProgramFiles%\VideoDedupServer\cert\` (alongside the private key used by the service). The installed client expects `cert\VideoDedup.crt` next to `VideoDedupClient.exe` unless you override **Server certificate** in Client Configuration (saved under your user profile).

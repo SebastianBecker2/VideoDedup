@@ -1,5 +1,6 @@
 namespace VideoDedupClient.Dialogs
 {
+    using System.IO;
     using Controls.DnsTextBox;
     using Microsoft.WindowsAPICodePack.Dialogs;
     using Properties;
@@ -15,11 +16,28 @@ namespace VideoDedupClient.Dialogs
             if (Configuration is not null)
             {
                 TxtServerAddress.Text = Configuration.ServerAddress;
+                CmbProtocol.SelectedIndex =
+                    CmbProtocol.Items.IndexOf(Configuration.Protocol);
+                NudPort.Value = Configuration.Port;
                 NudStatusRequestInterval.Value =
                     (decimal)Configuration.StatusRequestInterval.TotalMilliseconds;
                 TxtClientSourcePath.Text = Configuration.ClientSourcePath;
+                TxtPinnedCertificatePath.Text = Configuration.PinnedCertificatePath;
             }
             base.OnLoad(e);
+        }
+
+        private void BtnBrowsePinnedCertificate_Click(object sender, EventArgs e)
+        {
+            using var dlg = new OpenFileDialog
+            {
+                Filter = "Certificate (*.crt)|*.crt|All files (*.*)|*.*",
+                Title = "Select VideoDedup.crt from the server",
+            };
+            if (dlg.ShowDialog(this) == DialogResult.OK)
+            {
+                this.TxtPinnedCertificatePath.Text = dlg.FileName;
+            }
         }
 
         private void BtnOkay_Click(object sender, EventArgs e)
@@ -39,9 +57,12 @@ namespace VideoDedupClient.Dialogs
             Configuration = new ConfigData
             {
                 ServerAddress = TxtServerAddress.Text,
+                Protocol = CmbProtocol.SelectedItem?.ToString() ?? "https",
+                Port = (int)NudPort.Value,
                 StatusRequestInterval = TimeSpan.FromMilliseconds(
                     (int)NudStatusRequestInterval.Value),
-                ClientSourcePath = TxtClientSourcePath.Text
+                ClientSourcePath = TxtClientSourcePath.Text,
+                PinnedCertificatePath = TxtPinnedCertificatePath.Text.Trim(),
             };
 
             DialogResult = DialogResult.OK;
