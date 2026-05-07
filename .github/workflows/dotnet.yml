@@ -15,17 +15,21 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Install Wix
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: fbarresi/wix
         path: wix
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v2
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 6.0.x
     - name: Restore dependencies
-      run: dotnet restore
+      run: |
+        nuget restore VideoDedup.sln -NonInteractive
+        dotnet restore
     - name: Build
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build --no-restore --configuration Release -m:1
