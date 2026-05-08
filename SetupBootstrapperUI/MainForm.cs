@@ -17,7 +17,6 @@ namespace SetupBootstrapperUI
         {
             Selection,
             Certificate,
-            Review,
             Progress,
             Complete,
             ServerCertificate,
@@ -139,9 +138,6 @@ namespace SetupBootstrapperUI
                 case WizardStep.Certificate:
                     FinishClientCertPicker(TxtClientCertPath.Text.Trim());
                     break;
-                case WizardStep.Review:
-                    BeginPlannedOperation();
-                    break;
                 case WizardStep.Complete:
                 case WizardStep.ServerCertificate:
                     Close();
@@ -154,7 +150,6 @@ namespace SetupBootstrapperUI
             switch (currentStep)
             {
                 case WizardStep.Certificate:
-                case WizardStep.Review:
                     currentStep = WizardStep.Selection;
                     RenderStep();
                     break;
@@ -386,8 +381,7 @@ namespace SetupBootstrapperUI
             }
 
             TxtClientCertPath.Text = clientCertSource;
-            currentStep = WizardStep.Review;
-            RenderStep();
+            BeginPlannedOperation();
         }
 
         private void ApplyClientCertToEngine(
@@ -433,14 +427,14 @@ namespace SetupBootstrapperUI
 
         private void RenderStep()
         {
-            PnlSelection.Visible = currentStep == WizardStep.Selection || currentStep == WizardStep.Review;
+            PnlSelection.Visible = currentStep == WizardStep.Selection;
             PnlClientCertPicker.Visible = currentStep == WizardStep.Certificate;
             PnlServerCertExport.Visible = currentStep == WizardStep.ServerCertificate;
             PnlProgress.Visible = currentStep == WizardStep.Progress;
             PnlComplete.Visible = currentStep == WizardStep.Complete;
 
-            BtnBack.Enabled = currentStep == WizardStep.Review || currentStep == WizardStep.Certificate;
-            BtnBack.Visible = currentStep != WizardStep.Progress && currentStep != WizardStep.Complete && currentStep != WizardStep.ServerCertificate;
+            BtnBack.Enabled = currentStep == WizardStep.Certificate;
+            BtnBack.Visible = currentStep == WizardStep.Certificate;
             BtnCancel.Visible = currentStep != WizardStep.Progress && currentStep != WizardStep.Complete && currentStep != WizardStep.ServerCertificate;
             BtnNext.Visible = currentStep != WizardStep.Progress;
 
@@ -451,32 +445,23 @@ namespace SetupBootstrapperUI
                     SetHeader(
                         "Choose setup options",
                         "Pick what you want to do on this computer, then continue.",
-                        "Step 1 of 4");
+                        "Step 1 of 3");
                     BtnNext.Text = "Next >";
                     break;
                 case WizardStep.Certificate:
                     SetHeader(
                         "Client certificate",
                         "Choose the certificate file from your server PC, or continue without one.",
-                        "Step 2 of 4");
+                        "Step 2 of 3");
                     BtnNext.Text = maintenanceClientCertFlow
                         ? "Start update"
                         : "Continue";
-                    break;
-                case WizardStep.Review:
-                    SetHeader(
-                        "Ready to start",
-                        "Review your choices and start setup.",
-                        "Step 3 of 4");
-                    BtnNext.Text = selectedMode == SetupMode.Uninstall
-                        ? "Start removal"
-                        : "Start setup";
                     break;
                 case WizardStep.Progress:
                     SetHeader(
                         "Working...",
                         "Please wait while setup completes.",
-                        "Step 4 of 4");
+                        "Step 3 of 3");
                     break;
                 case WizardStep.Complete:
                     SetHeader(
@@ -574,10 +559,14 @@ namespace SetupBootstrapperUI
                 && ChbClient.Checked
                 && !ChbServer.Checked;
 
-            currentStep = needsClientCertificateStep
-                ? WizardStep.Certificate
-                : WizardStep.Review;
-            RenderStep();
+            if (needsClientCertificateStep)
+            {
+                currentStep = WizardStep.Certificate;
+                RenderStep();
+                return;
+            }
+
+            BeginPlannedOperation();
         }
 
         private void BeginPlannedOperation()
