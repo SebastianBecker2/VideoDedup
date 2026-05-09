@@ -4,6 +4,7 @@ namespace SetupBootstrapperUI
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.IO;
+    using System.Runtime.InteropServices;
     using System.Threading;
     using System.Windows.Forms;
     using WixToolset.BootstrapperApplicationApi;
@@ -41,6 +42,8 @@ namespace SetupBootstrapperUI
             DetectComplete += OnDetectComplete;
             PlanComplete += OnPlanComplete;
             PlanMsiFeature += OnPlanMsiFeature;
+            ElevateComplete += OnElevateComplete;
+            ApplyBegin += OnApplyBegin;
             ApplyComplete += OnApplyComplete;
             ExecuteProgress += OnExecuteProgress;
             Error += (s, e) =>
@@ -141,6 +144,37 @@ namespace SetupBootstrapperUI
             }
         }
 
+        private void OnElevateComplete(object sender, ElevateCompleteEventArgs e) =>
+            ScheduleBringSetupToForeground();
+
+        private void OnApplyBegin(object sender, ApplyBeginEventArgs e) =>
+            ScheduleBringSetupToForeground();
+
+        /// <summary>
+        /// After UAC, Windows often leaves focus on the shell (e.g. Explorer) so the setup
+        /// window ends up behind fullscreen windows. Best-effort restore; cannot override all
+        /// focus rules (same limitation as many installers).
+        /// </summary>
+        private void ScheduleBringSetupToForeground()
+        {
+            if (mainForm is null || mainForm.IsDisposed)
+            {
+                return;
+            }
+
+            _ = mainForm.BeginInvoke(new Action(() =>
+            {
+                try
+                {
+                    ForegroundWindowHelper.BringFormToForeground(mainForm);
+                }
+                catch (Exception ex)
+                {
+                    Log("BringFormToForeground failed: " + ex);
+                }
+            }));
+        }
+
         private void OnPlanMsiFeature(object sender, PlanMsiFeatureEventArgs e)
         {
             if (!string.Equals(e.PackageId, "VideoDedupMsi", StringComparison.OrdinalIgnoreCase))
@@ -225,6 +259,43 @@ namespace SetupBootstrapperUI
         {
             engine.SetVariableString("TriggerClientCertImport", string.Empty, false);
             engine.SetVariableString("ClientCertSource", string.Empty, false);
+        }
+
+        private static class ForegroundWindowHelper
+        {
+            private const int SwRestore = 9;
+
+            /// <summary>ASFW_ANY — allow any process to set foreground (helps after UAC).</summary>
+            private const uint AsfwAny = uint.MaxValue;
+
+            internal static void BringFormToForeground(Form form)
+            {
+                if (form.IsDisposed || !form.IsHandleCreated)
+                {
+                    return;
+                }
+
+                _ = AllowSetForegroundWindow(AsfwAny);
+
+                if (form.WindowState == FormWindowState.Minimized)
+                {
+                    form.WindowState = FormWindowState.Normal;
+                }
+
+                _ = ShowWindow(form.Handle, SwRestore);
+                form.BringToFront();
+                form.Activate();
+                _ = SetForegroundWindow(form.Handle);
+            }
+
+            [DllImport("user32.dll", SetLastError = true)]
+            private static extern bool AllowSetForegroundWindow(uint dwProcessId);
+
+            [DllImport("user32.dll", SetLastError = true)]
+            private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+            [DllImport("user32.dll", SetLastError = true)]
+            private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
         }
     }
 }
