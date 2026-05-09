@@ -10,4 +10,30 @@
     <ProjectReference Include="..\SetupBootstrapperUI\SetupBootstrapperUI.csproj" />
     <ProjectReference Include="..\Setup\Setup.wixproj" />
   </ItemGroup>
+  <!--
+    Same file version as MSI (Product.wxs bind on Client_VideoDedupClient.exe from publish output).
+    MSBuild cannot call FileVersionInfo in property functions; read at build time via PowerShell.
+  -->
+  <Target Name="SetBundleVersionFromPublishedClient" BeforeTargets="BeforeCompile">
+    <PropertyGroup>
+      <_BundleVersionRaw />
+      <_PublishedClientExe>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\VideoDedupClient\bin\publish\VideoDedupClient.exe'))</_PublishedClientExe>
+    </PropertyGroup>
+    <Exec ConsoleToMsBuild="true"
+          StandardOutputImportance="low"
+          Condition="Exists('$(_PublishedClientExe)')"
+          IgnoreExitCode="false"
+          Command="powershell -NoProfile -Command &quot;[System.Diagnostics.FileVersionInfo]::GetVersionInfo('$(_PublishedClientExe)').FileVersion&quot;">
+      <Output TaskParameter="ConsoleOutput" PropertyName="_BundleVersionRaw" />
+    </Exec>
+    <PropertyGroup Condition="'$(_BundleVersionRaw)'==''">
+      <BundleVersion>0.0.0.0</BundleVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(_BundleVersionRaw)'!=''">
+      <BundleVersion>$([System.String]::Copy('$(_BundleVersionRaw)').Trim())</BundleVersion>
+    </PropertyGroup>
+    <PropertyGroup>
+      <DefineConstants>$(DefineConstants);BundleVersion=$(BundleVersion)</DefineConstants>
+    </PropertyGroup>
+  </Target>
 </Project>

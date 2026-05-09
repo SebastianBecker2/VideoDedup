@@ -1,7 +1,20 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
      xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal"
      xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
-  <Bundle Id="SebastianBecker.VideoDedup" Name="VideoDedup" Manufacturer="SebastianBecker" Version="1.0.0.0">
+  <!--
+    ProviderKey must stay stable across rebuilds. If omitted, WiX uses an auto-generated
+    bundle id per build; each past install leaves a separate registration. During detect,
+    Burn launches this bundle again for every related registration — one extra SetupBootstrap
+    window per orphan (see VideoDedup_Burn_00N_{...}.log files).
+
+    Version is set at build time from VideoDedupClient\bin\publish\VideoDedupClient.exe file
+    version (same as MSI Package Version in Setup/Product.wxs).
+  -->
+  <Bundle Id="SebastianBecker.VideoDedup"
+          ProviderKey="SebastianBecker.VideoDedup"
+          Name="VideoDedup"
+          Manufacturer="SebastianBecker"
+          Version="$(BundleVersion)">
     <!--
       WiX 6 out-of-proc BA: Burn launches SetupBootstrapperUI.exe directly.
       Program.Main() calls ManagedBootstrapperApplication.Run() to connect via IPC.

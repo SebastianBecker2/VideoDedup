@@ -160,7 +160,9 @@ namespace SetupBootstrapperUI
                 return;
             }
 
-            e.State = e.RecommendedState;
+            // Install and Modify: unselected features must be removed. RecommendedState
+            // would keep already-installed features during Modify ("change" would not uninstall).
+            e.State = FeatureState.Absent;
         }
 
         private void OnApplyComplete(object sender, ApplyCompleteEventArgs e)
