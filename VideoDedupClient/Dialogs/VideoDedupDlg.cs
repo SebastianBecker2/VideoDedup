@@ -23,6 +23,14 @@ namespace VideoDedupClient.Dialogs
 
         private Timer StatusTimer { get; }
 
+        /// <summary>
+        /// Prevents stacked certificate prompts from repeated status timer ticks.
+        /// Cleared after a successful status response or when the user saves client config.
+        /// </summary>
+        private bool suppressTlsCertPromptUntilSuccess;
+
+        private bool certificateOfferInProgress;
+
         public VideoDedupDlg()
         {
             InitializeComponent();
@@ -44,7 +52,15 @@ namespace VideoDedupClient.Dialogs
 
         private void OfferUpdateServerCertificate()
         {
-            if (System.Windows.Forms.MessageBox.Show(
+            if (certificateOfferInProgress)
+            {
+                return;
+            }
+
+            certificateOfferInProgress = true;
+            try
+            {
+                if (System.Windows.Forms.MessageBox.Show(
                     this,
                     "The connection to the server failed, possibly because the TLS " +
                     "certificate is missing or out of date.\n\n" +
@@ -85,6 +101,11 @@ namespace VideoDedupClient.Dialogs
                 "VideoDedup",
                 System.Windows.Forms.MessageBoxButtons.OK,
                 System.Windows.Forms.MessageBoxIcon.Information);
+            }
+            finally
+            {
+                certificateOfferInProgress = false;
+            }
         }
 
         private void StatusTimerCallback(object? param)
@@ -102,8 +123,11 @@ namespace VideoDedupClient.Dialogs
                     // trouble! This is not perfect, but it works for now.
                     if (prevAddress != Program.Configuration.ServerAddress)
                     {
+                        suppressTlsCertPromptUntilSuccess = false;
                         return;
                     }
+
+                    suppressTlsCertPromptUntilSuccess = false;
 
                     if (logToken != status.LogToken)
                     {
@@ -144,7 +168,16 @@ namespace VideoDedupClient.Dialogs
                 Debug.Print("Status request failed with: " + ex.Message);
                 if (Program.IsLikelyCertificateOrTlsFailure(ex))
                 {
-                    this.InvokeIfRequired(this.OfferUpdateServerCertificate);
+                    this.InvokeIfRequired(() =>
+                    {
+                        if (suppressTlsCertPromptUntilSuccess || certificateOfferInProgress)
+                        {
+                            return;
+                        }
+
+                        suppressTlsCertPromptUntilSuccess = true;
+                        OfferUpdateServerCertificate();
+                    });
                 }
 
                 this.InvokeIfRequired(() =>
@@ -326,6 +359,7 @@ namespace VideoDedupClient.Dialogs
                 DgvLog.RowCount = 0;
                 LogEntries.Clear();
                 StiProgress.Clear();
+                suppressTlsCertPromptUntilSuccess = false;
             }
 
             Program.Configuration = dlg.Configuration;
