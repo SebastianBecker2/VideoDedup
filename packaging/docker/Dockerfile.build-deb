@@ -1,0 +1,21 @@
+# syntax=docker/dockerfile:1
+# Build the server .deb without a local Linux host. From repository root:
+#   DOCKER_BUILDKIT=1 docker build -f packaging/docker/Dockerfile.build-deb --target artifacts -o type=local,dest=./packaging-deb-out .
+# The .deb appears under ./packaging-deb-out/
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS builder
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends fakeroot dpkg-dev python3 git ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+WORKDIR /src
+COPY . .
+RUN chmod +x packaging/tools/*.sh packaging/common/generate-metadata.sh packaging/tests/*.sh 2>/dev/null || true \
+  && git config --global --add safe.directory /src \
+  && export SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)" \
+  && ./packaging/tools/stage.sh --arch amd64 \
+  && ./packaging/tools/build-deb.sh --arch amd64 \
+  && mkdir /deb-artifacts \
+  && cp packaging/out/amd64/deb/*.deb /deb-artifacts/
+
+FROM scratch AS artifacts
+COPY --from=builder /deb-artifacts/ /
