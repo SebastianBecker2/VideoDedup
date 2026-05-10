@@ -63,17 +63,16 @@ jobs:
           ./packaging/tools/sbom-and-attest.sh ${{ matrix.arch }}
         continue-on-error: true
 
+      # upload-artifact respects .gitignore; packaging/out/ is ignored so .deb/.rpm were never uploaded.
+      - name: Bundle packaging/out for artifact
+        run: tar -czf "${RUNNER_TEMP}/videodedup-linux-packages.tgz" -C packaging out
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: linux-packages-${{ matrix.arch }}-${{ github.sha }}
-          if-no-files-found: warn
-          path: |
-            packaging/out/metadata.json
-            packaging/out/SHA256SUMS-${{ matrix.arch }}.txt
-            packaging/out/${{ matrix.arch }}/deb/*.deb
-            packaging/out/${{ matrix.arch }}/rpm/*/*.rpm
-            packaging/out/${{ matrix.arch }}/sbom/*.json
+          if-no-files-found: error
+          path: ${{ runner.temp }}/videodedup-linux-packages.tgz
 
   e2e-grpc-firewall:
     needs: linux-packages
@@ -107,7 +106,19 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: linux-packages-${{ matrix.arch }}-${{ github.sha }}
-          path: .
+          path: ${{ runner.temp }}/vd-pkg-art
+
+      - name: Restore packaging/out from artifact
+        run: |
+          set -euo pipefail
+          tg="$(find "${RUNNER_TEMP}/vd-pkg-art" -name 'videodedup-linux-packages.tgz' -print -quit)"
+          if [[ -z "${tg}" || ! -f "${tg}" ]]; then
+            echo "Missing videodedup-linux-packages.tgz in artifact" >&2
+            find "${RUNNER_TEMP}/vd-pkg-art" -ls >&2 || true
+            exit 1
+          fi
+          mkdir -p packaging
+          tar -xzf "${tg}" -C packaging
 
       - name: Install helpers for stage.sh
         run: |
