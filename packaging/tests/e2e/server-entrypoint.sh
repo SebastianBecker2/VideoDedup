@@ -86,6 +86,18 @@ ensure_videodedup_user() {
   install -d -o videodedup -g videodedup -m 0750 /var/log/videodedupserver
 }
 
+# runuser(8) is from util-linux on Debian/Ubuntu; Fedora minimal Docker images often omit it.
+vd_exec_as_videodedup() {
+  if command -v runuser >/dev/null 2>&1; then
+    runuser -u videodedup -- "$@"
+  elif command -v su >/dev/null 2>&1; then
+    su videodedup -c "exec $(printf '%q ' "$@")"
+  else
+    echo "vd_exec_as_videodedup: need runuser or su" >&2
+    exit 1
+  fi
+}
+
 install_tree_from_staged() {
   local src="${1:-/opt/videodedup-staged}"
   [[ -f "${src}/VideoDedupService" ]] || {
@@ -377,7 +389,7 @@ if [[ "${FMT}" == flatpak ]]; then
   _u="$(id -u videodedup)"
   install -d -m 0700 -o videodedup -g videodedup "/run/user/${_u}"
   # Packaged binary refuses UID 0 (LinuxHostBootstrap); flatpak must not run as root.
-  runuser -u videodedup -- env \
+  vd_exec_as_videodedup env \
     ASPNETCORE_ENVIRONMENT=Production \
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
     VIDEODEDUP_APP_DATA=/var/lib/videodedupserver \
@@ -388,7 +400,7 @@ else
   if [[ "${FMT}" == snap ]]; then
     _vd_bin=/tmp/vd-snap/usr/lib/videodedupserver/VideoDedupService
   fi
-  runuser -u videodedup -- env \
+  vd_exec_as_videodedup env \
     ASPNETCORE_ENVIRONMENT=Production \
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
     VIDEODEDUP_APP_DATA=/var/lib/videodedupserver \
