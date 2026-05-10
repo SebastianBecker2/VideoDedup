@@ -40,6 +40,8 @@ jobs:
         run: |
           sudo systemctl start snapd.socket snapd.service 2>/dev/null || true
           timeout 180 sudo snap wait system seed.ready 2>/dev/null || true
+          # Match snap base (core24) to ubuntu-latest (24.04); core22 often fails to install here.
+          sudo snap install core24
           sudo snap install snapcraft --classic
 
       - name: Flatpak runtimes for flatpak-builder

@@ -10,7 +10,7 @@
 # Env:
 #   DOCKER_IMAGE     default ubuntu:24.04
 #   ARCH             default amd64
-#   SNAPCRAFT_IMAGE  optional; default ghcr.io/canonical/snapcraft:8_core22 (snap base core22)
+#   SNAPCRAFT_IMAGE  optional; default ghcr.io/canonical/snapcraft:8_core24 (snap base core24)
 #
 # Git Bash / MSYS: path rewriting turns /var/run/docker.sock and /src into paths under
 # C:\Program Files\Git\ — set MSYS2_ARG_CONV_EXCL='*' and use a Windows repo path from cygpath.

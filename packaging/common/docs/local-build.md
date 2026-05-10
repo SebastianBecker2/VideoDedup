@@ -2,7 +2,7 @@
 
 ## Full build + tests in Docker (recommended on Windows)
 
-Uses **Docker only** (no WSL): Ubuntu in a container installs .NET 8, `flatpak` / `flatpak-builder` + Flathub runtimes, and the Docker CLI (for nested images). The **snap** is built in a second, nested **`ghcr.io/canonical/snapcraft:8_core22`** container (plain Ubuntu is not systemd PID 1, so `snap install snapcraft` cannot run there). Your repo is bind-mounted at `/src`; the host Docker socket is used for Arch `makepkg`, the snapcraft image, and install smoke tests.
+Uses **Docker only** (no WSL): Ubuntu in a container installs .NET 8, `flatpak` / `flatpak-builder` + Flathub runtimes, and the Docker CLI (for nested images). The **snap** is built in a second, nested **`ghcr.io/canonical/snapcraft:8_core24`** container (plain Ubuntu is not systemd PID 1, so `snap install snapcraft` cannot run there). Your repo is bind-mounted at `/src`; the host Docker socket is used for Arch `makepkg`, the snapcraft image, and install smoke tests.
 
 From the repository root (Git Bash, Linux shell, or `bash` on macOS):
 

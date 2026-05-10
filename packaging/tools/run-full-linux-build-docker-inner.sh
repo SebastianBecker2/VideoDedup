@@ -39,9 +39,9 @@ flatpak install -y --user flathub \
 
 # Snap uses systemd (e.g. systemctl daemon-reload) during install; a plain Ubuntu container is
 # not PID1 systemd, so snapd/snap install snapcraft is unreliable. Build the snap in Canonical's
-# snapcraft image instead (matches base: core22 → tag 8_core22). Override with SNAPCRAFT_IMAGE.
+# snapcraft image instead (matches base: core24 → tag 8_core24). Override with SNAPCRAFT_IMAGE.
 _vd_run_snapcraft_docker() {
-  local img="${SNAPCRAFT_IMAGE:-ghcr.io/canonical/snapcraft:8_core22}"
+  local img="${SNAPCRAFT_IMAGE:-ghcr.io/canonical/snapcraft:8_core24}"
   docker run --rm --privileged \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v /src:/src:rw \
