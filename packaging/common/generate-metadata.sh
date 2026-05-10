@@ -18,6 +18,11 @@ if [[ -z "${GIT_TAG}" ]]; then
   GIT_TAG="0.0.0+${GIT_SHA}"
 fi
 VERSION="${GIT_TAG#v}"
+# dpkg-deb requires an upstream version that starts with a digit. With no reachable tags,
+# `git describe --always` is only a hex object name (e.g. d4498ea-dirty).
+if [[ ! "${VERSION}" =~ ^[0-9] ]]; then
+  VERSION="0.0.0+${VERSION}"
+fi
 SOURCE_DATE_EPOCH="$(git -C "${ROOT_DIR}" log -1 --format=%ct 2>/dev/null || echo "0")"
 
 CHANGELOG_LINE="$(printf '%s  %s  %s\n' "$(date -u -d "@${SOURCE_DATE_EPOCH}" '+%a, %d %b %Y %H:%M:%S +0000' 2>/dev/null || date -u '+%a, %d %b %Y %H:%M:%S +0000')" "${VERSION}" "Automated entry from git ${GIT_SHA}")"
