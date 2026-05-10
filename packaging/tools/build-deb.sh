@@ -134,8 +134,10 @@ cl = (
     f" -- {maint}  {stamp}\n"
 )
 gz_path = work / "usr" / "share" / "doc" / pkg / "changelog.Debian.gz"
-with gzip.open(gz_path, "wb", compresslevel=9, mtime=0) as zf:
-    zf.write(cl.encode("utf-8"))
+# gzip.open(..., mtime=) breaks on some Python versions (passes mtime to builtin open).
+with open(gz_path, "wb") as raw:
+    with gzip.GzipFile(fileobj=raw, mode="wb", compresslevel=9, mtime=0) as zf:
+        zf.write(cl.encode("utf-8"))
 PY
 
 cat > "${WORK}/DEBIAN/conffiles" <<'EOF'

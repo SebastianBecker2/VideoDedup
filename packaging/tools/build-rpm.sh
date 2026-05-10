@@ -87,7 +87,7 @@ sed -i 's/\r$//' "${SPEC_OUT}"
 rpmbuild -bb "${SPEC_OUT}" --define "_topdir ${TOP}" --define "_rpmdir ${TOP}/RPMS" \
   --define "_builddir ${TOP}/BUILD"
 
-mkdir -p "${OUT}"
-cp -a "${TOP}/RPMS/${RPMARCH}/"*.rpm "${OUT}/"
+mkdir -p "${OUT}/${RPMARCH}"
+cp -a "${TOP}/RPMS/${RPMARCH}/"*.rpm "${OUT}/${RPMARCH}/"
 
-echo "RPM artifacts in ${OUT}"
+echo "RPM artifacts in ${OUT}/${RPMARCH}"
