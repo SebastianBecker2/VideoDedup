@@ -86,16 +86,31 @@ ensure_videodedup_user() {
   install -d -o videodedup -g videodedup -m 0750 /var/log/videodedupserver
 }
 
-# runuser(8) is from util-linux on Debian/Ubuntu; Fedora minimal Docker images often omit it.
+# Drop privileges for videodedup (LinuxHostBootstrap rejects root). Fedora :40 often ships without
+# runuser/su until util-linux is installed; try absolute paths and setpriv(1) as well.
 vd_exec_as_videodedup() {
+  if [[ -x /usr/bin/runuser ]]; then
+    /usr/bin/runuser -u videodedup -- "$@"
+    return
+  fi
   if command -v runuser >/dev/null 2>&1; then
     runuser -u videodedup -- "$@"
-  elif command -v su >/dev/null 2>&1; then
-    su videodedup -c "exec $(printf '%q ' "$@")"
-  else
-    echo "vd_exec_as_videodedup: need runuser or su" >&2
-    exit 1
+    return
   fi
+  if [[ -x /usr/bin/su ]]; then
+    /usr/bin/su videodedup -c "exec $(printf '%q ' "$@")"
+    return
+  fi
+  if command -v su >/dev/null 2>&1; then
+    su videodedup -c "exec $(printf '%q ' "$@")"
+    return
+  fi
+  if command -v setpriv >/dev/null 2>&1; then
+    setpriv --reuid="$(id -u videodedup)" --regid="$(id -g videodedup)" --clear-groups -- "$@"
+    return
+  fi
+  echo "vd_exec_as_videodedup: need runuser, su, or setpriv (e.g. dnf install util-linux)" >&2
+  exit 1
 }
 
 install_tree_from_staged() {
@@ -147,9 +162,9 @@ install_rpm_dnf() {
   fw_pkg="$(firewall_pkgs_dnf)"
   if [[ -n "${fw_pkg}" ]]; then
     # shellcheck disable=SC2086
-    dnf -y -q install iproute ${fw_pkg} >/dev/null
+    dnf -y -q install iproute util-linux ${fw_pkg} >/dev/null
   else
-    dnf -y -q install iproute >/dev/null
+    dnf -y -q install iproute util-linux >/dev/null
   fi
   dnf -y -q install --setopt=tsflags= /tmp/videodedupserver.rpm
 }
@@ -239,9 +254,9 @@ install_flatpak_bundle() {
   fw_pkg="$(firewall_pkgs_dnf)"
   if [[ -n "${fw_pkg}" ]]; then
     # shellcheck disable=SC2086
-    dnf -y -q install iproute flatpak ${fw_pkg} >/dev/null
+    dnf -y -q install iproute flatpak util-linux ${fw_pkg} >/dev/null
   else
-    dnf -y -q install iproute flatpak >/dev/null
+    dnf -y -q install iproute flatpak util-linux >/dev/null
   fi
   flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
   flatpak install -y --noninteractive flathub org.freedesktop.Platform//24.08
