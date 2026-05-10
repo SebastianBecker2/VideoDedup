@@ -64,6 +64,7 @@ trap 'rm -f "${MANIFEST_RUN}"' EXIT
 flatpak-builder \
   --disable-rofiles-fuse \
   --force-clean \
+  --default-branch=stable \
   --repo="${REPO_DIR}" \
   --arch="${FB_ARCH}" \
   "${BUILD_DIR}" \
