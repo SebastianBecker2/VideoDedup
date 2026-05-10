@@ -34,7 +34,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y fakeroot dpkg-dev lintian rpm python3 curl ca-certificates git \
-            flatpak flatpak-builder snapd squashfuse fuse
+            flatpak flatpak-builder snapd squashfuse fuse3
 
       - name: Install Snapcraft
         run: |
