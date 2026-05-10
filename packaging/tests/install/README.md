@@ -1,32 +1,39 @@
-# `.deb` install smoke test (Docker)
+# Install smoke tests (Docker)
 
-Installs the built **`videodedupserver`** package inside a **Debian** container, checks
-layout, and runs **`VideoDedupService`** briefly as user **`videodedup`** (no systemd in
-the container; `postinst` `systemctl` calls are expected to no-op).
+## `.deb` (Debian)
 
-## Requirements
+Installs **`videodedupserver`** in a **Debian** container, checks layout, and runs **`VideoDedupService`** briefly as **`videodedup`** (no PID 1 systemd; `postinst` `systemctl` calls may no-op).
 
-- Docker (Linux engine). From **WSL2** at the repo: paths under `/mnt/...` work.
-- A **`.deb`** already built, e.g. `packaging/out/amd64/deb/*.deb`.
-
-## Usage
-
-From repository root:
+**Requirements:** Docker; a built `.deb` under `packaging/out/<arch>/deb/`.
 
 ```bash
 chmod +x packaging/tests/install/*.sh
-
-# Newest amd64 .deb under packaging/out/
 ./packaging/tests/install/docker-install-deb.sh
-
-# Explicit package
 ./packaging/tests/install/docker-install-deb.sh /path/to/videodedupserver_*_amd64.deb
-
-# arm64 output directory (if you build for arm64)
 ./packaging/tests/install/docker-install-deb.sh --arch arm64
 ```
 
+## Pacman (Arch)
+
+Uses **`archlinux`** and **`pacman -U`** on a `.pkg.tar.zst` from `packaging/out/<arch>/pacman/`.
+
+```bash
+./packaging/tests/install/docker-install-pacman.sh
+./packaging/tests/install/docker-install-pacman.sh --arch arm64
+```
+
+## Flatpak (Fedora)
+
+Uses **`fedora:40`**, installs **`org.freedesktop.Platform//24.08`**, then the `.flatpak` bundle from `packaging/out/<arch>/flatpak/`.
+
+```bash
+./packaging/tests/install/docker-install-flatpak.sh
+```
+
+## RPM
+
+See **`docker-install-rpm.sh`** (Fedora-based smoke test).
+
 ## CI
 
-The **Linux packaging** workflow runs this after the `.deb` is produced so regressions in
-`control`, `postinst`, or payload layout fail the job.
+The **Linux packaging** workflow runs **deb**, **rpm**, **pacman**, and **flatpak** install smokes so packaging regressions fail the job.

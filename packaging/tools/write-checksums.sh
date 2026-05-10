@@ -20,7 +20,7 @@ if [[ ! -d "${OUT}" ]]; then
   exit 0
 fi
 
-( cd "${ROOT}/packaging/out" && find "${ARCH}" -type f \( -name '*.deb' -o -name '*.rpm' -o -name '*.snap' -o -name '*.flatpak' \) -print0 | sort -z | xargs -0 sha256sum ) > "${SUM}" || true
+( cd "${ROOT}/packaging/out" && find "${ARCH}" -type f \( -name '*.deb' -o -name '*.rpm' -o -name '*.snap' -o -name '*.flatpak' -o -name '*.pkg.tar.zst' \) -print0 | sort -z | xargs -0 sha256sum ) > "${SUM}" || true
 
 if [[ -s "${SUM}" ]]; then
   echo "Wrote ${SUM}"

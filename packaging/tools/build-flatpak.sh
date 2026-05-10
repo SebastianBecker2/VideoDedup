@@ -3,10 +3,12 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ARCH="amd64"
+REQUIRE_FLATPAK_BUILDER=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --arch) ARCH="$2"; shift 2 ;;
+    --require-flatpak-builder) REQUIRE_FLATPAK_BUILDER=1; shift ;;
     *) echo "Unknown arg: $1" >&2; exit 1 ;;
   esac
 done
@@ -28,6 +30,9 @@ mkdir -p "${OUT}"
 
 if ! command -v flatpak-builder >/dev/null 2>&1; then
   echo "flatpak-builder not installed; skipping flatpak build" >&2
+  if [[ "${REQUIRE_FLATPAK_BUILDER}" -eq 1 ]]; then
+    exit 1
+  fi
   exit 0
 fi
 
@@ -49,12 +54,14 @@ flatpak install -y --user flathub \
 
 export FLATPAK_ARCH="${FB_ARCH}"
 
-MANIFEST_RUN="$(mktemp)"
+_tmp="$(mktemp)"
+MANIFEST_RUN="${_tmp}.yml"
+mv -f "${_tmp}" "${MANIFEST_RUN}"
 sed "s/-r linux-x64/-r ${DOTNET_RID}/g" "${MANIFEST}" > "${MANIFEST_RUN}"
 trap 'rm -f "${MANIFEST_RUN}"' EXIT
 
 flatpak-builder \
-  --share=network \
+  --disable-rofiles-fuse \
   --force-clean \
   --repo="${REPO_DIR}" \
   --arch="${FB_ARCH}" \

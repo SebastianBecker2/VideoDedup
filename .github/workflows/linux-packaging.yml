@@ -1,4 +1,4 @@
-# Build Linux DEB/RPM from staged dotnet publish; optional SBOM. Extend matrix for arm64 as needed.
+# Build Linux DEB/RPM/Pacman/Snap/Flatpak from staged dotnet publish; optional SBOM. Extend matrix for arm64 as needed.
 name: Linux packaging
 
 on:
@@ -33,14 +33,29 @@ jobs:
       - name: Install packaging dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y fakeroot dpkg-dev lintian rpm python3 curl
+          sudo apt-get install -y fakeroot dpkg-dev lintian rpm python3 curl ca-certificates git \
+            flatpak flatpak-builder snapd squashfuse fuse
+
+      - name: Install Snapcraft
+        run: |
+          sudo systemctl start snapd.socket snapd.service 2>/dev/null || true
+          timeout 180 sudo snap wait system seed.ready 2>/dev/null || true
+          sudo snap install snapcraft --classic
+
+      - name: Flatpak runtimes for flatpak-builder
+        run: |
+          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install -y --user flathub org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 org.freedesktop.Sdk.Extension.dotnet8//24.08
 
       - name: Stage and package
         run: |
-          chmod +x packaging/tools/*.sh packaging/common/generate-metadata.sh packaging/tests/*.sh packaging/tests/firewall/*.sh packaging/tests/install/*.sh packaging/tests/e2e/*.sh packaging/tools/sbom-and-attest.sh
+          chmod +x packaging/tools/*.sh packaging/common/generate-metadata.sh packaging/tests/*.sh packaging/tests/firewall/*.sh packaging/tests/install/*.sh packaging/tests/e2e/*.sh packaging/tools/sbom-and-attest.sh packaging/tools/run-full-linux-build-docker-inner.sh
           ./packaging/tools/stage.sh --arch ${{ matrix.arch }}
           ./packaging/tools/build-deb.sh --arch ${{ matrix.arch }}
           ./packaging/tools/build-rpm.sh --arch ${{ matrix.arch }}
+          ./packaging/tools/build-pacman.sh --arch ${{ matrix.arch }}
+          ./packaging/tools/build-flatpak.sh --arch ${{ matrix.arch }} --require-flatpak-builder
+          ./packaging/tools/build-snap.sh --arch ${{ matrix.arch }} --require-snapcraft
           ./packaging/tools/write-checksums.sh --arch ${{ matrix.arch }}
 
       - name: Package lint
@@ -56,6 +71,12 @@ jobs:
 
       - name: Test .rpm install (Docker)
         run: ./packaging/tests/install/docker-install-rpm.sh --arch ${{ matrix.arch }}
+
+      - name: Test pacman package install (Docker)
+        run: ./packaging/tests/install/docker-install-pacman.sh --arch ${{ matrix.arch }}
+
+      - name: Test flatpak bundle install (Docker)
+        run: ./packaging/tests/install/docker-install-flatpak.sh --arch ${{ matrix.arch }}
 
       - name: SBOM (syft)
         run: |
@@ -90,6 +111,10 @@ jobs:
           - { arch: amd64, distro: opensuse, format: rpm, firewall: nft }
           - { arch: amd64, distro: arch, format: staged, firewall: iptables }
           - { arch: amd64, distro: manjaro, format: staged, firewall: nft }
+          - { arch: amd64, distro: arch, format: pacman, firewall: iptables }
+          - { arch: amd64, distro: manjaro, format: pacman, firewall: nft }
+          - { arch: amd64, distro: ubuntu, format: snap, firewall: nft }
+          - { arch: amd64, distro: fedora, format: flatpak, firewall: nft }
     steps:
       - uses: actions/checkout@v4
         with:

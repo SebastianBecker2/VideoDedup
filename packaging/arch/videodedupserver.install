@@ -1,0 +1,32 @@
+# videodedupserver.install — hooks aligned with Debian postinst/prerm (systemd optional in minimal environments)
+
+post_install() {
+  mkdir -p /var/lib/videodedupserver /var/log/videodedupserver
+  if ! getent passwd videodedup >/dev/null 2>&1; then
+    if command -v useradd >/dev/null 2>&1; then
+      useradd --system --user-group \
+        --home-dir /var/lib/videodedupserver --create-home \
+        --shell /sbin/nologin videodedup 2>/dev/null \
+        || useradd --system --user-group \
+          --home-dir /var/lib/videodedupserver --shell /usr/sbin/nologin videodedup
+    else
+      echo "videodedupserver.install: useradd missing" >&2
+      return 1
+    fi
+  fi
+  chown -R videodedup:videodedup /var/lib/videodedupserver /var/log/videodedupserver
+  chmod 0750 /var/lib/videodedupserver /var/log/videodedupserver
+  systemctl daemon-reload 2>/dev/null || true
+  systemctl enable videodedupserver.service 2>/dev/null || true
+  systemctl start videodedupserver.service 2>/dev/null || true
+}
+
+post_upgrade() {
+  post_install
+}
+
+pre_remove() {
+  systemctl stop videodedupserver.service 2>/dev/null || true
+  systemctl disable videodedupserver.service 2>/dev/null || true
+}
+

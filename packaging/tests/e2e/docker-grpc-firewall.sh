@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# E2E: Linux container installs videodedupserver (deb/rpm/staged), applies a strict firewall
+# E2E: Linux container installs videodedupserver (deb/rpm/staged/pacman/snap/flatpak), applies a strict firewall
 # (nft | iptables | ufw | firewalld), runs the service; a second container runs VideoDedupGrpcSmoke.
 #
 # Requires: docker (with IPv6 enabled for custom bridge networks), dotnet 8 SDK on the host
@@ -10,7 +10,7 @@
 #
 # Options:
 #   --arch amd64|arm64
-#   --format deb|rpm|staged
+#   --format deb|rpm|staged|pacman|snap|flatpak
 #   --distro debian|ubuntu|fedora|rocky|opensuse|arch|manjaro  (sets server image; optional if --srv-image set)
 #   --srv-image IMAGE              override distro preset (e.g. ubuntu:22.04)
 #   --firewall nft|iptables|ufw|firewalld   (default nft)
@@ -22,6 +22,9 @@
 #   ./docker-grpc-firewall.sh --format deb --distro ubuntu --firewall ufw
 #   ./docker-grpc-firewall.sh --format rpm --distro fedora --firewall firewalld
 #   ./docker-grpc-firewall.sh --format staged --distro arch --firewall iptables
+#   ./docker-grpc-firewall.sh --format pacman --distro arch --firewall iptables
+#   ./docker-grpc-firewall.sh --format snap --distro ubuntu --firewall nft
+#   ./docker-grpc-firewall.sh --format flatpak --distro fedora --firewall nft
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
@@ -64,7 +67,7 @@ while [[ $# -gt 0 ]]; do
 Usage: docker-grpc-firewall.sh [options] [path/to/package.deb|.rpm]
 
   --arch amd64|arm64
-  --format deb|rpm|staged
+  --format deb|rpm|staged|pacman|snap|flatpak
   --distro debian|ubuntu|fedora|rocky|opensuse|arch|manjaro
   --srv-image IMAGE     override image (skips distro-based validation)
   --firewall nft|iptables|ufw|firewalld   (default: nft)
@@ -94,8 +97,8 @@ case "${ARCH}" in
 esac
 
 case "${FORMAT}" in
-  deb|rpm|staged) ;;
-  *) echo "Unsupported --format ${FORMAT} (use deb, rpm, or staged)" >&2; exit 1 ;;
+  deb|rpm|staged|pacman|snap|flatpak) ;;
+  *) echo "Unsupported --format ${FORMAT}" >&2; exit 1 ;;
 esac
 
 case "${FIREWALL}" in
@@ -121,6 +124,9 @@ resolve_distro_and_image() {
       deb) DISTRO=debian ;;
       rpm) DISTRO=fedora ;;
       staged) DISTRO=arch ;;
+      pacman) DISTRO=arch ;;
+      snap) DISTRO=ubuntu ;;
+      flatpak) DISTRO=fedora ;;
     esac
   fi
   if [[ -z "${SRV_IMAGE}" ]]; then
@@ -164,6 +170,24 @@ validate_combo() {
         exit 1
       ;; esac
     ;;
+    pacman)
+      case "${DISTRO}" in arch|manjaro) ;; *)
+        echo "For --format pacman use --distro arch or manjaro (got ${DISTRO})" >&2
+        exit 1
+      ;; esac
+    ;;
+    snap)
+      case "${DISTRO}" in debian|ubuntu) ;; *)
+        echo "For --format snap use --distro debian or ubuntu (got ${DISTRO})" >&2
+        exit 1
+      ;; esac
+    ;;
+    flatpak)
+      case "${DISTRO}" in fedora) ;; *)
+        echo "For --format flatpak use --distro fedora (got ${DISTRO})" >&2
+        exit 1
+      ;; esac
+    ;;
   esac
   if [[ "${FIREWALL}" == ufw ]]; then
     case "${DISTRO}" in debian|ubuntu|manjaro) ;; *)
@@ -193,16 +217,35 @@ if [[ "${FORMAT}" == staged ]]; then
 else
   if [[ -z "${PKG}" ]]; then
     shopt -s nullglob
-    if [[ "${FORMAT}" == deb ]]; then
-      candidates=( "${ROOT}/packaging/out/${ARCH}/deb/"*.deb )
-      _hint="packaging/tools/build-deb.sh"
-    else
-      candidates=( "${ROOT}/packaging/out/${ARCH}/rpm/"*/*.rpm )
-      _hint="packaging/tools/build-rpm.sh"
-    fi
+    case "${FORMAT}" in
+      deb)
+        candidates=( "${ROOT}/packaging/out/${ARCH}/deb/"*.deb )
+        _hint="packaging/tools/build-deb.sh"
+        ;;
+      rpm)
+        candidates=( "${ROOT}/packaging/out/${ARCH}/rpm/"*/*.rpm )
+        _hint="packaging/tools/build-rpm.sh"
+        ;;
+      pacman)
+        candidates=( "${ROOT}/packaging/out/${ARCH}/pacman/"*.pkg.tar.zst )
+        _hint="packaging/tools/build-pacman.sh"
+        ;;
+      snap)
+        candidates=( "${ROOT}/packaging/out/${ARCH}/snap/"*.snap )
+        _hint="packaging/tools/build-snap.sh"
+        ;;
+      flatpak)
+        candidates=( "${ROOT}/packaging/out/${ARCH}/flatpak/"*.flatpak )
+        _hint="packaging/tools/build-flatpak.sh"
+        ;;
+      *)
+        echo "internal: no candidate rule for ${FORMAT}" >&2
+        exit 1
+        ;;
+    esac
     shopt -u nullglob
     if ((${#candidates[@]} == 0)); then
-      echo "No .${FORMAT} under packaging/out/${ARCH}/ — build one first (e.g. ${_hint})" >&2
+      echo "No ${FORMAT} artifact under packaging/out/${ARCH}/ — build one first (e.g. ${_hint})" >&2
       exit 1
     fi
     PKG="$(ls -t "${candidates[@]}" | head -1)"
@@ -288,6 +331,18 @@ case "${FORMAT}" in
   staged)
     STAGE_VOL="$(docker_host_path "${STAGE_DIR}")"
     DOCKER_MOUNTS+=( -v "${STAGE_VOL}:/opt/videodedup-staged:ro" )
+    ;;
+  pacman)
+    PKG_VOL="$(docker_host_path "${PKG_ABS}")"
+    DOCKER_MOUNTS+=( -v "${PKG_VOL}:/tmp/videodedupserver.pkg.tar.zst:ro" )
+    ;;
+  snap)
+    PKG_VOL="$(docker_host_path "${PKG_ABS}")"
+    DOCKER_MOUNTS+=( -v "${PKG_VOL}:/tmp/videodedupserver.snap:ro" )
+    ;;
+  flatpak)
+    PKG_VOL="$(docker_host_path "${PKG_ABS}")"
+    DOCKER_MOUNTS+=( -v "${PKG_VOL}:/tmp/videodedupserver.flatpak:ro" )
     ;;
 esac
 

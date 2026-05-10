@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Used by docker-grpc-firewall.sh. Installs videodedupserver (deb/rpm/staged), applies a strict
+# Used by docker-grpc-firewall.sh. Installs videodedupserver (deb/rpm/staged/pacman/snap/flatpak), applies a strict
 # firewall (nft | iptables | ufw | firewalld), runs VideoDedupService.
 #
 # Env:
-#   VD_PACKAGE_FORMAT   deb | rpm | staged (default deb)
+#   VD_PACKAGE_FORMAT   deb | rpm | staged | pacman | snap | flatpak (default deb)
 #   VD_FIREWALL         nft | iptables | ufw | firewalld (default nft)
 #   VD_INSTALL_TOOL     auto | dnf | zypper — for rpm only (default auto: use zypper if /usr/bin/zypper exists)
 #
@@ -11,14 +11,17 @@
 #   deb:   /tmp/videodedupserver.deb
 #   rpm:   /tmp/videodedupserver.rpm  (+ optional /opt/videodedup-staged for zypper fallback)
 #   staged: /opt/videodedup-staged (read-only tree from packaging/.stage/<arch>/server)
+#   pacman: /tmp/videodedupserver.pkg.tar.zst
+#   snap:   /tmp/videodedupserver.snap (unsquashfs payload; Docker-friendly)
+#   flatpak: /tmp/videodedupserver.flatpak
 set -eu
 
 FMT="${VD_PACKAGE_FORMAT:-deb}"
 FW="${VD_FIREWALL:-nft}"
 INSTALL_TOOL="${VD_INSTALL_TOOL:-auto}"
 
-case "${FMT}" in deb|rpm|staged) ;; *)
-  echo "VD_PACKAGE_FORMAT must be deb, rpm, or staged, got ${FMT}" >&2
+case "${FMT}" in deb|rpm|staged|pacman|snap|flatpak) ;; *)
+  echo "VD_PACKAGE_FORMAT must be deb, rpm, staged, pacman, snap, or flatpak, got ${FMT}" >&2
   exit 1
 ;; esac
 
@@ -79,8 +82,8 @@ ensure_videodedup_user() {
       exit 1
     fi
   fi
-  install -d -o videodedup -g videodedup -m 0750 /var/lib/videodedupserver
-  install -d -o videodedup -g videodedup -m 0750 /var/log/videodedupserver
+  install -d -o videodedup -g videodedup -m 0750 /var/lib/videodedupserve
+  install -d -o videodedup -g videodedup -m 0750 /var/log/videodedupserve
 }
 
 install_tree_from_staged() {
@@ -89,8 +92,8 @@ install_tree_from_staged() {
     echo "staged tree missing VideoDedupService at ${src}" >&2
     exit 1
   }
-  ensure_videodedup_user
-  mkdir -p /usr/lib/videodedupserver
+  ensure_videodedup_use
+  mkdir -p /usr/lib/videodedupserve
   cp -a "${src}/." /usr/lib/videodedupserver/
   chmod 0755 /usr/lib/videodedupserver/VideoDedupService
 }
@@ -168,7 +171,7 @@ install_rpm() {
   if [[ "${tool}" == auto ]]; then
     tool=dnf
     if [[ -f /etc/os-release ]] && grep -qiE 'suse|opensuse' /etc/os-release; then
-      tool=zypper
+      tool=zyppe
     fi
   fi
   case "${tool}" in
@@ -176,6 +179,62 @@ install_rpm() {
     dnf) install_rpm_dnf ;;
     *) echo "VD_INSTALL_TOOL must be auto, dnf, or zypper" >&2; exit 1 ;;
   esac
+}
+
+install_pacman_pkg() {
+  local fw_pkg
+  fw_pkg="$(firewall_pkgs_pacman)"
+  if [[ -f /etc/os-release ]]; then
+    if grep -qi manjaro /etc/os-release; then
+      pacman-key --init 2>/dev/null || true
+      pacman-key --populate manjaro archlinux 2>/dev/null || true
+    elif grep -qi '^ID=arch' /etc/os-release || grep -qi archlinux /etc/os-release; then
+      pacman-key --init 2>/dev/null || true
+      pacman-key --populate archlinux 2>/dev/null || true
+    fi
+  fi
+  pacman -Sy --noconfirm --needed manjaro-keyring 2>/dev/null || true
+  pacman -Sy --noconfirm --needed archlinux-keyring 2>/dev/null || true
+  if [[ -n "${fw_pkg}" ]]; then
+    # shellcheck disable=SC2086
+    pacman -Sy --noconfirm --needed iproute2 ${fw_pkg} >/dev/null
+  else
+    pacman -Sy --noconfirm --needed iproute2 >/dev/null
+  fi
+  pacman -U --noconfirm /tmp/videodedupserver.pkg.tar.zst
+}
+
+install_snap_unsquash() {
+  export DEBIAN_FRONTEND=noninteractive
+  local fw_pkg
+  fw_pkg="$(firewall_pkgs_apt)"
+  apt-get update -qq
+  # shellcheck disable=SC2086
+  apt-get install -y -qq iproute2 squashfs-tools ${fw_pkg} >/dev/null
+  rm -rf /tmp/vd-snap
+  unsquashfs -f -d /tmp/vd-snap /tmp/videodedupserver.snap
+  [[ -x /tmp/vd-snap/usr/lib/videodedupserver/VideoDedupService ]] || {
+    echo "snap squashfs missing usr/lib/videodedupserver/VideoDedupService" >&2
+    ls -la /tmp/vd-snap >&2 || true
+    exit 1
+  }
+  ensure_videodedup_use
+}
+
+install_flatpak_bundle() {
+  ensure_dnf_el_ffmpeg
+  local fw_pkg
+  fw_pkg="$(firewall_pkgs_dnf)"
+  if [[ -n "${fw_pkg}" ]]; then
+    # shellcheck disable=SC2086
+    dnf -y -q install iproute flatpak ${fw_pkg} >/dev/null
+  else
+    dnf -y -q install iproute flatpak >/dev/null
+  fi
+  flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
+  flatpak install -y --noninteractive flathub org.freedesktop.Platform//24.08
+  flatpak install -y --noninteractive --bundle /tmp/videodedupserver.flatpak
+  ensure_videodedup_use
 }
 
 install_staged_pacman() {
@@ -204,7 +263,7 @@ install_staged_pacman() {
 
 apply_firewall_nft() {
   nft flush ruleset
-  nft add table inet filter
+  nft add table inet filte
   nft add chain inet filter input '{ type filter hook input priority filter; policy drop; }'
   nft add rule inet filter input ct state established,related accept
   # IPv6 neighbor discovery (ICMPv6) must be permitted or peers cannot resolve the link layer (Host unreachable).
@@ -304,17 +363,33 @@ case "${FMT}" in
   deb) install_deb ;;
   rpm) install_rpm ;;
   staged) install_staged_pacman ;;
+  pacman) install_pacman_pkg ;;
+  snap) install_snap_unsquash ;;
+  flatpak) install_flatpak_bundle ;;
 esac
 
 apply_firewall
 
-install -d -o videodedup -g videodedup /var/lib/videodedupserver
+install -d -o videodedup -g videodedup /var/lib/videodedupserve
 
-runuser -u videodedup -- env \
-  ASPNETCORE_ENVIRONMENT=Production \
-  DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
-  VIDEODEDUP_APP_DATA=/var/lib/videodedupserver \
-  /usr/lib/videodedupserver/VideoDedupService &
+if [[ "${FMT}" == flatpak ]]; then
+  install -d -m 0755 /var/lib/videodedupserve
+  env \
+    ASPNETCORE_ENVIRONMENT=Production \
+    DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
+    VIDEODEDUP_APP_DATA=/var/lib/videodedupserver \
+    flatpak run io.github.sebastianbecker2.videodedup.server &
+else
+  _vd_bin=/usr/lib/videodedupserver/VideoDedupService
+  if [[ "${FMT}" == snap ]]; then
+    _vd_bin=/tmp/vd-snap/usr/lib/videodedupserver/VideoDedupService
+  fi
+  runuser -u videodedup -- env \
+    ASPNETCORE_ENVIRONMENT=Production \
+    DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
+    VIDEODEDUP_APP_DATA=/var/lib/videodedupserver \
+    "${_vd_bin}" &
+fi
 
 for _ in $(seq 1 90); do
   if ss -ltn | grep -qE ':51726\b'; then

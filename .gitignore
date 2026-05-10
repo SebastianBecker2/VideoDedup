@@ -264,3 +264,6 @@ __pycache__/
 packaging/.stage/
 packaging/out/
 packaging/snap/_dump/
+
+# flatpak-builder (local cache + build roots; never commit)
+.flatpak-builder/

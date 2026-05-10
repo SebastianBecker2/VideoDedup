@@ -15,6 +15,8 @@ modules:
   - name: videodedupserver
     buildsystem: simple
     build-options:
+      build-args:
+        - --share=network
       append-path: /usr/lib/sdk/dotnet8/bin
       append-ld-library-path: /usr/lib/sdk/dotnet8/lib
     build-commands:
@@ -35,6 +37,19 @@ modules:
             install -Dm644 "VideoDedupService/$f" "${FLATPAK_DEST}/lib/videodedupserver/$f"
           fi
         done
+      - |
+        set -e
+        python3 - <<PY
+        import json
+        from pathlib import Path
+        path = Path("${FLATPAK_DEST}/lib/videodedupserver/appsettings.json")
+        data = json.loads(path.read_text(encoding="utf-8"))
+        grpc = data.setdefault("Kestrel", {}).setdefault("Endpoints", {}).setdefault("gRPC", {})
+        grpc["Url"] = "http://[::]:51726"
+        grpc["Protocols"] = "Http2"
+        grpc.pop("Certificate", None)
+        path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+        PY
     sources:
       - type: dir
         path: ../..

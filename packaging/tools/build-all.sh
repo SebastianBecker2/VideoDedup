@@ -6,7 +6,7 @@ ARCH="amd64"
 FORMATS="deb"
 
 usage() {
-  echo "Usage: $0 [--arch amd64|arm64] [--formats deb,rpm,snap,flatpak]" >&2
+  echo "Usage: $0 [--arch amd64|arm64] [--formats deb,rpm,snap,flatpak,pacman]" >&2
   exit 1
 }
 
@@ -37,6 +37,7 @@ for f in "${FMT[@]}"; do
     rpm) "${ROOT}/packaging/tools/build-rpm.sh" --arch "${ARCH}" ;;
     snap) "${ROOT}/packaging/tools/build-snap.sh" --arch "${ARCH}" ;;
     flatpak) "${ROOT}/packaging/tools/build-flatpak.sh" --arch "${ARCH}" ;;
+    pacman) "${ROOT}/packaging/tools/build-pacman.sh" --arch "${ARCH}" ;;
     *) echo "Unknown format: ${f}" >&2; exit 1 ;;
   esac
 done

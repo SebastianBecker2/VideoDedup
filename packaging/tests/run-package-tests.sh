@@ -48,4 +48,16 @@ if ((${#SNAPS[@]} > 0)); then
   fi
 fi
 
+shopt -s nullglob
+PKGS=( "${ROOT}/packaging/out/${ARCH}/pacman/"*.pkg.tar.zst )
+shopt -u nullglob
+
+if ((${#PKGS[@]} > 0)); then
+  if command -v namcap >/dev/null 2>&1; then
+    namcap "${PKGS[@]}" || FAILED=1
+  else
+    echo "namcap not installed; skipping Arch package checks"
+  fi
+fi
+
 exit "${FAILED}"

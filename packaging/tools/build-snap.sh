@@ -3,10 +3,12 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ARCH="amd64"
+REQUIRE_SNAPCRAFT=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --arch) ARCH="$2"; shift 2 ;;
+    --require-snapcraft) REQUIRE_SNAPCRAFT=1; shift ;;
     *) echo "Unknown arg: $1" >&2; exit 1 ;;
   esac
 done
@@ -35,6 +37,9 @@ mkdir -p "${OUT}"
 
 if ! command -v snapcraft >/dev/null 2>&1; then
   echo "snapcraft not installed; skipping snap build" >&2
+  if [[ "${REQUIRE_SNAPCRAFT}" -eq 1 ]]; then
+    exit 1
+  fi
   exit 0
 fi
 
