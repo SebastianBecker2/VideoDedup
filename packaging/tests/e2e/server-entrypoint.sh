@@ -221,9 +221,14 @@ apply_firewall_iptables() {
   iptables -P INPUT DROP
   iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
   iptables -A INPUT -p tcp --dport 51726 -j ACCEPT
+  # Docker / trimmed kernels often have no ip6tables filter module (e.g. Rocky on GHA). Keep strict IPv4; skip IPv6 rules.
   if ! command -v ip6tables >/dev/null 2>&1; then
-    echo "ip6tables not found; cannot mirror IPv4 iptables rules for IPv6" >&2
-    exit 1
+    echo "ip6tables not found; using IPv4-only iptables rules in this environment" >&2
+    return 0
+  fi
+  if ! ip6tables -t filter -L >/dev/null 2>&1; then
+    echo "ip6tables filter table unavailable; using IPv4-only iptables rules (IPv6 not firewalled here)" >&2
+    return 0
   fi
   ip6tables -F
   ip6tables -X 2>/dev/null || true
