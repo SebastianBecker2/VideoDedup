@@ -23,8 +23,11 @@ esac
 
 META="${ROOT}/packaging/out/metadata.json"
 STAGE="${ROOT}/packaging/.stage/${ARCH}/server"
-TOP="${ROOT}/packaging/out/rpm-build/${ARCH}"
 OUT="${ROOT}/packaging/out/${ARCH}/rpm"
+# rpmbuild helpers (find-debuginfo, debugedit) break on spaces in %{buildroot}. Use a short TMPDIR path.
+TOP="$(mktemp -d "${TMPDIR:-/tmp}/videodedup-rpm-${ARCH}.XXXXXX")"
+_cleanup_rpm_top() { rm -rf "${TOP}"; }
+trap _cleanup_rpm_top EXIT
 
 if [[ ! -f "${META}" ]]; then
   "${ROOT}/packaging/common/generate-metadata.sh"
@@ -50,8 +53,7 @@ HOME="$("${PACKAGING_PYTHON[@]}" -c "import json, os; print(json.load(open(os.en
 MAINTAINER="$("${PACKAGING_PYTHON[@]}" -c "import json, os; print(json.load(open(os.environ['VD_META_JSON'], encoding='utf-8'))['maintainer'])")"
 CHANGELOG_DATE="$(date -u '+%a %b %d %Y')"
 
-rm -rf "${TOP}"
-mkdir -p "${TOP}/"{BUILD,RPMS,SRPMS,SOURCES,SPECS} "${OUT}"
+mkdir -p "${TOP}/"{BUILD,RPMS,SRPMS,SOURCES,SPECS}
 
 # rpmbuild %setup expects a single top-level directory matching Name-Version.
 rm -rf "${TOP}/SOURCES/${PAYLOAD_NAME}"
@@ -81,7 +83,11 @@ sed \
 # CRLF in .spec breaks %prep (embedded script gets \r); normalize for Linux rpmbuild.
 sed -i 's/\r$//' "${SPEC_OUT}"
 
-rpmbuild -bb "${SPEC_OUT}" --define "_topdir ${TOP}" --define "_rpmdir ${OUT}" \
+# Write RPMs under TOP first: DrvFs (/mnt/d/...) often denies writes from rpmbuild; copy out afterward.
+rpmbuild -bb "${SPEC_OUT}" --define "_topdir ${TOP}" --define "_rpmdir ${TOP}/RPMS" \
   --define "_builddir ${TOP}/BUILD"
+
+mkdir -p "${OUT}"
+cp -a "${TOP}/RPMS/${RPMARCH}/"*.rpm "${OUT}/"
 
 echo "RPM artifacts in ${OUT}"

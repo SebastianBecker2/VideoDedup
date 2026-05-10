@@ -30,32 +30,32 @@ Requires:       openssl-libs
 :
 
 %install
-rm -rf %{buildroot}
-mkdir -p %{buildroot}/usr/lib/videodedupserver
-cp -a . %{buildroot}/usr/lib/videodedupserver/
-mkdir -p %{buildroot}/usr/lib/systemd/system
-install -m 0644 @REPO@/packaging/common/systemd/videodedupserver.service \
-  %{buildroot}/usr/lib/systemd/system/videodedupserver.service
-mkdir -p %{buildroot}/etc/videodedupserver
-install -m 0644 @REPO@/packaging/common/env/videodedupserver.env \
-  %{buildroot}/etc/videodedupserver/env
-mkdir -p %{buildroot}/usr/share/doc/%{name}
-install -m 0644 @REPO@/LICENSE %{buildroot}/usr/share/doc/%{name}/LICENSE
-sed 's/\r$//' @REPO@/packaging/common/firewall/README.firewall > %{buildroot}/usr/share/doc/%{name}/README.firewall
-chmod 0644 %{buildroot}/usr/share/doc/%{name}/README.firewall
-mkdir -p %{buildroot}/usr/lib/%{name}/firewall
-sed 's/\r$//' @REPO@/packaging/common/firewall/open-port-ufw.sh > %{buildroot}/usr/lib/%{name}/firewall/open-port-ufw.sh
-sed 's/\r$//' @REPO@/packaging/common/firewall/open-port-firewalld.sh > %{buildroot}/usr/lib/%{name}/firewall/open-port-firewalld.sh
-sed 's/\r$//' @REPO@/packaging/common/firewall/open-port-iptables.sh > %{buildroot}/usr/lib/%{name}/firewall/open-port-iptables.sh
-sed 's/\r$//' @REPO@/packaging/common/firewall/open-port-nftables.sh > %{buildroot}/usr/lib/%{name}/firewall/open-port-nftables.sh
-sed 's/\r$//' @REPO@/packaging/common/firewall/configure-firewall-interactive.sh > %{buildroot}/usr/lib/%{name}/firewall/configure-firewall-interactive.sh
-chmod 0755 %{buildroot}/usr/lib/%{name}/firewall/open-port-ufw.sh \
-  %{buildroot}/usr/lib/%{name}/firewall/open-port-firewalld.sh \
-  %{buildroot}/usr/lib/%{name}/firewall/open-port-iptables.sh \
-  %{buildroot}/usr/lib/%{name}/firewall/open-port-nftables.sh \
-  %{buildroot}/usr/lib/%{name}/firewall/configure-firewall-interactive.sh
-mkdir -p %{buildroot}/var/lib/videodedupserver
-mkdir -p %{buildroot}/var/log/videodedupserver
+rm -rf "%{buildroot}"
+mkdir -p "%{buildroot}/usr/lib/videodedupserver"
+cp -a . "%{buildroot}/usr/lib/videodedupserver/"
+mkdir -p "%{buildroot}/usr/lib/systemd/system"
+install -m 0644 "@REPO@/packaging/common/systemd/videodedupserver.service" \
+  "%{buildroot}/usr/lib/systemd/system/videodedupserver.service"
+mkdir -p "%{buildroot}/etc/videodedupserver"
+install -m 0644 "@REPO@/packaging/common/env/videodedupserver.env" \
+  "%{buildroot}/etc/videodedupserver/env"
+mkdir -p "%{buildroot}/usr/share/doc/%{name}"
+install -m 0644 "@REPO@/LICENSE" "%{buildroot}/usr/share/doc/%{name}/LICENSE"
+sed 's/\r$//' "@REPO@/packaging/common/firewall/README.firewall" > "%{buildroot}/usr/share/doc/%{name}/README.firewall"
+chmod 0644 "%{buildroot}/usr/share/doc/%{name}/README.firewall"
+mkdir -p "%{buildroot}/usr/lib/%{name}/firewall"
+sed 's/\r$//' "@REPO@/packaging/common/firewall/open-port-ufw.sh" > "%{buildroot}/usr/lib/%{name}/firewall/open-port-ufw.sh"
+sed 's/\r$//' "@REPO@/packaging/common/firewall/open-port-firewalld.sh" > "%{buildroot}/usr/lib/%{name}/firewall/open-port-firewalld.sh"
+sed 's/\r$//' "@REPO@/packaging/common/firewall/open-port-iptables.sh" > "%{buildroot}/usr/lib/%{name}/firewall/open-port-iptables.sh"
+sed 's/\r$//' "@REPO@/packaging/common/firewall/open-port-nftables.sh" > "%{buildroot}/usr/lib/%{name}/firewall/open-port-nftables.sh"
+sed 's/\r$//' "@REPO@/packaging/common/firewall/configure-firewall-interactive.sh" > "%{buildroot}/usr/lib/%{name}/firewall/configure-firewall-interactive.sh"
+chmod 0755 "%{buildroot}/usr/lib/%{name}/firewall/open-port-ufw.sh" \
+  "%{buildroot}/usr/lib/%{name}/firewall/open-port-firewalld.sh" \
+  "%{buildroot}/usr/lib/%{name}/firewall/open-port-iptables.sh" \
+  "%{buildroot}/usr/lib/%{name}/firewall/open-port-nftables.sh" \
+  "%{buildroot}/usr/lib/%{name}/firewall/configure-firewall-interactive.sh"
+mkdir -p "%{buildroot}/var/lib/videodedupserver"
+mkdir -p "%{buildroot}/var/log/videodedupserver"
 
 %post
 getent passwd videodedup >/dev/null || useradd --system --user-group \
