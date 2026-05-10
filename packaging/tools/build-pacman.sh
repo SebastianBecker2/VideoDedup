@@ -135,6 +135,9 @@ pkgdesc="{desc}"
 arch=('{arch}')
 url="{url}"
 license=('MIT')
+# PublishSingleFile bundles are corrupted by makepkg's default strip; see .NET host
+# "Arithmetic overflow while reading bundle" / "Failure processing application bundle".
+options=('!strip' '!debug')
 depends=('ffmpeg' 'systemd' 'fontconfig' 'util-linux' 'ca-certificates' 'openssl' 'iproute2')
 install=videodedupserver.install
 source=("{tar}")

@@ -374,10 +374,14 @@ install -d -o videodedup -g videodedup /var/lib/videodedupserver
 
 if [[ "${FMT}" == flatpak ]]; then
   install -d -m 0755 /var/lib/videodedupserver
-  env \
+  _u="$(id -u videodedup)"
+  install -d -m 0700 -o videodedup -g videodedup "/run/user/${_u}"
+  # Packaged binary refuses UID 0 (LinuxHostBootstrap); flatpak must not run as root.
+  runuser -u videodedup -- env \
     ASPNETCORE_ENVIRONMENT=Production \
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
     VIDEODEDUP_APP_DATA=/var/lib/videodedupserver \
+    XDG_RUNTIME_DIR="/run/user/${_u}" \
     flatpak run io.github.sebastianbecker2.videodedup.server &
 else
   _vd_bin=/usr/lib/videodedupserver/VideoDedupService
