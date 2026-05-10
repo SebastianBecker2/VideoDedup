@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32228.430
@@ -15,6 +15,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoDedupServer", "VideoDedupServer\VideoDedupServer.csproj", "{98597EB4-280A-4F07-AAA5-605C4D68F618}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoDedupSharedLib", "VideoDedupSharedLib\VideoDedupSharedLib.csproj", "{B8FA0B95-26D9-41E6-A194-B67E09D62E15}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoDedupGrpcSmoke", "VideoDedupGrpcSmoke\VideoDedupGrpcSmoke.csproj", "{C4D5E6F7-A8B9-4C0D-1E2F-3456789ABCDE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoDedupService", "VideoDedupService\VideoDedupService.csproj", "{63351B69-9B0A-4B87-ACFB-905ABA55BC71}"
 EndProject
@@ -82,6 +84,14 @@ Global
 		{B8FA0B95-26D9-41E6-A194-B67E09D62E15}.Release|Any CPU.Build.0 = Release|x64
 		{B8FA0B95-26D9-41E6-A194-B67E09D62E15}.Release|x64.ActiveCfg = Release|x64
 		{B8FA0B95-26D9-41E6-A194-B67E09D62E15}.Release|x64.Build.0 = Release|x64
+		{C4D5E6F7-A8B9-4C0D-1E2F-3456789ABCDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4D5E6F7-A8B9-4C0D-1E2F-3456789ABCDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4D5E6F7-A8B9-4C0D-1E2F-3456789ABCDE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C4D5E6F7-A8B9-4C0D-1E2F-3456789ABCDE}.Debug|x64.Build.0 = Debug|Any CPU
+		{C4D5E6F7-A8B9-4C0D-1E2F-3456789ABCDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4D5E6F7-A8B9-4C0D-1E2F-3456789ABCDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4D5E6F7-A8B9-4C0D-1E2F-3456789ABCDE}.Release|x64.ActiveCfg = Release|Any CPU
+		{C4D5E6F7-A8B9-4C0D-1E2F-3456789ABCDE}.Release|x64.Build.0 = Release|Any CPU
 		{63351B69-9B0A-4B87-ACFB-905ABA55BC71}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{63351B69-9B0A-4B87-ACFB-905ABA55BC71}.Debug|Any CPU.Build.0 = Debug|x64
 		{63351B69-9B0A-4B87-ACFB-905ABA55BC71}.Debug|x64.ActiveCfg = Debug|x64

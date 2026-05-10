@@ -1,0 +1,72 @@
+VideoDedup server — host firewall (TCP 51726)
+=============================================
+
+The service listens on TCP port 51726 for gRPC (HTTP/2 cleartext). Debian
+packages do not open firewall ports automatically; allow the port on your
+host if clients connect from another machine.
+
+Interactive helper (lists ufw / firewalld / nftables / iptables, marks what is
+installed or active, suggests a backend, then runs the matching script; optional
+persist prompt for nftables/iptables):
+
+  sudo /usr/lib/videodedupserver/firewall/configure-firewall-interactive.sh
+
+Or pick the stack you use and run the matching script as root (see below).
+Override the port if needed:
+
+  sudo PORT=51726 /usr/lib/videodedupserver/firewall/open-port-ufw.sh
+
+Persistence (optional — **not** the default; avoids overwriting firewall configs by surprise).
+
+`sudo` often **drops** environment variables, so prefer **`--persist`**:
+
+  sudo /usr/lib/videodedupserver/firewall/open-port-nftables.sh --persist
+  sudo /usr/lib/videodedupserver/firewall/open-port-iptables.sh --persist   # needs iptables-persistent
+
+Or keep the variable for the child process:
+
+  sudo env PERSIST=1 /usr/lib/videodedupserver/firewall/open-port-nftables.sh
+
+If the rule is **already** in the live ruleset, `--persist` still saves the full ruleset to disk.
+
+`ufw` / `firewalld` helpers already write persistent rules for their stacks. For **nftables**,
+persistence dumps the **entire live** ruleset to `/etc/nftables.conf` (backup of previous file
+if any), then enables/restarts `nftables.service`. It **refuses** if **ufw** is active unless
+you set `VIDEODEDUP_NFT_PERSIST_FORCE=1`. Review `/etc/nftables.conf` on complex hosts.
+
+Scripts (installed with the package)
+--------------------------------------
+  /usr/lib/videodedupserver/firewall/configure-firewall-interactive.sh
+      Menu-driven: detect stacks, suggest one, optional persistence for nft/iptables.
+
+  /usr/lib/videodedupserver/firewall/open-port-ufw.sh
+      Uncomplicated Firewall (common on Ubuntu; also available on Debian).
+
+  /usr/lib/videodedupserver/firewall/open-port-firewalld.sh
+      firewalld (Fedora/RHEL/CentOS; sometimes used on Debian derivatives).
+
+  /usr/lib/videodedupserver/firewall/open-port-iptables.sh
+      Legacy iptables (IPv4). Live rule by default; use PERSIST=1 with
+      netfilter-persistent (apt install iptables-persistent) to save.
+
+  /usr/lib/videodedupserver/firewall/open-port-nftables.sh
+      nftables: adds a rule to inet filter input; if nothing is loaded yet
+      (typical on Debian before nftables.service), creates a minimal table +
+      input chain (policy accept) first. Optional PERSIST=1 writes the live
+      ruleset to /etc/nftables.conf (see above). If ufw/firewalld manages
+      filtering, prefer open-port-ufw.sh / firewalld instead.
+
+Cloud / external firewalls
+--------------------------
+If the host only has a security group (AWS, GCP, Azure, etc.), add TCP 51726
+there as well; local ufw/firewalld does not replace cloud rules.
+
+IPv6
+----
+If you use ip6tables or separate IPv6 nftables rules, mirror the same port
+allowance for IPv6 traffic if your clients use IPv6.
+
+Strict policy drop rulesets must still allow ICMPv6 neighbor discovery
+(neighbor solicitation / advertisement, and usually router advertisements on
+LANs); otherwise peers cannot resolve the link layer and IPv6 TCP fails with
+no route / host unreachable even when the service port is open.

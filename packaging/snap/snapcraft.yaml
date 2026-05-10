@@ -1,0 +1,33 @@
+name: videodedupserver
+summary: Video deduplication gRPC server (VideoDedup)
+description: |
+  Snap packaging of the VideoDedup server. Uses classic confinement so the
+  service can access user-selected library paths on the host.
+
+  This channel runs a Snap-managed daemon (not the host systemd unit used by
+  DEB/RPM). Data defaults to $SNAP_COMMON.
+
+  Flatpak builds are intentionally limited to user-run/dev scenarios because
+  Flatpak cannot install host systemd services.
+
+grade: stable
+confinement: classic
+base: core22
+version: "0.0.0"
+
+parts:
+  server:
+    plugin: dump
+    source: _dump
+    organize:
+      "*": usr/lib/videodedupserver/
+
+apps:
+  videodedupserver:
+    command: usr/lib/videodedupserver/VideoDedupService
+    daemon: simple
+    environment:
+      VIDEODEDUP_APP_DATA: $SNAP_COMMON/data
+    plugs:
+      - network
+      - network-bind

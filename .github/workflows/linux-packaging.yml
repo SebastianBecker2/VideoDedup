@@ -1,0 +1,129 @@
+# Build Linux DEB/RPM from staged dotnet publish; optional SBOM. Extend matrix for arm64 as needed.
+name: Linux packaging
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master, Linux]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  linux-packages:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set SOURCE_DATE_EPOCH
+        run: echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Install packaging dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fakeroot dpkg-dev lintian rpm python3 curl
+
+      - name: Stage and package
+        run: |
+          chmod +x packaging/tools/*.sh packaging/common/generate-metadata.sh packaging/tests/*.sh packaging/tests/firewall/*.sh packaging/tests/install/*.sh packaging/tests/e2e/*.sh packaging/tools/sbom-and-attest.sh
+          ./packaging/tools/stage.sh --arch ${{ matrix.arch }}
+          ./packaging/tools/build-deb.sh --arch ${{ matrix.arch }}
+          ./packaging/tools/build-rpm.sh --arch ${{ matrix.arch }}
+          ./packaging/tools/write-checksums.sh --arch ${{ matrix.arch }}
+
+      - name: Package lint
+        run: ./packaging/tests/run-package-tests.sh ${{ matrix.arch }}
+
+      - name: Firewall scripts (Docker integration)
+        run: |
+          chmod +x packaging/tests/firewall/*.sh
+          ./packaging/tests/firewall/docker-run-all.sh --integration
+
+      - name: Test .deb install (Docker)
+        run: ./packaging/tests/install/docker-install-deb.sh --arch ${{ matrix.arch }}
+
+      - name: Test .rpm install (Docker)
+        run: ./packaging/tests/install/docker-install-rpm.sh --arch ${{ matrix.arch }}
+
+      - name: SBOM (syft)
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+          ./packaging/tools/sbom-and-attest.sh ${{ matrix.arch }}
+        continue-on-error: true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-packages-${{ matrix.arch }}-${{ github.sha }}
+          if-no-files-found: warn
+          path: |
+            packaging/out/metadata.json
+            packaging/out/SHA256SUMS-${{ matrix.arch }}.txt
+            packaging/out/${{ matrix.arch }}/deb/*.deb
+            packaging/out/${{ matrix.arch }}/rpm/*/*.rpm
+            packaging/out/${{ matrix.arch }}/sbom/*.json
+
+  e2e-grpc-firewall:
+    needs: linux-packages
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { arch: amd64, distro: debian, format: deb, firewall: nft }
+          - { arch: amd64, distro: debian, format: deb, firewall: iptables }
+          - { arch: amd64, distro: ubuntu, format: deb, firewall: ufw }
+          - { arch: amd64, distro: fedora, format: rpm, firewall: nft }
+          - { arch: amd64, distro: fedora, format: rpm, firewall: firewalld }
+          - { arch: amd64, distro: rocky, format: rpm, firewall: iptables }
+          - { arch: amd64, distro: opensuse, format: rpm, firewall: nft }
+          - { arch: amd64, distro: arch, format: staged, firewall: iptables }
+          - { arch: amd64, distro: manjaro, format: staged, firewall: nft }
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set SOURCE_DATE_EPOCH
+        run: echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Download built packages
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-packages-${{ matrix.arch }}-${{ github.sha }}
+          path: .
+
+      - name: Install helpers for stage.sh
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 git
+
+      - name: Stage server tree (staged E2E + openSUSE RPM fallback)
+        run: |
+          chmod +x packaging/tools/*.sh packaging/common/generate-metadata.sh packaging/tests/e2e/*.sh
+          ./packaging/tools/stage.sh --arch ${{ matrix.arch }}
+
+      - name: E2E gRPC through firewall
+        run: |
+          chmod +x packaging/tests/e2e/*.sh
+          ./packaging/tests/e2e/docker-grpc-firewall.sh \
+            --arch ${{ matrix.arch }} \
+            --distro ${{ matrix.distro }} \
+            --format ${{ matrix.format }} \
+            --firewall ${{ matrix.firewall }}

@@ -3,6 +3,17 @@
 ###############################################################################
 * text=auto
 
+# Shell scripts for Linux packaging must stay LF (CRLF breaks /bin/sh on Debian).
+packaging/common/firewall/*.sh text eol=lf
+packaging/tools/*.sh text eol=lf
+packaging/common/generate-metadata.sh text eol=lf
+packaging/common/packaging-python.sh text eol=lf
+packaging/tests/*.sh text eol=lf
+packaging/tests/firewall/*.sh text eol=lf
+packaging/tests/install/*.sh text eol=lf
+packaging/tests/e2e/*.sh text eol=lf
+packaging/rpm/*.spec text eol=lf
+
 ###############################################################################
 # Set default behavior for command prompt diff.
 #

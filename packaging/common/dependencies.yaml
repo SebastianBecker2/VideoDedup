@@ -1,0 +1,39 @@
+# Unified dependency policy: self-contained server publish for DEB/RPM + distro ffmpeg.
+# Snap/Flatpak may bundle runtime (see respective manifests).
+
+policy:
+  dotnet_major: 8
+  runtime_model_default: self_contained
+  ffmpeg_model_deb_rpm: system_packages
+  ffmpeg_model_snap_flatpak: staged_or_host
+
+debian:
+  depends:
+    - ffmpeg
+    - adduser
+    - systemd
+    - ca-certificates
+    - "libc6 (>= 2.31)"
+    - "libssl3 | libssl3t64 | libssl1.1"
+  # Alternatives for libav SONAME drift across releases (extend as needed).
+  recommends: []
+
+rpm:
+  requires:
+    - ffmpeg
+    - systemd
+    - shadow-utils
+    - ca-certificates
+    - openssl-libs
+
+snap:
+  # classic: server needs broad host filesystem access for user scan paths.
+  confinement: classic
+  stage_packages: []
+
+flatpak:
+  # User-run / dev channel; not a host systemd daemon.
+  runtime: org.freedesktop.Platform
+  runtime_version: "24.08"
+  sdk: org.freedesktop.Sdk
+  sdk_extension_dotnet: org.freedesktop.Sdk.Extension.dotnet8

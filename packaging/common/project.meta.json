@@ -1,0 +1,9 @@
+{
+  "package_name": "videodedupserver",
+  "title": "VideoDedupServer",
+  "description": "gRPC video deduplication server for the VideoDedup suite. Scans folders for visually duplicate videos and exposes results to the VideoDedup client.",
+  "homepage": "https://github.com/SebastianBecker2/videodedup",
+  "license": "MIT",
+  "maintainer": "Sebastian Becker <https://github.com/SebastianBecker2>",
+  "vendor": "Sebastian Becker"
+}

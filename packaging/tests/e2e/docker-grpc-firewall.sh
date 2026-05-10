@@ -1,0 +1,351 @@
+#!/usr/bin/env bash
+# E2E: Linux container installs videodedupserver (deb/rpm/staged), applies a strict firewall
+# (nft | iptables | ufw | firewalld), runs the service; a second container runs VideoDedupGrpcSmoke.
+#
+# Requires: docker (with IPv6 enabled for custom bridge networks), dotnet 8 SDK on the host
+# (to publish the smoke tool unless --smoke-dir is set).
+#
+# Usage:
+#   ./docker-grpc-firewall.sh [options] [path/to/package.deb|.rpm]
+#
+# Options:
+#   --arch amd64|arm64
+#   --format deb|rpm|staged
+#   --distro debian|ubuntu|fedora|rocky|opensuse|arch|manjaro  (sets server image; optional if --srv-image set)
+#   --srv-image IMAGE              override distro preset (e.g. ubuntu:22.04)
+#   --firewall nft|iptables|ufw|firewalld   (default nft)
+#   --smoke-dir DIR
+#   -h, --help
+#
+# Examples:
+#   ./docker-grpc-firewall.sh --format deb --distro debian --firewall nft
+#   ./docker-grpc-firewall.sh --format deb --distro ubuntu --firewall ufw
+#   ./docker-grpc-firewall.sh --format rpm --distro fedora --firewall firewalld
+#   ./docker-grpc-firewall.sh --format staged --distro arch --firewall iptables
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+ARCH="amd64"
+FORMAT="deb"
+DISTRO=""
+SRV_IMAGE=""
+FIREWALL="nft"
+PKG=""
+SMOKE_DIR=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --arch)
+      ARCH="$2"
+      shift 2
+      ;;
+    --format)
+      FORMAT="$2"
+      shift 2
+      ;;
+    --distro)
+      DISTRO="$2"
+      shift 2
+      ;;
+    --srv-image)
+      SRV_IMAGE="$2"
+      shift 2
+      ;;
+    --firewall)
+      FIREWALL="$2"
+      shift 2
+      ;;
+    --smoke-dir)
+      SMOKE_DIR="$2"
+      shift 2
+      ;;
+    -h|--help)
+      cat <<'HELP'
+Usage: docker-grpc-firewall.sh [options] [path/to/package.deb|.rpm]
+
+  --arch amd64|arm64
+  --format deb|rpm|staged
+  --distro debian|ubuntu|fedora|rocky|opensuse|arch|manjaro
+  --srv-image IMAGE     override image (skips distro-based validation)
+  --firewall nft|iptables|ufw|firewalld   (default: nft)
+  --smoke-dir DIR
+
+Runs gRPC smoke twice: explicit IPv4 (http://a.b.c.d:51726) and IPv6 (http://[addr]:51726) on a dual-stack bridge.
+
+Staged format requires ./packaging/tools/stage.sh for the arch; deb/rpm need built packages under packaging/out/.
+HELP
+      exit 0
+      ;;
+    *)
+      if [[ -n "${PKG}" ]]; then
+        echo "Extra argument: $1" >&2
+        exit 1
+      fi
+      PKG="$1"
+      shift
+      ;;
+  esac
+done
+
+case "${ARCH}" in
+  amd64) DOTNET_RID="linux-x64" ;;
+  arm64) DOTNET_RID="linux-arm64" ;;
+  *) echo "Unsupported --arch ${ARCH}" >&2; exit 1 ;;
+esac
+
+case "${FORMAT}" in
+  deb|rpm|staged) ;;
+  *) echo "Unsupported --format ${FORMAT} (use deb, rpm, or staged)" >&2; exit 1 ;;
+esac
+
+case "${FIREWALL}" in
+  nft|iptables|ufw|firewalld) ;;
+  *) echo "Unsupported --firewall ${FIREWALL}" >&2; exit 1 ;;
+esac
+
+resolve_distro_and_image() {
+  if [[ -n "${SRV_IMAGE}" && -z "${DISTRO}" ]]; then
+    case "${SRV_IMAGE}" in
+      debian:bookworm-slim) DISTRO=debian ;;
+      ubuntu:24.04) DISTRO=ubuntu ;;
+      fedora:40) DISTRO=fedora ;;
+      rockylinux/rockylinux:9) DISTRO=rocky ;;
+      opensuse/tumbleweed) DISTRO=opensuse ;;
+      archlinux:latest) DISTRO=arch ;;
+      manjarolinux/base) DISTRO=manjaro ;;
+      *) DISTRO=custom ;;
+    esac
+  fi
+  if [[ -z "${DISTRO}" ]]; then
+    case "${FORMAT}" in
+      deb) DISTRO=debian ;;
+      rpm) DISTRO=fedora ;;
+      staged) DISTRO=arch ;;
+    esac
+  fi
+  if [[ -z "${SRV_IMAGE}" ]]; then
+    case "${DISTRO}" in
+      debian) SRV_IMAGE="debian:bookworm-slim" ;;
+      ubuntu) SRV_IMAGE="ubuntu:24.04" ;;
+      fedora) SRV_IMAGE="fedora:40" ;;
+      rocky) SRV_IMAGE="rockylinux/rockylinux:9" ;;
+      opensuse) SRV_IMAGE="opensuse/tumbleweed" ;;
+      arch) SRV_IMAGE="archlinux:latest" ;;
+      manjaro) SRV_IMAGE="manjarolinux/base" ;;
+      custom) echo "Set --srv-image when using DISTRO=custom" >&2; exit 1 ;;
+      *)
+        echo "Unknown --distro ${DISTRO}" >&2
+        exit 1
+      ;;
+    esac
+  fi
+}
+
+validate_combo() {
+  if [[ "${DISTRO}" == custom ]]; then
+    return 0
+  fi
+  case "${FORMAT}" in
+    staged)
+      case "${DISTRO}" in arch|manjaro) ;; *)
+        echo "For --format staged use --distro arch or manjaro (got ${DISTRO})" >&2
+        exit 1
+      ;; esac
+    ;;
+    deb)
+      case "${DISTRO}" in debian|ubuntu) ;; *)
+        echo "For --format deb use --distro debian or ubuntu (got ${DISTRO})" >&2
+        exit 1
+      ;; esac
+    ;;
+    rpm)
+      case "${DISTRO}" in fedora|rocky|opensuse) ;; *)
+        echo "For --format rpm use --distro fedora, rocky, or opensuse (got ${DISTRO})" >&2
+        exit 1
+      ;; esac
+    ;;
+  esac
+  if [[ "${FIREWALL}" == ufw ]]; then
+    case "${DISTRO}" in debian|ubuntu|manjaro) ;; *)
+      echo "ufw E2E is supported on debian, ubuntu, or manjaro (got ${DISTRO})" >&2
+      exit 1
+    ;; esac
+  fi
+}
+
+resolve_distro_and_image
+validate_combo
+
+STAGE_DIR="${ROOT}/packaging/.stage/${ARCH}/server"
+if [[ "${DISTRO}" == opensuse && "${FORMAT}" == rpm ]]; then
+  if [[ ! -f "${STAGE_DIR}/VideoDedupService" ]]; then
+    echo "openSUSE RPM E2E mounts staged fallback at ${STAGE_DIR} — run: ./packaging/tools/stage.sh --arch ${ARCH}" >&2
+    exit 1
+  fi
+fi
+
+if [[ "${FORMAT}" == staged ]]; then
+  if [[ ! -f "${STAGE_DIR}/VideoDedupService" ]]; then
+    echo "Staged server missing at ${STAGE_DIR} — run: ./packaging/tools/stage.sh --arch ${ARCH}" >&2
+    exit 1
+  fi
+  PKG_ABS=""
+else
+  if [[ -z "${PKG}" ]]; then
+    shopt -s nullglob
+    if [[ "${FORMAT}" == deb ]]; then
+      candidates=( "${ROOT}/packaging/out/${ARCH}/deb/"*.deb )
+      _hint="packaging/tools/build-deb.sh"
+    else
+      candidates=( "${ROOT}/packaging/out/${ARCH}/rpm/"*/*.rpm )
+      _hint="packaging/tools/build-rpm.sh"
+    fi
+    shopt -u nullglob
+    if ((${#candidates[@]} == 0)); then
+      echo "No .${FORMAT} under packaging/out/${ARCH}/ — build one first (e.g. ${_hint})" >&2
+      exit 1
+    fi
+    PKG="$(ls -t "${candidates[@]}" | head -1)"
+  fi
+  if [[ ! -f "${PKG}" ]]; then
+    echo "Not a file: ${PKG}" >&2
+    exit 1
+  fi
+  PKG_ABS="$(cd "$(dirname "${PKG}")" && pwd)/$(basename "${PKG}")"
+fi
+
+if [[ -z "${SMOKE_DIR}" ]]; then
+  SMOKE_DIR="${ROOT}/packaging/out/${ARCH}/e2e-smoke"
+fi
+
+if [[ ! -f "${SMOKE_DIR}/VideoDedupGrpcSmoke.dll" ]]; then
+  echo "Publishing VideoDedupGrpcSmoke to ${SMOKE_DIR} …"
+  dotnet publish "${ROOT}/VideoDedupGrpcSmoke/VideoDedupGrpcSmoke.csproj" \
+    -c Release -r "${DOTNET_RID}" --self-contained false \
+    -o "${SMOKE_DIR}"
+fi
+
+if ! command -v docker >/dev/null 2>&1; then
+  echo "docker not found" >&2
+  exit 1
+fi
+if ! docker info >/dev/null 2>&1; then
+  echo "Docker daemon not reachable" >&2
+  exit 1
+fi
+
+NET="videodedup-e2e-$$"
+SRV="videodedup-e2e-srv-$$"
+SMOKE_ABS="$(cd "${SMOKE_DIR}" && pwd)"
+
+docker_host_path() {
+  if command -v cygpath >/dev/null 2>&1; then
+    cygpath -w "$1"
+  else
+    printf '%s' "$1"
+  fi
+}
+
+cleanup() {
+  docker rm -f "${SRV}" >/dev/null 2>&1 || true
+  docker network rm "${NET}" >/dev/null 2>&1 || true
+}
+trap cleanup EXIT
+
+# ULA IPv6 + private IPv4 so each E2E run gets stable dual-stack semantics (daemon must allow IPv6).
+E2E_NET_V4_SUBNET="172.30.232.0/24"
+E2E_NET_V4_GW="172.30.232.1"
+E2E_NET_V6_SUBNET="fd00:c0a8:e2e::/64"
+if ! MSYS2_ARG_CONV_EXCL='*' docker network create --driver bridge \
+  --subnet "${E2E_NET_V4_SUBNET}" --gateway "${E2E_NET_V4_GW}" \
+  --ipv6 --subnet "${E2E_NET_V6_SUBNET}" \
+  "${NET}" >/dev/null; then
+  echo "Failed to create dual-stack Docker network \"${NET}\"." >&2
+  echo "Enable IPv6 in Docker and retry (see packaging/common/docs/local-build.md)." >&2
+  exit 1
+fi
+
+ENTRY="${ROOT}/packaging/tests/e2e/server-entrypoint.sh"
+ENTRY_VOL="$(docker_host_path "${ENTRY}")"
+SMOKE_VOL="$(docker_host_path "${SMOKE_ABS}")"
+
+DOCKER_ENV=( -e "VD_PACKAGE_FORMAT=${FORMAT}" -e "VD_FIREWALL=${FIREWALL}" )
+DOCKER_MOUNTS=( -v "${ENTRY_VOL}:/entrypoint.sh:ro" )
+
+case "${FORMAT}" in
+  deb)
+    PKG_VOL="$(docker_host_path "${PKG_ABS}")"
+    DOCKER_MOUNTS+=( -v "${PKG_VOL}:/tmp/videodedupserver.deb:ro" )
+    ;;
+  rpm)
+    PKG_VOL="$(docker_host_path "${PKG_ABS}")"
+    DOCKER_MOUNTS+=( -v "${PKG_VOL}:/tmp/videodedupserver.rpm:ro" )
+    if [[ "${DISTRO}" == opensuse ]]; then
+      STAGE_VOL="$(docker_host_path "${STAGE_DIR}")"
+      DOCKER_MOUNTS+=( -v "${STAGE_VOL}:/opt/videodedup-staged:ro" )
+    fi
+    ;;
+  staged)
+    STAGE_VOL="$(docker_host_path "${STAGE_DIR}")"
+    DOCKER_MOUNTS+=( -v "${STAGE_VOL}:/opt/videodedup-staged:ro" )
+    ;;
+esac
+
+echo "Starting server container (${SRV}, image=${SRV_IMAGE}, format=${FORMAT}, firewall=${FIREWALL}) …"
+MSYS2_ARG_CONV_EXCL='*' docker run -d --name "${SRV}" --network "${NET}" --privileged \
+  "${DOCKER_ENV[@]}" \
+  "${DOCKER_MOUNTS[@]}" \
+  "${SRV_IMAGE}" \
+  bash /entrypoint.sh
+
+echo "Waiting for ${SRV} gRPC (${FORMAT} install + ${FIREWALL} + service) …"
+_ready=0
+for _ in $(seq 1 240); do
+  if MSYS2_ARG_CONV_EXCL='*' docker exec "${SRV}" test -f /tmp/vd-ready 2>/dev/null; then
+    _ready=1
+    break
+  fi
+  sleep 1
+done
+if [[ "${_ready}" -ne 1 ]]; then
+  echo "server did not become ready (missing /tmp/vd-ready)" >&2
+  MSYS2_ARG_CONV_EXCL='*' docker logs "${SRV}" >&2 || true
+  exit 1
+fi
+
+e2e_srv_ip() {
+  local field="$1"
+  MSYS2_ARG_CONV_EXCL='*' docker inspect -f "{{ (index .NetworkSettings.Networks \"${NET}\").${field} }}" "${SRV}"
+}
+
+IPV4="$(e2e_srv_ip IPAddress)"
+IPV6="$(e2e_srv_ip GlobalIPv6Address)"
+if [[ -z "${IPV4}" ]]; then
+  echo "E2E: server ${SRV} has no IPv4 address on network ${NET}" >&2
+  exit 1
+fi
+if [[ -z "${IPV6}" ]]; then
+  echo "E2E: server ${SRV} has no GlobalIPv6Address on ${NET}." >&2
+  echo "Docker must assign IPv6 to custom bridge networks (enable IPv6 in Docker; see packaging/common/docs/local-build.md)." >&2
+  exit 1
+fi
+
+run_smoke() {
+  local url="$1"
+  local label="$2"
+  echo "Running gRPC smoke client (${label}: ${url}) …"
+  MSYS2_ARG_CONV_EXCL='*' docker run --rm \
+    --network "${NET}" \
+    -v "${SMOKE_VOL}:/smoke:ro" \
+    mcr.microsoft.com/dotnet/runtime:8.0 \
+    dotnet /smoke/VideoDedupGrpcSmoke.dll "${url}"
+}
+
+run_smoke "http://${IPV4}:51726" "IPv4"
+if ! run_smoke "http://[${IPV6}]:51726" "IPv6"; then
+  echo "--- server container logs (IPv6 smoke failed) ---" >&2
+  MSYS2_ARG_CONV_EXCL='*' docker logs "${SRV}" >&2 || true
+  exit 1
+fi
+
+echo "E2E gRPC + firewall passed (${SRV_IMAGE}, ${FORMAT}, ${FIREWALL}; IPv4 + IPv6)."

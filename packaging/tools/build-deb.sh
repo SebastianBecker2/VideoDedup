@@ -1,0 +1,173 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+ARCH="amd64"
+
+# shellcheck source=../common/packaging-python.sh disable=SC1091
+source "${ROOT}/packaging/common/packaging-python.sh"
+resolve_packaging_python || exit 1
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --arch) ARCH="$2"; shift 2 ;;
+    *) echo "Unknown arg: $1" >&2; exit 1 ;;
+  esac
+done
+
+META="${ROOT}/packaging/out/metadata.json"
+STAGE="${ROOT}/packaging/.stage/${ARCH}/server"
+WORK="${ROOT}/packaging/out/deb-work/${ARCH}"
+OUT="${ROOT}/packaging/out/${ARCH}/deb"
+
+if [[ ! -f "${META}" ]]; then
+  "${ROOT}/packaging/common/generate-metadata.sh"
+fi
+
+if [[ ! -d "${STAGE}" ]]; then
+  echo "Missing staged payload ${STAGE}; run packaging/tools/stage.sh first" >&2
+  exit 1
+fi
+
+VD_META_JSON="${META}"
+if command -v cygpath >/dev/null 2>&1; then
+  VD_META_JSON="$(cygpath -w "${META}")"
+fi
+export VD_META_JSON
+
+PKG="$("${PACKAGING_PYTHON[@]}" -c "import json, os; print(json.load(open(os.environ['VD_META_JSON'], encoding='utf-8'))['package_name'])")"
+VER_RAW="$("${PACKAGING_PYTHON[@]}" -c "import json, os; print(json.load(open(os.environ['VD_META_JSON'], encoding='utf-8'))['version'])")"
+# Debian version: allow ~ for prerelease-ish segments
+VER_DEB="${VER_RAW//+/\~}"
+
+rm -rf "${WORK}"
+mkdir -p "${WORK}/DEBIAN" \
+  "${WORK}/usr/lib/videodedupserver" \
+  "${WORK}/usr/lib/systemd/system" \
+  "${WORK}/etc/videodedupserver" \
+  "${WORK}/var/lib/videodedupserver" \
+  "${WORK}/var/log/videodedupserver"
+
+cp -a "${STAGE}/." "${WORK}/usr/lib/videodedupserver/"
+install -m 0644 "${ROOT}/packaging/common/systemd/videodedupserver.service" \
+  "${WORK}/usr/lib/systemd/system/videodedupserver.service"
+install -m 0644 "${ROOT}/packaging/common/env/videodedupserver.env" \
+  "${WORK}/etc/videodedupserver/env"
+
+FW="${ROOT}/packaging/common/firewall"
+mkdir -p "${WORK}/usr/share/doc/${PKG}" "${WORK}/usr/lib/${PKG}/firewall"
+# Strip CR so scripts run on Linux even if checked out with CRLF on Windows.
+sed 's/\r$//' "${FW}/README.firewall" > "${WORK}/usr/share/doc/${PKG}/README.firewall"
+chmod 0644 "${WORK}/usr/share/doc/${PKG}/README.firewall"
+for s in open-port-ufw.sh open-port-firewalld.sh open-port-iptables.sh open-port-nftables.sh \
+  configure-firewall-interactive.sh; do
+  sed 's/\r$//' "${FW}/${s}" > "${WORK}/usr/lib/${PKG}/firewall/${s}"
+  chmod 0755 "${WORK}/usr/lib/${PKG}/firewall/${s}"
+done
+
+cat > "${WORK}/DEBIAN/control" <<EOF
+Package: ${PKG}
+Version: ${VER_DEB}-1
+Section: video
+Priority: optional
+Architecture: ${ARCH}
+Maintainer: $("${PACKAGING_PYTHON[@]}" -c "import json, os; print(json.load(open(os.environ['VD_META_JSON'], encoding='utf-8'))['maintainer'])")
+Depends: ffmpeg, adduser, systemd, ca-certificates, libc6 (>= 2.31), libssl3 | libssl3t64 | libssl1.1
+Homepage: $("${PACKAGING_PYTHON[@]}" -c "import json, os; print(json.load(open(os.environ['VD_META_JSON'], encoding='utf-8'))['homepage'])")
+Description: $("${PACKAGING_PYTHON[@]}" -c "import json, os; print(json.load(open(os.environ['VD_META_JSON'], encoding='utf-8'))['description'].replace('\n',' ').strip())")
+EOF
+
+cat > "${WORK}/DEBIAN/conffiles" <<'EOF'
+/etc/videodedupserver/env
+EOF
+
+cat > "${WORK}/DEBIAN/postinst" <<'EOF'
+#!/bin/sh
+set -e
+mkdir -p /var/lib/videodedupserver /var/log/videodedupserver
+if ! getent passwd videodedup >/dev/null 2>&1; then
+  if command -v adduser >/dev/null 2>&1; then
+    adduser --system --group --home /var/lib/videodedupserver --no-create-home --shell /usr/sbin/nologin videodedup
+  else
+    useradd --system --user-group --home-dir /var/lib/videodedupserver --shell /usr/sbin/nologin videodedup
+  fi
+fi
+chown -R videodedup:videodedup /var/lib/videodedupserver /var/log/videodedupserver
+chmod 0750 /var/lib/videodedupserver /var/log/videodedupserver
+if command -v deb-systemd-helper >/dev/null 2>&1; then
+  deb-systemd-helper update-state videodedupserver.service || true
+fi
+systemctl daemon-reload || true
+systemctl enable videodedupserver.service || true
+systemctl start videodedupserver.service || true
+
+if [ "${1:-}" = "configure" ]; then
+  cat <<'FWMSG' >&2
+
+====================================================================
+videodedupserver — open firewall for gRPC (TCP 51726)
+====================================================================
+This package does not add host firewall rules. Remote clients need port
+51726/tcp allowed (HTTP/2 cleartext gRPC).
+
+Interactive (detects ufw / firewalld / nftables / iptables, suggests one):
+  sudo /usr/lib/videodedupserver/firewall/configure-firewall-interactive.sh
+
+Or run a specific helper as root, e.g.:
+  sudo /usr/lib/videodedupserver/firewall/open-port-ufw.sh
+  sudo /usr/lib/videodedupserver/firewall/open-port-nftables.sh
+
+Save nftables across reboots (optional; after the rule exists):
+  sudo /usr/lib/videodedupserver/firewall/open-port-nftables.sh --persist
+  (sudo drops env vars — use --persist, not "sudo PERSIST=1 ...".)
+
+Full documentation:
+  /usr/share/doc/videodedupserver/README.firewall
+====================================================================
+
+FWMSG
+fi
+EOF
+
+cat > "${WORK}/DEBIAN/prerm" <<'EOF'
+#!/bin/sh
+set -e
+case "$1" in
+  remove|upgrade|deconfigure)
+    systemctl stop videodedupserver.service || true
+    systemctl disable videodedupserver.service || true
+    ;;
+esac
+EOF
+
+chmod 0755 "${WORK}/DEBIAN/postinst" "${WORK}/DEBIAN/prerm"
+
+mkdir -p "${OUT}"
+
+DEB_NAME="${PKG}_${VER_DEB}-1_${ARCH}.deb"
+
+# DrvFs (WSL /mnt/..., Git Bash /d/...) often keeps 777 on dirs; chmod is ignored and dpkg-deb fails.
+# Copy to a native temp tree when needed, then normalize modes.
+if command -v stat >/dev/null 2>&1; then
+  _deb_m="$(stat -c '%a' "${WORK}/DEBIAN" 2>/dev/null || echo 755)"
+  if [[ "${_deb_m}" == "777" ]] || [[ "${_deb_m}" -gt 775 ]]; then
+    _vd_native="$(mktemp -d "${TMPDIR:-/tmp}/videodedup-debwork.XXXXXX")"
+    cp -a "${WORK}/." "${_vd_native}/"
+    WORK="${_vd_native}"
+    _vd_cleanup_debwork() { rm -rf "${_vd_native}"; }
+    trap _vd_cleanup_debwork EXIT
+  fi
+fi
+find "${WORK}" -type d -exec chmod 0755 {} +
+find "${WORK}" -type f -exec chmod 0644 {} +
+chmod 0755 "${WORK}/DEBIAN/postinst" "${WORK}/DEBIAN/prerm"
+chmod 0755 "${WORK}/usr/lib/videodedupserver/VideoDedupService"
+chmod 0755 "${WORK}/usr/lib/${PKG}/firewall"/*.sh
+
+if command -v fakeroot >/dev/null 2>&1; then
+  fakeroot dpkg-deb --root-owner-group --build "${WORK}" "${OUT}/${DEB_NAME}"
+else
+  dpkg-deb --root-owner-group --build "${WORK}" "${OUT}/${DEB_NAME}"
+fi
+
+echo "Built ${OUT}/${DEB_NAME}"

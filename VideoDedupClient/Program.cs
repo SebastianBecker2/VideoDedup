@@ -116,6 +116,18 @@ namespace VideoDedupClient
             }
         }
 
+        private static void EnsureHttp2UnencryptedForGrpc()
+        {
+            if (!string.Equals(Configuration.Protocol, "http", StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            AppContext.SetSwitch(
+                "System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport",
+                true);
+        }
+
         private static GrpcChannel CreateGrpcChannel()
         {
             var url = BuildUrl();
@@ -124,6 +136,7 @@ namespace VideoDedupClient
 
             if (string.Equals(Configuration.Protocol, "http", StringComparison.OrdinalIgnoreCase))
             {
+                EnsureHttp2UnencryptedForGrpc();
                 grpcHandler = new SocketsHttpHandler();
                 return GrpcChannel.ForAddress(url, BuildGrpcChannelOptions(grpcHandler));
             }

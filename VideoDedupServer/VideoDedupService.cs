@@ -44,9 +44,18 @@ namespace VideoDedupServer
 
             if (Settings.Default.UpgradeRequired)
             {
-                Settings.Default.Upgrade();
-                Settings.Default.UpgradeRequired = false;
-                Settings.Default.Save();
+                // LocalFileSettingsProvider.Upgrade() / Save() use Windows user.config layout; on Linux
+                // they throw (invalid path). Only persist the upgrade flag on Windows.
+                if (OperatingSystem.IsWindows())
+                {
+                    Settings.Default.Upgrade();
+                    Settings.Default.UpgradeRequired = false;
+                    Settings.Default.Save();
+                }
+                else
+                {
+                    Settings.Default.UpgradeRequired = false;
+                }
             }
 
             var settings = LoadConfiguration();

@@ -1,0 +1,26 @@
+[Unit]
+Description=VideoDedup gRPC deduplication server
+Documentation=https://github.com/SebastianBecker2/videodedup
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=videodedup
+Group=videodedup
+WorkingDirectory=/usr/lib/videodedupserver
+ExecStart=/usr/lib/videodedupserver/VideoDedupService
+EnvironmentFile=-/etc/videodedupserver/env
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=60
+
+# Journald captures stdout/stderr by default for Type=notify services.
+StandardOutput=journal
+StandardError=journal
+
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
