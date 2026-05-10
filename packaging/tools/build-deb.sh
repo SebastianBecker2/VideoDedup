@@ -17,7 +17,8 @@ done
 
 META="${ROOT}/packaging/out/metadata.json"
 STAGE="${ROOT}/packaging/.stage/${ARCH}/server"
-WORK="${ROOT}/packaging/out/deb-work/${ARCH}"
+DEB_WORK="${ROOT}/packaging/out/deb-work/${ARCH}"
+WORK="${DEB_WORK}"
 OUT="${ROOT}/packaging/out/${ARCH}/deb"
 
 if [[ ! -f "${META}" ]]; then
@@ -234,3 +235,7 @@ else
 fi
 
 echo "Built ${OUT}/${DEB_NAME}"
+
+# Drop intermediate tree (DrvFs path may still exist even when build used a temp copy).
+rm -rf "${DEB_WORK}"
+rmdir "${ROOT}/packaging/out/deb-work" 2>/dev/null || true
