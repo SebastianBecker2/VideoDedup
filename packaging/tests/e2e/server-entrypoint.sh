@@ -82,8 +82,8 @@ ensure_videodedup_user() {
       exit 1
     fi
   fi
-  install -d -o videodedup -g videodedup -m 0750 /var/lib/videodedupserve
-  install -d -o videodedup -g videodedup -m 0750 /var/log/videodedupserve
+  install -d -o videodedup -g videodedup -m 0750 /var/lib/videodedupserver
+  install -d -o videodedup -g videodedup -m 0750 /var/log/videodedupserver
 }
 
 install_tree_from_staged() {
@@ -92,8 +92,8 @@ install_tree_from_staged() {
     echo "staged tree missing VideoDedupService at ${src}" >&2
     exit 1
   }
-  ensure_videodedup_use
-  mkdir -p /usr/lib/videodedupserve
+  ensure_videodedup_user
+  mkdir -p /usr/lib/videodedupserver
   cp -a "${src}/." /usr/lib/videodedupserver/
   chmod 0755 /usr/lib/videodedupserver/VideoDedupService
 }
@@ -171,7 +171,7 @@ install_rpm() {
   if [[ "${tool}" == auto ]]; then
     tool=dnf
     if [[ -f /etc/os-release ]] && grep -qiE 'suse|opensuse' /etc/os-release; then
-      tool=zyppe
+      tool=zypper
     fi
   fi
   case "${tool}" in
@@ -218,7 +218,7 @@ install_snap_unsquash() {
     ls -la /tmp/vd-snap >&2 || true
     exit 1
   }
-  ensure_videodedup_use
+  ensure_videodedup_user
 }
 
 install_flatpak_bundle() {
@@ -234,7 +234,7 @@ install_flatpak_bundle() {
   flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
   flatpak install -y --noninteractive flathub org.freedesktop.Platform//24.08
   flatpak install -y --noninteractive --bundle /tmp/videodedupserver.flatpak
-  ensure_videodedup_use
+  ensure_videodedup_user
 }
 
 install_staged_pacman() {
@@ -263,7 +263,7 @@ install_staged_pacman() {
 
 apply_firewall_nft() {
   nft flush ruleset
-  nft add table inet filte
+  nft add table inet filter
   nft add chain inet filter input '{ type filter hook input priority filter; policy drop; }'
   nft add rule inet filter input ct state established,related accept
   # IPv6 neighbor discovery (ICMPv6) must be permitted or peers cannot resolve the link layer (Host unreachable).
@@ -370,10 +370,10 @@ esac
 
 apply_firewall
 
-install -d -o videodedup -g videodedup /var/lib/videodedupserve
+install -d -o videodedup -g videodedup /var/lib/videodedupserver
 
 if [[ "${FMT}" == flatpak ]]; then
-  install -d -m 0755 /var/lib/videodedupserve
+  install -d -m 0755 /var/lib/videodedupserver
   env \
     ASPNETCORE_ENVIRONMENT=Production \
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
