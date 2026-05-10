@@ -49,6 +49,13 @@ mkdir -p "${WORK}/DEBIAN" \
   "${WORK}/var/log/videodedupserver"
 
 cp -a "${STAGE}/." "${WORK}/usr/lib/videodedupserver/"
+# Lintian: bundled SQLite .so from NuGet should not ship unstripped debug payloads.
+if command -v strip >/dev/null 2>&1; then
+  _sqlite="${WORK}/usr/lib/videodedupserver/libe_sqlite3.so"
+  if [[ -f "${_sqlite}" ]]; then
+    strip --strip-unneeded "${_sqlite}" 2>/dev/null || true
+  fi
+fi
 install -m 0644 "${ROOT}/packaging/common/systemd/videodedupserver.service" \
   "${WORK}/usr/lib/systemd/system/videodedupserver.service"
 install -m 0644 "${ROOT}/packaging/common/env/videodedupserver.env" \
@@ -65,17 +72,71 @@ for s in open-port-ufw.sh open-port-firewalld.sh open-port-iptables.sh open-port
   chmod 0755 "${WORK}/usr/lib/${PKG}/firewall/${s}"
 done
 
-cat > "${WORK}/DEBIAN/control" <<EOF
-Package: ${PKG}
-Version: ${VER_DEB}-1
-Section: video
-Priority: optional
-Architecture: ${ARCH}
-Maintainer: $("${PACKAGING_PYTHON[@]}" -c "import json, os; print(json.load(open(os.environ['VD_META_JSON'], encoding='utf-8'))['maintainer'])")
-Depends: ffmpeg, adduser, systemd, ca-certificates, libc6 (>= 2.31), libssl3 | libssl3t64 | libssl1.1
-Homepage: $("${PACKAGING_PYTHON[@]}" -c "import json, os; print(json.load(open(os.environ['VD_META_JSON'], encoding='utf-8'))['homepage'])")
-Description: $("${PACKAGING_PYTHON[@]}" -c "import json, os; print(json.load(open(os.environ['VD_META_JSON'], encoding='utf-8'))['description'].replace('\n',' ').strip())")
-EOF
+mkdir -p "${WORK}/usr/share/lintian/overrides"
+install -m 0644 "${ROOT}/packaging/common/debian/copyright" "${WORK}/usr/share/doc/${PKG}/copyright"
+install -m 0644 "${ROOT}/packaging/common/debian/lintian-overrides.videodedupserver" \
+  "${WORK}/usr/share/lintian/overrides/${PKG}"
+
+export WORK VD_META_JSON VER_DEB ARCH PKG
+"${PACKAGING_PYTHON[@]}" <<'PY'
+import gzip
+import json, os, pathlib, subprocess, textwrap
+
+work = pathlib.Path(os.environ["WORK"])
+meta = json.loads(pathlib.Path(os.environ["VD_META_JSON"]).read_text(encoding="utf-8"))
+pkg = os.environ["PKG"]
+ver = os.environ["VER_DEB"]
+arch = os.environ["ARCH"]
+
+syn = (meta.get("description_synopsis") or meta["description"]).strip()
+syn = syn.replace("\n", " ")
+if len(syn) > 90:
+    syn = syn[:87] + "..."
+
+detail = (meta.get("description_detail") or meta["description"]).strip()
+maint = meta["maintainer"].strip()
+home = meta["homepage"].strip()
+
+desc_lines = ["Description: " + syn]
+for para in detail.split("\n\n"):
+    para = para.strip().replace("\n", " ")
+    if not para:
+        desc_lines.append(" .")
+        continue
+    for line in textwrap.wrap(
+        para,
+        width=76,
+        break_long_words=False,
+        break_on_hyphens=False,
+    ):
+        desc_lines.append(" " + line)
+
+control = "\n".join(
+    [
+        f"Package: {pkg}",
+        f"Version: {ver}-1",
+        "Section: video",
+        "Priority: optional",
+        f"Architecture: {arch}",
+        f"Maintainer: {maint}",
+        "Depends: ffmpeg, adduser, systemd, ca-certificates, libc6 (>= 2.31), libssl3 | libssl3t64 | libssl1.1",
+        f"Homepage: {home}",
+        *desc_lines,
+        "",
+    ]
+)
+(work / "DEBIAN" / "control").write_text(control, encoding="utf-8")
+
+stamp = subprocess.check_output(["date", "-R"], text=True).strip()
+cl = (
+    f"{pkg} ({ver}-1) unstable; urgency=medium\n\n"
+    f"  * Package build from upstream {meta.get('git_tag', meta.get('version', '?'))}.\n\n"
+    f" -- {maint}  {stamp}\n"
+)
+gz_path = work / "usr" / "share" / "doc" / pkg / "changelog.Debian.gz"
+with gzip.open(gz_path, "wb", compresslevel=9, mtime=0) as zf:
+    zf.write(cl.encode("utf-8"))
+PY
 
 cat > "${WORK}/DEBIAN/conffiles" <<'EOF'
 /etc/videodedupserver/env
