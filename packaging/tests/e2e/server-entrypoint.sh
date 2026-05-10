@@ -404,11 +404,14 @@ if [[ "${FMT}" == flatpak ]]; then
   _u="$(id -u videodedup)"
   install -d -m 0700 -o videodedup -g videodedup "/run/user/${_u}"
   # Packaged binary refuses UID 0 (LinuxHostBootstrap); flatpak must not run as root.
-  vd_exec_as_videodedup env \
+  # Flatpak layout can miss Kestrel gRPC appsettings (defaults to localhost:5000); force h2c gRPC port.
+  vd_exec_as_videodedup env -u ASPNETCORE_URLS \
     ASPNETCORE_ENVIRONMENT=Production \
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
     VIDEODEDUP_APP_DATA=/var/lib/videodedupserver \
     XDG_RUNTIME_DIR="/run/user/${_u}" \
+    Kestrel__Endpoints__gRPC__Url='http://[::]:51726' \
+    Kestrel__Endpoints__gRPC__Protocols=Http2 \
     flatpak run io.github.sebastianbecker2.videodedup.server &
 else
   _vd_bin=/usr/lib/videodedupserver/VideoDedupService

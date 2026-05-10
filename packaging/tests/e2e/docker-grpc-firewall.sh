@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # E2E: Linux container installs videodedupserver (deb/rpm/staged/pacman/snap/flatpak), applies a strict firewall
-# (nft | iptables | ufw | firewalld), runs the service; a second container runs VideoDedupGrpcSmoke.
+# (nft | iptables | ufw | firewalld), runs the service; VideoDedupGrpcSmoke runs on the host when dotnet is on PATH
+# (CI: avoids docker pull of mcr.microsoft.com/dotnet/runtime, often blocked on GitHub Actions).
 #
 # Requires: docker (with IPv6 enabled for custom bridge networks), dotnet 8 SDK on the host
-# (to publish the smoke tool unless --smoke-dir is set).
+# (to publish the smoke tool unless --smoke-dir is set). Falls back to mcr.microsoft.com/dotnet/runtime:8.0 if no dotnet.
 #
 # Usage:
 #   ./docker-grpc-firewall.sh [options] [path/to/package.deb|.rpm]
@@ -389,6 +390,10 @@ run_smoke() {
   local url="$1"
   local label="$2"
   echo "Running gRPC smoke client (${label}: ${url}) …"
+  if command -v dotnet >/dev/null 2>&1; then
+    dotnet "${SMOKE_ABS}/VideoDedupGrpcSmoke.dll" "${url}"
+    return
+  fi
   MSYS2_ARG_CONV_EXCL='*' docker run --rm \
     --network "${NET}" \
     -v "${SMOKE_VOL}:/smoke:ro" \
