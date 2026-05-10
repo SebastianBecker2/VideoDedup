@@ -54,9 +54,10 @@ flatpak install -y --user flathub \
 
 export FLATPAK_ARCH="${FB_ARCH}"
 
-_tmp="$(mktemp)"
-MANIFEST_RUN="${_tmp}.yml"
-mv -f "${_tmp}" "${MANIFEST_RUN}"
+# Generated manifest must live next to the real one: io.github...yml uses `path: ../..` relative to
+# the manifest file. A copy under /tmp makes ../.. the filesystem root (flatpak-builder then hits
+# /lost+found and fails with Permission denied).
+MANIFEST_RUN="${ROOT}/packaging/flatpak/.manifest-run-${ARCH}.yml"
 sed "s/-r linux-x64/-r ${DOTNET_RID}/g" "${MANIFEST}" > "${MANIFEST_RUN}"
 trap 'rm -f "${MANIFEST_RUN}"' EXIT
 

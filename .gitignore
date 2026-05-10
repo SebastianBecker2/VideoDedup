@@ -267,3 +267,6 @@ packaging/snap/_dump/
 
 # flatpak-builder (local cache + build roots; never commit)
 .flatpak-builder/
+
+# Ephemeral flatpak manifest (RID substitution); see packaging/tools/build-flatpak.sh
+packaging/flatpak/.manifest-run-*.yml
