@@ -33,19 +33,24 @@ namespace VideoDedupServer
         private Guid progressToken = Guid.NewGuid();
         private int duplicatesFound;
         private readonly LogManager logManager;
+        private readonly string appDataFolderPath;
         private bool disposedValue;
 
         public VideoDedupService(
             string appDataFolderPath)
         {
+            this.appDataFolderPath = appDataFolderPath;
+
+            // Non-Windows: load persisted settings before LogManager reads log levels from Settings.
+            PortableServerSettingsStore.TryLoadFromAppDataDirectory(
+                appDataFolderPath);
+
             logManager = new(appDataFolderPath);
 
             AddLogEntry("Starting VideoDedupService");
 
             if (Settings.Default.UpgradeRequired)
             {
-                // LocalFileSettingsProvider.Upgrade() / Save() use Windows user.config layout; on Linux
-                // they throw (invalid path). Only persist the upgrade flag on Windows.
                 if (OperatingSystem.IsWindows())
                 {
                     Settings.Default.Upgrade();
@@ -55,6 +60,8 @@ namespace VideoDedupServer
                 else
                 {
                     Settings.Default.UpgradeRequired = false;
+                    PortableServerSettingsStore.PersistToAppDataDirectory(
+                        appDataFolderPath);
                 }
             }
 
@@ -502,7 +509,15 @@ namespace VideoDedupServer
             ConfigurationManager.SetResolutionSettings(
                 settings.ResolutionSettings);
 
-            Settings.Default.Save();
+            if (OperatingSystem.IsWindows())
+            {
+                Settings.Default.Save();
+            }
+            else
+            {
+                PortableServerSettingsStore.PersistToAppDataDirectory(
+                    appDataFolderPath);
+            }
 
             AddLogEntry("Saved configuration");
         }

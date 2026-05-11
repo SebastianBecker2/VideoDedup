@@ -39,25 +39,23 @@ try
     if (string.IsNullOrEmpty(sys.MachineName))
         throw new InvalidOperationException("GetSystemInfo: empty machine name");
 
-    // 2) Round-trip config (exercise SetConfiguration / config update path).
+    // 2) Round-trip config — SetConfiguration must succeed (no soft-fail); verify read-back.
     currentStep = "SetConfiguration";
-    var status2 = status1;
-    try
-    {
-        await client.SetConfigurationAsync(cfg1.Clone());
+    await client.SetConfigurationAsync(cfg1.Clone());
 
-        currentStep = "GetCurrentStatus (post-set)";
-        status2 = await client.GetCurrentStatusAsync(new Empty());
-    }
-    catch (RpcException ex)
+    currentStep = "GetConfiguration (verify SetConfiguration)";
+    var cfgVerified = await client.GetConfigurationAsync(new Empty());
+    if (cfgVerified.DedupSettings.BasePath != cfg1.DedupSettings.BasePath
+        || cfgVerified.VideoComparisonSettings.CompareCount
+            != cfg1.VideoComparisonSettings.CompareCount)
     {
-        // Some packaged server configurations may throw on non-Windows because
-        // the underlying LocalFileSettingsProvider uses a user.config path layout.
-        // The smoke test still covers the RPC; we just keep running.
-        Console.Error.WriteLine(
-            $"WARNING: SetConfiguration failed during smoke but will not abort: {ex.Status}.");
-        status2 = status1;
+        throw new InvalidOperationException(
+            "SetConfiguration verification failed: GetConfiguration after set "
+            + "did not match sent BasePath or CompareCount.");
     }
+
+    currentStep = "GetCurrentStatus (post-set)";
+    var status2 = await client.GetCurrentStatusAsync(new Empty());
 
     // 3) GetLogEntries (token-sensitive).
     var logCount = Math.Max(0, status2.LogCount);
