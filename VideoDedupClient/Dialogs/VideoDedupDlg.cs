@@ -166,7 +166,11 @@ namespace VideoDedupClient.Dialogs
             catch (RpcException ex)
             {
                 Debug.Print("Status request failed with: " + ex.Message);
-                if (Program.IsLikelyCertificateOrTlsFailure(ex))
+                var usesTls = !string.Equals(
+                    Program.Configuration.Protocol,
+                    "http",
+                    StringComparison.OrdinalIgnoreCase);
+                if (usesTls && Program.IsLikelyCertificateOrTlsFailure(ex))
                 {
                     this.InvokeIfRequired(() =>
                     {
