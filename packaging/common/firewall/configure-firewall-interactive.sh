@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Interactive helper: detect firewall stacks, show status, recommend one, run the matching open-port-*.sh.
 # Run as root: sudo /usr/lib/videodedupserver/firewall/configure-firewall-interactive.sh
 #

@@ -1,0 +1,29 @@
+# rpmlint add-on config for third-party self-contained .NET bundles.
+# Loaded via: rpmlint --config packaging/rpm/videodedupserver-rpmlint.toml …
+# (see packaging/tests/run-package-tests.sh)
+
+Filters = [
+    # Payload text/config may retain CRLF on some developer checkouts; stage + spec normalize common paths.
+    ".*: E: wrong-script-end-of-line-encoding.*",
+    ".*: E: wrong-file-end-of-line-encoding.*",
+    ".*: W: wrong-file-end-of-line-encoding.*",
+    # rpmlint mis-detects executable bits on non-scripts for bundled .NET trees.
+    ".*: E: script-without-shebang.*",
+    # Domain vocabulary (gRPC, deduplication) is intentional.
+    ".*: E: spelling-error.*",
+    # Explicit OpenSSL runtime dependency is deliberate for self-contained host.
+    ".*: E: explicit-lib-dependency.*",
+    # Dedicated service directories use non-default perms by design.
+    ".*: E: non-standard-dir-perm.*",
+    ".*: W: non-standard-uid.*",
+    ".*: W: non-standard-gid.*",
+    # CI / local builds are unsigned.
+    ".*: E: no-signature.*",
+    # Bundled native SQLite from NuGet; PublishSingleFile forbids aggressive strip.
+    ".*: W: unstripped-binary-or-object.*",
+    ".*: E: unstripped-binary-or-object.*",
+    # MIT is valid upstream; Fedora valid-license list can lag.
+    ".*: W: invalid-license.*",
+    ".*: W: log-files-without-logrotate.*",
+    ".*: W: dangerous-command-in-%post.*",
+]

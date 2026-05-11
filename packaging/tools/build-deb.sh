@@ -78,6 +78,9 @@ install -m 0644 "${ROOT}/packaging/common/debian/copyright" "${WORK}/usr/share/d
 install -m 0644 "${ROOT}/packaging/common/debian/lintian-overrides.videodedupserver" \
   "${WORK}/usr/share/lintian/overrides/${PKG}"
 
+SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-$(git -C "${ROOT}" log -1 --format=%ct 2>/dev/null || echo 0)}"
+export SOURCE_DATE_EPOCH
+
 export WORK VD_META_JSON VER_DEB ARCH PKG
 "${PACKAGING_PYTHON[@]}" <<'PY'
 import gzip
@@ -94,18 +97,30 @@ syn = syn.replace("\n", " ")
 if len(syn) > 90:
     syn = syn[:87] + "..."
 
-detail = (meta.get("description_detail") or meta["description"]).strip()
-maint = meta["maintainer"].strip()
+detail = (meta.get("description_detail") or meta.get("description") or "").strip()
+maint = " ".join(str(meta.get("maintainer", "")).split())
+if not maint or maint.count("<") != 1 or maint.count(">") != 1:
+    maint = "Sebastian Becker <mail@sbecker.de.com>"
 home = meta["homepage"].strip()
 
 desc_lines = ["Description: " + syn]
+extended_nonempty = False
 for para in detail.split("\n\n"):
     para = para.strip().replace("\n", " ")
     if not para:
-        desc_lines.append(" .")
         continue
+    extended_nonempty = True
     for line in textwrap.wrap(
         para,
+        width=76,
+        break_long_words=False,
+        break_on_hyphens=False,
+    ):
+        desc_lines.append(" " + line)
+if not extended_nonempty:
+    body = (meta.get("description") or syn).strip()
+    for line in textwrap.wrap(
+        body,
         width=76,
         break_long_words=False,
         break_on_hyphens=False,
@@ -135,9 +150,10 @@ cl = (
     f" -- {maint}  {stamp}\n"
 )
 gz_path = work / "usr" / "share" / "doc" / pkg / "changelog.Debian.gz"
-# gzip.open(..., mtime=) breaks on some Python versions (passes mtime to builtin open).
+# Use SOURCE_DATE_EPOCH for gzip mtime (mtime=0 upsets some lintian versions).
+_mtime = int(os.environ.get("SOURCE_DATE_EPOCH", "0") or "0")
 with open(gz_path, "wb") as raw:
-    with gzip.GzipFile(fileobj=raw, mode="wb", compresslevel=9, mtime=0) as zf:
+    with gzip.GzipFile(fileobj=raw, mode="wb", compresslevel=9, mtime=_mtime) as zf:
         zf.write(cl.encode("utf-8"))
 PY
 

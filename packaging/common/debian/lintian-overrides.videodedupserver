@@ -2,5 +2,8 @@
 # replacing it with separate distro packages is not practical for this .NET deployment.
 videodedupserver: embedded-library
 
+# Microsoft.Data.Sqlite ships a prebuilt native SQLite; stripping is best-effort.
+videodedupserver: unstripped-binary-or-object
+
 # postinst enables/starts the systemd unit; expected for a long-running server package.
 videodedupserver: maintainer-script-calls-systemctl

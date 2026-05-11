@@ -71,7 +71,20 @@ grpc.pop("Certificate", None)
 path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 PY
 
+# Drop CRLF on staged text configs (Windows checkouts) so lintian/rpmlint stay clean.
+shopt -s nullglob
+for _vd_f in "${STAGE}"/*.json "${STAGE}"/*.dll.config; do
+  [[ -f "${_vd_f}" ]] || continue
+  sed 's/\r$//' "${_vd_f}" > "${_vd_f}.vdtmp" && mv "${_vd_f}.vdtmp" "${_vd_f}"
+done
+shopt -u nullglob
+
 chmod -R a+rX "${STAGE}" || true
+# dotnet publish can leave odd modes; only the main binary should be executable.
+if [[ -f "${STAGE}/VideoDedupService" ]]; then
+  chmod 0755 "${STAGE}/VideoDedupService"
+fi
+find "${STAGE}" -maxdepth 1 -type f ! -name 'VideoDedupService' -exec chmod 0644 {} + 2>/dev/null || true
 
 "${ROOT}/packaging/common/generate-metadata.sh"
 

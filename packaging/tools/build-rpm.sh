@@ -48,7 +48,6 @@ VER_RAW="$("${PACKAGING_PYTHON[@]}" -c "import json, os; print(json.load(open(os
 VER_RPM="${VER_RAW//+/_}"
 VER_RPM="${VER_RPM//-/.}"
 PAYLOAD_NAME="videodedupserver-${VER_RPM}"
-DESC="$("${PACKAGING_PYTHON[@]}" -c "import json, os; print(json.load(open(os.environ['VD_META_JSON'], encoding='utf-8'))['description'].strip())")"
 HOME="$("${PACKAGING_PYTHON[@]}" -c "import json, os; print(json.load(open(os.environ['VD_META_JSON'], encoding='utf-8'))['homepage'])")"
 MAINTAINER="$("${PACKAGING_PYTHON[@]}" -c "import json, os; print(json.load(open(os.environ['VD_META_JSON'], encoding='utf-8'))['maintainer'])")"
 CHANGELOG_DATE="$(date -u '+%a %b %d %Y')"
@@ -75,7 +74,6 @@ sed \
   -e "s|@VERSION@|${VER_RPM}|g" \
   -e "s|@RPMARCH@|${RPMARCH}|g" \
   -e "s|@HOMEPAGE@|${HOME}|g" \
-  -e "s|@DESCRIPTION@|${DESC}|g" \
   -e "s|@REPO@|${ROOT}|g" \
   -e "s|@MAINTAINER@|${MAINTAINER}|g" \
   -e "s|@CHANGELOG_DATE@|${CHANGELOG_DATE}|g" \

@@ -1,5 +1,5 @@
-# Placeholders @VERSION@, @RPMARCH@, @HOMEPAGE@, @DESCRIPTION@, @REPO@,
-# @MAINTAINER@, @CHANGELOG_DATE@ are substituted by packaging/tools/build-rpm.sh
+# Placeholders @VERSION@, @RPMARCH@, @HOMEPAGE@, @REPO@, @MAINTAINER@, @CHANGELOG_DATE@
+# are substituted by packaging/tools/build-rpm.sh
 
 %global __strip /bin/true
 %global _build_id_links none
@@ -11,6 +11,8 @@ Release:        1%{?dist}
 Summary:        VideoDedup gRPC deduplication server
 License:        MIT
 URL:            @HOMEPAGE@
+Packager:       Sebastian Becker <mail@sbecker.de.com>
+Group:          Applications/System
 Source0:        %{name}-%{version}.tar.gz
 BuildArch:      @RPMARCH@
 # Fedora base repos ship ffmpeg-free; full "ffmpeg" is often from RPM Fusion.
@@ -21,7 +23,10 @@ Requires:       ca-certificates
 Requires:       openssl-libs
 
 %description
-@DESCRIPTION@
+VideoDedup gRPC server: scans storage for near-duplicate videos and exposes
+match results to the VideoDedup desktop client. Listens on TCP 51726 by
+default (HTTP/2 cleartext). Ships a systemd unit; firewall rules are left to
+the administrator (see %{_docdir}/%{name}/README.firewall).
 
 %prep
 %setup -q
@@ -33,6 +38,8 @@ Requires:       openssl-libs
 rm -rf "%{buildroot}"
 mkdir -p "%{buildroot}/usr/lib/videodedupserver"
 cp -a . "%{buildroot}/usr/lib/videodedupserver/"
+find "%{buildroot}/usr/lib/videodedupserver" -maxdepth 1 -type f ! -name 'VideoDedupService' -exec chmod 0644 {} +
+chmod 0755 "%{buildroot}/usr/lib/videodedupserver/VideoDedupService"
 mkdir -p "%{buildroot}/usr/lib/systemd/system"
 install -m 0644 "@REPO@/packaging/common/systemd/videodedupserver.service" \
   "%{buildroot}/usr/lib/systemd/system/videodedupserver.service"
@@ -40,7 +47,8 @@ mkdir -p "%{buildroot}/etc/videodedupserver"
 install -m 0644 "@REPO@/packaging/common/env/videodedupserver.env" \
   "%{buildroot}/etc/videodedupserver/env"
 mkdir -p "%{buildroot}/usr/share/doc/%{name}"
-install -m 0644 "@REPO@/LICENSE" "%{buildroot}/usr/share/doc/%{name}/LICENSE"
+sed 's/\r$//' "@REPO@/LICENSE" > "%{buildroot}/usr/share/doc/%{name}/LICENSE"
+chmod 0644 "%{buildroot}/usr/share/doc/%{name}/LICENSE"
 sed 's/\r$//' "@REPO@/packaging/common/firewall/README.firewall" > "%{buildroot}/usr/share/doc/%{name}/README.firewall"
 chmod 0644 "%{buildroot}/usr/share/doc/%{name}/README.firewall"
 mkdir -p "%{buildroot}/usr/lib/%{name}/firewall"
