@@ -5,12 +5,13 @@
 # Requirements: Docker Desktop or Linux Docker; Git Bash or any bash with docker on PATH.
 #
 # Usage:
-#   ./packaging/tools/run-full-linux-build-docker.sh [--arch amd64|arm64] [--image ubuntu:24.04]
+#   ./packaging/tools/run-full-linux-build-docker.sh [--arch amd64|arm64] [--image ubuntu:24.04] [--include-flatpak]
 #
 # Env:
-#   DOCKER_IMAGE     default ubuntu:24.04
-#   ARCH             default amd64
-#   SNAPCRAFT_IMAGE  optional; default ghcr.io/canonical/snapcraft:8_core24 (snap base core24)
+#   DOCKER_IMAGE          default ubuntu:24.04
+#   ARCH                  default amd64
+#   SNAPCRAFT_IMAGE       optional; default ghcr.io/canonical/snapcraft:8_core24 (snap base core24)
+#   VD_INCLUDE_FLATPAK    set to 1 to build Flatpak and run its Docker install smoke (default: skip)
 #
 # Git Bash / MSYS: path rewriting turns /var/run/docker.sock and /src into paths under
 # C:\Program Files\Git\ — set MSYS2_ARG_CONV_EXCL='*' and use a Windows repo path from cygpath.
@@ -19,6 +20,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 IMAGE="${DOCKER_IMAGE:-ubuntu:24.04}"
 ARCH="${ARCH:-amd64}"
+VD_INCLUDE_FLATPAK="${VD_INCLUDE_FLATPAK:-0}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -30,8 +32,13 @@ while [[ $# -gt 0 ]]; do
       IMAGE="$2"
       shift 2
       ;;
+    --include-flatpak)
+      VD_INCLUDE_FLATPAK=1
+      shift
+      ;;
     -h|--help)
-      echo "Usage: $0 [--arch amd64|arm64] [--image ubuntu:24.04]"
+      echo "Usage: $0 [--arch amd64|arm64] [--image ubuntu:24.04] [--include-flatpak]"
+      echo "  Flatpak is skipped by default locally; use --include-flatpak or VD_INCLUDE_FLATPAK=1 for CI parity."
       exit 0
       ;;
     *)
@@ -64,20 +71,28 @@ export SOURCE_DATE_EPOCH
 SOURCE_DATE_EPOCH="$(git -C "${ROOT}" log -1 --format=%ct)"
 
 DOCKER_SOCK_VOL="/var/run/docker.sock:/var/run/docker.sock"
-REPO_VOL="${ROOT}:/src:rw"
+# Host-side path for bind mounts: nested `docker run` talks to the host daemon, so this must be
+# a path the host understands (see build-pacman.sh / docker cp workaround).
+REPO_BIND_SRC="${ROOT}"
 if [[ "${OSTYPE:-}" == msys* ]] || [[ "${OSTYPE:-}" == cygwin* ]] || [[ -n "${MSYSTEM:-}" ]]; then
   export MSYS2_ARG_CONV_EXCL='*'
   if ! command -v cygpath >/dev/null 2>&1; then
     echo "Git Bash should provide cygpath; cannot build Windows path for Docker bind mount." >&2
     exit 1
   fi
-  REPO_VOL="$(cygpath -w "$ROOT"):/src:rw"
+  REPO_BIND_SRC="$(cygpath -w "$ROOT")"
 fi
+REPO_VOL="${REPO_BIND_SRC}:/src:rw"
 
 echo "Repo: ${ROOT}"
-echo "Image: ${IMAGE}  arch: ${ARCH}  SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}"
+echo "Image: ${IMAGE}  arch: ${ARCH}  SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}  VD_INCLUDE_FLATPAK=${VD_INCLUDE_FLATPAK}"
 
-DOCKER_ENV=( -e "ARCH=${ARCH}" -e "SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}" )
+DOCKER_ENV=(
+  -e "ARCH=${ARCH}"
+  -e "SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}"
+  -e "VD_INCLUDE_FLATPAK=${VD_INCLUDE_FLATPAK}"
+  -e "VD_DOCKER_BIND_SRC=${REPO_BIND_SRC}"
+)
 [[ -n "${SNAPCRAFT_IMAGE:-}" ]] && DOCKER_ENV+=( -e "SNAPCRAFT_IMAGE=${SNAPCRAFT_IMAGE}" )
 
 # --privileged: nested snapcraft image expects it; some install smokes need it too.

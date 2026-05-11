@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 # Run inside the Ubuntu container started by run-full-linux-build-docker.sh (repo mounted at /src).
 # Must use LF line endings (see .gitattributes packaging/tools/*.sh); CRLF breaks `set -o pipefail`.
+#
+# Flatpak: skipped by default (flatpak-builder often fails under Docker Desktop / some hosts).
+# Set VD_INCLUDE_FLATPAK=1 (e.g. from run-full-linux-build-docker.sh --include-flatpak) for CI parity.
 set -euxo pipefail
 cd /src
 
 ARCH="${ARCH:-amd64}"
+INCLUDE_FLATPAK="${VD_INCLUDE_FLATPAK:-0}"
+case "${INCLUDE_FLATPAK}" in 1|true|yes|YES) INCLUDE_FLATPAK=1 ;; *) INCLUDE_FLATPAK=0 ;; esac
 
 apt-get update -qq
 DEBIAN_FRONTEND=noninteractive apt-get install -y -qq -f
@@ -17,8 +22,12 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
 
 DEBIAN_FRONTEND=noninteractive apt-get install -y -qq docker.io
 
-DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends \
-  flatpak flatpak-builder
+if [[ "${INCLUDE_FLATPAK}" -eq 1 ]]; then
+  DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends \
+    flatpak flatpak-builder
+else
+  echo "Skipping flatpak / flatpak-builder install (set VD_INCLUDE_FLATPAK=1 for Flatpak build + tests)" >&2
+fi
 
 DEBIAN_FRONTEND=noninteractive apt-get install -y -qq -f
 
@@ -31,11 +40,13 @@ fi
 export PATH="/usr/share/dotnet:${PATH}"
 dotnet --version
 
-flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-flatpak install -y --user flathub \
-  org.freedesktop.Platform//24.08 \
-  org.freedesktop.Sdk//24.08 \
-  org.freedesktop.Sdk.Extension.dotnet8//24.08
+if [[ "${INCLUDE_FLATPAK}" -eq 1 ]]; then
+  flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+  flatpak install -y --user flathub \
+    org.freedesktop.Platform//24.08 \
+    org.freedesktop.Sdk//24.08 \
+    org.freedesktop.Sdk.Extension.dotnet8//24.08
+fi
 
 # Snap uses systemd (e.g. systemctl daemon-reload) during install; a plain Ubuntu container is
 # not PID1 systemd, so snapd/snap install snapcraft is unreliable. Build the snap in Canonical's
@@ -44,7 +55,7 @@ _vd_run_snapcraft_docker() {
   local img="${SNAPCRAFT_IMAGE:-ghcr.io/canonical/snapcraft:8_core24}"
   docker run --rm --privileged \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    -v /src:/src:rw \
+    -v "${VD_DOCKER_BIND_SRC:?VD_DOCKER_BIND_SRC unset; use run-full-linux-build-docker.sh}:/src:rw" \
     -w /src \
     -e "ARCH=${ARCH}" \
     -e "SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}" \
@@ -63,7 +74,9 @@ chmod +x packaging/tools/*.sh packaging/common/generate-metadata.sh packaging/te
 ./packaging/tools/build-deb.sh --arch "${ARCH}"
 ./packaging/tools/build-rpm.sh --arch "${ARCH}"
 ./packaging/tools/build-pacman.sh --arch "${ARCH}"
-./packaging/tools/build-flatpak.sh --arch "${ARCH}" --require-flatpak-builder
+if [[ "${INCLUDE_FLATPAK}" -eq 1 ]]; then
+  ./packaging/tools/build-flatpak.sh --arch "${ARCH}" --require-flatpak-builder
+fi
 _vd_run_snapcraft_docker
 ./packaging/tools/write-checksums.sh --arch "${ARCH}"
 
@@ -72,6 +85,8 @@ _vd_run_snapcraft_docker
 ./packaging/tests/install/docker-install-deb.sh --arch "${ARCH}"
 ./packaging/tests/install/docker-install-rpm.sh --arch "${ARCH}"
 ./packaging/tests/install/docker-install-pacman.sh --arch "${ARCH}"
-./packaging/tests/install/docker-install-flatpak.sh --arch "${ARCH}"
+if [[ "${INCLUDE_FLATPAK}" -eq 1 ]]; then
+  ./packaging/tests/install/docker-install-flatpak.sh --arch "${ARCH}"
+fi
 
 echo "=== run-full-linux-build-docker: ALL_STEPS_DONE ==="

@@ -2,7 +2,7 @@
 
 ## Full build + tests in Docker (recommended on Windows)
 
-Uses **Docker only** (no WSL): Ubuntu in a container installs .NET 8, `flatpak` / `flatpak-builder` + Flathub runtimes, and the Docker CLI (for nested images). The **snap** is built in a second, nested **`ghcr.io/canonical/snapcraft:8_core24`** container (plain Ubuntu is not systemd PID 1, so `snap install snapcraft` cannot run there). Your repo is bind-mounted at `/src`; the host Docker socket is used for Arch `makepkg`, the snapcraft image, and install smoke tests.
+Uses **Docker only** (no WSL): Ubuntu in a container installs .NET 8 and the Docker CLI (for nested images). **Flatpak** is **skipped by default** here because `flatpak-builder` often fails on Docker Desktop and similar setups; GitHub Actions still builds and tests Flatpak. Pass **`--include-flatpak`** or set **`VD_INCLUDE_FLATPAK=1`** to match CI. When enabled, the container also installs `flatpak` / `flatpak-builder` and Flathub runtimes. The **snap** is built in a second, nested **`ghcr.io/canonical/snapcraft:8_core24`** container (plain Ubuntu is not systemd PID 1, so `snap install snapcraft` cannot run there). Your repo is bind-mounted at `/src`; the host Docker socket is used for Arch `makepkg`, the snapcraft image, and install smoke tests.
 
 From the repository root (Git Bash, Linux shell, or `bash` on macOS):
 
@@ -11,7 +11,7 @@ chmod +x packaging/tools/run-full-linux-build-docker.sh packaging/tools/run-full
 ./packaging/tools/run-full-linux-build-docker.sh --arch amd64
 ```
 
-Options: `--image ubuntu:24.04`. Env: `DOCKER_IMAGE`, `ARCH`, optional `SNAPCRAFT_IMAGE`. The outer run uses **`--privileged --network host --pid=host`** so nested **flatpak-builder** (bubblewrap) and the snapcraft image can run; omitting these often breaks Flatpak builds on Docker Desktop.
+Options: `--image ubuntu:24.04`, **`--include-flatpak`**. Env: `DOCKER_IMAGE`, `ARCH`, optional `SNAPCRAFT_IMAGE`, optional **`VD_INCLUDE_FLATPAK=1`** (same effect as `--include-flatpak`). The outer run uses **`--privileged --network host --pid=host`** so nested **flatpak-builder** (bubblewrap, when enabled) and the snapcraft image can run; omitting these often breaks Flatpak builds on Docker Desktop.
 
 **Git Bash (Windows):** the script sets **`MSYS2_ARG_CONV_EXCL='*'`** so MSYS does not rewrite **`/var/run/docker.sock`**, **`-w /src`**, or **`bash -c '…/src/…'`** into **`C:\Program Files\Git\...`** (which makes Docker fail with “Access is denied” or “working directory … is invalid”). The repo bind mount uses **`cygpath -w`** for a Windows path Docker Desktop accepts.
 
