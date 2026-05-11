@@ -397,6 +397,14 @@ esac
 
 apply_firewall
 
+# Kestrel in this package is configured to listen on `[::]:51726`.
+# If the kernel has `net.ipv6.bindv6only=1`, the IPv6 socket will not accept
+# IPv4 connections (even though E2E expects IPv4 smoke to work).
+# In a privileged test container we can force dual-stack semantics.
+if command -v sysctl >/dev/null 2>&1; then
+  sysctl -w net.ipv6.bindv6only=0 >/dev/null 2>&1 || true
+fi
+
 install -d -o videodedup -g videodedup /var/lib/videodedupserver
 
 if [[ "${FMT}" == flatpak ]]; then

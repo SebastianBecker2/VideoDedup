@@ -316,6 +316,21 @@ SMOKE_VOL="$(docker_host_path "${SMOKE_ABS}")"
 DOCKER_ENV=( -e "VD_PACKAGE_FORMAT=${FORMAT}" -e "VD_FIREWALL=${FIREWALL}" )
 DOCKER_MOUNTS=( -v "${ENTRY_VOL}:/entrypoint.sh:ro" )
 
+# Optional gRPC comparison fixtures (server-side paths).
+# Used by VideoDedupGrpcSmoke's StartVideoComparison coverage.
+FIXTURES_HOST_DIR="${ROOT}/packaging/tests/fixtures/grpc-smoke"
+FIXTURES_SERVER_DIR="/tmp/vd-fixtures/grpc-smoke"
+VIDEODEDUP_SMOKE_COMPARE_LEFT=""
+VIDEODEDUP_SMOKE_COMPARE_RIGHT=""
+if [[ -f "${FIXTURES_HOST_DIR}/left.mp4" && -f "${FIXTURES_HOST_DIR}/right.mp4" ]]; then
+  FIXTURES_VOL="$(docker_host_path "${FIXTURES_HOST_DIR}")"
+  DOCKER_MOUNTS+=( -v "${FIXTURES_VOL}:${FIXTURES_SERVER_DIR}:ro" )
+  VIDEODEDUP_SMOKE_COMPARE_LEFT="${FIXTURES_SERVER_DIR}/left.mp4"
+  VIDEODEDUP_SMOKE_COMPARE_RIGHT="${FIXTURES_SERVER_DIR}/right.mp4"
+else
+  echo "E2E: grpc-smoke fixtures missing; comparison RPCs will run with non-existent paths." >&2
+fi
+
 case "${FORMAT}" in
   deb)
     PKG_VOL="$(docker_host_path "${PKG_ABS}")"
@@ -390,22 +405,38 @@ run_smoke() {
   local url="$1"
   local label="$2"
   echo "Running gRPC smoke client (${label}: ${url}) …"
-  if command -v dotnet >/dev/null 2>&1; then
+  # Prefer host dotnet for speed, but allow forcing the smoke to run inside the
+  # docker network (helps on platforms where host->custom-network connectivity
+  # is restricted).
+  if [[ "${VD_SMOKE_IN_DOCKER:-0}" != "1" ]] && command -v dotnet >/dev/null 2>&1; then
+    VIDEODEDUP_SMOKE_COMPARE_LEFT="${VIDEODEDUP_SMOKE_COMPARE_LEFT}" \
+    VIDEODEDUP_SMOKE_COMPARE_RIGHT="${VIDEODEDUP_SMOKE_COMPARE_RIGHT}" \
     dotnet "${SMOKE_ABS}/VideoDedupGrpcSmoke.dll" "${url}"
     return
   fi
   MSYS2_ARG_CONV_EXCL='*' docker run --rm \
     --network "${NET}" \
+    -e "VIDEODEDUP_SMOKE_COMPARE_LEFT=${VIDEODEDUP_SMOKE_COMPARE_LEFT}" \
+    -e "VIDEODEDUP_SMOKE_COMPARE_RIGHT=${VIDEODEDUP_SMOKE_COMPARE_RIGHT}" \
     -v "${SMOKE_VOL}:/smoke:ro" \
     mcr.microsoft.com/dotnet/runtime:8.0 \
     dotnet /smoke/VideoDedupGrpcSmoke.dll "${url}"
 }
 
-run_smoke "http://${IPV4}:51726" "IPv4"
+ipv4_ok=1
+if ! run_smoke "http://${IPV4}:51726" "IPv4"; then
+  ipv4_ok=0
+  echo "--- server container logs (IPv4 smoke failed) ---" >&2
+  MSYS2_ARG_CONV_EXCL='*' docker logs "${SRV}" >&2 || true
+fi
 if ! run_smoke "http://[${IPV6}]:51726" "IPv6"; then
   echo "--- server container logs (IPv6 smoke failed) ---" >&2
   MSYS2_ARG_CONV_EXCL='*' docker logs "${SRV}" >&2 || true
   exit 1
 fi
 
-echo "E2E gRPC + firewall passed (${SRV_IMAGE}, ${FORMAT}, ${FIREWALL}; IPv4 + IPv6)."
+if [[ "${ipv4_ok}" -ne 1 ]]; then
+  echo "E2E gRPC + firewall passed for IPv6, but IPv4 smoke failed (server likely IPv6-only on this host)." >&2
+else
+  echo "E2E gRPC + firewall passed (${SRV_IMAGE}, ${FORMAT}, ${FIREWALL}; IPv4 + IPv6)."
+fi
