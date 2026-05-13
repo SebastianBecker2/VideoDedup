@@ -7,6 +7,15 @@
 # (to publish the smoke tool unless --smoke-dir is set). Falls back to mcr.microsoft.com/dotnet/runtime:8.0 if no dotnet.
 # Default smoke output is packaging/out/<arch>/e2e-smoke; that path is republished every run so it stays in sync with source.
 #
+# Preset server images debian:bookworm-slim and fedora:40 are replaced by small local bases (pre-installed apt/dnf deps)
+# built from packaging/docker/Dockerfile.firewall-smoke-* when --srv-image is not set. Override tags:
+#   VD_FIREWALL_SMOKE_DEBIAN_IMAGE (default videodedup/firewall-smoke-debian:bookworm)
+#   VD_FIREWALL_SMOKE_FEDORA_IMAGE (default videodedup/firewall-smoke-fedora:40)
+# Force rebuild: VD_REBUILD_FIREWALL_SMOKE_DEBIAN_BASE=1 / VD_REBUILD_FIREWALL_SMOKE_FEDORA_BASE=1
+# --srv-image always uses that image verbatim (no base build).
+# On GitHub Actions, preset bases are skipped by default (cold cache per matrix job); set VD_USE_FIREWALL_SMOKE_BASE=1
+# to build/use them in CI. VD_SKIP_FIREWALL_SMOKE_BASE=1 forces stock images locally too.
+#
 # Usage:
 #   ./docker-grpc-firewall.sh [options] [path/to/package.deb|.rpm]
 #
@@ -34,6 +43,7 @@ ARCH="amd64"
 FORMAT="deb"
 DISTRO=""
 SRV_IMAGE=""
+SRV_IMAGE_USER_SET=0
 FIREWALL="nft"
 PKG=""
 SMOKE_DIR=""
@@ -55,6 +65,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     --srv-image)
       SRV_IMAGE="$2"
+      SRV_IMAGE_USER_SET=1
       shift 2
       ;;
     --firewall)
@@ -77,7 +88,10 @@ Usage: docker-grpc-firewall.sh [options] [path/to/package.deb|.rpm]
   --firewall nft|iptables|ufw|firewalld   (default: nft)
   --smoke-dir DIR
 
-Runs gRPC smoke twice: explicit IPv4 (http://a.b.c.d:51726) and IPv6 (http://[addr]:51726) on a dual-stack bridge.
+  Preset images debian:bookworm-slim and fedora:40 are rebuilt locally as cached bases unless --srv-image is set.
+  VD_FIREWALL_SMOKE_DEBIAN_IMAGE / VD_FIREWALL_SMOKE_FEDORA_IMAGE — override tags.
+  VD_REBUILD_FIREWALL_SMOKE_DEBIAN_BASE=1 / VD_REBUILD_FIREWALL_SMOKE_FEDORA_BASE=1 — force docker build.
+  On GitHub Actions bases are off by default (set VD_USE_FIREWALL_SMOKE_BASE=1 to enable). VD_SKIP_FIREWALL_SMOKE_BASE=1 disables locally.
 
 Staged format requires ./packaging/tools/stage.sh for the arch; deb/rpm need built packages under packaging/out/.
 HELP
@@ -284,6 +298,69 @@ fi
 if ! docker info >/dev/null 2>&1; then
   echo "Docker daemon not reachable" >&2
   exit 1
+fi
+
+FIREWALL_SMOKE_DEBIAN_IMAGE="${VD_FIREWALL_SMOKE_DEBIAN_IMAGE:-videodedup/firewall-smoke-debian:bookworm}"
+FIREWALL_SMOKE_FEDORA_IMAGE="${VD_FIREWALL_SMOKE_FEDORA_IMAGE:-videodedup/firewall-smoke-fedora:40}"
+
+ensure_firewall_smoke_debian_base() {
+  local tag="$1"
+  local dockerfile="${ROOT}/packaging/docker/Dockerfile.firewall-smoke-debian-bookworm-slim"
+  if [[ "${VD_REBUILD_FIREWALL_SMOKE_DEBIAN_BASE:-0}" == "1" ]] || ! MSYS2_ARG_CONV_EXCL='*' docker image inspect "${tag}" >/dev/null 2>&1; then
+    echo "Building firewall-smoke Debian base ${tag} …"
+    mkdir -p "${ROOT}/packaging/out"
+    local ctx
+    if ! ctx="$(mktemp -d "${ROOT}/packaging/out/.firewall-smoke-debian-ctx.XXXXXX" 2>/dev/null)"; then
+      ctx="${ROOT}/packaging/out/.firewall-smoke-debian-ctx.$$"
+      rm -rf "${ctx}"
+      mkdir -p "${ctx}"
+    fi
+    cp "${dockerfile}" "${ctx}/Dockerfile"
+    if ! MSYS2_ARG_CONV_EXCL='*' DOCKER_BUILDKIT=1 docker build -t "${tag}" "${ctx}"; then
+      rm -rf "${ctx}"
+      return 1
+    fi
+    rm -rf "${ctx}"
+  fi
+}
+
+ensure_firewall_smoke_fedora_base() {
+  local tag="$1"
+  local dockerfile="${ROOT}/packaging/docker/Dockerfile.firewall-smoke-fedora-40"
+  if [[ "${VD_REBUILD_FIREWALL_SMOKE_FEDORA_BASE:-0}" == "1" ]] || ! MSYS2_ARG_CONV_EXCL='*' docker image inspect "${tag}" >/dev/null 2>&1; then
+    echo "Building firewall-smoke Fedora base ${tag} …"
+    mkdir -p "${ROOT}/packaging/out"
+    local ctx
+    if ! ctx="$(mktemp -d "${ROOT}/packaging/out/.firewall-smoke-fedora-ctx.XXXXXX" 2>/dev/null)"; then
+      ctx="${ROOT}/packaging/out/.firewall-smoke-fedora-ctx.$$"
+      rm -rf "${ctx}"
+      mkdir -p "${ctx}"
+    fi
+    cp "${dockerfile}" "${ctx}/Dockerfile"
+    if ! MSYS2_ARG_CONV_EXCL='*' DOCKER_BUILDKIT=1 docker build -t "${tag}" "${ctx}"; then
+      rm -rf "${ctx}"
+      return 1
+    fi
+    rm -rf "${ctx}"
+  fi
+}
+
+if [[ "${SRV_IMAGE_USER_SET}" -ne 1 ]]; then
+  if [[ "${VD_SKIP_FIREWALL_SMOKE_BASE:-0}" == "1" ]] \
+    || { [[ -n "${GITHUB_ACTIONS:-}" ]] && [[ "${VD_USE_FIREWALL_SMOKE_BASE:-0}" != "1" ]]; }; then
+    :
+  else
+    case "${SRV_IMAGE}" in
+      debian:bookworm-slim)
+        ensure_firewall_smoke_debian_base "${FIREWALL_SMOKE_DEBIAN_IMAGE}"
+        SRV_IMAGE="${FIREWALL_SMOKE_DEBIAN_IMAGE}"
+        ;;
+      fedora:40)
+        ensure_firewall_smoke_fedora_base "${FIREWALL_SMOKE_FEDORA_IMAGE}"
+        SRV_IMAGE="${FIREWALL_SMOKE_FEDORA_IMAGE}"
+        ;;
+    esac
+  fi
 fi
 
 NET="videodedup-e2e-$$"

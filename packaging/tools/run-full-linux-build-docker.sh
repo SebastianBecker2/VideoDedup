@@ -8,10 +8,14 @@
 #   ./packaging/tools/run-full-linux-build-docker.sh [--arch amd64|arm64] [--image ubuntu:24.04] [--include-flatpak]
 #
 # Env:
-#   DOCKER_IMAGE          default ubuntu:24.04
+#   DOCKER_IMAGE          default ubuntu:24.04 (when it matches VD_PACKAGING_WORKER_FROM, a pre-apt worker image is built/used)
 #   ARCH                  default amd64
 #   SNAPCRAFT_IMAGE       optional; default ghcr.io/canonical/snapcraft:8_core24 (snap base core24)
 #   VD_INCLUDE_FLATPAK    set to 1 to build Flatpak and run its Docker install smoke (default: skip)
+#   VD_PACKAGING_WORKER_IMAGE  default videodedup/packaging-worker:ubuntu24
+#   VD_PACKAGING_WORKER_FROM  default ubuntu:24.04 — stock image that triggers the worker base
+#   VD_REBUILD_PACKAGING_WORKER_BASE=1  force rebuild of worker image
+#   VD_SKIP_PACKAGING_WORKER_BASE=1     always use DOCKER_IMAGE as-is (no worker Dockerfile)
 #
 # Git Bash / MSYS: path rewriting turns /var/run/docker.sock and /src into paths under
 # C:\Program Files\Git\ — set MSYS2_ARG_CONV_EXCL='*' and use a Windows repo path from cygpath.
@@ -39,6 +43,8 @@ while [[ $# -gt 0 ]]; do
     -h|--help)
       echo "Usage: $0 [--arch amd64|arm64] [--image ubuntu:24.04] [--include-flatpak]"
       echo "  Flatpak is skipped by default locally; use --include-flatpak or VD_INCLUDE_FLATPAK=1 for CI parity."
+      echo "  When --image matches VD_PACKAGING_WORKER_FROM (default ubuntu:24.04), builds videodedup/packaging-worker:ubuntu24"
+      echo "  with apt deps preinstalled unless VD_SKIP_PACKAGING_WORKER_BASE=1."
       exit 0
       ;;
     *)
@@ -65,6 +71,35 @@ fi
 if ! git -C "${ROOT}" rev-parse --git-dir >/dev/null 2>&1; then
   echo "Not a git checkout: ${ROOT}" >&2
   exit 1
+fi
+
+PACKAGING_WORKER_FROM="${VD_PACKAGING_WORKER_FROM:-ubuntu:24.04}"
+PACKAGING_WORKER_IMAGE="${VD_PACKAGING_WORKER_IMAGE:-videodedup/packaging-worker:ubuntu24}"
+
+ensure_packaging_worker_base() {
+  local tag="$1"
+  local dockerfile="${ROOT}/packaging/docker/Dockerfile.packaging-worker-ubuntu24"
+  if [[ "${VD_REBUILD_PACKAGING_WORKER_BASE:-0}" == "1" ]] || ! MSYS2_ARG_CONV_EXCL='*' docker image inspect "${tag}" >/dev/null 2>&1; then
+    echo "Building packaging worker base ${tag} …"
+    mkdir -p "${ROOT}/packaging/out"
+    local ctx
+    if ! ctx="$(mktemp -d "${ROOT}/packaging/out/.packaging-worker-ctx.XXXXXX" 2>/dev/null)"; then
+      ctx="${ROOT}/packaging/out/.packaging-worker-ctx.$$"
+      rm -rf "${ctx}"
+      mkdir -p "${ctx}"
+    fi
+    cp "${dockerfile}" "${ctx}/Dockerfile"
+    if ! MSYS2_ARG_CONV_EXCL='*' DOCKER_BUILDKIT=1 docker build -t "${tag}" "${ctx}"; then
+      rm -rf "${ctx}"
+      return 1
+    fi
+    rm -rf "${ctx}"
+  fi
+}
+
+if [[ "${VD_SKIP_PACKAGING_WORKER_BASE:-0}" != "1" ]] && [[ "${IMAGE}" == "${PACKAGING_WORKER_FROM}" ]]; then
+  ensure_packaging_worker_base "${PACKAGING_WORKER_IMAGE}"
+  IMAGE="${PACKAGING_WORKER_IMAGE}"
 fi
 
 export SOURCE_DATE_EPOCH

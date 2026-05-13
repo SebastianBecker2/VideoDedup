@@ -2,6 +2,9 @@
 # Run inside the Ubuntu container started by run-full-linux-build-docker.sh (repo mounted at /src).
 # Must use LF line endings (see .gitattributes packaging/tools/*.sh); CRLF breaks `set -o pipefail`.
 #
+# When the image was built from packaging/docker/Dockerfile.packaging-worker-ubuntu24, /etc/videodedup-packaging-worker-base
+# exists and the heavy apt-get block is skipped (flatpak packages are still installed when VD_INCLUDE_FLATPAK=1).
+#
 # Flatpak: skipped by default (flatpak-builder often fails under Docker Desktop / some hosts).
 # Set VD_INCLUDE_FLATPAK=1 (e.g. from run-full-linux-build-docker.sh --include-flatpak) for CI parity.
 set -euxo pipefail
@@ -11,25 +14,34 @@ ARCH="${ARCH:-amd64}"
 INCLUDE_FLATPAK="${VD_INCLUDE_FLATPAK:-0}"
 case "${INCLUDE_FLATPAK}" in 1|true|yes|YES) INCLUDE_FLATPAK=1 ;; *) INCLUDE_FLATPAK=0 ;; esac
 
-apt-get update -qq
-DEBIAN_FRONTEND=noninteractive apt-get install -y -qq -f
-
-# Split installs: one big line often triggers "held broken packages" in minimal images when
-# flatpak recommends pull a full desktop stack that is not wanted in Docker.
-DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
-  ca-certificates curl git python3 \
-  fakeroot dpkg-dev lintian rpm rpmlint
-
-DEBIAN_FRONTEND=noninteractive apt-get install -y -qq docker.io
-
-if [[ "${INCLUDE_FLATPAK}" -eq 1 ]]; then
-  DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends \
-    flatpak flatpak-builder
+if [[ -f /etc/videodedup-packaging-worker-base ]]; then
+  echo "Using packaging worker base (skipping bulk apt-get from inner script)" >&2
+  if [[ "${INCLUDE_FLATPAK}" -eq 1 ]]; then
+    apt-get update -qq
+    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends \
+      flatpak flatpak-builder
+  fi
 else
-  echo "Skipping flatpak / flatpak-builder install (set VD_INCLUDE_FLATPAK=1 for Flatpak build + tests)" >&2
-fi
+  apt-get update -qq
+  DEBIAN_FRONTEND=noninteractive apt-get install -y -qq -f
 
-DEBIAN_FRONTEND=noninteractive apt-get install -y -qq -f
+  # Split installs: one big line often triggers "held broken packages" in minimal images when
+  # flatpak recommends pull a full desktop stack that is not wanted in Docker.
+  DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+    ca-certificates curl git python3 \
+    fakeroot dpkg-dev lintian rpm rpmlint
+
+  DEBIAN_FRONTEND=noninteractive apt-get install -y -qq docker.io
+
+  if [[ "${INCLUDE_FLATPAK}" -eq 1 ]]; then
+    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends \
+      flatpak flatpak-builder
+  else
+    echo "Skipping flatpak / flatpak-builder install (set VD_INCLUDE_FLATPAK=1 for Flatpak build + tests)" >&2
+  fi
+
+  DEBIAN_FRONTEND=noninteractive apt-get install -y -qq -f
+fi
 
 export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-$(git log -1 --format=%ct)}"
 

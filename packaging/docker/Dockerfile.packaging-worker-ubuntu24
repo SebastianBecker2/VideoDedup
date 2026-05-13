@@ -1,0 +1,25 @@
+# Apt packages used by packaging/tools/run-full-linux-build-docker-inner.sh (before dotnet curl install).
+# Flatpak builder is not included here (inner script installs it only when VD_INCLUDE_FLATPAK=1).
+#
+# Rebuild: VD_REBUILD_PACKAGING_WORKER_BASE=1 or docker rmi …
+# Default tag: videodedup/packaging-worker:ubuntu24 (override VD_PACKAGING_WORKER_IMAGE)
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update -qq \
+  && apt-get install -y -qq -f \
+  && apt-get install -y -qq \
+    ca-certificates \
+    curl \
+    git \
+    python3 \
+    fakeroot \
+    dpkg-dev \
+    lintian \
+    rpm \
+    rpmlint \
+    docker.io \
+  && apt-get install -y -qq -f \
+  && rm -rf /var/lib/apt/lists/* \
+  && touch /etc/videodedup-packaging-worker-base

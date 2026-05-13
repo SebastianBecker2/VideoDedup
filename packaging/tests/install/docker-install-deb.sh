@@ -50,6 +50,24 @@ fi
 
 DEB_ABS="$(cd "$(dirname "${DEB}")" && pwd)/$(basename "${DEB}")"
 
+docker_host_path() {
+  if command -v cygpath >/dev/null 2>&1; then
+    cygpath -w "$1"
+  else
+    printf '%s' "$1"
+  fi
+}
+
+# See docker-install-rpm.sh: nested docker needs host paths (VD_DOCKER_BIND_SRC).
+_repo_path_for_docker() {
+  local p="$1"
+  if [[ -n "${VD_DOCKER_BIND_SRC:-}" ]] && [[ "${p}" == "${ROOT}/"* ]]; then
+    printf '%s' "${VD_DOCKER_BIND_SRC}/${p#${ROOT}/}"
+  else
+    printf '%s' "${p}"
+  fi
+}
+
 if ! command -v docker >/dev/null 2>&1; then
   echo "docker not found" >&2
   exit 1
@@ -61,8 +79,10 @@ fi
 
 echo "Using ${DEB_ABS}"
 
+DEB_VOL="$(docker_host_path "$(_repo_path_for_docker "${DEB_ABS}")")"
+
 docker run --rm \
-  -v "${DEB_ABS}:/tmp/videodedupserver.deb:ro" \
+  -v "${DEB_VOL}:/tmp/videodedupserver.deb:ro" \
   debian:bookworm-slim \
   bash -s <<'EOS'
 set -eu

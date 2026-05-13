@@ -1,0 +1,28 @@
+# Pre-install .deb Depends (see packaging/tools/build-deb.sh) plus iproute2 and all firewall tools used by
+# packaging/tests/e2e/server-entrypoint.sh so docker-grpc-firewall.sh can skip apt-get update on Debian bookworm.
+# Also includes squashfs-tools for --format snap on debian (same base when added later).
+#
+# Rebuild: VD_REBUILD_FIREWALL_SMOKE_DEBIAN_BASE=1 or docker rmi …
+# Default tag: videodedup/firewall-smoke-debian:bookworm (override VD_FIREWALL_SMOKE_DEBIAN_IMAGE)
+FROM debian:bookworm-slim
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    bash \
+    ca-certificates \
+    curl \
+    ffmpeg \
+    adduser \
+    systemd \
+    libssl3 \
+    iproute2 \
+    nftables \
+    iptables \
+    ufw \
+    firewalld \
+    dbus \
+    squashfs-tools \
+  && rm -rf /var/lib/apt/lists/* \
+  && touch /etc/videodedup-firewall-smoke-deb-base

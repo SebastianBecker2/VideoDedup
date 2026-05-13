@@ -57,6 +57,19 @@ docker_host_path() {
   fi
 }
 
+# Nested docker (e.g. run-full-linux-build-docker-inner): the daemon resolves bind
+# sources on the *host*. Paths under /src in the worker are not on the host — Docker
+# then creates an empty directory at the target, so /inner-smoke.sh becomes a directory.
+# VD_DOCKER_BIND_SRC is set by packaging/tools/run-full-linux-build-docker.sh.
+_repo_path_for_docker() {
+  local p="$1"
+  if [[ -n "${VD_DOCKER_BIND_SRC:-}" ]] && [[ "${p}" == "${ROOT}/"* ]]; then
+    printf '%s' "${VD_DOCKER_BIND_SRC}/${p#${ROOT}/}"
+  else
+    printf '%s' "${p}"
+  fi
+}
+
 if ! command -v docker >/dev/null 2>&1; then
   echo "docker not found" >&2
   exit 1
@@ -66,9 +79,9 @@ if ! docker info >/dev/null 2>&1; then
   exit 1
 fi
 
-RPM_VOL="$(docker_host_path "${RPM_ABS}")"
 INNER="${ROOT}/packaging/tests/install/rpm-install-inner-smoke.sh"
-INNER_VOL="$(docker_host_path "${INNER}")"
+RPM_VOL="$(docker_host_path "$(_repo_path_for_docker "${RPM_ABS}")")"
+INNER_VOL="$(docker_host_path "$(_repo_path_for_docker "${INNER}")")"
 echo "Using ${RPM_ABS}"
 
 MSYS2_ARG_CONV_EXCL='*' docker run --rm \

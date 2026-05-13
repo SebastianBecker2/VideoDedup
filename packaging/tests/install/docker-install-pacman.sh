@@ -48,6 +48,23 @@ fi
 
 PKG_ABS="$(cd "$(dirname "${PKG}")" && pwd)/$(basename "${PKG}")"
 
+docker_host_path() {
+  if command -v cygpath >/dev/null 2>&1; then
+    cygpath -w "$1"
+  else
+    printf '%s' "$1"
+  fi
+}
+
+_repo_path_for_docker() {
+  local p="$1"
+  if [[ -n "${VD_DOCKER_BIND_SRC:-}" ]] && [[ "${p}" == "${ROOT}/"* ]]; then
+    printf '%s' "${VD_DOCKER_BIND_SRC}/${p#${ROOT}/}"
+  else
+    printf '%s' "${p}"
+  fi
+}
+
 if ! command -v docker >/dev/null 2>&1; then
   echo "docker not found" >&2
   exit 1
@@ -59,8 +76,10 @@ fi
 
 echo "Using ${PKG_ABS}"
 
+PKG_VOL="$(docker_host_path "$(_repo_path_for_docker "${PKG_ABS}")")"
+
 docker run --rm \
-  -v "${PKG_ABS}:/tmp/videodedupserver.pkg.tar.zst:ro" \
+  -v "${PKG_VOL}:/tmp/videodedupserver.pkg.tar.zst:ro" \
   archlinux:latest \
   bash -s <<'EOS'
 set -eu

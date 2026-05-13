@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # Smoke-test videodedupserver .flatpak inside Fedora (Docker): install runtime + bundle, short flatpak run.
 #
+# By default builds/uses packaging/docker/Dockerfile.flatpak-smoke-fedora so dnf + Flathub runtime install
+# are skipped when the image exists (Windows: build context under repo tree).
+# VD_FLATPAK_SMOKE_BASE_IMAGE — tag for that base (default videodedup/flatpak-smoke-fedora:40).
+# VD_REBUILD_FLATPAK_SMOKE_BASE=1 — force docker build.
+# Use raw fedora:40: VD_FLATPAK_SMOKE_BASE_IMAGE=fedora:40 (no preinstall; script still works).
+#
 # Usage:
 #   ./packaging/tests/install/docker-install-flatpak.sh [--arch amd64|arm64] [path/to.flatpak]
 set -euo pipefail
@@ -48,6 +54,23 @@ fi
 
 FB_ABS="$(cd "$(dirname "${FB}")" && pwd)/$(basename "${FB}")"
 
+docker_host_path() {
+  if command -v cygpath >/dev/null 2>&1; then
+    cygpath -w "$1"
+  else
+    printf '%s' "$1"
+  fi
+}
+
+_repo_path_for_docker() {
+  local p="$1"
+  if [[ -n "${VD_DOCKER_BIND_SRC:-}" ]] && [[ "${p}" == "${ROOT}/"* ]]; then
+    printf '%s' "${VD_DOCKER_BIND_SRC}/${p#${ROOT}/}"
+  else
+    printf '%s' "${p}"
+  fi
+}
+
 if ! command -v docker >/dev/null 2>&1; then
   echo "docker not found" >&2
   exit 1
@@ -57,16 +80,49 @@ if ! docker info >/dev/null 2>&1; then
   exit 1
 fi
 
-echo "Using ${FB_ABS}"
+FLATPAK_SMOKE_BASE_IMAGE="${VD_FLATPAK_SMOKE_BASE_IMAGE:-videodedup/flatpak-smoke-fedora:40}"
+
+ensure_flatpak_smoke_base_image() {
+  local tag="$1"
+  # Stock images: no custom Dockerfile in-repo for those tags.
+  case "${tag}" in
+    fedora:40) return 0 ;;
+  esac
+  local dockerfile="${ROOT}/packaging/docker/Dockerfile.flatpak-smoke-fedora"
+  if [[ "${VD_REBUILD_FLATPAK_SMOKE_BASE:-0}" == "1" ]] || ! MSYS2_ARG_CONV_EXCL='*' docker image inspect "${tag}" >/dev/null 2>&1; then
+    echo "Building flatpak-smoke base image ${tag} …"
+    mkdir -p "${ROOT}/packaging/out"
+    local ctx
+    if ! ctx="$(mktemp -d "${ROOT}/packaging/out/.flatpak-smoke-base-ctx.XXXXXX" 2>/dev/null)"; then
+      ctx="${ROOT}/packaging/out/.flatpak-smoke-base-ctx.$$"
+      rm -rf "${ctx}"
+      mkdir -p "${ctx}"
+    fi
+    cp "${dockerfile}" "${ctx}/Dockerfile"
+    if ! MSYS2_ARG_CONV_EXCL='*' DOCKER_BUILDKIT=1 docker build -t "${tag}" "${ctx}"; then
+      rm -rf "${ctx}"
+      return 1
+    fi
+    rm -rf "${ctx}"
+  fi
+}
+
+ensure_flatpak_smoke_base_image "${FLATPAK_SMOKE_BASE_IMAGE}"
+
+echo "Using ${FB_ABS} (image=${FLATPAK_SMOKE_BASE_IMAGE})"
+
+FB_VOL="$(docker_host_path "$(_repo_path_for_docker "${FB_ABS}")")"
 
 docker run --rm \
-  -v "${FB_ABS}:/tmp/videodedupserver.flatpak:ro" \
-  fedora:40 \
+  -v "${FB_VOL}:/tmp/videodedupserver.flatpak:ro" \
+  "${FLATPAK_SMOKE_BASE_IMAGE}" \
   bash -s <<'EOS'
 set -eu
-dnf -y -q install flatpak
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-flatpak install -y --noninteractive flathub org.freedesktop.Platform//24.08
+if [[ ! -f /etc/videodedup-flatpak-smoke-base ]]; then
+  dnf -y -q install flatpak
+  flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+  flatpak install -y --noninteractive flathub org.freedesktop.Platform//24.08
+fi
 flatpak install -y --noninteractive --bundle /tmp/videodedupserver.flatpak
 
 install -d -m 0755 -o root -g root /tmp/vd-xdg
@@ -83,4 +139,3 @@ echo "flatpak install smoke OK"
 EOS
 
 echo "Docker flatpak install test passed."
-

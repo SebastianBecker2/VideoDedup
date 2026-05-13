@@ -1,0 +1,21 @@
+# Pre-install RPM path deps + flatpak + freedesktop runtime for packaging/tests/e2e/server-entrypoint.sh
+# (dnf/iproute/util-linux/firewall; flatpak bundle path) on Fedora 40.
+#
+# Rebuild: VD_REBUILD_FIREWALL_SMOKE_FEDORA_BASE=1 or docker rmi …
+# Default tag: videodedup/firewall-smoke-fedora:40 (override VD_FIREWALL_SMOKE_FEDORA_IMAGE)
+FROM fedora:40
+
+RUN dnf -y -q install \
+    iproute \
+    util-linux \
+    flatpak \
+    nftables \
+    iptables \
+    firewalld \
+    dbus-daemon \
+  && dnf clean all
+
+RUN flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo \
+  && flatpak install -y --noninteractive flathub org.freedesktop.Platform//24.08
+
+RUN touch /etc/videodedup-firewall-smoke-fedora-base

@@ -130,8 +130,9 @@ install_deb() {
   local fw_pkg
   fw_pkg="$(firewall_pkgs_apt)"
 
-  # packaging/docker/Dockerfile.grpc-smoke-base: deps match .deb; skip apt-get update + bulk install.
-  if [[ -f /etc/videodedup-grpc-smoke-base ]]; then
+  # packaging/docker/Dockerfile.grpc-smoke-base or Dockerfile.firewall-smoke-debian-bookworm-slim:
+  # deps match .deb; skip apt-get update + bulk install.
+  if [[ -f /etc/videodedup-grpc-smoke-base ]] || [[ -f /etc/videodedup-firewall-smoke-deb-base ]]; then
     if dpkg -i /tmp/videodedupserver.deb; then
       return 0
     fi
@@ -167,6 +168,10 @@ ensure_dnf_el_ffmpeg() {
 
 install_rpm_dnf() {
   ensure_dnf_el_ffmpeg
+  if [[ -f /etc/videodedup-firewall-smoke-fedora-base ]]; then
+    dnf -y -q install --setopt=tsflags=nodocs /tmp/videodedupserver.rpm
+    return
+  fi
   local fw_pkg
   fw_pkg="$(firewall_pkgs_dnf)"
   if [[ -n "${fw_pkg}" ]]; then
@@ -175,7 +180,7 @@ install_rpm_dnf() {
   else
     dnf -y -q install iproute util-linux >/dev/null
   fi
-  dnf -y -q install --setopt=tsflags= /tmp/videodedupserver.rpm
+  dnf -y -q install --setopt=tsflags=nodocs /tmp/videodedupserver.rpm
 }
 
 install_rpm_zypper() {
@@ -244,9 +249,11 @@ install_snap_unsquash() {
   export DEBIAN_FRONTEND=noninteractive
   local fw_pkg
   fw_pkg="$(firewall_pkgs_apt)"
-  apt-get update -qq
-  # shellcheck disable=SC2086
-  apt-get install -y -qq iproute2 squashfs-tools ${fw_pkg} >/dev/null
+  if [[ ! -f /etc/videodedup-firewall-smoke-deb-base ]]; then
+    apt-get update -qq
+    # shellcheck disable=SC2086
+    apt-get install -y -qq iproute2 squashfs-tools ${fw_pkg} >/dev/null
+  fi
   rm -rf /tmp/vd-snap
   unsquashfs -f -d /tmp/vd-snap /tmp/videodedupserver.snap
   [[ -x /tmp/vd-snap/usr/lib/videodedupserver/VideoDedupService ]] || {
@@ -259,6 +266,11 @@ install_snap_unsquash() {
 
 install_flatpak_bundle() {
   ensure_dnf_el_ffmpeg
+  if [[ -f /etc/videodedup-firewall-smoke-fedora-base ]]; then
+    flatpak install -y --noninteractive --bundle /tmp/videodedupserver.flatpak
+    ensure_videodedup_user
+    return
+  fi
   local fw_pkg
   fw_pkg="$(firewall_pkgs_dnf)"
   if [[ -n "${fw_pkg}" ]]; then

@@ -11,6 +11,12 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 FW="${ROOT}/packaging/common/firewall"
+# Nested `docker run` uses the host daemon; bind mounts must use a path the host resolves
+# (repo bind-mounted at /src in run-full-linux-build-docker-inner.sh — see VD_DOCKER_BIND_SRC).
+FW_VOL="${FW}"
+if [[ -n "${VD_DOCKER_BIND_SRC:-}" ]]; then
+  FW_VOL="${VD_DOCKER_BIND_SRC}/packaging/common/firewall"
+fi
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 INTEGRATION=0
@@ -43,7 +49,7 @@ if ! docker info >/dev/null 2>&1; then
 fi
 
 echo "=== Docker: nftables (empty ruleset — script creates inet filter input, Debian) ==="
-docker run --rm -i --privileged -v "${FW}:/fw:ro" debian:bookworm-slim bash -s <<'EOS'
+docker run --rm -i --privileged -v "${FW_VOL}:/fw:ro" debian:bookworm-slim bash -s <<'EOS'
 set -eu
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
@@ -61,7 +67,7 @@ echo "nftables integration OK"
 EOS
 
 echo "=== Docker: iptables (Debian, live rule + --persist file) ==="
-docker run --rm -i --privileged -v "${FW}:/fw:ro" debian:bookworm-slim bash -s <<'EOS'
+docker run --rm -i --privileged -v "${FW_VOL}:/fw:ro" debian:bookworm-slim bash -s <<'EOS'
 set -eu
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
@@ -77,7 +83,7 @@ echo "iptables integration OK"
 EOS
 
 echo "=== Docker: ufw (Ubuntu) ==="
-docker run --rm -i --privileged -v "${FW}:/fw:ro" ubuntu:22.04 bash -s <<'EOS'
+docker run --rm -i --privileged -v "${FW_VOL}:/fw:ro" ubuntu:22.04 bash -s <<'EOS'
 set -eu
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
@@ -93,7 +99,7 @@ echo "ufw integration OK"
 EOS
 
 echo "=== Docker: firewalld (Fedora, offline permanent config) ==="
-docker run --rm -i --privileged -v "${FW}:/fw:ro" fedora:40 bash -s <<'EOS'
+docker run --rm -i --privileged -v "${FW_VOL}:/fw:ro" fedora:40 bash -s <<'EOS'
 set -eu
 dnf install -y -q firewalld >/dev/null
 install -m 0755 /fw/open-port-firewalld.sh /tmp/open-port-firewalld.sh
