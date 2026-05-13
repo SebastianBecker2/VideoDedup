@@ -21,7 +21,11 @@ if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
 using var handler = new SocketsHttpHandler();
 using var channel = GrpcChannel.ForAddress(
     url,
-    new GrpcChannelOptions { HttpHandler = handler });
+    new GrpcChannelOptions
+    {
+        HttpHandler = handler,
+        MaxReceiveMessageSize = 128 * 1024 * 1024,
+    });
 
 var client = new VideoDedupGrpcServiceClient(channel);
 
@@ -110,14 +114,20 @@ try
             $"ResolveDuplicate: Successful=false error='{resolveResp.ErrorMessage}'");
 
     // 7) Video comparison + comparison status/cancel RPCs.
-    // These paths must exist inside the *server container*. On E2E, docker-grpc-firewall.sh mounts
-    // fixtures and sets VIDEODEDUP_SMOKE_COMPARE_LEFT/RIGHT to server-side paths.
-    var compareLeft = Env("VIDEODEDUP_SMOKE_COMPARE_LEFT") ?? string.Empty;
-    var compareRight = Env("VIDEODEDUP_SMOKE_COMPARE_RIGHT") ?? string.Empty;
-    if (string.IsNullOrWhiteSpace(compareLeft))
-        compareLeft = "/nonexistent/videodedup-smoke-left.mp4";
-    if (string.IsNullOrWhiteSpace(compareRight))
-        compareRight = "/nonexistent/videodedup-smoke-right.mp4";
+    // Paths are interpreted by the gRPC server (paths on the server's filesystem). Default matches
+    // packaging E2E: /tmp/vd-fixtures/grpc-smoke/{left,right}.mp4 inside the server container.
+    // Override with VIDEODEDUP_SMOKE_COMPARE_LEFT / RIGHT for other server-visible paths.
+    // StartVideoComparison failures are non-fatal here so the rest of the RPC surface is still exercised.
+    const string defaultFixtureLeft = "/tmp/vd-fixtures/grpc-smoke/left.mp4";
+    const string defaultFixtureRight = "/tmp/vd-fixtures/grpc-smoke/right.mp4";
+    var compareLeft = ResolveSmokeComparePath(
+        Env("VIDEODEDUP_SMOKE_COMPARE_LEFT"),
+        defaultFixtureLeft,
+        "VIDEODEDUP_SMOKE_COMPARE_LEFT");
+    var compareRight = ResolveSmokeComparePath(
+        Env("VIDEODEDUP_SMOKE_COMPARE_RIGHT"),
+        defaultFixtureRight,
+        "VIDEODEDUP_SMOKE_COMPARE_RIGHT");
 
     // Keep comparison work small for CI.
     var vc = cfg1.VideoComparisonSettings.Clone();
@@ -136,8 +146,6 @@ try
         ForceLoadingAllFrames = false
     };
 
-    // Video comparison relies on platform codec availability. If comparison fails
-    // (server throws), we still cover the related RPCs and continue.
     currentStep = "StartVideoComparison";
     string comparisonToken;
     VideoComparisonStatus? startComparisonResponse = null;
@@ -166,13 +174,10 @@ try
     {
         var vr = startComparisonResponse.VideoComparisonResult;
         Console.Error.WriteLine(
-            "WARNING: StartVideoComparison returned no comparison_token (soft start failure). "
+            "WARNING: StartVideoComparison returned no comparison_token. "
             + $"paths: left='{compareLeft}' right='{compareRight}'");
         if (vr is null)
-        {
-            Console.Error.WriteLine(
-                "WARNING: StartVideoComparison: VideoComparisonResult is null.");
-        }
+            Console.Error.WriteLine("WARNING: StartVideoComparison: VideoComparisonResult is null.");
         else
         {
             Console.Error.WriteLine(
@@ -181,9 +186,6 @@ try
         }
     }
 
-    // Cover both token flows:
-    // - when fixtures are present, comparisonToken should be non-empty
-    // - when fixtures are missing, StartVideoComparison is expected to abort and not set a token
     var tokenForExtraCalls = string.IsNullOrWhiteSpace(comparisonToken)
         ? Guid.NewGuid().ToString()
         : comparisonToken;
@@ -238,4 +240,34 @@ catch (Exception ex)
 {
     Console.Error.WriteLine("Smoke assertion failed during {0}: {1}", currentStep, ex.Message);
     return 2;
+}
+
+static string ResolveSmokeComparePath(string? fromEnv, string serverDefault, string label)
+{
+    if (string.IsNullOrWhiteSpace(fromEnv))
+    {
+        return serverDefault;
+    }
+
+    if (LooksLikeWindowsAbsolutePath(fromEnv))
+    {
+        Console.Error.WriteLine(
+            "{0}='{1}' is a Windows-style path on this machine, not a path inside the gRPC server; "
+            + "using server default '{2}' instead.",
+            label,
+            fromEnv,
+            serverDefault);
+        return serverDefault;
+    }
+
+    return fromEnv;
+}
+
+static bool LooksLikeWindowsAbsolutePath(string path)
+{
+    ReadOnlySpan<char> t = path.AsSpan().TrimStart();
+    return t.Length >= 3
+        && char.IsAsciiLetter(t[0])
+        && t[1] == ':'
+        && (t[2] == '\\' || t[2] == '/');
 }

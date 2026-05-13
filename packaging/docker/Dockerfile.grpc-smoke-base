@@ -1,0 +1,23 @@
+# Pre-install apt dependencies for videodedupserver .deb (see packaging/tools/build-deb.sh Depends:)
+# so packaging/tests/e2e/server-entrypoint.sh can `dpkg -i` the mounted .deb without apt-get update.
+#
+# FFmpeg.AutoGen 7.1.x (FfmpegLib) needs native FFmpeg 7.1 libs. Debian bookworm ships FFmpeg 5.x — too old.
+# Trixie/testing carries a new enough libav* stack for comparison smoke.
+#
+# Bump when Debian Depends change. Rebuild: VD_REBUILD_GRPC_SMOKE_BASE=1 or docker rmi …
+FROM debian:trixie-slim
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    bash \
+    ca-certificates \
+    iproute2 \
+    nftables \
+    ffmpeg \
+    adduser \
+    systemd \
+    libssl3t64 \
+  && rm -rf /var/lib/apt/lists/* \
+  && touch /etc/videodedup-grpc-smoke-base

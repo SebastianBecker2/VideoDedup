@@ -129,6 +129,15 @@ install_deb() {
   export DEBIAN_FRONTEND=noninteractive
   local fw_pkg
   fw_pkg="$(firewall_pkgs_apt)"
+
+  # packaging/docker/Dockerfile.grpc-smoke-base: deps match .deb; skip apt-get update + bulk install.
+  if [[ -f /etc/videodedup-grpc-smoke-base ]]; then
+    if dpkg -i /tmp/videodedupserver.deb; then
+      return 0
+    fi
+    echo "videodedup-grpc-smoke-base: dpkg -i failed; falling back to apt-get (slow path)" >&2
+  fi
+
   apt-get update -qq
   if [[ -n "${fw_pkg}" ]]; then
     # shellcheck disable=SC2086

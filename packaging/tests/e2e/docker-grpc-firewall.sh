@@ -5,6 +5,7 @@
 #
 # Requires: docker (with IPv6 enabled for custom bridge networks), dotnet 8 SDK on the host
 # (to publish the smoke tool unless --smoke-dir is set). Falls back to mcr.microsoft.com/dotnet/runtime:8.0 if no dotnet.
+# Default smoke output is packaging/out/<arch>/e2e-smoke; that path is republished every run so it stays in sync with source.
 #
 # Usage:
 #   ./docker-grpc-firewall.sh [options] [path/to/package.deb|.rpm]
@@ -36,6 +37,7 @@ SRV_IMAGE=""
 FIREWALL="nft"
 PKG=""
 SMOKE_DIR=""
+SMOKE_DIR_USER_SET=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -61,6 +63,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     --smoke-dir)
       SMOKE_DIR="$2"
+      SMOKE_DIR_USER_SET=1
       shift 2
       ;;
     -h|--help)
@@ -262,7 +265,12 @@ if [[ -z "${SMOKE_DIR}" ]]; then
   SMOKE_DIR="${ROOT}/packaging/out/${ARCH}/e2e-smoke"
 fi
 
-if [[ ! -f "${SMOKE_DIR}/VideoDedupGrpcSmoke.dll" ]]; then
+if [[ "${SMOKE_DIR_USER_SET}" != "1" ]]; then
+  echo "Publishing VideoDedupGrpcSmoke to ${SMOKE_DIR} …"
+  dotnet publish "${ROOT}/VideoDedupGrpcSmoke/VideoDedupGrpcSmoke.csproj" \
+    -c Release -r "${DOTNET_RID}" --self-contained false \
+    -o "${SMOKE_DIR}"
+elif [[ ! -f "${SMOKE_DIR}/VideoDedupGrpcSmoke.dll" ]]; then
   echo "Publishing VideoDedupGrpcSmoke to ${SMOKE_DIR} …"
   dotnet publish "${ROOT}/VideoDedupGrpcSmoke/VideoDedupGrpcSmoke.csproj" \
     -c Release -r "${DOTNET_RID}" --self-contained false \
