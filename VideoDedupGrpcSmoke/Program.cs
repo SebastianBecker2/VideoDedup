@@ -140,16 +140,45 @@ try
     // (server throws), we still cover the related RPCs and continue.
     currentStep = "StartVideoComparison";
     string comparisonToken;
+    VideoComparisonStatus? startComparisonResponse = null;
     try
     {
-        var compStatus = await client.StartVideoComparisonAsync(startReq);
-        comparisonToken = compStatus.ComparisonToken;
+        startComparisonResponse = await client.StartVideoComparisonAsync(startReq);
+        comparisonToken = startComparisonResponse.ComparisonToken ?? string.Empty;
     }
     catch (RpcException ex)
     {
         Console.Error.WriteLine(
-            $"WARNING: StartVideoComparison failed during smoke but will not abort: {ex.Status}.");
+            $"WARNING: StartVideoComparison RPC failed (smoke continues): {ex.Status}");
+        if (!string.IsNullOrWhiteSpace(ex.Status.Detail))
+        {
+            Console.Error.WriteLine(
+                $"WARNING: StartVideoComparison Status.Detail: {ex.Status.Detail}");
+        }
+
+        Console.Error.WriteLine(
+            $"WARNING: StartVideoComparison paths: left='{compareLeft}' right='{compareRight}'");
         comparisonToken = string.Empty;
+    }
+
+    if (startComparisonResponse is not null
+        && string.IsNullOrWhiteSpace(comparisonToken))
+    {
+        var vr = startComparisonResponse.VideoComparisonResult;
+        Console.Error.WriteLine(
+            "WARNING: StartVideoComparison returned no comparison_token (soft start failure). "
+            + $"paths: left='{compareLeft}' right='{compareRight}'");
+        if (vr is null)
+        {
+            Console.Error.WriteLine(
+                "WARNING: StartVideoComparison: VideoComparisonResult is null.");
+        }
+        else
+        {
+            Console.Error.WriteLine(
+                $"WARNING: StartVideoComparison: comparison_result={vr.ComparisonResult}, "
+                + $"reason='{vr.Reason}'");
+        }
     }
 
     // Cover both token flows:
