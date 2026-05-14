@@ -37,7 +37,7 @@ for row in "${rows[@]}"; do
   set -- ${row}
   d="$1"; f="$2"; w="$3"
   echo "=== e2e: ${d} ${f} ${w} ==="
-  ./packaging/tests/e2e/docker-grpc-firewall.sh --arch "${ARCH}" --distro "${d}" --format "${f}" --firewall "${w}"
+  python3 ./packaging/tests/e2e/docker_grpc_firewall.py --arch "${ARCH}" --distro "${d}" --format "${f}" --firewall "${w}"
 done
 
 echo "ALL_LINUX_TESTS_OK"

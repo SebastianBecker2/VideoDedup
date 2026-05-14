@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Used by docker-grpc-firewall.sh. Installs videodedupserver (deb/rpm/staged/pacman/snap/flatpak), applies a strict
+# Used by docker_grpc_firewall.py / docker-grpc-deep-smoke. Installs videodedupserver (deb/rpm/staged/pacman/snap/flatpak), applies a strict
 # firewall (nft | iptables | ufw | firewalld), runs VideoDedupService.
 #
 # Env:

@@ -106,17 +106,17 @@ run_build_rpm() {
 case "${FORMAT}" in
   deb)
     run_build_deb
-    ./packaging/tests/e2e/docker-grpc-firewall.sh --arch "${ARCH}" --format deb
+    python3 ./packaging/tests/e2e/docker_grpc_firewall.py --arch "${ARCH}" --format deb
     ;;
   rpm)
     run_build_rpm
-    ./packaging/tests/e2e/docker-grpc-firewall.sh --arch "${ARCH}" --format rpm
+    python3 ./packaging/tests/e2e/docker_grpc_firewall.py --arch "${ARCH}" --format rpm
     ;;
   both)
     run_build_deb
     run_build_rpm
-    ./packaging/tests/e2e/docker-grpc-firewall.sh --arch "${ARCH}" --format deb
-    ./packaging/tests/e2e/docker-grpc-firewall.sh --arch "${ARCH}" --format rpm
+    python3 ./packaging/tests/e2e/docker_grpc_firewall.py --arch "${ARCH}" --format deb
+    python3 ./packaging/tests/e2e/docker_grpc_firewall.py --arch "${ARCH}" --format rpm
     ;;
 esac
 

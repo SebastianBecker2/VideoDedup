@@ -1,5 +1,5 @@
 # Pre-install .deb Depends (see packaging/tools/build-deb.sh) plus iproute2 and all firewall tools used by
-# packaging/tests/e2e/server-entrypoint.sh so docker-grpc-firewall.sh can skip apt-get update on Debian bookworm.
+# packaging/tests/e2e/server-entrypoint.sh so docker_grpc_firewall.py can skip apt-get update on Debian bookworm.
 # Also includes squashfs-tools for --format snap on debian (same base when added later).
 #
 # Rebuild: VD_REBUILD_FIREWALL_SMOKE_DEBIAN_BASE=1 or docker rmi …

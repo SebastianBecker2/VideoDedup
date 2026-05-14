@@ -1,0 +1,5 @@
+{
+  "files.associations": {
+    "**/packaging/tests/e2e/*.py": "python"
+  }
+}

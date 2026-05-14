@@ -14,8 +14,8 @@ using static VideoDedupGrpc.VideoDedupGrpcService;
 // 3) Distinct paths again → CancelVideoComparison immediately after start → GetVideoComparisonStatus until
 //    protobuf CANCELLED or RpcException with StatusCode.Cancelled (server removes session; null response).
 // StartVideoComparison must return a non-empty ComparisonToken; Rpc failures fail the run.
-// Paths default to /tmp/vd-fixtures/grpc-smoke/{left,right}.mp4 (E2E server mount).
-// Override with VIDEODEDUP_SMOKE_COMPARE_LEFT / RIGHT only when using other server-visible paths.
+// Paths default to /tmp/vd-fixtures/grpc-smoke/{left,right}.mp4 (E2E server mount) when
+// VIDEODEDUP_SMOKE_COMPARE_LEFT / RIGHT are unset or blank. Otherwise env values are used as-is (server-side paths).
 // Poll GetVideoComparisonStatus until a terminal result or timeout (default 60s; VIDEODEDUP_COMPARISON_POLL_TIMEOUT_SEC).
 // Completed scenarios use ForceLoadingAllFrames=true and CompareCount=100. Polling advances FrameComparisonIndex
 // like CustomVideoComparisonDlg (Max(frame index)+1); exit when terminal is set and max frame index >= CompareCount-1,
@@ -41,24 +41,10 @@ var url = args.Length > 0
 
 var rawCompareLeft = Env("VIDEODEDUP_SMOKE_COMPARE_LEFT");
 var rawCompareRight = Env("VIDEODEDUP_SMOKE_COMPARE_RIGHT");
-var compareLeft = ResolveSmokeComparePath(
-    rawCompareLeft,
-    DefaultFixtureLeft,
-    "VIDEODEDUP_SMOKE_COMPARE_LEFT");
-var compareRight = ResolveSmokeComparePath(
-    rawCompareRight,
-    DefaultFixtureRight,
-    "VIDEODEDUP_SMOKE_COMPARE_RIGHT");
-Console.Error.WriteLine(
-    "VideoDedupGrpcComparisonSmoke: VIDEODEDUP_SMOKE_COMPARE_LEFT raw="
-    + (rawCompareLeft ?? "<unset>")
-    + " resolved="
-    + compareLeft);
-Console.Error.WriteLine(
-    "VideoDedupGrpcComparisonSmoke: VIDEODEDUP_SMOKE_COMPARE_RIGHT raw="
-    + (rawCompareRight ?? "<unset>")
-    + " resolved="
-    + compareRight);
+var compareLeft = string.IsNullOrWhiteSpace(rawCompareLeft) ? DefaultFixtureLeft : rawCompareLeft.Trim();
+var compareRight = string.IsNullOrWhiteSpace(rawCompareRight) ? DefaultFixtureRight : rawCompareRight.Trim();
+Console.Error.WriteLine("VideoDedupGrpcComparisonSmoke: VIDEODEDUP_SMOKE_COMPARE_LEFT=" + compareLeft);
+Console.Error.WriteLine("VideoDedupGrpcComparisonSmoke: VIDEODEDUP_SMOKE_COMPARE_RIGHT=" + compareRight);
 
 if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
 {
@@ -511,34 +497,4 @@ static void AssertExpectedComparisonTerminal(
             $"scenario={scenarioLabel}: expected terminal {expected} but got {actual}. Reason: '{reason}'",
     };
     throw new InvalidOperationException(msg);
-}
-
-static string ResolveSmokeComparePath(string? fromEnv, string serverDefault, string label)
-{
-    if (string.IsNullOrWhiteSpace(fromEnv))
-    {
-        return serverDefault;
-    }
-
-    if (LooksLikeWindowsAbsolutePath(fromEnv))
-    {
-        Console.Error.WriteLine(
-            "{0}='{1}' is a Windows-style path on this machine, not a path inside the gRPC server; "
-            + "using server default '{2}' instead.",
-            label,
-            fromEnv,
-            serverDefault);
-        return serverDefault;
-    }
-
-    return fromEnv;
-}
-
-static bool LooksLikeWindowsAbsolutePath(string path)
-{
-    ReadOnlySpan<char> t = path.AsSpan().TrimStart();
-    return t.Length >= 3
-        && char.IsAsciiLetter(t[0])
-        && t[1] == ':'
-        && (t[2] == '\\' || t[2] == '/');
 }

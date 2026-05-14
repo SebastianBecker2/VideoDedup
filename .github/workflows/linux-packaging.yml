@@ -160,7 +160,7 @@ jobs:
       - name: E2E gRPC through firewall
         run: |
           chmod +x packaging/tests/e2e/*.sh
-          ./packaging/tests/e2e/docker-grpc-firewall.sh \
+          python3 ./packaging/tests/e2e/docker_grpc_firewall.py \
             --arch ${{ matrix.arch }} \
             --distro ${{ matrix.distro }} \
             --format ${{ matrix.format }} \

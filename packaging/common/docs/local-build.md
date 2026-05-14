@@ -75,19 +75,19 @@ Automated checks (static + optional Docker integration): [tests/firewall/README.
 
 The E2E script creates a **dual-stack** user-defined bridge and runs the gRPC smoke client against the server’s explicit **IPv4** and **IPv6** addresses. Your Docker daemon must support IPv6 on custom networks (otherwise `docker network create --ipv6 …` fails or the server gets no `GlobalIPv6Address`). See the [Docker IPv6 documentation](https://docs.docker.com/engine/daemon/ipv6/) (e.g. `"ipv6": true` and a `fixed-cidr-v6` in `daemon.json` on Docker Desktop or Linux).
 
-After building packages and staging (`./packaging/tools/stage.sh`), run [tests/e2e/docker-grpc-firewall.sh](../../tests/e2e/docker-grpc-firewall.sh):
+After building packages and staging (`./packaging/tools/stage.sh`), run the gRPC firewall E2E driver ([`docker_grpc_firewall.py`](../../tests/e2e/docker_grpc_firewall.py)) from the repo root (or the thin shim `./packaging/tests/e2e/docker-grpc-firewall.sh`, which `exec`s the same script):
 
 ```bash
-./packaging/tests/e2e/docker-grpc-firewall.sh --arch amd64 --distro debian --format deb --firewall nft
-./packaging/tests/e2e/docker-grpc-firewall.sh --arch amd64 --distro ubuntu --format deb --firewall ufw
-./packaging/tests/e2e/docker-grpc-firewall.sh --arch amd64 --distro fedora --format rpm --firewall firewalld
-./packaging/tests/e2e/docker-grpc-firewall.sh --arch amd64 --distro rocky --format rpm --firewall iptables
-./packaging/tests/e2e/docker-grpc-firewall.sh --arch amd64 --distro opensuse --format rpm --firewall nft
-./packaging/tests/e2e/docker-grpc-firewall.sh --arch amd64 --distro arch --format staged --firewall iptables
-./packaging/tests/e2e/docker-grpc-firewall.sh --arch amd64 --distro manjaro --format staged --firewall nft
-./packaging/tests/e2e/docker-grpc-firewall.sh --arch amd64 --distro arch --format pacman --firewall iptables
-./packaging/tests/e2e/docker-grpc-firewall.sh --arch amd64 --distro ubuntu --format snap --firewall nft
-./packaging/tests/e2e/docker-grpc-firewall.sh --arch amd64 --distro fedora --format flatpak --firewall nft
+python3 packaging/tests/e2e/docker_grpc_firewall.py --arch amd64 --distro debian --format deb --firewall nft
+python3 packaging/tests/e2e/docker_grpc_firewall.py --arch amd64 --distro ubuntu --format deb --firewall ufw
+python3 packaging/tests/e2e/docker_grpc_firewall.py --arch amd64 --distro fedora --format rpm --firewall firewalld
+python3 packaging/tests/e2e/docker_grpc_firewall.py --arch amd64 --distro rocky --format rpm --firewall iptables
+python3 packaging/tests/e2e/docker_grpc_firewall.py --arch amd64 --distro opensuse --format rpm --firewall nft
+python3 packaging/tests/e2e/docker_grpc_firewall.py --arch amd64 --distro arch --format staged --firewall iptables
+python3 packaging/tests/e2e/docker_grpc_firewall.py --arch amd64 --distro manjaro --format staged --firewall nft
+python3 packaging/tests/e2e/docker_grpc_firewall.py --arch amd64 --distro arch --format pacman --firewall iptables
+python3 packaging/tests/e2e/docker_grpc_firewall.py --arch amd64 --distro ubuntu --format snap --firewall nft
+python3 packaging/tests/e2e/docker_grpc_firewall.py --arch amd64 --distro fedora --format flatpak --firewall nft
 ```
 
 `--firewall` is one of `nft`, `iptables`, `ufw`, `firewalld`. `--format staged` uses `packaging/.stage/<arch>/server/` (no `.deb`/`.rpm`). **`pacman`** needs a built `.pkg.tar.zst` under `packaging/out/<arch>/pacman/`. **`snap`** mounts a `.snap` and tests the payload via **unsquashfs** inside the container (Docker-friendly). **`flatpak`** needs a `.flatpak` bundle and uses `flatpak run` on Fedora. openSUSE RPM runs try `zypper` first and fall back to the staged tree if the Fedora-built RPM cannot be installed.

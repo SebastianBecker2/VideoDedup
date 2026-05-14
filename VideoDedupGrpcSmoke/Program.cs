@@ -116,30 +116,15 @@ try
     // 7) Video comparison + comparison status/cancel RPCs.
     // Paths are interpreted by the gRPC server (paths on the server's filesystem). Default matches
     // packaging E2E: /tmp/vd-fixtures/grpc-smoke/{left,right}.mp4 inside the server container.
-    // Override with VIDEODEDUP_SMOKE_COMPARE_LEFT / RIGHT for other server-visible paths.
-    // StartVideoComparison failures are non-fatal here so the rest of the RPC surface is still exercised.
+    // Override with VIDEODEDUP_SMOKE_COMPARE_LEFT / RIGHT (server-side paths; unset/blank → defaults below).
     const string defaultFixtureLeft = "/tmp/vd-fixtures/grpc-smoke/left.mp4";
     const string defaultFixtureRight = "/tmp/vd-fixtures/grpc-smoke/right.mp4";
     var rawCompareLeft = Env("VIDEODEDUP_SMOKE_COMPARE_LEFT");
     var rawCompareRight = Env("VIDEODEDUP_SMOKE_COMPARE_RIGHT");
-    var compareLeft = ResolveSmokeComparePath(
-        rawCompareLeft,
-        defaultFixtureLeft,
-        "VIDEODEDUP_SMOKE_COMPARE_LEFT");
-    var compareRight = ResolveSmokeComparePath(
-        rawCompareRight,
-        defaultFixtureRight,
-        "VIDEODEDUP_SMOKE_COMPARE_RIGHT");
-    Console.Error.WriteLine(
-        "VideoDedupGrpcSmoke: VIDEODEDUP_SMOKE_COMPARE_LEFT raw="
-        + (rawCompareLeft ?? "<unset>")
-        + " resolved="
-        + compareLeft);
-    Console.Error.WriteLine(
-        "VideoDedupGrpcSmoke: VIDEODEDUP_SMOKE_COMPARE_RIGHT raw="
-        + (rawCompareRight ?? "<unset>")
-        + " resolved="
-        + compareRight);
+    var compareLeft = string.IsNullOrWhiteSpace(rawCompareLeft) ? defaultFixtureLeft : rawCompareLeft.Trim();
+    var compareRight = string.IsNullOrWhiteSpace(rawCompareRight) ? defaultFixtureRight : rawCompareRight.Trim();
+    Console.Error.WriteLine("VideoDedupGrpcSmoke: VIDEODEDUP_SMOKE_COMPARE_LEFT=" + compareLeft);
+    Console.Error.WriteLine("VideoDedupGrpcSmoke: VIDEODEDUP_SMOKE_COMPARE_RIGHT=" + compareRight);
 
     // Keep comparison work small for CI.
     var vc = cfg1.VideoComparisonSettings.Clone();
@@ -252,34 +237,4 @@ catch (Exception ex)
 {
     Console.Error.WriteLine("Smoke assertion failed during {0}: {1}", currentStep, ex.Message);
     return 2;
-}
-
-static string ResolveSmokeComparePath(string? fromEnv, string serverDefault, string label)
-{
-    if (string.IsNullOrWhiteSpace(fromEnv))
-    {
-        return serverDefault;
-    }
-
-    if (LooksLikeWindowsAbsolutePath(fromEnv))
-    {
-        Console.Error.WriteLine(
-            "{0}='{1}' is a Windows-style path on this machine, not a path inside the gRPC server; "
-            + "using server default '{2}' instead.",
-            label,
-            fromEnv,
-            serverDefault);
-        return serverDefault;
-    }
-
-    return fromEnv;
-}
-
-static bool LooksLikeWindowsAbsolutePath(string path)
-{
-    ReadOnlySpan<char> t = path.AsSpan().TrimStart();
-    return t.Length >= 3
-        && char.IsAsciiLetter(t[0])
-        && t[1] == ':'
-        && (t[2] == '\\' || t[2] == '/');
 }
