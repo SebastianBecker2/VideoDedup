@@ -1,5 +1,7 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Net.Http;
+using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Grpc.Net.Client;
@@ -15,11 +17,23 @@ using static VideoDedupGrpc.VideoDedupGrpcService;
 // Paths default to /tmp/vd-fixtures/grpc-smoke/{left,right}.mp4 (E2E server mount).
 // Override with VIDEODEDUP_SMOKE_COMPARE_LEFT / RIGHT only when using other server-visible paths.
 // Poll GetVideoComparisonStatus until a terminal result or timeout (default 60s; VIDEODEDUP_COMPARISON_POLL_TIMEOUT_SEC).
+// Completed scenarios use ForceLoadingAllFrames=true and CompareCount=100. Polling advances FrameComparisonIndex
+// like CustomVideoComparisonDlg (Max(frame index)+1); exit when terminal is set and max frame index >= CompareCount-1,
+// then a single request with FrameComparisonIndex=0 validates the full frame list length
+// and that each FrameSet carries non-empty payloads (JPEG stills vs raw grey bytes; see VideoComparer
+// CacheableFrameSet.ToFrameSet and VideoDedupClient FrameSet.cs / FrameComparisonResultViewCtl).
 
 static string? Env(string key) => Environment.GetEnvironmentVariable(key);
 
 const string DefaultFixtureLeft = "/tmp/vd-fixtures/grpc-smoke/left.mp4";
 const string DefaultFixtureRight = "/tmp/vd-fixtures/grpc-smoke/right.mp4";
+
+/// <summary>
+/// Must match <see cref="VideoComparisonSettings.CompareCount"/> in deep-smoke requests.
+/// With <c>ForceLoadingAllFrames</c> true, VideoComparer runs all load levels to completion,
+/// producing exactly this many <c>FrameComparisonResult</c> rows (indices 0 .. count-1).
+/// </summary>
+const int SmokeCompareCount = 100;
 
 var url = args.Length > 0
     ? args[0]
@@ -99,12 +113,12 @@ try
     {
         var startReq = new VideoComparisonConfiguration
         {
-            ForceLoadingAllFrames = false,
+            ForceLoadingAllFrames = true,
             LeftFilePath = leftPath,
             RightFilePath = rightPath,
             VideoComparisonSettings = new VideoComparisonSettings
             {
-                CompareCount = 100,
+                CompareCount = SmokeCompareCount,
                 MaxDifferentFrames = 10,
                 MaxDifference = 80,
             },
@@ -129,14 +143,22 @@ try
         if (terminal != ComparisonResult.NoResult)
         {
             AssertExpectedComparisonTerminal(terminal, startResp.VideoComparisonResult, expectedTerminal, scenarioLabel);
+            AssertFullComparisonFrameCount(startResp, SmokeCompareCount, scenarioLabel);
             Console.WriteLine(
-                "OK: VideoComparison deep smoke ({3}) — url={0}, result={1}, token_len={2}",
+                "OK: VideoComparison deep smoke ({3}) — url={0}, result={1}, token_len={2}, frames={4}",
                 url,
                 terminal,
                 comparisonToken.Length,
-                scenarioLabel);
+                scenarioLabel,
+                startResp.FrameComparisons.Count);
             return 0;
         }
+
+        // Same indexing idea as CustomVideoComparisonDlg.HandleStatusTimerTick: request only
+        // frame rows with index >= FrameComparisonIndex, then set next request to Max(index)+1.
+        // The dialog stops (cancels) when the next index is >= CompareCount; equivalently we have
+        // seen every slot when maxIndexSeen >= CompareCount - 1 (indices are 0-based).
+        const int lastExpectedFrameIndex = SmokeCompareCount - 1;
 
         var deadline = Stopwatch.GetTimestamp() + Stopwatch.Frequency * (long)pollTimeoutSec;
         var statusReq = new VideoComparisonStatusRequest
@@ -144,6 +166,8 @@ try
             ComparisonToken = comparisonToken,
             FrameComparisonIndex = 0,
         };
+
+        var maxFrameIndexSeen = -1;
 
         while (Stopwatch.GetTimestamp() < deadline)
         {
@@ -159,16 +183,49 @@ try
                 return 1;
             }
 
-            terminal = EffectiveComparisonResult(pollResp);
-            if (terminal != ComparisonResult.NoResult)
+            if (pollResp.FrameComparisons.Count > 0)
             {
-                AssertExpectedComparisonTerminal(terminal, pollResp.VideoComparisonResult, expectedTerminal, scenarioLabel);
+                var batchMax = pollResp.FrameComparisons.Max(static f => f.Index);
+                maxFrameIndexSeen = Math.Max(maxFrameIndexSeen, batchMax);
+                statusReq.FrameComparisonIndex = batchMax + 1;
+            }
+
+            terminal = EffectiveComparisonResult(pollResp);
+            if (terminal != ComparisonResult.NoResult
+                && maxFrameIndexSeen >= lastExpectedFrameIndex)
+            {
+                // Incremental responses only contain a slice; fetch from 0 once for full list checks.
+                currentStep = "GetVideoComparisonStatus (final snapshot)";
+                VideoComparisonStatus finalResp;
+                try
+                {
+                    finalResp = await client.GetVideoComparisonStatusAsync(
+                        new VideoComparisonStatusRequest
+                        {
+                            ComparisonToken = comparisonToken,
+                            FrameComparisonIndex = 0,
+                        });
+                }
+                catch (RpcException ex)
+                {
+                    Console.Error.WriteLine("gRPC failed during {0}: {1}", currentStep, ex.Status);
+                    return 1;
+                }
+
+                terminal = EffectiveComparisonResult(finalResp);
+                AssertExpectedComparisonTerminal(
+                    terminal,
+                    finalResp.VideoComparisonResult,
+                    expectedTerminal,
+                    scenarioLabel);
+                AssertFullComparisonFrameCount(finalResp, SmokeCompareCount, scenarioLabel);
                 Console.WriteLine(
-                    "OK: VideoComparison deep smoke ({3}) — url={0}, result={1}, host={2}",
+                    "OK: VideoComparison deep smoke ({3}) — url={0}, result={1}, host={2}, frames={4}",
                     url,
                     terminal,
                     sys.MachineName,
-                    scenarioLabel);
+                    scenarioLabel,
+                    finalResp.FrameComparisons.Count);
                 return 0;
             }
 
@@ -189,12 +246,12 @@ try
         const string scenarioLabel = "cancel after start";
         var startReq = new VideoComparisonConfiguration
         {
-            ForceLoadingAllFrames = false,
+            ForceLoadingAllFrames = true,
             LeftFilePath = compareLeft,
             RightFilePath = compareRight,
             VideoComparisonSettings = new VideoComparisonSettings
             {
-                CompareCount = 100,
+                CompareCount = SmokeCompareCount,
                 MaxDifferentFrames = 10,
                 MaxDifference = 80,
             },
@@ -322,6 +379,94 @@ static ComparisonResult EffectiveComparisonResult(VideoComparisonStatus status)
 {
     var vr = status.VideoComparisonResult;
     return vr is null ? ComparisonResult.NoResult : vr.ComparisonResult;
+}
+
+static void AssertFullComparisonFrameCount(
+    VideoComparisonStatus status,
+    int expectedCount,
+    string scenarioLabel)
+{
+    var n = status.FrameComparisons.Count;
+    if (n != expectedCount)
+    {
+        var maxIdx = status.FrameComparisons.Count == 0
+            ? -1
+            : status.FrameComparisons.Max(f => f.Index);
+        throw new InvalidOperationException(
+            $"scenario={scenarioLabel}: expected {expectedCount} frame comparison(s) in status "
+            + $"(ForceLoadingAllFrames + CompareCount), got {n} (max index {maxIdx}).");
+    }
+
+    AssertAllFrameSetsHaveImagePayloads(status, scenarioLabel);
+}
+
+/// <summary>
+/// Encoded stills (original from FFmpeg MJPEG, cropped/resized/greyscaled from SkiaSharp JPEG) must
+/// start with a JPEG SOI marker. <c>Bytes</c> is the raw per-pixel strip used for numeric difference
+/// (see VideoComparer.GetFrameBytes), not a second JPEG — the UI never displays it as an image.
+/// </summary>
+static void AssertAllFrameSetsHaveImagePayloads(
+    VideoComparisonStatus status,
+    string scenarioLabel)
+{
+    foreach (var f in status.FrameComparisons)
+    {
+        var prefix = $"{scenarioLabel} frame_index={f.Index}";
+        AssertFrameSetPayloads(f.LeftFrames, $"{prefix} left");
+        AssertFrameSetPayloads(f.RightFrames, $"{prefix} right");
+    }
+}
+
+static void AssertFrameSetPayloads(FrameSet fs, string context)
+{
+    AssertJpegStill($"{context}.original", fs.Original);
+    AssertJpegStill($"{context}.cropped", fs.Cropped);
+    AssertJpegStill($"{context}.resized", fs.Resized);
+    AssertJpegStill($"{context}.greyscaled", fs.Greyscaled);
+    AssertRawComparisonBytes($"{context}.bytes", fs.Bytes);
+}
+
+static void AssertJpegStill(string label, ByteString? data)
+{
+    if (data is null || data.IsEmpty)
+    {
+        throw new InvalidOperationException($"{label}: missing or empty payload.");
+    }
+
+    if (!LooksLikeJpeg(data))
+    {
+        throw new InvalidOperationException(
+            $"{label}: expected JPEG SOI (0xFF 0xD8); got length={data.Length}, "
+            + $"first_bytes={FormatFirstBytes(data)}.");
+    }
+}
+
+/// <summary>Raw greyscale strip for VideoComparer difference (16×16 → 256 single-channel samples).</summary>
+static void AssertRawComparisonBytes(string label, ByteString? data)
+{
+    const int minLen = 200;
+    if (data is null || data.Length < minLen)
+    {
+        throw new InvalidOperationException(
+            $"{label}: expected at least {minLen} raw byte(s); got {(data is null ? "null" : data.Length.ToString(CultureInfo.InvariantCulture))}.");
+    }
+
+    if (LooksLikeJpeg(data))
+    {
+        throw new InvalidOperationException(
+            $"{label}: payload looks like JPEG but this field must be raw pixel bytes, not an encoded still.");
+    }
+}
+
+static bool LooksLikeJpeg(ByteString data) =>
+    data.Length >= 2 && data[0] == 0xFF && data[1] == 0xD8;
+
+static string FormatFirstBytes(ByteString data, int max = 8)
+{
+    var n = Math.Min(max, data.Length);
+    return string.Join(
+        " ",
+        Enumerable.Range(0, n).Select(i => data[i].ToString("X2", CultureInfo.InvariantCulture)));
 }
 
 static void AssertExpectedComparisonTerminal(
