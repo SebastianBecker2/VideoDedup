@@ -135,3 +135,46 @@ jobs:
             --distro ${{ matrix.distro }} \
             --format ${{ matrix.format }} \
             --firewall ${{ matrix.firewall }}
+
+  e2e-grpc-deep-smoke:
+    needs: linux-packages
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Set SOURCE_DATE_EPOCH
+        run: echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Download built packages
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-packages-${{ matrix.arch }}-${{ github.sha }}
+          path: ${{ runner.temp }}/vd-pkg-art
+
+      - name: Restore packaging/out from artifact
+        run: |
+          set -euo pipefail
+          tg="$(find "${RUNNER_TEMP}/vd-pkg-art" -name 'videodedup-linux-packages.tgz' -print -quit)"
+          if [[ -z "${tg}" || ! -f "${tg}" ]]; then
+            echo "Missing videodedup-linux-packages.tgz in artifact" >&2
+            find "${RUNNER_TEMP}/vd-pkg-art" -ls >&2 || true
+            exit 1
+          fi
+          mkdir -p packaging
+          tar -xzf "${tg}" -C packaging
+
+      - name: gRPC deep smoke (VideoDedupGrpcSmoke + VideoDedupGrpcComparisonSmoke)
+        run: |
+          chmod +x packaging/tests/e2e/*.sh
+          python3 ./packaging/tests/e2e/docker_grpc_deep_smoke.py --arch ${{ matrix.arch }}
