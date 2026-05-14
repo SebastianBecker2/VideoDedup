@@ -15,7 +15,10 @@ using static VideoDedupGrpc.VideoDedupGrpcService;
 //    protobuf CANCELLED or RpcException with StatusCode.Cancelled (server removes session; null response).
 // StartVideoComparison must return a non-empty ComparisonToken; Rpc failures fail the run.
 // Paths default to /tmp/vd-fixtures/grpc-smoke/{left,right}.mp4 (E2E server mount).
-// Override with VIDEODEDUP_SMOKE_COMPARE_LEFT / RIGHT only when using other server-visible paths.
+// Override with VIDEODEDUP_SMOKE_COMPARE_LEFT / RIGHT for paths on the gRPC server. Windows absolute
+// paths are kept when VIDEODEDUP_GRPC_URL points at this machine (localhost, 127.0.0.1, hostname);
+// otherwise they are replaced by the POSIX defaults (Linux/Docker). Set VIDEODEDUP_SMOKE_COMPARE_ASSUME_REMOTE_POSIX=1
+// to always drop Windows paths even for localhost (Linux server in Docker on the same host).
 // Poll GetVideoComparisonStatus until a terminal result or timeout (default 60s; VIDEODEDUP_COMPARISON_POLL_TIMEOUT_SEC).
 // Completed scenarios use ForceLoadingAllFrames=true and CompareCount=100. Polling advances FrameComparisonIndex
 // like CustomVideoComparisonDlg (Max(frame index)+1); exit when terminal is set and max frame index >= CompareCount-1,
@@ -42,11 +45,13 @@ var url = args.Length > 0
 var compareLeft = ResolveSmokeComparePath(
     Env("VIDEODEDUP_SMOKE_COMPARE_LEFT"),
     DefaultFixtureLeft,
-    "VIDEODEDUP_SMOKE_COMPARE_LEFT");
+    "VIDEODEDUP_SMOKE_COMPARE_LEFT",
+    url);
 var compareRight = ResolveSmokeComparePath(
     Env("VIDEODEDUP_SMOKE_COMPARE_RIGHT"),
     DefaultFixtureRight,
-    "VIDEODEDUP_SMOKE_COMPARE_RIGHT");
+    "VIDEODEDUP_SMOKE_COMPARE_RIGHT",
+    url);
 
 if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
 {
@@ -501,7 +506,11 @@ static void AssertExpectedComparisonTerminal(
     throw new InvalidOperationException(msg);
 }
 
-static string ResolveSmokeComparePath(string? fromEnv, string serverDefault, string label)
+static string ResolveSmokeComparePath(
+    string? fromEnv,
+    string serverDefault,
+    string label,
+    string grpcUrl)
 {
     if (string.IsNullOrWhiteSpace(fromEnv))
     {
@@ -510,16 +519,75 @@ static string ResolveSmokeComparePath(string? fromEnv, string serverDefault, str
 
     if (LooksLikeWindowsAbsolutePath(fromEnv))
     {
+        var assumeRemotePosix = !string.IsNullOrEmpty(
+            Env("VIDEODEDUP_SMOKE_COMPARE_ASSUME_REMOTE_POSIX"));
+        if (!assumeRemotePosix && IsGrpcUrlLikelySameMachineAsClient(grpcUrl))
+        {
+            return fromEnv;
+        }
+
         Console.Error.WriteLine(
-            "{0}='{1}' is a Windows-style path on this machine, not a path inside the gRPC server; "
-            + "using server default '{2}' instead.",
+            "{0}='{1}' is a Windows absolute path; gRPC URL '{2}' is not treated as this machine "
+            + "(or VIDEODEDUP_SMOKE_COMPARE_ASSUME_REMOTE_POSIX is set). Using server default '{3}'.",
             label,
             fromEnv,
+            grpcUrl,
             serverDefault);
         return serverDefault;
     }
 
     return fromEnv;
+}
+
+/// <summary>
+/// True when the client URL points at a service expected to share this machine's filesystem
+/// (native Windows server, or dev loopback). False for typical remote Linux hosts.
+/// </summary>
+static bool IsGrpcUrlLikelySameMachineAsClient(string grpcUrl)
+{
+    if (!Uri.TryCreate(grpcUrl, UriKind.Absolute, out var uri))
+    {
+        return false;
+    }
+
+    var host = uri.IdnHost;
+    if (string.IsNullOrEmpty(host))
+    {
+        return false;
+    }
+
+    if (string.Equals(host, "localhost", StringComparison.OrdinalIgnoreCase))
+    {
+        return true;
+    }
+
+    if (host is "127.0.0.1" or "::1")
+    {
+        return true;
+    }
+
+    if (OperatingSystem.IsWindows())
+    {
+        if (string.Equals(host, Environment.MachineName, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        try
+        {
+            var dnsHost = System.Net.Dns.GetHostName();
+            if (string.Equals(host, dnsHost, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+        catch
+        {
+            // ignore DNS failures
+        }
+    }
+
+    return false;
 }
 
 static bool LooksLikeWindowsAbsolutePath(string path)
