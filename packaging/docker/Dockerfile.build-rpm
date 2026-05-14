@@ -1,0 +1,22 @@
+# syntax=docker/dockerfile:1
+# Build the server .rpm without a local rpmbuild-capable host (same pattern as Dockerfile.build-deb).
+# From repository root:
+#   DOCKER_BUILDKIT=1 docker build -f packaging/docker/Dockerfile.build-rpm --build-arg ARCH=amd64 --target artifacts -o type=local,dest=./rpm-out .
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS builder
+ARG ARCH=amd64
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends rpm git python3 ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+WORKDIR /src
+COPY . .
+RUN chmod +x packaging/tools/*.sh packaging/common/generate-metadata.sh packaging/tests/*.sh 2>/dev/null || true \
+  && git config --global --add safe.directory /src \
+  && export SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)" \
+  && ./packaging/tools/stage.sh --arch "${ARCH}" \
+  && ./packaging/tools/build-rpm.sh --arch "${ARCH}" \
+  && mkdir -p /rpm-artifacts \
+  && cp packaging/out/"${ARCH}"/rpm/*/*.rpm /rpm-artifacts/
+
+FROM scratch AS artifacts
+COPY --from=builder /rpm-artifacts/ /

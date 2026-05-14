@@ -35,6 +35,11 @@ from docker_e2e_common import (
 E2E_DIR = Path(__file__).resolve().parent
 ROOT = repo_root_from_e2e_dir(E2E_DIR)
 
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from packaging.ci.deb_docker_build import build_deb_via_docker  # noqa: E402
+
 
 def die(msg: str, code: int = 1) -> None:
     print(msg, file=sys.stderr)
@@ -77,7 +82,7 @@ def build_deb_on_host(arch: str) -> None:
                 pass
     bash = which("bash")
     if not bash:
-        die("bash is required to run packaging/tools/stage.sh on the host.")
+        die("bash is required to run packaging/tools/build-deb.sh on the host.")
     for script in ("packaging/tools/stage.sh", "packaging/tools/build-deb.sh"):
         sp = ROOT / script
         if sp.exists() and os.name != "nt":
@@ -85,43 +90,8 @@ def build_deb_on_host(arch: str) -> None:
                 sp.chmod(sp.stat().st_mode | 0o111)
             except OSError:
                 pass
-    run([bash, str(ROOT / "packaging/tools/stage.sh"), "--arch", arch], cwd=ROOT, env=env)
+    run([sys.executable, str(ROOT / "packaging/tools/stage.py"), "--arch", arch], cwd=ROOT, env=env)
     run([bash, str(ROOT / "packaging/tools/build-deb.sh"), "--arch", arch], cwd=ROOT, env=env)
-
-
-def build_deb_in_docker(arch: str) -> None:
-    print(f"Building .deb in Docker ({ROOT / 'packaging/docker/Dockerfile.build-deb'}, arch={arch}) ...")
-    out_tmp = tempfile.mkdtemp(prefix="vd-deb-docker.", dir=str(ROOT / "packaging/out"))
-    out_tmp_path = Path(out_tmp)
-    try:
-        r = subprocess.run(
-            [
-                "docker",
-                "build",
-                "-f",
-                str(ROOT / "packaging/docker/Dockerfile.build-deb"),
-                "--build-arg",
-                f"ARCH={arch}",
-                "--target",
-                "artifacts",
-                "--output",
-                f"type=local,dest={out_tmp_path}",
-                str(ROOT),
-            ],
-            env={**os.environ, "DOCKER_BUILDKIT": "1"},
-        )
-        if r.returncode != 0:
-            die("Docker build of .deb failed.")
-        debs = list(out_tmp_path.glob("*.deb"))
-        if len(debs) != 1:
-            die("Docker build produced no (or multiple) .deb in output directory.")
-        deb_out = ROOT / "packaging/out" / arch / "deb"
-        deb_out.mkdir(parents=True, exist_ok=True)
-        dest = deb_out / debs[0].name
-        shutil.copy2(debs[0], dest)
-        print(f"Wrote {dest}")
-    finally:
-        shutil.rmtree(out_tmp_path, ignore_errors=True)
 
 
 def ensure_deb_package(arch: str, explicit: Path | None) -> Path:
@@ -137,13 +107,14 @@ def ensure_deb_package(arch: str, explicit: Path | None) -> Path:
         return found
 
     print(f"No .deb under {ROOT / 'packaging/out' / arch / 'deb'} - building ...", file=sys.stderr)
-    if host_can_build_deb():
+    if docker_ok():
+        build_deb_via_docker(ROOT, arch)
+    elif host_can_build_deb():
         build_deb_on_host(arch)
-    elif which("docker") and docker_ok():
-        build_deb_in_docker(arch)
     else:
         die(
-            "Cannot build .deb: install dotnet/git/python3/fakeroot/dpkg-deb, or install/start Docker.\n"
+            "Cannot build .deb: start Docker for an in-container build, or install "
+            "dotnet/git/python3/fakeroot/dpkg-deb (and bash) for a host build.\n"
             "  Host: ./packaging/tools/build-deb-one-shot.sh --arch %s\n"
             "  Docker: DOCKER_BUILDKIT=1 docker build -f packaging/docker/Dockerfile.build-deb ..."
             % arch
@@ -314,22 +285,28 @@ def main() -> None:
 
     def run_smoke(url: str) -> None:
         log_compare_env("VideoDedupGrpcSmoke")
-        in_docker = os.environ.get("VD_SMOKE_IN_DOCKER", "0") == "1"
+        use_host_dotnet = bool(which("dotnet")) and (
+            os.environ.get("VD_SMOKE_USE_HOST_DOTNET", "").strip() == "1"
+            or os.environ.get("VD_SMOKE_IN_DOCKER", "").strip() == "0"
+        )
         env = os.environ.copy()
         env["VIDEODEDUP_SMOKE_COMPARE_LEFT"] = compare_left
         env["VIDEODEDUP_SMOKE_COMPARE_RIGHT"] = compare_right
-        if not in_docker and which("dotnet"):
+        if use_host_dotnet:
             smoke_dll = docker_host_path(smoke_abs / "VideoDedupGrpcSmoke.dll")
             r = subprocess.run(["dotnet", smoke_dll, url], env=env)
             if r.returncode != 0:
                 die(f"VideoDedupGrpcSmoke exited with code {r.returncode}", r.returncode)
             return
         print(
-            "Running smoke inside mcr.microsoft.com/dotnet/runtime:8.0 "
-            "(host has no dotnet; set VD_SMOKE_IN_DOCKER=1 to force) ...",
+            "Running VideoDedupGrpcSmoke in mcr.microsoft.com/dotnet/runtime:8.0 "
+            "(default; use VD_SMOKE_USE_HOST_DOTNET=1 for host dotnet) ...",
             file=sys.stderr,
         )
         smoke_url = url.replace("127.0.0.1", "host.docker.internal").replace("localhost", "host.docker.internal")
+        env_docker = os.environ.copy()
+        if os.name == "nt":
+            env_docker.setdefault("MSYS2_ARG_CONV_EXCL", "*")
         r = subprocess.run(
             [
                 "docker",
@@ -346,28 +323,35 @@ def main() -> None:
                 "dotnet",
                 "/smoke/VideoDedupGrpcSmoke.dll",
                 smoke_url,
-            ]
+            ],
+            env=env_docker,
         )
         if r.returncode != 0:
             die(f"VideoDedupGrpcSmoke (docker runtime) exited with code {r.returncode}", r.returncode)
 
     def run_comparison_smoke(url: str, comparison_abs: Path) -> None:
         log_compare_env("VideoDedupGrpcComparisonSmoke")
-        in_docker = os.environ.get("VD_SMOKE_IN_DOCKER", "0") == "1"
+        use_host_dotnet = bool(which("dotnet")) and (
+            os.environ.get("VD_SMOKE_USE_HOST_DOTNET", "").strip() == "1"
+            or os.environ.get("VD_SMOKE_IN_DOCKER", "").strip() == "0"
+        )
         env = os.environ.copy()
         env["VIDEODEDUP_SMOKE_COMPARE_LEFT"] = compare_left
         env["VIDEODEDUP_SMOKE_COMPARE_RIGHT"] = compare_right
-        if not in_docker and which("dotnet"):
+        if use_host_dotnet:
             dll = docker_host_path(comparison_abs / "VideoDedupGrpcComparisonSmoke.dll")
             r = subprocess.run(["dotnet", dll, url], env=env)
             if r.returncode != 0:
                 die(f"VideoDedupGrpcComparisonSmoke exited with code {r.returncode}", r.returncode)
             return
         print(
-            "Running VideoComparison deep smoke inside mcr.microsoft.com/dotnet/runtime:8.0 ...",
+            "Running VideoDedupGrpcComparisonSmoke in mcr.microsoft.com/dotnet/runtime:8.0 ...",
             file=sys.stderr,
         )
         smoke_url = url.replace("127.0.0.1", "host.docker.internal").replace("localhost", "host.docker.internal")
+        env_docker = os.environ.copy()
+        if os.name == "nt":
+            env_docker.setdefault("MSYS2_ARG_CONV_EXCL", "*")
         r = subprocess.run(
             [
                 "docker",
@@ -384,7 +368,8 @@ def main() -> None:
                 "dotnet",
                 "/comparison-smoke/VideoDedupGrpcComparisonSmoke.dll",
                 smoke_url,
-            ]
+            ],
+            env=env_docker,
         )
         if r.returncode != 0:
             die(

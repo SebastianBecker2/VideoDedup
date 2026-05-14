@@ -176,9 +176,9 @@ install_rpm_dnf() {
   fw_pkg="$(firewall_pkgs_dnf)"
   if [[ -n "${fw_pkg}" ]]; then
     # shellcheck disable=SC2086
-    dnf -y -q install iproute util-linux ${fw_pkg} >/dev/null
+    dnf -y -q install iproute util-linux procps-ng ${fw_pkg} >/dev/null
   else
-    dnf -y -q install iproute util-linux >/dev/null
+    dnf -y -q install iproute util-linux procps-ng >/dev/null
   fi
   dnf -y -q install --setopt=tsflags=nodocs /tmp/videodedupserver.rpm
 }
@@ -416,6 +416,22 @@ case "${FMT}" in
   flatpak) install_flatpak_bundle ;;
 esac
 
+# deb/rpm postinst runs `systemctl start videodedupserver` when systemctl succeeds (common in privileged
+# test images). This entrypoint then starts VideoDedupService manually as videodedup — stop the packaged
+# instance first so Kestrel can bind [::]:51726.
+stop_packaged_videodedup_if_running() {
+  if command -v systemctl >/dev/null 2>&1; then
+    systemctl stop videodedupserver.service 2>/dev/null || true
+    systemctl disable videodedupserver.service 2>/dev/null || true
+  fi
+  if command -v pkill >/dev/null 2>&1; then
+    pkill -TERM -x VideoDedupService 2>/dev/null || true
+    sleep 1
+    pkill -KILL -x VideoDedupService 2>/dev/null || true
+  fi
+}
+stop_packaged_videodedup_if_running
+
 apply_firewall
 
 # Kestrel in this package is configured to listen on `[::]:51726`.
@@ -427,6 +443,39 @@ if command -v sysctl >/dev/null 2>&1; then
 fi
 
 install -d -o videodedup -g videodedup /var/lib/videodedupserver
+
+# Smoke mounts comparison fixtures here; videodedup must be able to read them.
+if [[ -d /tmp/vd-fixtures ]]; then
+  chmod -R a+rX /tmp/vd-fixtures 2>/dev/null || true
+fi
+
+# FFmpeg.AutoGen loads libav from this directory on Linux (FfmpegWrapper.TryConfigureLinuxNativeRootPath).
+# docker_grpc_deep_smoke and docker_grpc_firewall preset it per distro; otherwise auto-detect below.
+detect_ffmpeg_lib_root() {
+  if [[ -n "${VIDEODEDUP_FFMPEG_LIB_ROOT:-}" ]]; then
+    echo "E2E: VIDEODEDUP_FFMPEG_LIB_ROOT=${VIDEODEDUP_FFMPEG_LIB_ROOT} (preset)" >&2
+    return 0
+  fi
+  local deb_march
+  case "$(uname -m 2>/dev/null)" in
+    aarch64 | arm64) deb_march=aarch64-linux-gnu ;;
+    *) deb_march=x86_64-linux-gnu ;;
+  esac
+  if [[ -d "/usr/lib/${deb_march}" ]] && compgen -G "/usr/lib/${deb_march}/libavcodec.so*" &>/dev/null; then
+    export VIDEODEDUP_FFMPEG_LIB_ROOT="/usr/lib/${deb_march}"
+    echo "E2E: VIDEODEDUP_FFMPEG_LIB_ROOT=${VIDEODEDUP_FFMPEG_LIB_ROOT} (multiarch)" >&2
+    return 0
+  fi
+  for d in /usr/lib64 /usr/lib; do
+    if [[ -d "${d}" ]] && compgen -G "${d}/libavcodec.so*" &>/dev/null; then
+      export VIDEODEDUP_FFMPEG_LIB_ROOT="${d}"
+      echo "E2E: VIDEODEDUP_FFMPEG_LIB_ROOT=${VIDEODEDUP_FFMPEG_LIB_ROOT}" >&2
+      return 0
+    fi
+  done
+  echo "E2E: WARNING: could not find libavcodec under /usr/lib*; FFmpeg.AutoGen may fail (StartVideoComparison)" >&2
+}
+detect_ffmpeg_lib_root
 
 if [[ "${FMT}" == flatpak ]]; then
   install -d -m 0755 /var/lib/videodedupserver
@@ -447,11 +496,20 @@ else
   if [[ "${FMT}" == snap ]]; then
     _vd_bin=/tmp/vd-snap/usr/lib/videodedupserver/VideoDedupService
   fi
-  vd_exec_as_videodedup env \
-    ASPNETCORE_ENVIRONMENT=Production \
-    DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
-    VIDEODEDUP_APP_DATA=/var/lib/videodedupserver \
-    "${_vd_bin}" &
+  if [[ -n "${VIDEODEDUP_FFMPEG_LIB_ROOT:-}" ]]; then
+    vd_exec_as_videodedup env \
+      ASPNETCORE_ENVIRONMENT=Production \
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
+      VIDEODEDUP_APP_DATA=/var/lib/videodedupserver \
+      VIDEODEDUP_FFMPEG_LIB_ROOT="${VIDEODEDUP_FFMPEG_LIB_ROOT}" \
+      "${_vd_bin}" &
+  else
+    vd_exec_as_videodedup env \
+      ASPNETCORE_ENVIRONMENT=Production \
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
+      VIDEODEDUP_APP_DATA=/var/lib/videodedupserver \
+      "${_vd_bin}" &
+  fi
 fi
 
 for _ in $(seq 1 90); do

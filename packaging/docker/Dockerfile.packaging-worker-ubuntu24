@@ -21,5 +21,13 @@ RUN apt-get update -qq \
     rpmlint \
     docker.io \
   && apt-get install -y -qq -f \
+  && rm -rf /var/lib/apt/lists/*
+
+# .NET 8 SDK for `dotnet publish` inside the worker (stage.sh / stage.py).
+RUN curl -fsSL https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb -o /tmp/msprod.deb \
+  && dpkg -i /tmp/msprod.deb \
+  && rm /tmp/msprod.deb \
+  && apt-get update -qq \
+  && apt-get install -y -qq dotnet-sdk-8.0 \
   && rm -rf /var/lib/apt/lists/* \
   && touch /etc/videodedup-packaging-worker-base

@@ -49,36 +49,8 @@ jobs:
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
           flatpak install -y --user flathub org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08 org.freedesktop.Sdk.Extension.dotnet8//24.08
 
-      - name: Stage and package
-        run: |
-          chmod +x packaging/tools/*.sh packaging/common/generate-metadata.sh packaging/tests/*.sh packaging/tests/firewall/*.sh packaging/tests/install/*.sh packaging/tests/e2e/*.sh packaging/tools/sbom-and-attest.sh packaging/tools/run-full-linux-build-docker-inner.sh
-          ./packaging/tools/stage.sh --arch ${{ matrix.arch }}
-          ./packaging/tools/build-deb.sh --arch ${{ matrix.arch }}
-          ./packaging/tools/build-rpm.sh --arch ${{ matrix.arch }}
-          ./packaging/tools/build-pacman.sh --arch ${{ matrix.arch }}
-          ./packaging/tools/build-flatpak.sh --arch ${{ matrix.arch }} --require-flatpak-builder
-          ./packaging/tools/build-snap.sh --arch ${{ matrix.arch }} --require-snapcraft
-          ./packaging/tools/write-checksums.sh --arch ${{ matrix.arch }}
-
-      - name: Package lint
-        run: ./packaging/tests/run-package-tests.sh ${{ matrix.arch }}
-
-      - name: Firewall scripts (Docker integration)
-        run: |
-          chmod +x packaging/tests/firewall/*.sh
-          ./packaging/tests/firewall/docker-run-all.sh --integration
-
-      - name: Test .deb install (Docker)
-        run: ./packaging/tests/install/docker-install-deb.sh --arch ${{ matrix.arch }}
-
-      - name: Test .rpm install (Docker)
-        run: ./packaging/tests/install/docker-install-rpm.sh --arch ${{ matrix.arch }}
-
-      - name: Test pacman package install (Docker)
-        run: ./packaging/tests/install/docker-install-pacman.sh --arch ${{ matrix.arch }}
-
-      - name: Test flatpak bundle install (Docker)
-        run: ./packaging/tests/install/docker-install-flatpak.sh --arch ${{ matrix.arch }}
+      - name: Stage, package, lint, Docker smoke tests
+        run: python3 packaging/ci/linux_build_and_test.py --arch ${{ matrix.arch }}
 
       - name: SBOM (syft)
         run: |
@@ -153,9 +125,7 @@ jobs:
           sudo apt-get install -y python3 git
 
       - name: Stage server tree (staged E2E + openSUSE RPM fallback)
-        run: |
-          chmod +x packaging/tools/*.sh packaging/common/generate-metadata.sh packaging/tests/e2e/*.sh
-          ./packaging/tools/stage.sh --arch ${{ matrix.arch }}
+        run: python3 packaging/tools/stage.py --arch ${{ matrix.arch }}
 
       - name: E2E gRPC through firewall
         run: |

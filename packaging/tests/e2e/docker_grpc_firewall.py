@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
 E2E: Linux container installs videodedupserver (deb/rpm/staged/pacman/snap/flatpak), firewall, service;
-VideoDedupGrpcSmoke on host (Python subprocess; no MSYS path rewriting).
+VideoDedupGrpcSmoke runs in a sibling Docker container on the same user-defined network (avoids Windows
+Docker Desktop host port quirks). Opt in to host dotnet with VD_SMOKE_USE_HOST_DOTNET=1 or legacy
+VD_SMOKE_IN_DOCKER=0 when dotnet is on PATH.
 """
 
 from __future__ import annotations
@@ -10,6 +12,7 @@ import argparse
 import atexit
 import os
 import random
+import secrets
 import shutil
 import subprocess
 import sys
@@ -36,12 +39,59 @@ Preset images debian:bookworm-slim and fedora:40 are rebuilt locally as cached b
 VD_FIREWALL_SMOKE_DEBIAN_IMAGE / VD_FIREWALL_SMOKE_FEDORA_IMAGE: override tags.
 VD_REBUILD_FIREWALL_SMOKE_DEBIAN_BASE=1 / VD_REBUILD_FIREWALL_SMOKE_FEDORA_BASE=1: force docker build.
 On GitHub Actions bases are off by default (set VD_USE_FIREWALL_SMOKE_BASE=1 to enable). VD_SKIP_FIREWALL_SMOKE_BASE=1 disables locally.
+VD_SMOKE_USE_HOST_DOTNET=1: run VideoDedupGrpcSmoke with host dotnet (faster on Linux; can fail on Windows Docker Desktop).
+VD_SMOKE_IN_DOCKER=0: legacy alias for host dotnet when dotnet is on PATH.
 """
 
 
 def die(msg: str, code: int = 1) -> None:
     print(msg, file=sys.stderr)
     raise SystemExit(code)
+
+
+def allocate_e2e_user_bridge(net: str) -> None:
+    """
+    Create an IPv4+IPv6 user-defined bridge. Random /24 and /64 avoid overlap when several
+    docker_grpc_firewall.py processes run concurrently (e.g. packaging/tests/run_all_linux_host.py -j).
+    """
+    last_err = ""
+    for _ in range(16):
+        b1 = secrets.randbelow(256)
+        b2 = secrets.randbelow(256)
+        v4_subnet = f"10.{b1}.{b2}.0/24"
+        v4_gw = f"10.{b1}.{b2}.1"
+        a = secrets.randbelow(65536)
+        b = secrets.randbelow(65536)
+        c = secrets.randbelow(65536)
+        v6_subnet = f"fd00:{a:04x}:{b:04x}:{c:04x}::/64"
+        r = subprocess.run(
+            [
+                "docker",
+                "network",
+                "create",
+                "--driver",
+                "bridge",
+                "--subnet",
+                v4_subnet,
+                "--gateway",
+                v4_gw,
+                "--ipv6",
+                "--subnet",
+                v6_subnet,
+                net,
+            ],
+            capture_output=True,
+        )
+        if r.returncode == 0:
+            return
+        last_err = (r.stderr or r.stdout or b"").decode("utf-8", errors="replace").strip()
+
+    die(
+        f'Failed to create dual-stack Docker network "{net}" after retries.\n'
+        f"Last docker message:\n{last_err or '(empty)'}\n\n"
+        "Typical causes: IPv6 not enabled for Docker user-defined networks (see packaging/common/docs/local-build.md), "
+        "or subnet overlap if many E2E networks already exist (docker network prune)."
+    )
 
 
 def rid_for_arch(arch: str) -> str:
@@ -99,6 +149,21 @@ def resolve_distro_and_image(
         img = preset[d]
 
     return d, img
+
+
+def ffmpeg_lib_root_hint(distro: str, arch: str) -> str | None:
+    """
+    Native libav directory for FFmpeg.AutoGen (matches docker_grpc_deep_smoke on Debian/Ubuntu).
+    Preset avoids relying on server-entrypoint.sh compgen-only detection on minimal images.
+    """
+    d = distro.strip().lower()
+    if d in ("debian", "ubuntu"):
+        return "/usr/lib/aarch64-linux-gnu" if arch == "arm64" else "/usr/lib/x86_64-linux-gnu"
+    if d in ("fedora", "rocky", "opensuse"):
+        return "/usr/lib64"
+    if d in ("arch", "manjaro"):
+        return "/usr/lib"
+    return None
 
 
 def validate_combo(fmt: str, distro: str, firewall: str) -> None:
@@ -271,38 +336,20 @@ def main() -> None:
 
     atexit.register(cleanup)
 
-    e2e_net_v4_subnet = "172.30.232.0/24"
-    e2e_net_v4_gw = "172.30.232.1"
-    e2e_net_v6_subnet = "fd00:c0a8:e2e::/64"
-    r = subprocess.run(
-        [
-            "docker",
-            "network",
-            "create",
-            "--driver",
-            "bridge",
-            "--subnet",
-            e2e_net_v4_subnet,
-            "--gateway",
-            e2e_net_v4_gw,
-            "--ipv6",
-            "--subnet",
-            e2e_net_v6_subnet,
-            net,
-        ],
-        capture_output=True,
-    )
-    if r.returncode != 0:
-        die(
-            f'Failed to create dual-stack Docker network "{net}".\n'
-            "Enable IPv6 in Docker and retry (see packaging/common/docs/local-build.md)."
-        )
+    allocate_e2e_user_bridge(net)
 
     entry = ROOT / "packaging/tests/e2e/server-entrypoint.sh"
     entry_vol = docker_host_path(entry)
     smoke_vol = docker_host_path(smoke_abs)
 
     docker_env = ["-e", f"VD_PACKAGE_FORMAT={fmt}", "-e", f"VD_FIREWALL={firewall}"]
+    _ffmpeg_hint = ffmpeg_lib_root_hint(distro, arch)
+    if _ffmpeg_hint:
+        docker_env += ["-e", f"VIDEODEDUP_FFMPEG_LIB_ROOT={_ffmpeg_hint}"]
+        print(
+            f"E2E: VIDEODEDUP_FFMPEG_LIB_ROOT={_ffmpeg_hint} (preset for distro={distro})",
+            file=sys.stderr,
+        )
     mounts = ["-v", f"{entry_vol}:/entrypoint.sh:ro"]
 
     fixtures_host = ROOT / "packaging/tests/fixtures/grpc-smoke"
@@ -368,12 +415,15 @@ def main() -> None:
     def run_smoke(url: str, label: str) -> bool:
         log_compare_env(f"VideoDedupGrpcSmoke ({label})")
         print(f"Running gRPC smoke client ({label}: {url}) ...")
-        in_docker = os.environ.get("VD_SMOKE_IN_DOCKER", "0") == "1"
+        use_host_dotnet = bool(which("dotnet")) and (
+            os.environ.get("VD_SMOKE_USE_HOST_DOTNET", "").strip() == "1"
+            or os.environ.get("VD_SMOKE_IN_DOCKER", "").strip() == "0"
+        )
         env = os.environ.copy()
         env["VIDEODEDUP_SMOKE_COMPARE_LEFT"] = compare_left
         env["VIDEODEDUP_SMOKE_COMPARE_RIGHT"] = compare_right
 
-        if not in_docker and which("dotnet"):
+        if use_host_dotnet:
             smoke_dll = docker_host_path(smoke_abs / "VideoDedupGrpcSmoke.dll")
             r = subprocess.run(["dotnet", smoke_dll, url], env=env)
             return r.returncode == 0
@@ -395,7 +445,10 @@ def main() -> None:
             "/smoke/VideoDedupGrpcSmoke.dll",
             url,
         ]
-        r = subprocess.run(docker_cmd)
+        env_docker = os.environ.copy()
+        if os.name == "nt":
+            env_docker.setdefault("MSYS2_ARG_CONV_EXCL", "*")
+        r = subprocess.run(docker_cmd, env=env_docker)
         return r.returncode == 0
 
     ipv4_ok = True

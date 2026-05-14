@@ -1,6 +1,6 @@
 # rpmlint add-on config for third-party self-contained .NET bundles.
 # Loaded via: rpmlint --config packaging/rpm/videodedupserver-rpmlint.toml …
-# (see packaging/tests/run-package-tests.sh)
+# (see packaging/tests/run_package_tests.py)
 
 Filters = [
     # Payload text/config may retain CRLF on some developer checkouts; stage + spec normalize common paths.

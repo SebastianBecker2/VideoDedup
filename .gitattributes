@@ -11,6 +11,7 @@ packaging/tests/*.sh text eol=lf
 packaging/tests/firewall/*.sh text eol=lf
 packaging/tests/install/*.sh text eol=lf
 packaging/tests/e2e/*.sh text eol=lf
+packaging/ci/*.py text eol=lf
 packaging/rpm/*.spec text eol=lf
 ###############################################################################
 # Set default behavior for command prompt diff.

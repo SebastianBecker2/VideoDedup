@@ -9,7 +9,8 @@ From repository root on Linux or WSL:
 
 ```bash
 chmod +x packaging/tests/firewall/*.sh
-./packaging/tests/firewall/validate-static.sh
+python3 packaging/tests/firewall/validate_static.py
+# or: ./packaging/tests/firewall/validate-static.sh  (thin shim)
 ```
 
 Checks: `sh -n` on each script, no CRLF, README present.

@@ -92,7 +92,7 @@ fi
 _vd_run_snapcraft_docker
 ./packaging/tools/write-checksums.sh --arch "${ARCH}"
 
-./packaging/tests/run-package-tests.sh "${ARCH}"
+python3 ./packaging/tests/run_package_tests.py "${ARCH}"
 ./packaging/tests/firewall/docker-run-all.sh --integration
 ./packaging/tests/install/docker-install-deb.sh --arch "${ARCH}"
 ./packaging/tests/install/docker-install-rpm.sh --arch "${ARCH}"

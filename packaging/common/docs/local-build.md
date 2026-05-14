@@ -49,6 +49,44 @@ Edit static fields in [project.meta.json](../project.meta.json). Version and cha
 - Metadata: `packaging/out/metadata.json`
 - Packages: `packaging/out/<arch>/deb/`, `rpm/`, `pacman/` (`.pkg.tar.zst`), `snap/`, `flatpak/`
 
+## Build and test scripts (orchestration)
+
+This is a **call map** for the main entrypoints. Thin `*.sh` wrappers under `packaging/tests/` often `exec` the Python listed next to them so Git Bash / POSIX can invoke one command.
+
+### CI and full local pipeline
+
+| Entrypoint | Purpose | Main callees |
+|------------|---------|----------------|
+| [`packaging/ci/linux_build_and_test.py`](../../ci/linux_build_and_test.py) | **Linux packaging job** (mirrors [linux-packaging.yml](../../../.github/workflows/linux-packaging.yml) job `linux-packages`). Phases: `packages` → `lint` → `smoke`. | **`packages`:** `packaging/tools/stage.py`, then `build-deb.sh`, `build-rpm.sh`, `build-pacman.sh`, `build-flatpak.sh` (`--require-flatpak-builder`), `build-snap.sh` (`--require-snapcraft`), `write-checksums.sh` (all via bash). **`lint`:** `packaging/tests/run_package_tests.py`. **`smoke`:** `packaging/ci/docker_firewall_run_all.py --integration`, then `docker_install_smoke.py` for `deb`, `rpm`, `pacman`, `flatpak`. |
+| [linux-packaging.yml](../../../.github/workflows/linux-packaging.yml) | Workflow: `linux-packages` runs `linux_build_and_test.py`; job **`e2e-grpc-firewall`** restores artifacts and runs **`docker_grpc_firewall.py`** once per **matrix** row — each row is a **separate Actions job**, so those E2Es run **concurrently** across runners (within GitHub pool limits). | As above + matrix of [`docker_grpc_firewall.py`](../../tests/e2e/docker_grpc_firewall.py) invocations. |
+
+### Host-friendly subset (Docker + Python + dotnet)
+
+| Entrypoint | Purpose | Main callees |
+|------------|---------|----------------|
+| [`packaging/tests/run_all_linux_host.py`](../../tests/run_all_linux_host.py) | Same **idea** as smoke + lint for developers on Windows (no full `linux_build_and_test` package phase). Expects packages already built. | `run_package_tests.py` → `docker_firewall_run_all.py --integration` → `docker_install_smoke.py deb` / `rpm` → **`docker_grpc_firewall.py`** for each fixed distro/format/firewall row (matches CI `e2e-grpc-firewall` matrix; no snap/flatpak rows). **`-j N`:** run those E2E rows with up to `N` concurrent processes (default `1` = sequential); CI instead runs **one matrix row per parallel job**. |
+
+On GitHub Actions, **`e2e-grpc-firewall`** uses a **matrix**, so each combination is a **separate job** scheduled **in parallel** (subject to org concurrency). Locally, **`python3 packaging/tests/run_all_linux_host.py -j 8`** (example) overlaps the same combinations after a **single** `VideoDedupGrpcSmoke` publish so workers do not race on `packaging/out/<arch>/e2e-smoke/`.
+
+### Full build inside Docker (outer + inner)
+
+[`packaging/tools/run-full-linux-build-docker.sh`](../../tools/run-full-linux-build-docker.sh) starts an Ubuntu worker with the repo mounted; [`run-full-linux-build-docker-inner.sh`](../../tools/run-full-linux-build-docker-inner.sh) runs inside it:
+
+- `stage.sh`, `build-deb.sh`, `build-rpm.sh`, `build-pacman.sh`, optional `build-flatpak.sh`, snap via nested **snapcraft** image, `write-checksums.sh`
+- `python3 packaging/tests/run_package_tests.py`
+- `./packaging/tests/firewall/docker-run-all.sh --integration` → **`packaging/ci/docker_firewall_run_all.py`**
+- `./packaging/tests/install/docker-install-*.sh` → **`packaging/ci/docker_install_smoke.py`** (`deb`, `rpm`, `pacman`, optional `flatpak`)
+
+The inner script does **not** run `docker_grpc_firewall.py` or `docker_grpc_deep_smoke.py`; use those separately or `run_all_linux_host.py` / CI for gRPC E2E.
+
+### Individual drivers (detail)
+
+- **`run_package_tests.py`** — Package lint when tools exist: `packaging/tests/firewall/validate_static.py`; optional `lintian` on latest `.deb`, `rpmlint` on latest `.rpm`, `review-tools.snap-review` on snaps, `namcap` on pacman packages.
+- **`docker_firewall_run_all.py`** — Ports `docker-run-all.sh`: for each integration scenario, `docker run … bash -s` with stdin scripts that exercise shipped firewall helpers under `packaging/common/firewall/` (mounted read-only). See [tests/firewall/README.md](../../tests/firewall/README.md).
+- **`docker_install_smoke.py`** — Ports `docker-install-*.sh`: picks latest artifact under `packaging/out/<arch>/…`, bind-mounts repo + package, installs in a throwaway container and sanity-checks the service layout/start.
+- **`docker_grpc_firewall.py`** — End-to-end: creates a dual-stack user bridge, runs a **server** container with [`server-entrypoint.sh`](../../tests/e2e/server-entrypoint.sh) (install package, firewall, start `VideoDedupService`), publishes and runs **`VideoDedupGrpcSmoke`** over IPv4 and IPv6. Env and options: script docstring / `--help`.
+- **`docker_grpc_deep_smoke.py`** — **Not** invoked by `linux_build_and_test.py` or `run_all_linux_host.py`. Debian-style install + same server entrypoint; runs **`VideoDedupGrpcSmoke`** then, when comparison fixtures exist, **`VideoDedupGrpcComparisonSmoke`**. Use for a stricter comparison path locally.
+
 ## Reproducible builds
 
 Export a fixed timestamp before packaging:
