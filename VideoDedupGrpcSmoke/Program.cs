@@ -116,22 +116,18 @@ try
     // 7) Video comparison + comparison status/cancel RPCs.
     // Paths are interpreted by the gRPC server (paths on the server's filesystem). Default matches
     // packaging E2E: /tmp/vd-fixtures/grpc-smoke/{left,right}.mp4 inside the server container.
-    // Override with VIDEODEDUP_SMOKE_COMPARE_LEFT / RIGHT. Windows absolute paths are kept when the
-    // gRPC URL targets this machine (localhost, 127.0.0.1, hostname). Set VIDEODEDUP_SMOKE_COMPARE_ASSUME_REMOTE_POSIX=1
-    // to force POSIX defaults even on localhost (Linux-in-Docker).
+    // Override with VIDEODEDUP_SMOKE_COMPARE_LEFT / RIGHT for other server-visible paths.
     // StartVideoComparison failures are non-fatal here so the rest of the RPC surface is still exercised.
     const string defaultFixtureLeft = "/tmp/vd-fixtures/grpc-smoke/left.mp4";
     const string defaultFixtureRight = "/tmp/vd-fixtures/grpc-smoke/right.mp4";
     var compareLeft = ResolveSmokeComparePath(
         Env("VIDEODEDUP_SMOKE_COMPARE_LEFT"),
         defaultFixtureLeft,
-        "VIDEODEDUP_SMOKE_COMPARE_LEFT",
-        url);
+        "VIDEODEDUP_SMOKE_COMPARE_LEFT");
     var compareRight = ResolveSmokeComparePath(
         Env("VIDEODEDUP_SMOKE_COMPARE_RIGHT"),
         defaultFixtureRight,
-        "VIDEODEDUP_SMOKE_COMPARE_RIGHT",
-        url);
+        "VIDEODEDUP_SMOKE_COMPARE_RIGHT");
 
     // Keep comparison work small for CI.
     var vc = cfg1.VideoComparisonSettings.Clone();
@@ -246,11 +242,7 @@ catch (Exception ex)
     return 2;
 }
 
-static string ResolveSmokeComparePath(
-    string? fromEnv,
-    string serverDefault,
-    string label,
-    string grpcUrl)
+static string ResolveSmokeComparePath(string? fromEnv, string serverDefault, string label)
 {
     if (string.IsNullOrWhiteSpace(fromEnv))
     {
@@ -259,69 +251,16 @@ static string ResolveSmokeComparePath(
 
     if (LooksLikeWindowsAbsolutePath(fromEnv))
     {
-        var assumeRemotePosix = !string.IsNullOrEmpty(Env("VIDEODEDUP_SMOKE_COMPARE_ASSUME_REMOTE_POSIX"));
-        if (!assumeRemotePosix && IsGrpcUrlLikelySameMachineAsClient(grpcUrl))
-        {
-            return fromEnv;
-        }
-
         Console.Error.WriteLine(
-            "{0}='{1}' is a Windows absolute path; gRPC URL '{2}' is not treated as this machine "
-            + "(or VIDEODEDUP_SMOKE_COMPARE_ASSUME_REMOTE_POSIX is set). Using server default '{3}'.",
+            "{0}='{1}' is a Windows-style path on this machine, not a path inside the gRPC server; "
+            + "using server default '{2}' instead.",
             label,
             fromEnv,
-            grpcUrl,
             serverDefault);
         return serverDefault;
     }
 
     return fromEnv;
-}
-
-static bool IsGrpcUrlLikelySameMachineAsClient(string grpcUrl)
-{
-    if (!Uri.TryCreate(grpcUrl, UriKind.Absolute, out var uri))
-    {
-        return false;
-    }
-
-    var host = uri.IdnHost;
-    if (string.IsNullOrEmpty(host))
-    {
-        return false;
-    }
-
-    if (string.Equals(host, "localhost", StringComparison.OrdinalIgnoreCase))
-    {
-        return true;
-    }
-
-    if (host is "127.0.0.1" or "::1")
-    {
-        return true;
-    }
-
-    if (OperatingSystem.IsWindows())
-    {
-        if (string.Equals(host, Environment.MachineName, StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
-        try
-        {
-            var dnsHost = System.Net.Dns.GetHostName();
-            if (string.Equals(host, dnsHost, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-        }
-        catch
-        {
-        }
-    }
-
-    return false;
 }
 
 static bool LooksLikeWindowsAbsolutePath(string path)
