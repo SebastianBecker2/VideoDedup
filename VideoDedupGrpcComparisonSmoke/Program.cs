@@ -39,14 +39,26 @@ var url = args.Length > 0
     ? args[0]
     : Env("VIDEODEDUP_GRPC_URL") ?? "http://127.0.0.1:51726";
 
+var rawCompareLeft = Env("VIDEODEDUP_SMOKE_COMPARE_LEFT");
+var rawCompareRight = Env("VIDEODEDUP_SMOKE_COMPARE_RIGHT");
 var compareLeft = ResolveSmokeComparePath(
-    Env("VIDEODEDUP_SMOKE_COMPARE_LEFT"),
+    rawCompareLeft,
     DefaultFixtureLeft,
     "VIDEODEDUP_SMOKE_COMPARE_LEFT");
 var compareRight = ResolveSmokeComparePath(
-    Env("VIDEODEDUP_SMOKE_COMPARE_RIGHT"),
+    rawCompareRight,
     DefaultFixtureRight,
     "VIDEODEDUP_SMOKE_COMPARE_RIGHT");
+Console.Error.WriteLine(
+    "VideoDedupGrpcComparisonSmoke: VIDEODEDUP_SMOKE_COMPARE_LEFT raw="
+    + (rawCompareLeft ?? "<unset>")
+    + " resolved="
+    + compareLeft);
+Console.Error.WriteLine(
+    "VideoDedupGrpcComparisonSmoke: VIDEODEDUP_SMOKE_COMPARE_RIGHT raw="
+    + (rawCompareRight ?? "<unset>")
+    + " resolved="
+    + compareRight);
 
 if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
 {

@@ -120,14 +120,26 @@ try
     // StartVideoComparison failures are non-fatal here so the rest of the RPC surface is still exercised.
     const string defaultFixtureLeft = "/tmp/vd-fixtures/grpc-smoke/left.mp4";
     const string defaultFixtureRight = "/tmp/vd-fixtures/grpc-smoke/right.mp4";
+    var rawCompareLeft = Env("VIDEODEDUP_SMOKE_COMPARE_LEFT");
+    var rawCompareRight = Env("VIDEODEDUP_SMOKE_COMPARE_RIGHT");
     var compareLeft = ResolveSmokeComparePath(
-        Env("VIDEODEDUP_SMOKE_COMPARE_LEFT"),
+        rawCompareLeft,
         defaultFixtureLeft,
         "VIDEODEDUP_SMOKE_COMPARE_LEFT");
     var compareRight = ResolveSmokeComparePath(
-        Env("VIDEODEDUP_SMOKE_COMPARE_RIGHT"),
+        rawCompareRight,
         defaultFixtureRight,
         "VIDEODEDUP_SMOKE_COMPARE_RIGHT");
+    Console.Error.WriteLine(
+        "VideoDedupGrpcSmoke: VIDEODEDUP_SMOKE_COMPARE_LEFT raw="
+        + (rawCompareLeft ?? "<unset>")
+        + " resolved="
+        + compareLeft);
+    Console.Error.WriteLine(
+        "VideoDedupGrpcSmoke: VIDEODEDUP_SMOKE_COMPARE_RIGHT raw="
+        + (rawCompareRight ?? "<unset>")
+        + " resolved="
+        + compareRight);
 
     // Keep comparison work small for CI.
     var vc = cfg1.VideoComparisonSettings.Clone();

@@ -486,9 +486,16 @@ if [[ -z "${IPV6}" ]]; then
   exit 1
 fi
 
+log_smoke_compare_env() {
+  local name="$1"
+  echo "E2E [${name}] VIDEODEDUP_SMOKE_COMPARE_LEFT=${VIDEODEDUP_SMOKE_COMPARE_LEFT:-<unset>}" >&2
+  echo "E2E [${name}] VIDEODEDUP_SMOKE_COMPARE_RIGHT=${VIDEODEDUP_SMOKE_COMPARE_RIGHT:-<unset>}" >&2
+}
+
 run_smoke() {
   local url="$1"
   local label="$2"
+  log_smoke_compare_env "VideoDedupGrpcSmoke (${label})"
   echo "Running gRPC smoke client (${label}: ${url}) …"
   # Prefer host dotnet for speed, but allow forcing the smoke to run inside the
   # docker network (helps on platforms where host->custom-network connectivity

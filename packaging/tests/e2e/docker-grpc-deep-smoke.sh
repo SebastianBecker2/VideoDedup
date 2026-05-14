@@ -329,8 +329,16 @@ if [[ "${_ready}" -ne 1 ]]; then
   exit 1
 fi
 
+# Log paths the smoke DLL will see (server-side paths; should be POSIX when fixtures are mounted).
+log_smoke_compare_env() {
+  local name="$1"
+  echo "E2E [${name}] VIDEODEDUP_SMOKE_COMPARE_LEFT=${VIDEODEDUP_SMOKE_COMPARE_LEFT:-<unset>}" >&2
+  echo "E2E [${name}] VIDEODEDUP_SMOKE_COMPARE_RIGHT=${VIDEODEDUP_SMOKE_COMPARE_RIGHT:-<unset>}" >&2
+}
+
 run_smoke() {
   local url="$1"
+  log_smoke_compare_env "VideoDedupGrpcSmoke"
   if [[ "${VD_SMOKE_IN_DOCKER:-0}" != "1" ]] && command -v dotnet >/dev/null 2>&1; then
     VIDEODEDUP_SMOKE_COMPARE_LEFT="${VIDEODEDUP_SMOKE_COMPARE_LEFT}" \
     VIDEODEDUP_SMOKE_COMPARE_RIGHT="${VIDEODEDUP_SMOKE_COMPARE_RIGHT}" \
@@ -354,6 +362,7 @@ run_smoke() {
 
 run_comparison_smoke() {
   local url="$1"
+  log_smoke_compare_env "VideoDedupGrpcComparisonSmoke"
   if [[ "${VD_SMOKE_IN_DOCKER:-0}" != "1" ]] && command -v dotnet >/dev/null 2>&1; then
     VIDEODEDUP_SMOKE_COMPARE_LEFT="${VIDEODEDUP_SMOKE_COMPARE_LEFT}" \
     VIDEODEDUP_SMOKE_COMPARE_RIGHT="${VIDEODEDUP_SMOKE_COMPARE_RIGHT}" \
