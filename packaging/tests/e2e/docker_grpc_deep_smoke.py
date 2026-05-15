@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """
 Install videodedupserver from a .deb inside Docker, publish gRPC on a host port, run VideoDedupGrpcSmoke
-and (when fixtures exist) VideoDedupGrpcComparisonSmoke. Implemented in Python so Windows/Git Bash MSYS
-path rewriting does not affect docker/dotnet children.
+and (when fixtures exist) VideoDedupGrpcComparisonSmoke + VideoDedupGrpcDedupSmoke.
+When fixtures exist: duplicate left/right into *_copy_dedup.mp4 on the **host** under
+``packaging/tests/fixtures/grpc-smoke`` **before** ``docker run`` (fixtures are bind-mounted read-write so
+DedupSmoke can delete a duplicate file). ``finally`` removes the two copy files on the host. Implemented in Python so Windows/Git
+Bash MSYS path rewriting does not affect docker/dotnet children.
 
 See argparse help for options and env vars (VD_GRPC_SMOKE_IMAGE, VD_UBUNTU_SMOKE_HOST_PORT, etc.).
 """
@@ -16,8 +19,8 @@ import random
 import shutil
 import subprocess
 import sys
-import tempfile
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from docker_e2e_common import (
@@ -158,8 +161,37 @@ def docker_logs(container: str) -> None:
     subprocess.run(["docker", "logs", container], stderr=subprocess.STDOUT)
 
 
+def prepare_dedup_fixture_copies_on_host(fixtures_host: Path) -> None:
+    """Create *_copy_dedup.mp4 next to left/right before the server container starts."""
+    left = fixtures_host / "left.mp4"
+    right = fixtures_host / "right.mp4"
+    if not left.is_file() or not right.is_file():
+        die(f"prepare_dedup_fixture_copies_on_host: missing {left} or {right}")
+    lc = fixtures_host / "left_copy_dedup.mp4"
+    rc = fixtures_host / "right_copy_dedup.mp4"
+    shutil.copy2(left, lc)
+    shutil.copy2(right, rc)
+    print(
+        f"E2E: wrote host dedup fixture copies ({lc.name}, {rc.name}) before server start.",
+        flush=True,
+    )
+
+
+def cleanup_dedup_fixture_copies_on_host(fixtures_host: Path) -> None:
+    for name in ("left_copy_dedup.mp4", "right_copy_dedup.mp4"):
+        p = fixtures_host / name
+        if not p.is_file():
+            continue
+        try:
+            p.unlink()
+        except OSError as e:
+            print(f"warning: could not remove {p}: {e}", file=sys.stderr)
+
+
 def main() -> None:
-    p = argparse.ArgumentParser(description="Docker gRPC deep smoke (deb + VideoDedupGrpcSmoke + comparison smoke).")
+    p = argparse.ArgumentParser(
+        description="Docker gRPC deep smoke (.deb + VideoDedupGrpcSmoke; optional comparison + dedup smokes with fixtures).",
+    )
     p.add_argument("--arch", choices=("amd64", "arm64"), default="", help="default: from uname")
     p.add_argument("--image", default="", metavar="IMAGE", help="server image (overrides VD_GRPC_SMOKE_IMAGE / base)")
     p.add_argument("--deb", type=Path, default=None, metavar="PATH.deb", help="explicit .deb to install")
@@ -197,13 +229,37 @@ def main() -> None:
     publish_smoke_project("VideoDedupGrpcSmoke/VideoDedupGrpcSmoke.csproj", "e2e-smoke", arch, rid)
     smoke_abs = (ROOT / "packaging/out" / arch / "e2e-smoke").resolve()
 
+    fixtures_host = ROOT / "packaging/tests/fixtures/grpc-smoke"
+    fixtures_server = "/tmp/vd-fixtures/grpc-smoke"
+    left_mp4 = fixtures_host / "left.mp4"
+    right_mp4 = fixtures_host / "right.mp4"
+    have_fixtures = left_mp4.is_file() and right_mp4.is_file()
+
+    comp_abs: Path | None = None
+    dedup_abs: Path | None = None
+    if have_fixtures:
+        print(f"Publishing VideoDedupGrpcComparisonSmoke to {ROOT / 'packaging/out' / arch / 'e2e-comparison-smoke'} ...")
+        publish_smoke_project(
+            "VideoDedupGrpcComparisonSmoke/VideoDedupGrpcComparisonSmoke.csproj",
+            "e2e-comparison-smoke",
+            arch,
+            rid,
+        )
+        comp_abs = (ROOT / "packaging/out" / arch / "e2e-comparison-smoke").resolve()
+        print(f"Publishing VideoDedupGrpcDedupSmoke to {ROOT / 'packaging/out' / arch / 'e2e-dedup-smoke'} ...")
+        publish_smoke_project("VideoDedupGrpcDedupSmoke/VideoDedupGrpcDedupSmoke.csproj", "e2e-dedup-smoke", arch, rid)
+        dedup_abs = (ROOT / "packaging/out" / arch / "e2e-dedup-smoke").resolve()
+    else:
+        print(
+            f"Note: grpc-smoke fixtures not found under {fixtures_host}; comparison and dedup smokes skipped.",
+            file=sys.stderr,
+        )
+
     entry = ROOT / "packaging/tests/e2e/server-entrypoint.sh"
     entry_vol = docker_host_path(entry)
     pkg_vol = docker_host_path(pkg_abs)
     smoke_vol = docker_host_path(smoke_abs)
 
-    fixtures_host = ROOT / "packaging/tests/fixtures/grpc-smoke"
-    fixtures_server = "/tmp/vd-fixtures/grpc-smoke"
     compare_left = ""
     compare_right = ""
 
@@ -213,200 +269,228 @@ def main() -> None:
         "-v",
         f"{pkg_vol}:/tmp/videodedupserver.deb:ro",
     ]
-    left_mp4 = fixtures_host / "left.mp4"
-    right_mp4 = fixtures_host / "right.mp4"
-    if left_mp4.is_file() and right_mp4.is_file():
-        mounts += ["-v", f"{docker_host_path(fixtures_host)}:{fixtures_server}:ro"]
+    if have_fixtures:
+        mounts += ["-v", f"{docker_host_path(fixtures_host)}:{fixtures_server}:rw"]
         compare_left = f"{fixtures_server}/left.mp4"
         compare_right = f"{fixtures_server}/right.mp4"
-        print(f"Using gRPC comparison fixtures at {fixtures_server} (in container).")
-    else:
-        print(
-            f"Note: grpc-smoke fixtures not found under {fixtures_host}; comparison deep smoke will be skipped.",
-            file=sys.stderr,
-        )
+        print(f"Using gRPC fixtures at {fixtures_server} (in container).")
 
-    container = f"videodedup-grpc-smoke-{os.getpid()}-{random.randint(0, 99999)}"
+    if have_fixtures:
+        prepare_dedup_fixture_copies_on_host(fixtures_host)
 
-    def cleanup() -> None:
-        subprocess.run(["docker", "rm", "-f", container], capture_output=True)
-
-    atexit.register(cleanup)
-
-    if arch == "arm64":
-        ffmpeg_lib = "/usr/lib/aarch64-linux-gnu"
-    else:
-        ffmpeg_lib = "/usr/lib/x86_64-linux-gnu"
-
-    print(f"Starting {container} (image={server_image}, published localhost:{port} -> container :51726) ...")
-    run(
-        [
-            "docker",
-            "run",
-            "-d",
-            "--name",
-            container,
-            "--privileged",
-            "-p",
-            f"{port}:51726",
-            "-e",
-            "VD_PACKAGE_FORMAT=deb",
-            "-e",
-            "VD_FIREWALL=nft",
-            "-e",
-            f"VIDEODEDUP_FFMPEG_LIB_ROOT={ffmpeg_lib}",
-            *mounts,
-            server_image,
-            "bash",
-            "/entrypoint.sh",
-        ]
-    )
-
-    print("Waiting for gRPC readiness (/tmp/vd-ready in container) ...")
-    ready = False
-    for _ in range(180):
-        r = subprocess.run(
-            ["docker", "exec", container, "test", "-f", "/tmp/vd-ready"],
-            capture_output=True,
-        )
-        if r.returncode == 0:
-            ready = True
-            break
-        time.sleep(1)
-    if not ready:
-        docker_logs(container)
-        die("Server did not become ready in time.", 1)
-
-    grpc_url = f"http://127.0.0.1:{port}"
-
-    def log_compare_env(name: str) -> None:
-        print(f"E2E [{name}] VIDEODEDUP_SMOKE_COMPARE_LEFT={compare_left or '<unset>'}", file=sys.stderr)
-        print(f"E2E [{name}] VIDEODEDUP_SMOKE_COMPARE_RIGHT={compare_right or '<unset>'}", file=sys.stderr)
-
-    def run_smoke(url: str) -> None:
-        log_compare_env("VideoDedupGrpcSmoke")
-        use_host_dotnet = bool(which("dotnet")) and (
-            os.environ.get("VD_SMOKE_USE_HOST_DOTNET", "").strip() == "1"
-            or os.environ.get("VD_SMOKE_IN_DOCKER", "").strip() == "0"
-        )
-        env = os.environ.copy()
-        env["VIDEODEDUP_SMOKE_COMPARE_LEFT"] = compare_left
-        env["VIDEODEDUP_SMOKE_COMPARE_RIGHT"] = compare_right
-        if use_host_dotnet:
-            smoke_dll = docker_host_path(smoke_abs / "VideoDedupGrpcSmoke.dll")
-            r = subprocess.run(["dotnet", smoke_dll, url], env=env)
-            if r.returncode != 0:
-                die(f"VideoDedupGrpcSmoke exited with code {r.returncode}", r.returncode)
-            return
-        print(
-            "Running VideoDedupGrpcSmoke in mcr.microsoft.com/dotnet/runtime:8.0 "
-            "(default; use VD_SMOKE_USE_HOST_DOTNET=1 for host dotnet) ...",
-            file=sys.stderr,
-        )
-        smoke_url = url.replace("127.0.0.1", "host.docker.internal").replace("localhost", "host.docker.internal")
-        env_docker = os.environ.copy()
-        if os.name == "nt":
-            env_docker.setdefault("MSYS2_ARG_CONV_EXCL", "*")
-        r = subprocess.run(
-            [
-                "docker",
-                "run",
-                "--rm",
-                "--add-host=host.docker.internal:host-gateway",
-                "-e",
-                f"VIDEODEDUP_SMOKE_COMPARE_LEFT={compare_left}",
-                "-e",
-                f"VIDEODEDUP_SMOKE_COMPARE_RIGHT={compare_right}",
-                "-v",
-                f"{smoke_vol}:/smoke:ro",
-                "mcr.microsoft.com/dotnet/runtime:8.0",
-                "dotnet",
-                "/smoke/VideoDedupGrpcSmoke.dll",
-                smoke_url,
-            ],
-            env=env_docker,
-        )
-        if r.returncode != 0:
-            die(f"VideoDedupGrpcSmoke (docker runtime) exited with code {r.returncode}", r.returncode)
-
-    def run_comparison_smoke(url: str, comparison_abs: Path) -> None:
-        log_compare_env("VideoDedupGrpcComparisonSmoke")
-        use_host_dotnet = bool(which("dotnet")) and (
-            os.environ.get("VD_SMOKE_USE_HOST_DOTNET", "").strip() == "1"
-            or os.environ.get("VD_SMOKE_IN_DOCKER", "").strip() == "0"
-        )
-        env = os.environ.copy()
-        env["VIDEODEDUP_SMOKE_COMPARE_LEFT"] = compare_left
-        env["VIDEODEDUP_SMOKE_COMPARE_RIGHT"] = compare_right
-        if use_host_dotnet:
-            dll = docker_host_path(comparison_abs / "VideoDedupGrpcComparisonSmoke.dll")
-            r = subprocess.run(["dotnet", dll, url], env=env)
-            if r.returncode != 0:
-                die(f"VideoDedupGrpcComparisonSmoke exited with code {r.returncode}", r.returncode)
-            return
-        print(
-            "Running VideoDedupGrpcComparisonSmoke in mcr.microsoft.com/dotnet/runtime:8.0 ...",
-            file=sys.stderr,
-        )
-        smoke_url = url.replace("127.0.0.1", "host.docker.internal").replace("localhost", "host.docker.internal")
-        env_docker = os.environ.copy()
-        if os.name == "nt":
-            env_docker.setdefault("MSYS2_ARG_CONV_EXCL", "*")
-        r = subprocess.run(
-            [
-                "docker",
-                "run",
-                "--rm",
-                "--add-host=host.docker.internal:host-gateway",
-                "-e",
-                f"VIDEODEDUP_SMOKE_COMPARE_LEFT={compare_left}",
-                "-e",
-                f"VIDEODEDUP_SMOKE_COMPARE_RIGHT={compare_right}",
-                "-v",
-                f"{docker_host_path(comparison_abs.resolve())}:/comparison-smoke:ro",
-                "mcr.microsoft.com/dotnet/runtime:8.0",
-                "dotnet",
-                "/comparison-smoke/VideoDedupGrpcComparisonSmoke.dll",
-                smoke_url,
-            ],
-            env=env_docker,
-        )
-        if r.returncode != 0:
-            die(
-                f"VideoDedupGrpcComparisonSmoke (docker runtime) exited with code {r.returncode}",
-                r.returncode,
-            )
-
-    print(f"Running gRPC smoke against {grpc_url} ...")
     try:
-        run_smoke(grpc_url)
-    except SystemExit as e:
-        if e.code not in (0, None):
-            print("--- server container logs ---", file=sys.stderr)
-            docker_logs(container)
-        raise
+        container = f"videodedup-grpc-smoke-{os.getpid()}-{random.randint(0, 99999)}"
 
-    if compare_left and compare_right:
-        print(f"Publishing VideoDedupGrpcComparisonSmoke to {ROOT / 'packaging/out' / arch / 'e2e-comparison-smoke'} ...")
-        publish_smoke_project(
-            "VideoDedupGrpcComparisonSmoke/VideoDedupGrpcComparisonSmoke.csproj",
-            "e2e-comparison-smoke",
-            arch,
-            rid,
+        def cleanup() -> None:
+            subprocess.run(["docker", "rm", "-f", container], capture_output=True)
+
+        atexit.register(cleanup)
+
+        if arch == "arm64":
+            ffmpeg_lib = "/usr/lib/aarch64-linux-gnu"
+        else:
+            ffmpeg_lib = "/usr/lib/x86_64-linux-gnu"
+
+        print(f"Starting {container} (image={server_image}, published localhost:{port} -> container :51726) ...")
+        run(
+            [
+                "docker",
+                "run",
+                "-d",
+                "--name",
+                container,
+                "--privileged",
+                "-p",
+                f"{port}:51726",
+                "-e",
+                "VD_PACKAGE_FORMAT=deb",
+                "-e",
+                "VD_FIREWALL=nft",
+                "-e",
+                f"VIDEODEDUP_FFMPEG_LIB_ROOT={ffmpeg_lib}",
+                *mounts,
+                server_image,
+                "bash",
+                "/entrypoint.sh",
+            ]
         )
-        comp_abs = ROOT / "packaging/out" / arch / "e2e-comparison-smoke"
-        print(f"Running gRPC comparison deep smoke (DIFFERENT, DUPLICATE, cancel) against {grpc_url} ...")
-        try:
-            run_comparison_smoke(grpc_url, comp_abs.resolve())
-        except SystemExit as e:
-            if e.code not in (0, None):
-                print("--- server container logs (comparison deep smoke failed) ---", file=sys.stderr)
-                docker_logs(container)
-            raise
-    else:
-        print("Skipping VideoComparison deep smoke (grpc-smoke fixtures not mounted / paths unset).", file=sys.stderr)
 
-    print(f"OK: Docker gRPC smoke passed ({server_image}, {pkg_abs}).")
+        print("Waiting for gRPC readiness (/tmp/vd-ready in container) ...")
+        ready = False
+        for _ in range(180):
+            r = subprocess.run(
+                ["docker", "exec", container, "test", "-f", "/tmp/vd-ready"],
+                capture_output=True,
+            )
+            if r.returncode == 0:
+                ready = True
+                break
+            time.sleep(1)
+        if not ready:
+            docker_logs(container)
+            die("Server did not become ready in time.", 1)
+
+        grpc_url = f"http://127.0.0.1:{port}"
+
+        def log_compare_env(name: str) -> None:
+            print(f"E2E [{name}] VIDEODEDUP_SMOKE_COMPARE_LEFT={compare_left or '<unset>'}", file=sys.stderr)
+            print(f"E2E [{name}] VIDEODEDUP_SMOKE_COMPARE_RIGHT={compare_right or '<unset>'}", file=sys.stderr)
+
+        use_host_dotnet = bool(which("dotnet")) and (
+            os.environ.get("VD_SMOKE_USE_HOST_DOTNET", "").strip() == "1"
+            or os.environ.get("VD_SMOKE_IN_DOCKER", "").strip() == "0"
+        )
+
+        def run_grpc_smoke_code(url: str) -> int:
+            log_compare_env("VideoDedupGrpcSmoke")
+            env = os.environ.copy()
+            env["VIDEODEDUP_SMOKE_COMPARE_LEFT"] = compare_left
+            env["VIDEODEDUP_SMOKE_COMPARE_RIGHT"] = compare_right
+            if use_host_dotnet:
+                smoke_dll = docker_host_path(smoke_abs / "VideoDedupGrpcSmoke.dll")
+                r = subprocess.run(["dotnet", smoke_dll, url], env=env)
+                return r.returncode
+            print(
+                "Running VideoDedupGrpcSmoke in mcr.microsoft.com/dotnet/runtime:8.0 ...",
+                file=sys.stderr,
+            )
+            smoke_url = url.replace("127.0.0.1", "host.docker.internal").replace("localhost", "host.docker.internal")
+            env_docker = os.environ.copy()
+            if os.name == "nt":
+                env_docker.setdefault("MSYS2_ARG_CONV_EXCL", "*")
+            r = subprocess.run(
+                [
+                    "docker",
+                    "run",
+                    "--rm",
+                    "--add-host=host.docker.internal:host-gateway",
+                    "-e",
+                    f"VIDEODEDUP_SMOKE_COMPARE_LEFT={compare_left}",
+                    "-e",
+                    f"VIDEODEDUP_SMOKE_COMPARE_RIGHT={compare_right}",
+                    "-v",
+                    f"{smoke_vol}:/smoke:ro",
+                    "mcr.microsoft.com/dotnet/runtime:8.0",
+                    "dotnet",
+                    "/smoke/VideoDedupGrpcSmoke.dll",
+                    smoke_url,
+                ],
+                env=env_docker,
+            )
+            return r.returncode
+
+        def run_comparison_smoke_code(url: str, comparison_abs: Path) -> int:
+            log_compare_env("VideoDedupGrpcComparisonSmoke")
+            env = os.environ.copy()
+            env["VIDEODEDUP_SMOKE_COMPARE_LEFT"] = compare_left
+            env["VIDEODEDUP_SMOKE_COMPARE_RIGHT"] = compare_right
+            if use_host_dotnet:
+                dll = docker_host_path(comparison_abs / "VideoDedupGrpcComparisonSmoke.dll")
+                r = subprocess.run(["dotnet", dll, url], env=env)
+                return r.returncode
+            print(
+                "Running VideoDedupGrpcComparisonSmoke in mcr.microsoft.com/dotnet/runtime:8.0 ...",
+                file=sys.stderr,
+            )
+            smoke_url = url.replace("127.0.0.1", "host.docker.internal").replace("localhost", "host.docker.internal")
+            env_docker = os.environ.copy()
+            if os.name == "nt":
+                env_docker.setdefault("MSYS2_ARG_CONV_EXCL", "*")
+            r = subprocess.run(
+                [
+                    "docker",
+                    "run",
+                    "--rm",
+                    "--add-host=host.docker.internal:host-gateway",
+                    "-e",
+                    f"VIDEODEDUP_SMOKE_COMPARE_LEFT={compare_left}",
+                    "-e",
+                    f"VIDEODEDUP_SMOKE_COMPARE_RIGHT={compare_right}",
+                    "-v",
+                    f"{docker_host_path(comparison_abs.resolve())}:/comparison-smoke:ro",
+                    "mcr.microsoft.com/dotnet/runtime:8.0",
+                    "dotnet",
+                    "/comparison-smoke/VideoDedupGrpcComparisonSmoke.dll",
+                    smoke_url,
+                ],
+                env=env_docker,
+            )
+            return r.returncode
+
+        def run_dedup_smoke_code(url: str, fixture_dir: str, dedup_root: Path) -> int:
+            print(f"E2E [VideoDedupGrpcDedupSmoke] VIDEODEDUP_SMOKE_FIXTURE_DIR={fixture_dir}", file=sys.stderr)
+            env = os.environ.copy()
+            env["VIDEODEDUP_SMOKE_FIXTURE_DIR"] = fixture_dir
+            if use_host_dotnet:
+                dll = docker_host_path(dedup_root / "VideoDedupGrpcDedupSmoke.dll")
+                r = subprocess.run(["dotnet", dll, url], env=env)
+                return r.returncode
+            print(
+                "Running VideoDedupGrpcDedupSmoke in mcr.microsoft.com/dotnet/runtime:8.0 ...",
+                file=sys.stderr,
+            )
+            dedup_v = docker_host_path(dedup_root.resolve())
+            smoke_url = url.replace("127.0.0.1", "host.docker.internal").replace("localhost", "host.docker.internal")
+            env_docker = os.environ.copy()
+            env_docker["VIDEODEDUP_SMOKE_FIXTURE_DIR"] = fixture_dir
+            if os.name == "nt":
+                env_docker.setdefault("MSYS2_ARG_CONV_EXCL", "*")
+            r = subprocess.run(
+                [
+                    "docker",
+                    "run",
+                    "--rm",
+                    "--add-host=host.docker.internal:host-gateway",
+                    "-e",
+                    f"VIDEODEDUP_SMOKE_FIXTURE_DIR={fixture_dir}",
+                    "-v",
+                    f"{dedup_v}:/dedup-smoke:ro",
+                    "mcr.microsoft.com/dotnet/runtime:8.0",
+                    "dotnet",
+                    "/dedup-smoke/VideoDedupGrpcDedupSmoke.dll",
+                    smoke_url,
+                ],
+                env=env_docker,
+            )
+            return r.returncode
+
+        if compare_left and compare_right and comp_abs is not None and dedup_abs is not None:
+            print(f"Running VideoDedupGrpcSmoke + VideoDedupGrpcComparisonSmoke in parallel ({grpc_url}) ...", flush=True)
+            failures: list[tuple[str, int]] = []
+            with ThreadPoolExecutor(max_workers=2) as ex:
+                f_grpc = ex.submit(run_grpc_smoke_code, grpc_url)
+                f_comp = ex.submit(run_comparison_smoke_code, grpc_url, comp_abs)
+                code_g = f_grpc.result()
+                code_c = f_comp.result()
+            if code_g != 0:
+                failures.append(("VideoDedupGrpcSmoke", code_g))
+            if code_c != 0:
+                failures.append(("VideoDedupGrpcComparisonSmoke", code_c))
+            if failures:
+                for label, code in failures:
+                    print(f"FAILED: {label} exit={code}", file=sys.stderr, flush=True)
+                print("--- server container logs ---", file=sys.stderr)
+                docker_logs(container)
+                die("parallel gRPC smoke failed", 1)
+
+            print(f"Running VideoDedupGrpcDedupSmoke ({grpc_url}) ...", flush=True)
+            code_d = run_dedup_smoke_code(grpc_url, fixtures_server, dedup_abs)
+            if code_d != 0:
+                print("--- server container logs (dedup smoke failed) ---", file=sys.stderr)
+                docker_logs(container)
+                die(f"VideoDedupGrpcDedupSmoke exited with code {code_d}", code_d)
+        else:
+            print(f"Running gRPC smoke only against {grpc_url} ...", flush=True)
+            code = run_grpc_smoke_code(grpc_url)
+            if code != 0:
+                print("--- server container logs ---", file=sys.stderr)
+                docker_logs(container)
+                die(f"VideoDedupGrpcSmoke exited with code {code}", code)
+
+        print(f"OK: Docker gRPC smoke passed ({server_image}, {pkg_abs}).")
+    finally:
+        if have_fixtures:
+            cleanup_dedup_fixture_copies_on_host(fixtures_host)
 
 
 if __name__ == "__main__":

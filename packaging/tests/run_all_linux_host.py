@@ -5,10 +5,11 @@ Replaces run-all-linux-host.sh for host/CI. Uses packaging/ci Python drivers (no
 
 PowerShell: avoid `2>&1` if debconf/docker stderr lines show as NativeCommandError; they are harmless.
 
-The gRPC firewall E2E rows match the CI matrix in .github/workflows/linux-packaging.yml (without
-snap/flatpak). CI runs those rows as separate parallel jobs; locally use -j N to overlap them
-(see --help). Pre-publishes VideoDedupGrpcSmoke once when -j > 1 so parallel workers do not race
-on packaging/out/<arch>/e2e-smoke/.
+Pipeline: run_package_tests → firewall integration → deb/rpm install smokes → **docker_grpc_deep_smoke**
+(VideoDedupGrpcSmoke; optional VideoDedupGrpcComparisonSmoke + VideoDedupGrpcDedupSmoke when Git LFS fixtures exist)
+→ gRPC firewall matrix (`docker_grpc_firewall.py`). The firewall rows match CI `e2e-grpc-firewall` (no snap/flatpak).
+CI runs each row as a separate job; locally use `-j N` to overlap firewall runs only. When `-j` > 1, pre-publishes
+VideoDedupGrpcSmoke once so workers do not race on `packaging/out/<arch>/e2e-smoke/`.
 """
 
 from __future__ import annotations
@@ -142,6 +143,11 @@ def main() -> None:
     run_step(
         "docker_install_smoke rpm",
         [py, str(root / "packaging" / "ci" / "docker_install_smoke.py"), "rpm", "--arch", arch],
+        root,
+    )
+    run_step(
+        "docker_grpc_deep_smoke.py",
+        [py, str(root / "packaging" / "tests" / "e2e" / "docker_grpc_deep_smoke.py"), "--arch", arch],
         root,
     )
 
