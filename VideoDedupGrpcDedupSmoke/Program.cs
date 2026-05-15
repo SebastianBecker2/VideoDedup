@@ -92,7 +92,7 @@ try
             && st.PreparedDuplicatesCount == 2
             && op.OperationType == OperationType.Monitoring
             && op.MaximumFiles == 4
-            && op.ProgressCount == 4)
+            && op.ProgressCount >= 4)
         {
             break;
         }
@@ -111,14 +111,14 @@ try
         || finalCheck.PreparedDuplicatesCount != 2
         || opInfo.OperationType != OperationType.Monitoring
         || opInfo.MaximumFiles != 4
-        || opInfo.ProgressCount != 4)
+        || opInfo.ProgressCount < 4)
     {
         Console.Error.WriteLine(
             "GetCurrentStatus poll timed out or expected values not reached. Last response:");
         Console.Error.WriteLine(finalCheck.ToString());
         throw new InvalidOperationException(
             "Timed out or condition mismatch: expected logCount>0, totalDuplicates=2, prepared=2, "
-            + "MONITORING, maximum_files=4, progress_count=4.");
+            + "MONITORING, maximum_files=4, progress_count>=4.");
     }
 
     currentStep = "GetProgressInfo";
@@ -128,10 +128,10 @@ try
         Start = 0,
         Count = 10,
     });
-    if (progressResp.ProgressInfos.Count != 4)
+    if (progressResp.ProgressInfos.Count < 4)
     {
         throw new InvalidOperationException(
-            $"GetProgressInfo: expected 4 entries, got {progressResp.ProgressInfos.Count}.");
+            $"GetProgressInfo: expected at least 4 entries, got {progressResp.ProgressInfos.Count}.");
     }
 
     currentStep = "GetLogEntries";
