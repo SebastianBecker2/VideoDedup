@@ -444,9 +444,13 @@ fi
 
 install -d -o videodedup -g videodedup /var/lib/videodedupserver
 
-# Smoke mounts comparison fixtures here; videodedup must be able to read them.
+# Smoke mounts comparison / dedup fixtures here. The service runs as user videodedup; the bind mount
+# is often owned by root or the host checkout UID (e.g. GitHub Actions), so "other" cannot remove
+# directory entries — ResolveDuplicate (delete file) fails with "access denied" even when the volume is rw.
+# Grant write on directories only so unlink/create names under /tmp/vd-fixtures works without chmod'ing files.
 if [[ -d /tmp/vd-fixtures ]]; then
   chmod -R a+rX /tmp/vd-fixtures 2>/dev/null || true
+  find /tmp/vd-fixtures -type d -exec chmod o+w {} + 2>/dev/null || true
 fi
 
 # FFmpeg.AutoGen loads libav from this directory on Linux (FfmpegWrapper.TryConfigureLinuxNativeRootPath).
