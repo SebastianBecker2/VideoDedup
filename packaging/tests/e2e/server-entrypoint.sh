@@ -152,13 +152,36 @@ vd_ensure_openssl() {
   command -v openssl >/dev/null 2>&1
 }
 
+# Resolve .../lib/videodedupserver inside an installed flatpak (show-location varies by flatpak version).
+vd_flatpak_server_lib() {
+  local app_id="${1:?app id required}"
+  local arch="x86_64"
+  case "$(uname -m 2>/dev/null)" in
+    aarch64 | arm64) arch="aarch64" ;;
+  esac
+  local cand root base
+  for cand in \
+    "$(flatpak info --show-location "${app_id}" 2>/dev/null || true)" \
+    "/var/lib/flatpak/app/${app_id}/${arch}/stable/active/files" \
+    "${HOME}/.local/share/flatpak/app/${app_id}/${arch}/stable/active/files"; do
+    [[ -n "${cand}" ]] || continue
+    root="${cand%/}"
+    for base in "${root}" "${root}/files"; do
+      [[ -d "${base}/lib/videodedupserver" ]] || continue
+      printf '%s/lib/videodedupserver' "${base}"
+      return 0
+    done
+  done
+  return 1
+}
+
 vd_setup_tls() {
   local install_root="${1:-/usr/lib/videodedupserver}"
   local cert_dir="${2:-${install_root}/cert}"
-  local cert_setup="${install_root}/cert-setup"
+  local cert_setup="${VD_CERT_SETUP_DIR:-${install_root}/cert-setup}"
   local pfx_path="${cert_dir}/VideoDedup.pfx"
   [[ -x "${cert_setup}/generate-server-cert.sh" ]] || {
-    echo "E2E: cert-setup missing under ${install_root} (rebuild .deb after TLS packaging changes)" >&2
+    echo "E2E: cert-setup missing (tried ${cert_setup}; rebuild package or mount /opt/videodedup-cert-setup)" >&2
     return 1
   }
   vd_ensure_openssl || {
@@ -575,22 +598,24 @@ if [[ "${FMT}" == flatpak ]]; then
   install -d -m 0700 -o videodedup -g videodedup "/run/user/${_u}"
   _fp_app_id="io.github.sebastianbecker2.videodedup.server"
   _fp_data="/var/lib/videodedupserver/.var/app/${_fp_app_id}/data"
-  _fp_install=""
-  if _fp_root="$(flatpak info --show-location "${_fp_app_id}" 2>/dev/null)" && [[ -n "${_fp_root}" ]]; then
-    _fp_install="${_fp_root}/lib/videodedupserver"
-  fi
-  if [[ -n "${_fp_install}" && -x "${_fp_install}/cert-setup/generate-server-cert.sh" ]]; then
-    install -d -o videodedup -g videodedup "${_fp_data}/cert"
-    vd_ensure_openssl || {
-      echo "E2E: openssl required for flatpak TLS certificate" >&2
-      exit 1
-    }
-    vd_setup_tls "${_fp_install}" "${_fp_data}/cert" || exit 1
-    vd_require_tls_cert "${_fp_data}/cert/VideoDedup.pfx"
-  else
-    echo "E2E: flatpak app install path missing cert-setup (rebuild flatpak bundle)" >&2
+  _fp_install="$(vd_flatpak_server_lib "${_fp_app_id}")" || {
+    echo "E2E: could not locate flatpak app files for ${_fp_app_id}" >&2
     exit 1
+  }
+  VD_CERT_SETUP_DIR="${_fp_install}/cert-setup"
+  if [[ ! -x "${VD_CERT_SETUP_DIR}/generate-server-cert.sh" ]] \
+    && [[ -x /opt/videodedup-cert-setup/generate-server-cert.sh ]]; then
+    VD_CERT_SETUP_DIR="/opt/videodedup-cert-setup"
   fi
+  export VD_CERT_SETUP_DIR
+  install -d -o videodedup -g videodedup "${_fp_data}/cert"
+  vd_ensure_openssl || {
+    echo "E2E: openssl required for flatpak TLS certificate" >&2
+    exit 1
+  }
+  vd_setup_tls "${_fp_install}" "${_fp_data}/cert" || exit 1
+  vd_require_tls_cert "${_fp_data}/cert/VideoDedup.pfx"
+  unset VD_CERT_SETUP_DIR
   # Packaged binary refuses UID 0 (LinuxHostBootstrap); flatpak must not run as root.
   vd_exec_as_videodedup env -u ASPNETCORE_URLS \
     ASPNETCORE_ENVIRONMENT=Production \

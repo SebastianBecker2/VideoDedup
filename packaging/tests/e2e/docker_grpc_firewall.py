@@ -450,6 +450,8 @@ def main() -> None:
         mounts += ["-v", f"{docker_host_path(pkg_abs)}:/tmp/videodedupserver.snap:ro"]
     elif fmt == "flatpak" and pkg_abs is not None:
         mounts += ["-v", f"{docker_host_path(pkg_abs)}:/tmp/videodedupserver.flatpak:ro"]
+        cert_scripts = ROOT / "packaging" / "common" / "scripts"
+        mounts += ["-v", f"{docker_host_path(cert_scripts)}:/opt/videodedup-cert-setup:ro"]
 
     print(f"Starting server container ({srv}, image={srv_image}, format={fmt}, firewall={firewall}) ...")
     run(
