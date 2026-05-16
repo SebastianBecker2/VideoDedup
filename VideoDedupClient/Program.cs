@@ -2,6 +2,7 @@ namespace VideoDedupClient
 {
     using System.IO;
     using System.Net;
+    using Microsoft.Win32;
     using System.Net.Http;
     using System.Security.Authentication;
     using System.Security.Cryptography.X509Certificates;
@@ -14,6 +15,11 @@ namespace VideoDedupClient
 
     internal static class Program
     {
+        private const int DefaultClientPort = 51726;
+
+        private const string ClientInstallListenPortRegistryKey =
+            @"SOFTWARE\SebastianBecker\VideoDedup\Client";
+
         private static GrpcChannel? grpcChannel;
         private static SocketsHttpHandler? grpcHandler;
         private static readonly object GrpcClientLock = new();
@@ -293,6 +299,36 @@ namespace VideoDedupClient
             }
         }
 
+        private static void ApplyInstallListenPortFromRegistry()
+        {
+            if (Settings.Default.Port != DefaultClientPort)
+            {
+                return;
+            }
+
+            try
+            {
+                using var key = Registry.LocalMachine.OpenSubKey(
+                    ClientInstallListenPortRegistryKey,
+                    false);
+                var value = key?.GetValue("InstallListenPort");
+                if (value is not int port
+                    || port < 1024
+                    || port > 65535
+                    || port == DefaultClientPort)
+                {
+                    return;
+                }
+
+                Settings.Default.Port = port;
+                Settings.Default.Save();
+            }
+            catch
+            {
+                // ignore registry read failures
+            }
+        }
+
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
@@ -305,6 +341,8 @@ namespace VideoDedupClient
                 Settings.Default.UpgradeRequired = false;
                 Settings.Default.Save();
             }
+
+            ApplyInstallListenPortFromRegistry();
 
             ApplicationConfiguration.Initialize();
             Application.Run(new VideoDedupDlg());

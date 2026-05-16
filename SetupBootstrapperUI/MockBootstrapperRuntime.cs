@@ -100,6 +100,8 @@ namespace SetupBootstrapperUI
                         @"C:\Program Files\VideoDedupClient";
                     variables["ServerCertPath"] = fakeServerCertPath;
                     variables["ServerCertThumbprint"] = fakeThumbprint;
+                    variables["ServerListenPort"] = "52000";
+                    variables["ServerListenBindings"] = "192.168.1.10";
                     break;
             }
         }

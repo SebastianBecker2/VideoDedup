@@ -28,6 +28,9 @@
 
     <Property Id="CLIENTCERTSOURCE" Secure="yes" />
     <Property Id="VIDEODEDUP_IMPORTCLIENTCERT" Secure="yes" />
+    <Property Id="SERVERLISTENPORT" Value="$(var.DefaultServerPort)" Secure="yes" />
+    <Property Id="SERVERLISTENBINDINGS" Value="ALL" Secure="yes" />
+    <Property Id="VIDEODEDUP_SYNCCLIENTPORT" Secure="yes" />
 
     <Binary Id ="SetupActionCert"
             SourceFile="$(var.SetupActionCertificate.TargetDir)\SetupActionCertificate.CA.dll" />
@@ -92,13 +95,29 @@
                   Execute="deferred"
                   Impersonate="no"/>
 
+    <CustomAction Id="SetConfigureListenPort"
+                  Property="ConfigureListenPortFunc"
+                  Value="SERVERFOLDER=[SERVERFOLDER];SERVERLISTENPORT=[SERVERLISTENPORT];SERVERLISTENBINDINGS=[SERVERLISTENBINDINGS];CLIENTFOLDER=[CLIENTFOLDER];VIDEODEDUP_SYNCCLIENTPORT=[VIDEODEDUP_SYNCCLIENTPORT]"
+                  Execute="immediate"/>
+    <CustomAction Id="ConfigureListenPortFunc"
+                  BinaryRef="SetupActionCert"
+                  DllEntry="ConfigureServerListenPort"
+                  Execute="deferred"
+                  Impersonate="no"/>
+
     <InstallExecuteSequence>
       <Custom Action="SetInstallPath_Install"
               Before="GenerateSelfSignedCertFunc"/>
         
       <Custom Action="GenerateSelfSignedCertFunc"
               After="InstallFiles"
-              Condition="&amp;ServerFeature=3"/>
+              Condition="&amp;ServerFeature=3 AND NOT Installed"/>
+
+      <Custom Action="SetConfigureListenPort"
+              Before="ConfigureListenPortFunc"/>
+      <Custom Action="ConfigureListenPortFunc"
+              After="GenerateSelfSignedCertFunc"
+              Condition="SERVERLISTENPORT AND NOT REMOVE=&quot;ALL&quot;"/>
 
       <Custom Action="SetImportClientCertAfterServer"
               Before="ImportClientCertAfterServer"/>
@@ -198,10 +217,20 @@
       <Files Include="$(var.VideoDedupService.ProjectDir)bin\publish\*.*">
         <Exclude Files="$(var.VideoDedupService.ProjectDir)bin\publish\VideoDedupService.exe" />
         <Exclude Files="$(var.VideoDedupService.ProjectDir)bin\publish\appsettings.Development.json" />
+        <Exclude Files="$(var.VideoDedupService.ProjectDir)bin\publish\appsettings.json" />
       </Files>
       <Files Include="$(var.VideoDedupService.ProjectDir)bin\publish\fr\*.*"
              Subdirectory="fr"/>
         
+      <Component Id="ServerAppSettings"
+                 Guid="D4F8B2C1-9E3A-4F7B-8C2D-1A5E6F9B0C3D"
+                 Bitness="always64"
+                 NeverOverwrite="yes">
+        <File Id="Server_appsettings.json"
+              Source="$(var.VideoDedupService.ProjectDir)bin\publish\appsettings.json"
+              KeyPath="yes" />
+      </Component>
+
       <Component Id="ServerComponent"
                  Guid="B3034FC0-CCFB-44AC-A9B3-7E912B885254"
                  Bitness="always64">
@@ -234,7 +263,7 @@
                                 Program="[SERVERFOLDER]VideoDedupService.exe"
                                 Profile="all"
                                 Protocol="tcp"
-                                Port="51726" />
+                                Port="[SERVERLISTENPORT]" />
       </Component>
     </ComponentGroup>
   </Fragment>

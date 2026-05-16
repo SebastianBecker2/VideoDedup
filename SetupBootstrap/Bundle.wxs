@@ -26,6 +26,9 @@
     <Variable Name="ServerCertPath" Type="string" Value="" />
     <Variable Name="ServerCertThumbprint" Type="string" Value="" />
     <Variable Name="ClientInstallFolderMarker" Type="string" Value="" />
+    <Variable Name="ServerListenPort" Type="string" Value="51726" bal:Overridable="yes" />
+    <Variable Name="ServerListenBindings" Type="string" Value="ALL" bal:Overridable="yes" />
+    <Variable Name="SyncClientListenPort" Type="string" Value="" bal:Overridable="yes" />
 
     <util:RegistrySearch Id="SearchServerCertPath"
                          Root="HKLM"
@@ -45,6 +48,18 @@
                          Value="InstallFolder"
                          Variable="ClientInstallFolderMarker"
                          Result="value" />
+    <util:RegistrySearch Id="SearchServerListenPort"
+                         Root="HKLM"
+                         Key="SOFTWARE\SebastianBecker\VideoDedup\Server"
+                         Value="ListenPort"
+                         Variable="ServerListenPort"
+                         Result="value" />
+    <util:RegistrySearch Id="SearchServerListenBindings"
+                         Root="HKLM"
+                         Key="SOFTWARE\SebastianBecker\VideoDedup\Server"
+                         Value="ListenBindings"
+                         Variable="ServerListenBindings"
+                         Result="value" />
 
     <BootstrapperApplication SourceFile="$(var.SetupBootstrapperUI.TargetPath)">
       <Payload SourceFile="$(var.SetupBootstrapperUI.TargetDir)WixToolset.BootstrapperApplicationApi.dll" />
@@ -60,6 +75,9 @@
                   EnableFeatureSelection="yes">
         <MsiProperty Name="CLIENTCERTSOURCE" Value="[ClientCertSource]" />
         <MsiProperty Name="VIDEODEDUP_IMPORTCLIENTCERT" Value="[TriggerClientCertImport]" />
+        <MsiProperty Name="SERVERLISTENPORT" Value="[ServerListenPort]" />
+        <MsiProperty Name="SERVERLISTENBINDINGS" Value="[ServerListenBindings]" />
+        <MsiProperty Name="VIDEODEDUP_SYNCCLIENTPORT" Value="[SyncClientListenPort]" />
       </MsiPackage>
     </Chain>
 

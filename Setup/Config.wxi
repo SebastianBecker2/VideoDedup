@@ -6,4 +6,5 @@
   <?define ServerComponentId = "CC8E71A2-C8DF-4690-AD81-FAED83E0E9D4" ?>
   <?define ClientComponent = "VideoDedupClient" ?>
   <?define ClientComponentId = "E43DE693-2A7F-42BC-AEDB-FA027F0CCA7E" ?>
+  <?define DefaultServerPort = 51726 ?>
 </Include>

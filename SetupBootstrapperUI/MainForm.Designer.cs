@@ -27,6 +27,13 @@ namespace SetupBootstrapperUI
             this.BtnNext = new System.Windows.Forms.Button();
             this.BtnBack = new System.Windows.Forms.Button();
             this.PnlContent = new System.Windows.Forms.Panel();
+            this.PnlConnectivity = new System.Windows.Forms.Panel();
+            this.ClbNetworkBindings = new System.Windows.Forms.CheckedListBox();
+            this.LblConnectivityNetworks = new System.Windows.Forms.Label();
+            this.LblConnectivityPortHint = new System.Windows.Forms.Label();
+            this.NudServerPort = new System.Windows.Forms.NumericUpDown();
+            this.LblConnectivityPort = new System.Windows.Forms.Label();
+            this.LblConnectivityHelp = new System.Windows.Forms.Label();
             this.PnlSelection = new System.Windows.Forms.Panel();
             this.LblReview = new System.Windows.Forms.Label();
             this.LblComponents = new System.Windows.Forms.Label();
@@ -59,7 +66,9 @@ namespace SetupBootstrapperUI
             this.PnlHeader.SuspendLayout();
             this.PnlFooter.SuspendLayout();
             this.PnlContent.SuspendLayout();
+            this.PnlConnectivity.SuspendLayout();
             this.PnlSelection.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.NudServerPort)).BeginInit();
             this.PnlClientCertPicker.SuspendLayout();
             this.PnlServerCertExport.SuspendLayout();
             this.PnlProgress.SuspendLayout();
@@ -157,6 +166,7 @@ namespace SetupBootstrapperUI
             // 
             this.PnlContent.BackColor = System.Drawing.Color.White;
             this.PnlContent.Controls.Add(this.PnlSelection);
+            this.PnlContent.Controls.Add(this.PnlConnectivity);
             this.PnlContent.Controls.Add(this.PnlClientCertPicker);
             this.PnlContent.Controls.Add(this.PnlServerCertExport);
             this.PnlContent.Controls.Add(this.PnlProgress);
@@ -315,6 +325,95 @@ namespace SetupBootstrapperUI
             this.ChbServer.Text = "Server service (host media index and trusted certificate)";
             this.ChbServer.UseVisualStyleBackColor = true;
             this.ChbServer.CheckedChanged += new System.EventHandler(this.SelectionChanged);
+            // 
+            // PnlConnectivity
+            // 
+            this.PnlConnectivity.Controls.Add(this.ClbNetworkBindings);
+            this.PnlConnectivity.Controls.Add(this.LblConnectivityNetworks);
+            this.PnlConnectivity.Controls.Add(this.LblConnectivityPortHint);
+            this.PnlConnectivity.Controls.Add(this.NudServerPort);
+            this.PnlConnectivity.Controls.Add(this.LblConnectivityPort);
+            this.PnlConnectivity.Controls.Add(this.LblConnectivityHelp);
+            this.PnlConnectivity.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.PnlConnectivity.Location = new System.Drawing.Point(17, 16);
+            this.PnlConnectivity.Name = "PnlConnectivity";
+            this.PnlConnectivity.Size = new System.Drawing.Size(617, 290);
+            this.PnlConnectivity.TabIndex = 5;
+            this.PnlConnectivity.Visible = false;
+            // 
+            // LblConnectivityHelp
+            // 
+            this.LblConnectivityHelp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.LblConnectivityHelp.Location = new System.Drawing.Point(21, 17);
+            this.LblConnectivityHelp.Name = "LblConnectivityHelp";
+            this.LblConnectivityHelp.Size = new System.Drawing.Size(576, 36);
+            this.LblConnectivityHelp.TabIndex = 0;
+            this.LblConnectivityHelp.Text = "Choose the TCP port and network addresses the server will listen on. Remote client" +
+    "s must use a reachable address and the same port.";
+            // 
+            // LblConnectivityPort
+            // 
+            this.LblConnectivityPort.AutoSize = true;
+            this.LblConnectivityPort.Location = new System.Drawing.Point(21, 60);
+            this.LblConnectivityPort.Name = "LblConnectivityPort";
+            this.LblConnectivityPort.Size = new System.Drawing.Size(124, 15);
+            this.LblConnectivityPort.TabIndex = 1;
+            this.LblConnectivityPort.Text = "Server listen port (TCP)";
+            // 
+            // NudServerPort
+            // 
+            this.NudServerPort.Location = new System.Drawing.Point(220, 57);
+            this.NudServerPort.Maximum = new decimal(new int[] {
+            65535,
+            0,
+            0,
+            0});
+            this.NudServerPort.Minimum = new decimal(new int[] {
+            1024,
+            0,
+            0,
+            0});
+            this.NudServerPort.Name = "NudServerPort";
+            this.NudServerPort.Size = new System.Drawing.Size(86, 23);
+            this.NudServerPort.TabIndex = 2;
+            this.NudServerPort.Value = new decimal(new int[] {
+            51726,
+            0,
+            0,
+            0});
+            // 
+            // LblConnectivityPortHint
+            // 
+            this.LblConnectivityPortHint.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.LblConnectivityPortHint.Location = new System.Drawing.Point(21, 84);
+            this.LblConnectivityPortHint.Name = "LblConnectivityPortHint";
+            this.LblConnectivityPortHint.Size = new System.Drawing.Size(576, 18);
+            this.LblConnectivityPortHint.TabIndex = 3;
+            this.LblConnectivityPortHint.Text = "Leave at 51726 unless you need a different port.";
+            // 
+            // LblConnectivityNetworks
+            // 
+            this.LblConnectivityNetworks.AutoSize = true;
+            this.LblConnectivityNetworks.Location = new System.Drawing.Point(21, 110);
+            this.LblConnectivityNetworks.Name = "LblConnectivityNetworks";
+            this.LblConnectivityNetworks.Size = new System.Drawing.Size(99, 15);
+            this.LblConnectivityNetworks.TabIndex = 4;
+            this.LblConnectivityNetworks.Text = "Listen on networks";
+            // 
+            // ClbNetworkBindings
+            // 
+            this.ClbNetworkBindings.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ClbNetworkBindings.CheckOnClick = true;
+            this.ClbNetworkBindings.FormattingEnabled = true;
+            this.ClbNetworkBindings.Location = new System.Drawing.Point(21, 130);
+            this.ClbNetworkBindings.Name = "ClbNetworkBindings";
+            this.ClbNetworkBindings.Size = new System.Drawing.Size(576, 139);
+            this.ClbNetworkBindings.TabIndex = 5;
+            this.ClbNetworkBindings.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.ClbNetworkBindings_ItemCheck);
             // 
             // PnlClientCertPicker
             // 
@@ -527,8 +626,11 @@ namespace SetupBootstrapperUI
             this.PnlHeader.PerformLayout();
             this.PnlFooter.ResumeLayout(false);
             this.PnlContent.ResumeLayout(false);
+            this.PnlConnectivity.ResumeLayout(false);
+            this.PnlConnectivity.PerformLayout();
             this.PnlSelection.ResumeLayout(false);
             this.PnlSelection.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.NudServerPort)).EndInit();
             this.PnlClientCertPicker.ResumeLayout(false);
             this.PnlClientCertPicker.PerformLayout();
             this.PnlServerCertExport.ResumeLayout(false);
@@ -563,6 +665,13 @@ namespace SetupBootstrapperUI
         private System.Windows.Forms.Button BtnMaintenanceExportCert;
         private System.Windows.Forms.CheckBox ChbClient;
         private System.Windows.Forms.CheckBox ChbServer;
+        private System.Windows.Forms.Panel PnlConnectivity;
+        private System.Windows.Forms.Label LblConnectivityHelp;
+        private System.Windows.Forms.Label LblConnectivityPort;
+        private System.Windows.Forms.NumericUpDown NudServerPort;
+        private System.Windows.Forms.Label LblConnectivityPortHint;
+        private System.Windows.Forms.Label LblConnectivityNetworks;
+        private System.Windows.Forms.CheckedListBox ClbNetworkBindings;
         private System.Windows.Forms.Panel PnlClientCertPicker;
         private System.Windows.Forms.Label LblClientCertHelp;
         private System.Windows.Forms.TextBox TxtClientCertPath;

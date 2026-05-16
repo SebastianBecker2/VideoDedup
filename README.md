@@ -35,7 +35,7 @@ VidepDedup is using the following tools and libraries:
 
 The client talks to the server over **HTTPS** with a **self-signed** server certificate. The client does **not** use the Windows Trusted Root store for that server; it **pins** the exact public certificate (`VideoDedup.crt`).
 
-1. **Server PC** — Run the **bundle** installer (`SetupBootstrap` output), enable **Server**, complete setup. When installation finishes, the bootstrapper shows where `VideoDedup.crt` is stored. Use **Save copy as…** or **Open folder** to copy it to a USB drive or network share.
+1. **Server PC** — Run the **bundle** installer (`SetupBootstrap` output), enable **Server**, complete setup. On the **Server connectivity** step you can keep the default listen port (**51726**) or choose another TCP port (1024–65535), and choose **All networks** (default, `[::]`) or one or more specific adapter addresses. Remote clients must use the same port and an address the server is actually listening on. When installation finishes, the bootstrapper shows where `VideoDedup.crt` is stored. Use **Save copy as…** or **Open folder** to copy it to a USB drive or network share. If you install **Client** and **Server** on the same PC, the client’s default port is preset to match the server.
 2. **Client PC** — Run the same bundle, enable **Client** only (or install Client with Server unchecked). Browse to the `VideoDedup.crt` you copied, or skip and import later.
 3. **Later / certificate rotation** — Re-run the bundle on the client PC and choose **Import server certificate…** (maintenance), or in the running client use **Client Configuration** to set the certificate path, or accept the prompt if the connection fails after a server reinstall.
 

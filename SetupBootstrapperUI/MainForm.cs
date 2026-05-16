@@ -4,6 +4,8 @@ namespace SetupBootstrapperUI
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
+    using System.Net.NetworkInformation;
     using System.Security.Cryptography.X509Certificates;
     using System.Windows.Forms;
     using WixToolset.BootstrapperApplicationApi;
@@ -13,9 +15,14 @@ namespace SetupBootstrapperUI
         /// <summary>Must match <c>ServerComponent</c> in Setup/Config.wxi.</summary>
         private const string ServerFolderName = "VideoDedupServer";
 
+        private const int DefaultServerPort = 51726;
+        private const int MinServerPort = 1024;
+        private const int MaxServerPort = 65535;
+
         private enum WizardStep
         {
             Selection,
+            Connectivity,
             Certificate,
             Progress,
             Complete,
@@ -39,6 +46,7 @@ namespace SetupBootstrapperUI
         private bool lastApplyIncludedServer;
         private bool maintenanceClientCertFlow;
         private bool maintenanceServerExportOnly;
+        private bool suppressBindingItemCheckHandler;
 
         public MainForm(IBootstrapperUiRuntime app)
         {
@@ -84,6 +92,7 @@ namespace SetupBootstrapperUI
                 ChbServer.Checked = true;
             }
 
+            PrefillServerConnectivity();
             currentStep = WizardStep.Selection;
             BtnNext.Enabled = true;
             UpdateSelectionSummary();
@@ -135,6 +144,9 @@ namespace SetupBootstrapperUI
                 case WizardStep.Selection:
                     MoveForwardFromSelection();
                     break;
+                case WizardStep.Connectivity:
+                    MoveForwardFromConnectivity();
+                    break;
                 case WizardStep.Certificate:
                     FinishClientCertPicker(TxtClientCertPath.Text.Trim());
                     break;
@@ -149,8 +161,14 @@ namespace SetupBootstrapperUI
         {
             switch (currentStep)
             {
-                case WizardStep.Certificate:
+                case WizardStep.Connectivity:
                     currentStep = WizardStep.Selection;
+                    RenderStep();
+                    break;
+                case WizardStep.Certificate:
+                    currentStep = NeedsConnectivityStep()
+                        ? WizardStep.Connectivity
+                        : WizardStep.Selection;
                     RenderStep();
                     break;
             }
@@ -408,11 +426,20 @@ namespace SetupBootstrapperUI
 
         private void BeginInstallAfterCertResolved(List<string> selectedFeatures, bool updateMode)
         {
+            ApplyConnectivityToEngine(selectedFeatures);
             ApplyClientCertToEngine(
                 TxtClientCertPath.Text.Trim(),
                 selectedFeatures);
             app.SetSelectedFeatures(selectedFeatures);
-            app.Plan(updateMode ? LaunchAction.Modify : LaunchAction.Install);
+            var launchAction = LaunchAction.Install;
+            if (updateMode)
+            {
+                launchAction = selectedFeatures.Contains("ServerFeature")
+                    ? LaunchAction.Repair
+                    : LaunchAction.Modify;
+            }
+
+            app.Plan(launchAction);
             StartProgress(updateMode ? "Applying changes..." : "Installing VideoDedup...");
             lastApplyIncludedServer = selectedFeatures.Contains("ServerFeature");
         }
@@ -428,13 +455,15 @@ namespace SetupBootstrapperUI
         private void RenderStep()
         {
             PnlSelection.Visible = currentStep == WizardStep.Selection;
+            PnlConnectivity.Visible = currentStep == WizardStep.Connectivity;
             PnlClientCertPicker.Visible = currentStep == WizardStep.Certificate;
             PnlServerCertExport.Visible = currentStep == WizardStep.ServerCertificate;
             PnlProgress.Visible = currentStep == WizardStep.Progress;
             PnlComplete.Visible = currentStep == WizardStep.Complete;
 
-            BtnBack.Enabled = currentStep == WizardStep.Certificate;
-            BtnBack.Visible = currentStep == WizardStep.Certificate;
+            BtnBack.Enabled = currentStep == WizardStep.Connectivity
+                || currentStep == WizardStep.Certificate;
+            BtnBack.Visible = BtnBack.Enabled;
             BtnCancel.Visible = currentStep != WizardStep.Progress && currentStep != WizardStep.Complete && currentStep != WizardStep.ServerCertificate;
             BtnNext.Visible = currentStep != WizardStep.Progress;
 
@@ -445,14 +474,22 @@ namespace SetupBootstrapperUI
                     SetHeader(
                         "Choose setup options",
                         "Pick what you want to do on this computer, then continue.",
-                        "Step 1 of 3");
+                        FormatStepLabel(1));
+                    BtnNext.Text = "Next >";
+                    break;
+                case WizardStep.Connectivity:
+                    PopulateNetworkBindingList();
+                    SetHeader(
+                        "Server connectivity",
+                        "Configure the TCP port and network addresses the server will listen on.",
+                        FormatStepLabel(GetStepNumber(WizardStep.Connectivity)));
                     BtnNext.Text = "Next >";
                     break;
                 case WizardStep.Certificate:
                     SetHeader(
                         "Client certificate",
                         "Choose the certificate file from your server PC, or continue without one.",
-                        "Step 2 of 3");
+                        FormatStepLabel(GetStepNumber(WizardStep.Certificate)));
                     BtnNext.Text = maintenanceClientCertFlow
                         ? "Start update"
                         : "Continue";
@@ -461,7 +498,7 @@ namespace SetupBootstrapperUI
                     SetHeader(
                         "Working...",
                         "Please wait while setup completes.",
-                        "Step 3 of 3");
+                        FormatStepLabel(GetWizardStepCount()));
                     break;
                 case WizardStep.Complete:
                     SetHeader(
@@ -554,11 +591,33 @@ namespace SetupBootstrapperUI
         {
             maintenanceClientCertFlow = false;
             maintenanceServerExportOnly = false;
-            needsClientCertificateStep =
-                selectedMode != SetupMode.Uninstall
-                && ChbClient.Checked
-                && !ChbServer.Checked;
 
+            if (NeedsConnectivityStep())
+            {
+                currentStep = WizardStep.Connectivity;
+                RenderStep();
+                return;
+            }
+
+            needsClientCertificateStep = NeedsCertificateStep();
+            if (needsClientCertificateStep)
+            {
+                currentStep = WizardStep.Certificate;
+                RenderStep();
+                return;
+            }
+
+            BeginPlannedOperation();
+        }
+
+        private void MoveForwardFromConnectivity()
+        {
+            if (!ValidateServerConnectivity())
+            {
+                return;
+            }
+
+            needsClientCertificateStep = NeedsCertificateStep();
             if (needsClientCertificateStep)
             {
                 currentStep = WizardStep.Certificate;
@@ -588,12 +647,20 @@ namespace SetupBootstrapperUI
                     return;
                 }
 
+                ClearConnectivityEngineVariables();
                 app.SetSelectedFeatures(selectedFeatures);
                 app.Plan(LaunchAction.Uninstall);
                 StartProgress("Removing VideoDedup...");
                 lastApplyIncludedServer = false;
                 return;
             }
+
+            if (NeedsConnectivityStep() && !ValidateServerConnectivity())
+            {
+                return;
+            }
+
+            ApplyConnectivityToEngine(selectedFeatures);
 
             BeginInstallAfterCertResolved(
                 selectedFeatures,
@@ -659,6 +726,252 @@ namespace SetupBootstrapperUI
             LblHeaderTitle.Text = title;
             LblHeaderSubtitle.Text = subtitle;
             LblStep.Text = step;
+        }
+
+        private bool NeedsConnectivityStep() =>
+            selectedMode != SetupMode.Uninstall && ChbServer.Checked;
+
+        private bool NeedsCertificateStep() =>
+            selectedMode != SetupMode.Uninstall
+            && ChbClient.Checked
+            && !ChbServer.Checked;
+
+        private int GetWizardStepCount()
+        {
+            var count = 1;
+            if (NeedsConnectivityStep())
+            {
+                count++;
+            }
+
+            if (NeedsCertificateStep())
+            {
+                count++;
+            }
+
+            return count;
+        }
+
+        private int GetStepNumber(WizardStep step)
+        {
+            var number = 1;
+            if (step == WizardStep.Selection)
+            {
+                return number;
+            }
+
+            if (NeedsConnectivityStep())
+            {
+                number++;
+                if (step == WizardStep.Connectivity)
+                {
+                    return number;
+                }
+            }
+
+            if (NeedsCertificateStep())
+            {
+                number++;
+                if (step == WizardStep.Certificate)
+                {
+                    return number;
+                }
+            }
+
+            return number;
+        }
+
+        private string FormatStepLabel(int stepNumber) =>
+            $"Step {stepNumber} of {GetWizardStepCount()}";
+
+        private void PrefillServerConnectivity()
+        {
+            var portStr = app.GetVariableString("ServerListenPort");
+            if (int.TryParse(portStr, out var port)
+                && port >= MinServerPort
+                && port <= MaxServerPort)
+            {
+                NudServerPort.Value = port;
+            }
+            else
+            {
+                NudServerPort.Value = DefaultServerPort;
+            }
+        }
+
+        private void PopulateNetworkBindingList()
+        {
+            PrefillServerConnectivity();
+
+            var savedBindings = NetworkBindingHelper.ParseBindings(
+                app.GetVariableString("ServerListenBindings"));
+
+            suppressBindingItemCheckHandler = true;
+            ClbNetworkBindings.Items.Clear();
+
+            var allNetworksEntry = new NetworkBindingEntry(
+                NetworkBindingHelper.AllNetworksToken,
+                NetworkBindingHelper.AllNetworksDisplay,
+                isAllNetworks: true);
+            var allIndex = ClbNetworkBindings.Items.Add(allNetworksEntry);
+
+            var useAllNetworks = savedBindings.Count == 1
+                && savedBindings[0] == NetworkBindingHelper.AllNetworksToken;
+            ClbNetworkBindings.SetItemChecked(
+                allIndex,
+                useAllNetworks || savedBindings.Count == 0);
+
+            foreach (var adapterEntry in NetworkBindingHelper.EnumerateAdapterAddresses())
+            {
+                var index = ClbNetworkBindings.Items.Add(adapterEntry);
+                if (!useAllNetworks
+                    && savedBindings.Contains(adapterEntry.BindToken))
+                {
+                    ClbNetworkBindings.SetItemChecked(index, true);
+                }
+            }
+
+            suppressBindingItemCheckHandler = false;
+        }
+
+        private void ClbNetworkBindings_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            if (suppressBindingItemCheckHandler)
+            {
+                return;
+            }
+
+            if (e.Index < 0 || e.Index >= ClbNetworkBindings.Items.Count)
+            {
+                return;
+            }
+
+            var entry = ClbNetworkBindings.Items[e.Index] as NetworkBindingEntry;
+            if (entry == null)
+            {
+                return;
+            }
+
+            suppressBindingItemCheckHandler = true;
+            try
+            {
+                if (entry.IsAllNetworks)
+                {
+                    if (e.NewValue == CheckState.Checked)
+                    {
+                        for (var i = 1; i < ClbNetworkBindings.Items.Count; i++)
+                        {
+                            ClbNetworkBindings.SetItemChecked(i, false);
+                        }
+                    }
+                }
+                else if (e.NewValue == CheckState.Checked)
+                {
+                    ClbNetworkBindings.SetItemChecked(0, false);
+                }
+            }
+            finally
+            {
+                suppressBindingItemCheckHandler = false;
+            }
+        }
+
+        private IReadOnlyList<string> GetSelectedBindings()
+        {
+            var tokens = new List<string>();
+            for (var i = 0; i < ClbNetworkBindings.Items.Count; i++)
+            {
+                if (!ClbNetworkBindings.GetItemChecked(i))
+                {
+                    continue;
+                }
+
+                if (ClbNetworkBindings.Items[i] is NetworkBindingEntry entry)
+                {
+                    tokens.Add(entry.BindToken);
+                }
+            }
+
+            if (tokens.Count > 0)
+            {
+                return tokens;
+            }
+
+            return new List<string> { NetworkBindingHelper.AllNetworksToken };
+        }
+
+        private void ClearConnectivityEngineVariables()
+        {
+            app.SetVariableString("ServerListenPort", string.Empty, false);
+            app.SetVariableString("ServerListenBindings", string.Empty, false);
+            app.SetVariableString("SyncClientListenPort", string.Empty, false);
+        }
+
+        private void ApplyConnectivityToEngine(IReadOnlyList<string> selectedFeatures)
+        {
+            if (!selectedFeatures.Contains("ServerFeature"))
+            {
+                ClearConnectivityEngineVariables();
+                return;
+            }
+
+            var port = (int)NudServerPort.Value;
+            var bindings = GetSelectedBindings();
+            app.SetVariableString("ServerListenPort", port.ToString(), false);
+            app.SetVariableString(
+                "ServerListenBindings",
+                NetworkBindingHelper.SerializeBindings(bindings),
+                false);
+            var syncClient = selectedFeatures.Contains("ClientFeature");
+            app.SetVariableString(
+                "SyncClientListenPort",
+                syncClient ? "1" : string.Empty,
+                false);
+        }
+
+        private bool ValidateServerConnectivity()
+        {
+            if (!NeedsConnectivityStep())
+            {
+                return true;
+            }
+
+            var port = (int)NudServerPort.Value;
+            if (port < MinServerPort || port > MaxServerPort)
+            {
+                _ = MessageBox.Show(
+                    this,
+                    $"Port must be between {MinServerPort} and {MaxServerPort}.",
+                    "VideoDedup Setup",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                return false;
+            }
+
+            if (TcpPortProbe.ShouldWarnPortInUse(port))
+            {
+                var r = MessageBox.Show(
+                    this,
+                    $"TCP port {port} appears to be in use by another program on this computer. " +
+                    "The server may fail to start unless the port is free. Continue anyway?",
+                    "VideoDedup Setup",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+                return r == DialogResult.Yes;
+            }
+
+            if (GetSelectedBindings().Count == 0)
+            {
+                _ = MessageBox.Show(
+                    this,
+                    "Select at least one network to listen on.",
+                    "VideoDedup Setup",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                return false;
+            }
+
+            return true;
         }
 
         private void UpdateSelectionSummary()
