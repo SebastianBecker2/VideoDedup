@@ -75,6 +75,8 @@ jobs:
     env:
       # Prebuilt debian/fedora images (Flathub runtime for flatpak); plain fedora:40 fails with "No remote refs found for flathub".
       VD_USE_FIREWALL_SMOKE_BASE: "1"
+      # Avoid pulling mcr.microsoft.com/dotnet/runtime (often blocked on GitHub Actions); setup-dotnet provides the runtime.
+      VD_SMOKE_USE_HOST_DOTNET: "1"
     strategy:
       fail-fast: false
       matrix:
@@ -142,6 +144,8 @@ jobs:
   e2e-grpc-deep-smoke:
     needs: linux-packages
     runs-on: ubuntu-latest
+    env:
+      VD_SMOKE_USE_HOST_DOTNET: "1"
     strategy:
       fail-fast: false
       matrix:
