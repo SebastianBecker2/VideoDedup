@@ -32,7 +32,7 @@ VER_SAFE="${VER//\"/}"
 rm -rf "${SNAP_DIR}/_dump"
 mkdir -p "${SNAP_DIR}/_dump"
 cp -a "${STAGE}/." "${SNAP_DIR}/_dump/"
-# Launch wrapper and cert scripts are staged by snapcraft.yaml override-build from repo root.
+# Launch wrapper is installed by snapcraft.yaml override-build from repo root.
 
 mkdir -p "${OUT}"
 
@@ -56,19 +56,22 @@ sed "s/^version: \".*\"/version: \"${VER_SAFE}\"/" "${BACKUP}" > "${SNAP_DIR}/sn
 
 (
   cd "${SNAP_DIR}"
-  if snapcraft --destructive-mode --output "${OUT}/videodedupserver_${VER_SAFE}_${ARCH}.snap"; then
-    :
-  else
-    snapcraft --destructive-mode
-    shopt -s nullglob
-    BUILT=(./*.snap)
-    shopt -u nullglob
-    if ((${#BUILT[@]} > 0)); then
-      mv -f "${BUILT[0]}" "${OUT}/videodedupserver_${VER_SAFE}_${ARCH}.snap"
-    else
-      exit 1
-    fi
-  fi
+  # Destructive-mode reuses parts/; stale install/ breaks craftctl default (cp hard links).
+  snapcraft clean 2>/dev/null || true
+  rm -rf parts prime stage .craft
+  # -o is an output directory, not a .snap path (see snapcraft pack --help).
+  snapcraft pack --destructive-mode -o "${OUT}"
 )
 
-echo "Snap built in ${OUT}"
+DEST="${OUT}/videodedupserver_${VER_SAFE}_${ARCH}.snap"
+shopt -s nullglob
+BUILT=("${OUT}"/*.snap)
+shopt -u nullglob
+if ((${#BUILT[@]} == 0)); then
+  echo "snapcraft pack produced no .snap under ${OUT}" >&2
+  exit 1
+fi
+NEWEST="$(ls -t "${BUILT[@]}" | head -1)"
+mv -f "${NEWEST}" "${DEST}"
+
+echo "Snap built: ${DEST}"
