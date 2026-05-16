@@ -92,6 +92,9 @@ if ((${#BUILT[@]} == 0)); then
   exit 1
 fi
 NEWEST="$(ls -t "${BUILT[@]}" | head -1)"
-mv -f "${NEWEST}" "${DEST}"
+# snapcraft pack -o already writes the final name; skip mv when paths match.
+if [[ "${NEWEST}" != "${DEST}" ]]; then
+  mv -f "${NEWEST}" "${DEST}"
+fi
 
 echo "Snap built: ${DEST}"
