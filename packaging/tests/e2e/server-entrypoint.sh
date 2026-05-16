@@ -594,8 +594,6 @@ fi
 
 if [[ "${FMT}" == flatpak ]]; then
   install -d -m 0755 /var/lib/videodedupserver
-  _u="$(id -u videodedup)"
-  install -d -m 0700 -o videodedup -g videodedup "/run/user/${_u}"
   _fp_app_id="io.github.sebastianbecker2.videodedup.server"
   _fp_data="/var/lib/videodedupserver/.var/app/${_fp_app_id}/data"
   _fp_install="$(vd_flatpak_server_lib "${_fp_app_id}")" || {
@@ -616,13 +614,34 @@ if [[ "${FMT}" == flatpak ]]; then
   vd_setup_tls "${_fp_install}" "${_fp_data}/cert" || exit 1
   vd_require_tls_cert "${_fp_data}/cert/VideoDedup.pfx"
   unset VD_CERT_SETUP_DIR
-  # Packaged binary refuses UID 0 (LinuxHostBootstrap); flatpak must not run as root.
-  vd_exec_as_videodedup env -u ASPNETCORE_URLS \
-    ASPNETCORE_ENVIRONMENT=Production \
-    DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
-    VIDEODEDUP_APP_DATA=/var/lib/videodedupserver \
-    XDG_RUNTIME_DIR="/run/user/${_u}" \
-    flatpak run io.github.sebastianbecker2.videodedup.server &
+  _fp_files_root="$(dirname "$(dirname "${_fp_install}")")"
+  _fp_launch="${_fp_files_root}/bin/videodedup-server-launch.sh"
+  [[ -x "${_fp_launch}" ]] || {
+    echo "E2E: missing flatpak launch script ${_fp_launch}" >&2
+    exit 1
+  }
+  vd_tls_env_args
+  # Docker E2E: run the flatpak payload on the host (flatpak run needs a user session and hides :51726).
+  if [[ -n "${VIDEODEDUP_FFMPEG_LIB_ROOT:-}" ]]; then
+    vd_exec_as_videodedup env \
+      "${VD_TLS_ENV_ARGS[@]}" \
+      VD_APP_LIB="${_fp_install}" \
+      VD_CERT_DIR="${_fp_data}/cert" \
+      ASPNETCORE_ENVIRONMENT=Production \
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
+      VIDEODEDUP_APP_DATA=/var/lib/videodedupserver \
+      VIDEODEDUP_FFMPEG_LIB_ROOT="${VIDEODEDUP_FFMPEG_LIB_ROOT}" \
+      "${_fp_launch}" &
+  else
+    vd_exec_as_videodedup env \
+      "${VD_TLS_ENV_ARGS[@]}" \
+      VD_APP_LIB="${_fp_install}" \
+      VD_CERT_DIR="${_fp_data}/cert" \
+      ASPNETCORE_ENVIRONMENT=Production \
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
+      VIDEODEDUP_APP_DATA=/var/lib/videodedupserver \
+      "${_fp_launch}" &
+  fi
 elif [[ "${FMT}" == snap ]]; then
   export SNAP=/tmp/vd-snap
   export SNAP_COMMON=/tmp/vd-snap-common

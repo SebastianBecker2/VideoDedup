@@ -1,11 +1,16 @@
 #!/bin/sh
 set -eu
 
-APP_LIB="/app/lib/videodedupserver"
+# Under flatpak run, /app/lib/... is the install root; E2E runs the same script from the host files tree (VD_APP_LIB).
+APP_LIB="${VD_APP_LIB:-/app/lib/videodedupserver}"
 BIN="${APP_LIB}/VideoDedupService"
 CERT_SETUP="${APP_LIB}/cert-setup"
-DATA_HOME="${XDG_DATA_HOME:-${HOME}/.var/app/io.github.sebastianbecker2.videodedup.server/data}"
-CERT_DIR="${DATA_HOME}/cert"
+if [ -n "${VD_CERT_DIR:-}" ]; then
+  CERT_DIR="${VD_CERT_DIR}"
+else
+  DATA_HOME="${XDG_DATA_HOME:-${HOME}/.var/app/io.github.sebastianbecker2.videodedup.server/data}"
+  CERT_DIR="${DATA_HOME}/cert"
+fi
 PFX="${CERT_DIR}/VideoDedup.pfx"
 
 mkdir -p "${CERT_DIR}"
@@ -22,5 +27,6 @@ fi
 
 export Kestrel__Endpoints__gRPC__Url="${Kestrel__Endpoints__gRPC__Url:-https://[::]:51726}"
 export Kestrel__Endpoints__gRPC__Protocols="${Kestrel__Endpoints__gRPC__Protocols:-Http2}"
+export VIDEODEDUP_APP_DATA="${VIDEODEDUP_APP_DATA:-${DATA_HOME:-${HOME}/.var/app/io.github.sebastianbecker2.videodedup.server/data}}"
 
 exec "${BIN}" "$@"
