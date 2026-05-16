@@ -385,8 +385,14 @@ install_flatpak_bundle() {
   else
     dnf -y -q install iproute flatpak util-linux >/dev/null
   fi
-  flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
-  flatpak install -y --noninteractive flathub org.freedesktop.Platform//24.08
+  if ! flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
+    echo "E2E: flatpak remote-add flathub failed (network or flatpak not configured)" >&2
+    flatpak remote-list >&2 || true
+    exit 1
+  fi
+  if ! flatpak info org.freedesktop.Platform/x86_64/24.08 &>/dev/null; then
+    flatpak install -y --noninteractive flathub org.freedesktop.Platform//24.08
+  fi
   flatpak install -y --noninteractive --bundle /tmp/videodedupserver.flatpak
   ensure_videodedup_user
 }

@@ -48,7 +48,7 @@ HELP_EPILOG = """
 Preset images debian:bookworm-slim and fedora:40 are rebuilt locally as cached bases unless --srv-image is set.
 VD_FIREWALL_SMOKE_DEBIAN_IMAGE / VD_FIREWALL_SMOKE_FEDORA_IMAGE: override tags.
 VD_REBUILD_FIREWALL_SMOKE_DEBIAN_BASE=1 / VD_REBUILD_FIREWALL_SMOKE_FEDORA_BASE=1: force docker build.
-On GitHub Actions bases are off by default (set VD_USE_FIREWALL_SMOKE_BASE=1 to enable). VD_SKIP_FIREWALL_SMOKE_BASE=1 disables locally.
+On GitHub Actions set VD_USE_FIREWALL_SMOKE_BASE=1 in CI (required for flatpak). VD_SKIP_FIREWALL_SMOKE_BASE=1 disables locally. Flatpak always uses the Fedora smoke base even when bases are skipped.
 VD_SMOKE_USE_HOST_DOTNET=1: run VideoDedupGrpcSmoke with host dotnet (faster on Linux; can fail on Windows Docker Desktop).
 VD_SMOKE_IN_DOCKER=0: legacy alias for host dotnet when dotnet is on PATH.
 """
@@ -388,7 +388,9 @@ def main() -> None:
         skip_base = os.environ.get("VD_SKIP_FIREWALL_SMOKE_BASE", "0") == "1" or (
             bool(os.environ.get("GITHUB_ACTIONS")) and os.environ.get("VD_USE_FIREWALL_SMOKE_BASE", "0") != "1"
         )
-        if not skip_base:
+        # Flatpak E2E needs Flathub + freedesktop Platform preinstalled (videodedup/firewall-smoke-fedora).
+        use_smoke_base = not skip_base or fmt == "flatpak"
+        if use_smoke_base:
             if srv_image == "debian:bookworm-slim":
                 ensure_firewall_smoke_debian_base(debian_tag)
                 srv_image = debian_tag

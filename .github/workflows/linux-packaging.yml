@@ -72,6 +72,9 @@ jobs:
   e2e-grpc-firewall:
     needs: linux-packages
     runs-on: ubuntu-latest
+    env:
+      # Prebuilt debian/fedora images (Flathub runtime for flatpak); plain fedora:40 fails with "No remote refs found for flathub".
+      VD_USE_FIREWALL_SMOKE_BASE: "1"
     strategy:
       fail-fast: false
       matrix:
