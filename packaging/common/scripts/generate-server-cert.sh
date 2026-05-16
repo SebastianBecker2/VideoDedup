@@ -32,42 +32,18 @@ trap 'rm -rf "${TMP}"' EXIT
 
 PASS="$(openssl rand -base64 32 | tr -d '\n')"
 KEY="${TMP}/key.pem"
-REQ="${TMP}/req.cnf"
-CSR="${TMP}/req.csr"
 CERT_PEM="${TMP}/cert.pem"
 
 HOST_SHORT="$(hostname 2>/dev/null || echo localhost)"
 HOST_FQDN="$(hostname -f 2>/dev/null || true)"
 [ -n "${HOST_FQDN}" ] || HOST_FQDN="${HOST_SHORT}"
 
-cat > "${REQ}" <<EOF
-[req]
-distinguished_name = req_dn
-prompt = no
-req_extensions = v3_req
-[req_dn]
-CN = VideoDedupServer
-O = Sebastian Becker
-C = DE
-[v3_req]
-basicConstraints = CA:FALSE
-keyUsage = digitalSignature, keyEncipherment
-extendedKeyUsage = serverAuth
-subjectAltName = @alt_names
-[alt_names]
-DNS.1 = localhost
-DNS.2 = ${HOST_SHORT}
-IP.1 = 127.0.0.1
-IP.2 = ::1
-EOF
-
-_dns_idx=3
+# OpenSSL 3 (Fedora, Ubuntu 24+) rejects legacy req.cnf + x509_extensions; use req -x509 -addext.
+SAN="DNS:localhost,DNS:${HOST_SHORT},IP:127.0.0.1,IP:::1"
 if [ -n "${HOST_FQDN}" ] && [ "${HOST_FQDN}" != "${HOST_SHORT}" ]; then
-  echo "DNS.${_dns_idx} = ${HOST_FQDN}" >> "${REQ}"
-  _dns_idx=$((_dns_idx + 1))
+  SAN="${SAN},DNS:${HOST_FQDN}"
 fi
 
-_ip_idx=3
 _ips="${TMP}/ips.txt"
 : > "${_ips}"
 for _ip in $(hostname -I 2>/dev/null || true); do
@@ -84,14 +60,40 @@ while read -r _ip; do
   case "${_ip}" in
     127.*) continue ;;
   esac
-  echo "IP.${_ip_idx} = ${_ip}" >> "${REQ}"
-  _ip_idx=$((_ip_idx + 1))
+  SAN="${SAN},IP:${_ip}"
 done < "${_ips}"
 
-openssl genrsa -out "${KEY}" 2048 2>/dev/null
-openssl req -new -key "${KEY}" -out "${CSR}" -config "${REQ}"
-openssl x509 -req -in "${CSR}" -signkey "${KEY}" -out "${CERT_PEM}" \
-  -days 3650 -sha256 -extensions v3_req -extfile "${REQ}"
+if ! openssl req -x509 -newkey "rsa:2048" -nodes \
+  -keyout "${KEY}" -out "${CERT_PEM}" \
+  -days 3650 -sha256 \
+  -subj "/CN=VideoDedupServer/O=Sebastian Becker/C=DE" \
+  -addext "basicConstraints=CA:FALSE" \
+  -addext "keyUsage=digitalSignature,keyEncipherment" \
+  -addext "extendedKeyUsage=serverAuth" \
+  -addext "subjectAltName=${SAN}" 2>/dev/null; then
+  # OpenSSL 1.1.x without -addext: fall back to config-file CSR flow.
+  REQ="${TMP}/req.cnf"
+  CSR="${TMP}/req.csr"
+  cat > "${REQ}" <<EOF
+[req]
+distinguished_name = req_dn
+prompt = no
+req_extensions = v3_req
+[req_dn]
+CN = VideoDedupServer
+O = Sebastian Becker
+C = DE
+[v3_req]
+basicConstraints = CA:FALSE
+keyUsage = digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = DNS:localhost,DNS:${HOST_SHORT},IP:127.0.0.1,IP:::1
+EOF
+  openssl genrsa -out "${KEY}" 2048
+  openssl req -new -key "${KEY}" -out "${CSR}" -config "${REQ}"
+  openssl x509 -req -in "${CSR}" -signkey "${KEY}" -out "${CERT_PEM}" \
+    -days 3650 -sha256 -extensions v3_req -extfile "${REQ}"
+fi
 
 openssl pkcs12 -export -out "${PFX}" -inkey "${KEY}" -in "${CERT_PEM}" \
   -passout "pass:${PASS}" -name VideoDedupServer

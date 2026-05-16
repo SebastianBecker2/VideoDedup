@@ -335,7 +335,7 @@ install_snap_unsquash() {
   if [[ ! -f /etc/videodedup-firewall-smoke-deb-base ]]; then
     apt-get update -qq
     # shellcheck disable=SC2086
-    apt-get install -y -qq iproute2 squashfs-tools ${fw_pkg} >/dev/null
+    apt-get install -y -qq iproute2 squashfs-tools openssl ${fw_pkg} >/dev/null
   fi
   rm -rf /tmp/vd-snap
   unsquashfs -f -d /tmp/vd-snap /tmp/videodedupserver.snap
@@ -573,6 +573,24 @@ if [[ "${FMT}" == flatpak ]]; then
   install -d -m 0755 /var/lib/videodedupserver
   _u="$(id -u videodedup)"
   install -d -m 0700 -o videodedup -g videodedup "/run/user/${_u}"
+  _fp_app_id="io.github.sebastianbecker2.videodedup.server"
+  _fp_data="/var/lib/videodedupserver/.var/app/${_fp_app_id}/data"
+  _fp_install=""
+  if _fp_root="$(flatpak info --show-location "${_fp_app_id}" 2>/dev/null)" && [[ -n "${_fp_root}" ]]; then
+    _fp_install="${_fp_root}/lib/videodedupserver"
+  fi
+  if [[ -n "${_fp_install}" && -x "${_fp_install}/cert-setup/generate-server-cert.sh" ]]; then
+    install -d -o videodedup -g videodedup "${_fp_data}/cert"
+    vd_ensure_openssl || {
+      echo "E2E: openssl required for flatpak TLS certificate" >&2
+      exit 1
+    }
+    vd_setup_tls "${_fp_install}" "${_fp_data}/cert" || exit 1
+    vd_require_tls_cert "${_fp_data}/cert/VideoDedup.pfx"
+  else
+    echo "E2E: flatpak app install path missing cert-setup (rebuild flatpak bundle)" >&2
+    exit 1
+  fi
   # Packaged binary refuses UID 0 (LinuxHostBootstrap); flatpak must not run as root.
   vd_exec_as_videodedup env -u ASPNETCORE_URLS \
     ASPNETCORE_ENVIRONMENT=Production \
@@ -584,6 +602,12 @@ elif [[ "${FMT}" == snap ]]; then
   export SNAP=/tmp/vd-snap
   export SNAP_COMMON=/tmp/vd-snap-common
   install -d -o videodedup -g videodedup /tmp/vd-snap-common/cert /tmp/vd-snap-common/data
+  vd_ensure_openssl || {
+    echo "E2E: openssl required for snap TLS certificate" >&2
+    exit 1
+  }
+  vd_setup_tls "${SNAP}/usr/lib/videodedupserver" "${SNAP_COMMON}/cert" || exit 1
+  vd_require_tls_cert "${SNAP_COMMON}/cert/VideoDedup.pfx"
   _vd_bin="${SNAP}/usr/lib/videodedupserver/videodedup-server-launch.sh"
   [[ -x "${_vd_bin}" ]] || {
     echo "E2E: missing snap launch wrapper ${_vd_bin}" >&2
@@ -626,7 +650,11 @@ else
   fi
 fi
 
-for _ in $(seq 1 90); do
+_ready_wait=90
+if [[ "${FMT}" == flatpak || "${FMT}" == snap ]]; then
+  _ready_wait=180
+fi
+for _ in $(seq 1 "${_ready_wait}"); do
   if ss -ltn | grep -qE ':51726\b'; then
     touch /tmp/vd-ready
     break
