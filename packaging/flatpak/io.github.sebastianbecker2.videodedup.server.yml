@@ -49,7 +49,7 @@ modules:
         grpc = data.setdefault("Kestrel", {}).setdefault("Endpoints", {}).setdefault("gRPC", {})
         grpc["Url"] = "https://[::]:51726"
         grpc["Protocols"] = "Http2"
-        grpc["Certificate"] = {"Path": "cert/VideoDedup.pfx", "Password": ""}
+        grpc["Certificate"] = {"Path": "cert/VideoDedup.pfx"}
         path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
         PY
       - install -Dm755 packaging/flatpak/videodedup-server-launch.sh "${FLATPAK_DEST}/bin/videodedup-server-launch.sh"

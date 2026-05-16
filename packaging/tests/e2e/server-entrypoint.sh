@@ -185,6 +185,29 @@ vd_require_tls_cert() {
   fi
 }
 
+# Kestrel TLS from /etc/videodedupserver/tls.env (runuser does not inherit root shell exports).
+vd_tls_env_args() {
+  VD_TLS_ENV_ARGS=()
+  [[ -f /etc/videodedupserver/tls.env ]] || return 0
+  local line key val
+  while IFS= read -r line || [[ -n "${line}" ]]; do
+    line="${line//$'\r'/}"
+    case "${line}" in
+      ''|\#*) continue ;;
+    esac
+    key="${line%%=*}"
+    val="${line#*=}"
+    [[ -n "${key}" ]] || continue
+    # Strip optional double quotes (write-tls-env.sh).
+    if [[ "${val}" == \"*\" && "${val}" == *\" ]]; then
+      val="${val:1:${#val}-2}"
+      val="${val//\\\"/\"}"
+      val="${val//\\\\/\\}"
+    fi
+    VD_TLS_ENV_ARGS+=("${key}=${val}")
+  done < /etc/videodedupserver/tls.env
+}
+
 install_deb() {
   export DEBIAN_FRONTEND=noninteractive
   local fw_pkg
@@ -584,8 +607,10 @@ elif [[ "${FMT}" == snap ]]; then
   fi
 else
   _vd_bin=/usr/lib/videodedupserver/VideoDedupService
+  vd_tls_env_args
   if [[ -n "${VIDEODEDUP_FFMPEG_LIB_ROOT:-}" ]]; then
     vd_exec_as_videodedup env \
+      "${VD_TLS_ENV_ARGS[@]}" \
       ASPNETCORE_ENVIRONMENT=Production \
       DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
       VIDEODEDUP_APP_DATA=/var/lib/videodedupserver \
@@ -593,6 +618,7 @@ else
       "${_vd_bin}" &
   else
     vd_exec_as_videodedup env \
+      "${VD_TLS_ENV_ARGS[@]}" \
       ASPNETCORE_ENVIRONMENT=Production \
       DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
       VIDEODEDUP_APP_DATA=/var/lib/videodedupserver \

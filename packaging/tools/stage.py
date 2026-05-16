@@ -75,7 +75,8 @@ def patch_appsettings_grpc(stage: Path) -> None:
     grpc = data.setdefault("Kestrel", {}).setdefault("Endpoints", {}).setdefault("gRPC", {})
     grpc["Url"] = "https://[::]:51726"
     grpc["Protocols"] = "Http2"
-    grpc["Certificate"] = {"Path": "cert/VideoDedup.pfx", "Password": ""}
+    # Password only via tls.env / launch env (empty string here breaks HTTPS in Docker E2E).
+    grpc["Certificate"] = {"Path": "cert/VideoDedup.pfx"}
     path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 
 
