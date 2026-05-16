@@ -32,6 +32,7 @@ VER_SAFE="${VER//\"/}"
 rm -rf "${SNAP_DIR}/_dump"
 mkdir -p "${SNAP_DIR}/_dump"
 cp -a "${STAGE}/." "${SNAP_DIR}/_dump/"
+# Launch wrapper and cert scripts are staged by snapcraft.yaml override-build from repo root.
 
 mkdir -p "${OUT}"
 

@@ -4,3 +4,5 @@ packaging/.stage/
 packaging/out/
 # Flatpak build trees contain symlinks (e.g. var/run) that break Docker COPY context.
 packaging/flatpak/build-dir-*/
+packaging/flatpak/repo-*/
+.flatpak-builder/

@@ -1,7 +1,7 @@
 VideoDedup server — host firewall (TCP 51726)
 =============================================
 
-The service listens on TCP port 51726 for gRPC (HTTP/2 cleartext). Debian
+The service listens on TCP port 51726 for gRPC over HTTPS (HTTP/2 + TLS). Debian
 packages do not open firewall ports automatically; allow the port on your
 host if clients connect from another machine.
 

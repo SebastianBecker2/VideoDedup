@@ -7,6 +7,9 @@
     <RollForward>Major</RollForward>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\VideoDedupGrpcSmoke.Common\VideoDedupGrpcSmoke.Common.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Google.Protobuf" Version="3.30.2" />
     <PackageReference Include="Grpc.Net.Client" Version="2.71.0" />
     <PackageReference Include="Grpc.Tools" Version="2.71.0">

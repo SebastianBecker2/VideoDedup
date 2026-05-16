@@ -1,11 +1,10 @@
 using System.Diagnostics;
 using System.Globalization;
-using System.Net.Http;
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
-using Grpc.Net.Client;
 using VideoDedupGrpc;
+using VideoDedupGrpcSmoke.Common;
 using static VideoDedupGrpc.VideoDedupGrpcService;
 
 // Deep smoke: three VideoComparison runs with fixed settings; poll until a terminal result (or cancel) each.
@@ -37,7 +36,7 @@ const int SmokeCompareCount = 100;
 
 var url = args.Length > 0
     ? args[0]
-    : Env("VIDEODEDUP_GRPC_URL") ?? "http://127.0.0.1:51726";
+    : Env("VIDEODEDUP_GRPC_URL") ?? GrpcSmokeChannel.DefaultUrl;
 
 var rawCompareLeft = Env("VIDEODEDUP_SMOKE_COMPARE_LEFT");
 var rawCompareRight = Env("VIDEODEDUP_SMOKE_COMPARE_RIGHT");
@@ -46,24 +45,7 @@ var compareRight = string.IsNullOrWhiteSpace(rawCompareRight) ? DefaultFixtureRi
 Console.Error.WriteLine("VideoDedupGrpcComparisonSmoke: VIDEODEDUP_SMOKE_COMPARE_LEFT=" + compareLeft);
 Console.Error.WriteLine("VideoDedupGrpcComparisonSmoke: VIDEODEDUP_SMOKE_COMPARE_RIGHT=" + compareRight);
 
-if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
-{
-    AppContext.SetSwitch(
-        "System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport",
-        true);
-}
-
-using var handler = new SocketsHttpHandler();
-using var channel = GrpcChannel.ForAddress(
-    url,
-    new GrpcChannelOptions
-    {
-        HttpHandler = handler,
-        // GetVideoComparisonStatus returns repeated frame_comparisons (image bytes); DUPLICATE/self-compare
-        // can exceed the default ~4 MB client receive cap before the tool sees a terminal result.
-        MaxReceiveMessageSize = 128 * 1024 * 1024,
-    });
-
+using var channel = GrpcSmokeChannel.Create(url, maxReceiveMessageSize: 128 * 1024 * 1024);
 var client = new VideoDedupGrpcServiceClient(channel);
 
 var currentStep = "init";

@@ -73,6 +73,13 @@ for s in open-port-ufw.sh open-port-firewalld.sh open-port-iptables.sh open-port
   chmod 0755 "${WORK}/usr/lib/${PKG}/firewall/${s}"
 done
 
+CERT_SCRIPTS="${ROOT}/packaging/common/scripts"
+mkdir -p "${WORK}/usr/lib/${PKG}/cert-setup"
+for s in generate-server-cert.sh remove-server-cert.sh write-tls-env.sh; do
+  sed 's/\r$//' "${CERT_SCRIPTS}/${s}" > "${WORK}/usr/lib/${PKG}/cert-setup/${s}"
+  chmod 0755 "${WORK}/usr/lib/${PKG}/cert-setup/${s}"
+done
+
 mkdir -p "${WORK}/usr/share/lintian/overrides"
 install -m 0644 "${ROOT}/packaging/common/debian/copyright" "${WORK}/usr/share/doc/${PKG}/copyright"
 install -m 0644 "${ROOT}/packaging/common/debian/lintian-overrides.videodedupserver" \
@@ -135,7 +142,7 @@ control = "\n".join(
         "Priority: optional",
         f"Architecture: {arch}",
         f"Maintainer: {maint}",
-        "Depends: ffmpeg, adduser, systemd, ca-certificates, libc6 (>= 2.31), libssl3 | libssl3t64 | libssl1.1",
+        "Depends: ffmpeg, adduser, systemd, ca-certificates, openssl, libc6 (>= 2.31), libssl3 | libssl3t64 | libssl1.1",
         f"Homepage: {home}",
         *desc_lines,
         "",
@@ -174,6 +181,29 @@ if ! getent passwd videodedup >/dev/null 2>&1; then
 fi
 chown -R videodedup:videodedup /var/lib/videodedupserver /var/log/videodedupserver
 chmod 0750 /var/lib/videodedupserver /var/log/videodedupserver
+
+INSTALL_ROOT="/usr/lib/videodedupserver"
+CERT_SETUP="${INSTALL_ROOT}/cert-setup"
+PFX_PATH="${INSTALL_ROOT}/cert/VideoDedup.pfx"
+if [ ! -x "${CERT_SETUP}/generate-server-cert.sh" ]; then
+  echo "videodedupserver: missing ${CERT_SETUP}/generate-server-cert.sh (rebuild package)" >&2
+  exit 1
+fi
+if ! command -v openssl >/dev/null 2>&1; then
+  echo "videodedupserver: openssl not found; cannot create TLS certificate" >&2
+  exit 1
+fi
+PASS="$("${CERT_SETUP}/generate-server-cert.sh" "${INSTALL_ROOT}")" || {
+  echo "videodedupserver: generate-server-cert.sh failed" >&2
+  exit 1
+}
+if [ -n "${PASS:-}" ] && [ -f "${PFX_PATH}" ] && [ -x "${CERT_SETUP}/write-tls-env.sh" ]; then
+  "${CERT_SETUP}/write-tls-env.sh" "${PFX_PATH}" "${PASS}" /etc/videodedupserver/tls.env
+else
+  echo "videodedupserver: TLS certificate was not created under ${INSTALL_ROOT}/cert" >&2
+  exit 1
+fi
+
 if command -v deb-systemd-helper >/dev/null 2>&1; then
   deb-systemd-helper update-state videodedupserver.service || true
 fi
@@ -188,7 +218,8 @@ if [ "${1:-}" = "configure" ]; then
 videodedupserver — open firewall for gRPC (TCP 51726)
 ====================================================================
 This package does not add host firewall rules. Remote clients need port
-51726/tcp allowed (HTTP/2 cleartext gRPC).
+51726/tcp allowed (HTTPS gRPC). Server certificate for clients:
+  /usr/lib/videodedupserver/cert/VideoDedup.crt
 
 Interactive (detects ufw / firewalld / nftables / iptables, suggests one):
   sudo /usr/lib/videodedupserver/firewall/configure-firewall-interactive.sh
@@ -220,7 +251,20 @@ case "$1" in
 esac
 EOF
 
-chmod 0755 "${WORK}/DEBIAN/postinst" "${WORK}/DEBIAN/prerm"
+cat > "${WORK}/DEBIAN/postrm" <<'EOF'
+#!/bin/sh
+set -e
+case "$1" in
+  remove|purge)
+    INSTALL_ROOT="/usr/lib/videodedupserver"
+    if [ -x "${INSTALL_ROOT}/cert-setup/remove-server-cert.sh" ]; then
+      "${INSTALL_ROOT}/cert-setup/remove-server-cert.sh" "${INSTALL_ROOT}" || true
+    fi
+    ;;
+esac
+EOF
+
+chmod 0755 "${WORK}/DEBIAN/postinst" "${WORK}/DEBIAN/prerm" "${WORK}/DEBIAN/postrm"
 
 mkdir -p "${OUT}"
 
@@ -240,8 +284,9 @@ if command -v stat >/dev/null 2>&1; then
 fi
 find "${WORK}" -type d -exec chmod 0755 {} +
 find "${WORK}" -type f -exec chmod 0644 {} +
-chmod 0755 "${WORK}/DEBIAN/postinst" "${WORK}/DEBIAN/prerm"
+chmod 0755 "${WORK}/DEBIAN/postinst" "${WORK}/DEBIAN/prerm" "${WORK}/DEBIAN/postrm"
 chmod 0755 "${WORK}/usr/lib/videodedupserver/VideoDedupService"
+chmod 0755 "${WORK}/usr/lib/${PKG}/cert-setup"/*.sh
 chmod 0755 "${WORK}/usr/lib/${PKG}/firewall"/*.sh
 
 if command -v fakeroot >/dev/null 2>&1; then

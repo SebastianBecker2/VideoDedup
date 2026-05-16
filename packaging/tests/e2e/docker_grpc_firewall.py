@@ -20,12 +20,16 @@ import time
 from pathlib import Path
 
 from docker_e2e_common import (
+    deb_package_has_tls_support,
     docker_host_path,
     docker_ok,
+    extract_server_cert,
+    file_has_crlf,
     latest_artifact,
     mktemp_dir_under,
     publish_dotnet_project,
     repo_root_from_e2e_dir,
+    rpm_package_has_tls_support,
     run,
     run_capture,
     which,
@@ -33,6 +37,12 @@ from docker_e2e_common import (
 
 E2E_DIR = Path(__file__).resolve().parent
 ROOT = repo_root_from_e2e_dir(E2E_DIR)
+
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from packaging.ci.deb_docker_build import build_deb_via_docker  # noqa: E402
+from packaging.ci.rpm_docker_build import build_rpm_via_docker  # noqa: E402
 
 HELP_EPILOG = """
 Preset images debian:bookworm-slim and fedora:40 are rebuilt locally as cached bases unless --srv-image is set.
@@ -185,6 +195,64 @@ def validate_combo(fmt: str, distro: str, firewall: str) -> None:
         die(f"ufw E2E is supported on debian, ubuntu, or manjaro (got {distro})")
 
 
+def ensure_staged_tree(arch: str, stage_dir: Path) -> None:
+    marker = stage_dir / "cert-setup" / "generate-server-cert.sh"
+    needs_restage = not marker.is_file() or file_has_crlf(marker)
+    if needs_restage:
+        print(f"Re-staging server payload ({stage_dir}) ...", file=sys.stderr)
+        run([sys.executable, str(ROOT / "packaging/tools/stage.py"), "--arch", arch], cwd=ROOT)
+    if not marker.is_file():
+        die(f"Staged cert-setup missing at {marker} — run: python3 packaging/tools/stage.py --arch {arch}")
+
+
+def build_deb_on_host(arch: str) -> None:
+    bash = shutil.which("bash")
+    if not bash:
+        die("bash required to build .deb on host")
+    run([sys.executable, str(ROOT / "packaging/tools/stage.py"), "--arch", arch], cwd=ROOT)
+    run([bash, str(ROOT / "packaging/tools/build-deb.sh"), "--arch", arch], cwd=ROOT)
+
+
+def build_rpm_on_host(arch: str) -> None:
+    bash = shutil.which("bash")
+    if not bash:
+        die("bash required to build .rpm on host")
+    run([sys.executable, str(ROOT / "packaging/tools/stage.py"), "--arch", arch], cwd=ROOT)
+    run([bash, str(ROOT / "packaging/tools/build-rpm.sh"), "--arch", arch], cwd=ROOT)
+
+
+def ensure_deb_package(arch: str, deb: Path) -> Path:
+    if deb_package_has_tls_support(deb):
+        return deb
+    print(f"Existing .deb lacks TLS cert-setup ({deb}); rebuilding ...", file=sys.stderr)
+    if docker_ok():
+        build_deb_via_docker(ROOT, arch)
+    else:
+        build_deb_on_host(arch)
+    pat = str(ROOT / "packaging/out" / arch / "deb" / "*.deb")
+    found = latest_artifact(pat)
+    if found is None or not deb_package_has_tls_support(found):
+        die(f"Rebuilt .deb still lacks TLS cert-setup under packaging/out/{arch}/deb/")
+    print(f"Built package: {found}")
+    return found
+
+
+def ensure_rpm_package(arch: str, rpm: Path) -> Path:
+    if rpm_package_has_tls_support(rpm):
+        return rpm
+    print(f"Existing .rpm lacks TLS cert-setup ({rpm}); rebuilding ...", file=sys.stderr)
+    if docker_ok():
+        build_rpm_via_docker(ROOT, arch)
+    else:
+        build_rpm_on_host(arch)
+    pat = str(ROOT / "packaging/out" / arch / "rpm" / "*" / "*.rpm")
+    found = latest_artifact(pat)
+    if found is None or not rpm_package_has_tls_support(found):
+        die(f"Rebuilt .rpm still lacks TLS cert-setup under packaging/out/{arch}/rpm/")
+    print(f"Built package: {found}")
+    return found
+
+
 def pick_package_glob(fmt: str, arch: str) -> tuple[str, str]:
     base = ROOT / "packaging/out" / arch
     if fmt == "deb":
@@ -282,6 +350,7 @@ def main() -> None:
     if fmt == "staged":
         if not (stage_dir / "VideoDedupService").is_file():
             die(f"Staged server missing at {stage_dir} - run: ./packaging/tools/stage.sh --arch {arch}")
+        ensure_staged_tree(arch, stage_dir)
         pkg_abs: Path | None = None
     else:
         pkg_arg = args.pkg.strip()
@@ -296,6 +365,10 @@ def main() -> None:
         if not pkg_path.is_file():
             die(f"Not a file: {pkg_path}")
         pkg_abs = pkg_path.resolve()
+        if fmt == "deb":
+            pkg_abs = ensure_deb_package(arch, pkg_abs)
+        elif fmt == "rpm":
+            pkg_abs = ensure_rpm_package(arch, pkg_abs)
 
     smoke_dir = Path(args.smoke_dir) if smoke_dir_user_set else ROOT / "packaging/out" / arch / "e2e-smoke"
     smoke_dir = smoke_dir.resolve()
@@ -408,6 +481,19 @@ def main() -> None:
             "Docker must assign IPv6 to custom bridge networks (enable IPv6 in Docker; see packaging/common/docs/local-build.md)."
         )
 
+    # Per-container cert dir so parallel -j workers do not overwrite each other's VideoDedup.crt.
+    cert_host_dir = ROOT / "packaging/out" / arch / "e2e-server-cert" / srv
+    cert_host_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        pinned_cert = extract_server_cert(srv, cert_host_dir, package_format=fmt)
+    except RuntimeError as ex:
+        subprocess.run(["docker", "logs", srv], stderr=subprocess.STDOUT)
+        die(str(ex), 1)
+    print(f"E2E: extracted server TLS cert to {pinned_cert}", flush=True)
+    cert_vol = docker_host_path(pinned_cert.parent)
+    pinned_in_container = "/smoke-cert/VideoDedup.crt"
+    pinned_on_host = docker_host_path(pinned_cert)
+
     def log_compare_env(name: str) -> None:
         print(f"E2E [{name}] VIDEODEDUP_SMOKE_COMPARE_LEFT={compare_left or '<unset>'}", file=sys.stderr)
         print(f"E2E [{name}] VIDEODEDUP_SMOKE_COMPARE_RIGHT={compare_right or '<unset>'}", file=sys.stderr)
@@ -422,6 +508,7 @@ def main() -> None:
         env = os.environ.copy()
         env["VIDEODEDUP_SMOKE_COMPARE_LEFT"] = compare_left
         env["VIDEODEDUP_SMOKE_COMPARE_RIGHT"] = compare_right
+        env["VIDEODEDUP_SMOKE_PINNED_CERT"] = pinned_on_host
 
         if use_host_dotnet:
             smoke_dll = docker_host_path(smoke_abs / "VideoDedupGrpcSmoke.dll")
@@ -438,8 +525,12 @@ def main() -> None:
             f"VIDEODEDUP_SMOKE_COMPARE_LEFT={compare_left}",
             "-e",
             f"VIDEODEDUP_SMOKE_COMPARE_RIGHT={compare_right}",
+            "-e",
+            f"VIDEODEDUP_SMOKE_PINNED_CERT={pinned_in_container}",
             "-v",
             f"{smoke_vol}:/smoke:ro",
+            "-v",
+            f"{cert_vol}:/smoke-cert:ro",
             "mcr.microsoft.com/dotnet/runtime:8.0",
             "dotnet",
             "/smoke/VideoDedupGrpcSmoke.dll",
@@ -452,11 +543,11 @@ def main() -> None:
         return r.returncode == 0
 
     ipv4_ok = True
-    if not run_smoke(f"http://{ipv4}:51726", "IPv4"):
+    if not run_smoke(f"https://{ipv4}:51726", "IPv4"):
         ipv4_ok = False
         print("--- server container logs (IPv4 smoke failed) ---", file=sys.stderr)
         subprocess.run(["docker", "logs", srv], stderr=subprocess.STDOUT)
-    if not run_smoke(f"http://[{ipv6}]:51726", "IPv6"):
+    if not run_smoke(f"https://[{ipv6}]:51726", "IPv6"):
         print("--- server container logs (IPv6 smoke failed) ---", file=sys.stderr)
         subprocess.run(["docker", "logs", srv], stderr=subprocess.STDOUT)
         die("IPv6 smoke failed", 1)

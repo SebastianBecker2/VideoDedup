@@ -40,3 +40,12 @@ The client talks to the server over **HTTPS** with a **self-signed** server cert
 3. **Later / certificate rotation** — Re-run the bundle on the client PC and choose **Import server certificate…** (maintenance), or in the running client use **Client Configuration** to set the certificate path, or accept the prompt if the connection fails after a server reinstall.
 
 The server’s public certificate is also written under `%ProgramFiles%\VideoDedupServer\cert\` (alongside the private key used by the service). The installed client expects `cert\VideoDedup.crt` next to `VideoDedupClient.exe` unless you override **Server certificate** in Client Configuration (saved under your user profile).
+
+### Linux server (DEB/RPM/Arch)
+
+Linux packages generate the same self-signed material at install time (or on first start for Flatpak/Snap). The gRPC endpoint is **HTTPS** on port **51726**.
+
+- Private key: `/usr/lib/videodedupserver/cert/VideoDedup.pfx` (password in `/etc/videodedupserver/tls.env`, read by systemd)
+- Public cert for clients: `/usr/lib/videodedupserver/cert/VideoDedup.crt`
+
+Copy `VideoDedup.crt` to the client machine and import it (Client Configuration → **Server certificate**, or place under `cert\VideoDedup.crt` next to the client binary). Use protocol **https** and port **51726**.

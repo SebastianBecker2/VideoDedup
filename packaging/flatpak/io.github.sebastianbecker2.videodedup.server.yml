@@ -6,7 +6,7 @@ runtime-version: "24.08"
 sdk: org.freedesktop.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.dotnet8
-command: VideoDedupService
+command: videodedup-server-launch.sh
 
 finish-args:
   - --share=network
@@ -15,6 +15,8 @@ modules:
   - name: videodedupserver
     buildsystem: simple
     build-options:
+      strip: false
+      no-debuginfo: true
       build-args:
         - --share=network
       append-path: /usr/lib/sdk/dotnet8/bin
@@ -29,7 +31,7 @@ modules:
           --self-contained true \
           -p:PublishSingleFile=true \
           -o "${FLATPAK_DEST}/lib/videodedupserver"
-      - install -Dm755 "${FLATPAK_DEST}/lib/videodedupserver/VideoDedupService" "${FLATPAK_DEST}/bin/VideoDedupService"
+      - chmod 0755 "${FLATPAK_DEST}/lib/videodedupserver/VideoDedupService"
       - |
         set -e
         for f in appsettings.json appsettings.Development.json; do
@@ -45,11 +47,19 @@ modules:
         path = Path("${FLATPAK_DEST}/lib/videodedupserver/appsettings.json")
         data = json.loads(path.read_text(encoding="utf-8"))
         grpc = data.setdefault("Kestrel", {}).setdefault("Endpoints", {}).setdefault("gRPC", {})
-        grpc["Url"] = "http://[::]:51726"
+        grpc["Url"] = "https://[::]:51726"
         grpc["Protocols"] = "Http2"
-        grpc.pop("Certificate", None)
+        grpc["Certificate"] = {"Path": "cert/VideoDedup.pfx", "Password": ""}
         path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
         PY
+      - install -Dm755 packaging/flatpak/videodedup-server-launch.sh "${FLATPAK_DEST}/bin/videodedup-server-launch.sh"
+      - |
+        set -e
+        mkdir -p "${FLATPAK_DEST}/lib/videodedupserver/cert-setup"
+        for s in generate-server-cert.sh remove-server-cert.sh write-tls-env.sh; do
+          sed 's/\r$//' "packaging/common/scripts/${s}" > "${FLATPAK_DEST}/lib/videodedupserver/cert-setup/${s}"
+          chmod 0755 "${FLATPAK_DEST}/lib/videodedupserver/cert-setup/${s}"
+        done
     sources:
       - type: dir
         path: ../..

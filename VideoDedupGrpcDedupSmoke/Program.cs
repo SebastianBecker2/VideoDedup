@@ -1,9 +1,8 @@
 using System.Diagnostics;
-using System.Net.Http;
 using Grpc.Core;
-using Grpc.Net.Client;
 using Google.Protobuf.WellKnownTypes;
 using VideoDedupGrpc;
+using VideoDedupGrpcSmoke.Common;
 using static VideoDedupGrpc.OperationInfo.Types;
 using static VideoDedupGrpc.VideoDedupGrpcService;
 
@@ -16,7 +15,7 @@ const string DefaultFixtureDir = "/tmp/vd-fixtures/grpc-smoke";
 
 var url = args.Length > 0
     ? args[0]
-    : Env("VIDEODEDUP_GRPC_URL") ?? "http://127.0.0.1:51726";
+    : Env("VIDEODEDUP_GRPC_URL") ?? GrpcSmokeChannel.DefaultUrl;
 
 var fixtureDir = (Env("VIDEODEDUP_SMOKE_FIXTURE_DIR") ?? DefaultFixtureDir).Trim();
 if (string.IsNullOrEmpty(fixtureDir))
@@ -28,22 +27,7 @@ if (int.TryParse(Env("VIDEODEDUP_DEDUP_POLL_TIMEOUT_SEC"), out var t) && t > 0)
 
 Console.Error.WriteLine($"VideoDedupGrpcDedupSmoke: fixture_dir={fixtureDir} poll_timeout_sec={pollTimeoutSec}");
 
-if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
-{
-    AppContext.SetSwitch(
-        "System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport",
-        true);
-}
-
-using var handler = new SocketsHttpHandler();
-using var channel = GrpcChannel.ForAddress(
-    url,
-    new GrpcChannelOptions
-    {
-        HttpHandler = handler,
-        MaxReceiveMessageSize = 64 * 1024 * 1024,
-    });
-
+using var channel = GrpcSmokeChannel.Create(url, maxReceiveMessageSize: 64 * 1024 * 1024);
 var client = new VideoDedupGrpcServiceClient(channel);
 
 var currentStep = "init";

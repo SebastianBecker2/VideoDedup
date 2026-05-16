@@ -17,11 +17,20 @@ id videodedup >/dev/null
 
 install -d -o videodedup -g videodedup /var/lib/videodedupserver
 
-runuser -u videodedup -- env \
-  ASPNETCORE_ENVIRONMENT=Production \
-  DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
-  VIDEODEDUP_APP_DATA=/var/lib/videodedupserver \
-  timeout 25s /usr/lib/videodedupserver/VideoDedupService 2>&1 | tee /tmp/vd-smoke.log
+test -f /usr/lib/videodedupserver/cert/VideoDedup.pfx
+test -f /etc/videodedupserver/tls.env
+
+runuser -u videodedup -- bash -s <<'SMOKE'
+set -eu
+set -a
+# shellcheck source=/dev/null
+. /etc/videodedupserver/tls.env
+set +a
+export ASPNETCORE_ENVIRONMENT=Production
+export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+export VIDEODEDUP_APP_DATA=/var/lib/videodedupserver
+timeout 25s /usr/lib/videodedupserver/VideoDedupService 2>&1 | tee /tmp/vd-smoke.log
+SMOKE
 
 if ! grep -qE "Now listening|Application started" /tmp/vd-smoke.log; then
   echo "--- smoke log ---" >&2

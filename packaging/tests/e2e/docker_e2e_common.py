@@ -63,6 +63,76 @@ def mktemp_dir_under(parent: Path, prefix: str) -> Path:
     return Path(tempfile.mkdtemp(prefix=prefix, dir=str(parent)))
 
 
+TLS_CERT_SETUP_MARKER = "cert-setup/generate-server-cert.sh"
+
+
+def strip_crlf_bytes(data: bytes) -> bytes:
+    if b"\r\n" in data:
+        return data.replace(b"\r\n", b"\n")
+    if b"\r" in data:
+        return data.replace(b"\r", b"")
+    return data
+
+
+def file_has_crlf(path: Path) -> bool:
+    if not path.is_file():
+        return False
+    data = path.read_bytes()
+    return b"\r\n" in data or b"\r" in data
+
+
+def deb_package_has_tls_support(deb: Path) -> bool:
+    """True if .deb includes cert-setup scripts from the TLS packaging work."""
+    if which("dpkg-deb"):
+        r = run_capture(["dpkg-deb", "-c", str(deb)])
+        if r.returncode == 0 and TLS_CERT_SETUP_MARKER in (r.stdout or ""):
+            return True
+    if docker_ok():
+        deb_vol = docker_host_path(deb)
+        r = run_capture(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "-v",
+                f"{deb_vol}:/p.deb:ro",
+                "debian:trixie-slim",
+                "dpkg-deb",
+                "-c",
+                "/p.deb",
+            ]
+        )
+        if r.returncode == 0 and TLS_CERT_SETUP_MARKER in (r.stdout or ""):
+            return True
+    return False
+
+
+def rpm_package_has_tls_support(rpm: Path) -> bool:
+    """True if .rpm includes cert-setup scripts from the TLS packaging work."""
+    if which("rpm"):
+        r = run_capture(["rpm", "-qpl", str(rpm)])
+        if r.returncode == 0 and TLS_CERT_SETUP_MARKER in (r.stdout or ""):
+            return True
+    if docker_ok():
+        rpm_vol = docker_host_path(rpm)
+        r = run_capture(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "-v",
+                f"{rpm_vol}:/p.rpm:ro",
+                "fedora:40",
+                "rpm",
+                "-qpl",
+                "/p.rpm",
+            ]
+        )
+        if r.returncode == 0 and TLS_CERT_SETUP_MARKER in (r.stdout or ""):
+            return True
+    return False
+
+
 def latest_artifact(glob_pattern: str) -> Path | None:
     from glob import glob
 
@@ -71,6 +141,40 @@ def latest_artifact(glob_pattern: str) -> Path | None:
         return None
     paths.sort(key=lambda p: p.stat().st_mtime, reverse=True)
     return paths[0]
+
+
+def server_cert_path_in_container(package_format: str) -> str:
+    """Path to VideoDedup.crt inside the server container (after install / first-run)."""
+    fmt = (package_format or "deb").strip().lower()
+    if fmt == "flatpak":
+        return "/root/.var/app/io.github.sebastianbecker2.videodedup.server/data/cert/VideoDedup.crt"
+    if fmt == "snap":
+        return "/tmp/vd-snap/usr/lib/videodedupserver/cert/VideoDedup.crt"
+    return "/usr/lib/videodedupserver/cert/VideoDedup.crt"
+
+
+def extract_server_cert(
+    container: str,
+    host_out: Path,
+    *,
+    package_format: str = "deb",
+    cert_in_container: str | None = None,
+) -> Path:
+    """Copy VideoDedup.crt from server container to host_out/VideoDedup.crt."""
+    host_out.mkdir(parents=True, exist_ok=True)
+    dest = host_out / "VideoDedup.crt"
+    inner = cert_in_container or server_cert_path_in_container(package_format)
+    r = subprocess.run(
+        ["docker", "cp", f"{container}:{inner}", docker_host_path(dest)],
+        capture_output=True,
+        text=True,
+    )
+    if r.returncode != 0:
+        err = (r.stderr or r.stdout or "").strip()
+        raise RuntimeError(f"docker cp server cert ({inner}) failed ({r.returncode}): {err}")
+    if not dest.is_file():
+        raise RuntimeError(f"extract_server_cert: missing {dest}")
+    return dest
 
 
 def publish_dotnet_project(

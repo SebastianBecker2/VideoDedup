@@ -21,11 +21,12 @@ Requires:       systemd
 Requires(pre):  shadow-utils
 Requires:       ca-certificates
 Requires:       openssl-libs
+Requires:       openssl
 
 %description
 VideoDedup gRPC server: scans storage for near-duplicate videos and exposes
 match results to the VideoDedup desktop client. Listens on TCP 51726 by
-default (HTTP/2 cleartext). Ships a systemd unit; firewall rules are left to
+default (HTTPS gRPC with install-time self-signed certificate). Ships a systemd unit; firewall rules are left to
 the administrator (see %{_docdir}/%{name}/README.firewall).
 
 %prep
@@ -62,6 +63,11 @@ chmod 0755 "%{buildroot}/usr/lib/%{name}/firewall/open-port-ufw.sh" \
   "%{buildroot}/usr/lib/%{name}/firewall/open-port-iptables.sh" \
   "%{buildroot}/usr/lib/%{name}/firewall/open-port-nftables.sh" \
   "%{buildroot}/usr/lib/%{name}/firewall/configure-firewall-interactive.sh"
+mkdir -p "%{buildroot}/usr/lib/%{name}/cert-setup"
+for s in generate-server-cert.sh remove-server-cert.sh write-tls-env.sh; do
+  sed 's/\r$//' "@REPO@/packaging/common/scripts/${s}" > "%{buildroot}/usr/lib/%{name}/cert-setup/${s}"
+  chmod 0755 "%{buildroot}/usr/lib/%{name}/cert-setup/${s}"
+done
 mkdir -p "%{buildroot}/var/lib/videodedupserver"
 mkdir -p "%{buildroot}/var/log/videodedupserver"
 
@@ -71,6 +77,27 @@ getent passwd videodedup >/dev/null || useradd --system --user-group \
   --shell /sbin/nologin videodedup || true
 chown -R videodedup:videodedup /var/lib/videodedupserver /var/log/videodedupserver || true
 chmod 0750 /var/lib/videodedupserver /var/log/videodedupserver || true
+INSTALL_ROOT="/usr/lib/videodedupserver"
+CERT_SETUP="${INSTALL_ROOT}/cert-setup"
+PFX_PATH="${INSTALL_ROOT}/cert/VideoDedup.pfx"
+if [ ! -x "${CERT_SETUP}/generate-server-cert.sh" ]; then
+  echo "videodedupserver: missing ${CERT_SETUP}/generate-server-cert.sh (rebuild package)" >&2
+  exit 1
+fi
+if ! command -v openssl >/dev/null 2>&1; then
+  echo "videodedupserver: openssl not found; cannot create TLS certificate" >&2
+  exit 1
+fi
+PASS="$("${CERT_SETUP}/generate-server-cert.sh" "${INSTALL_ROOT}")" || {
+  echo "videodedupserver: generate-server-cert.sh failed" >&2
+  exit 1
+}
+if [ -n "${PASS:-}" ] && [ -f "${PFX_PATH}" ] && [ -x "${CERT_SETUP}/write-tls-env.sh" ]; then
+  "${CERT_SETUP}/write-tls-env.sh" "${PFX_PATH}" "${PASS}" /etc/videodedupserver/tls.env
+else
+  echo "videodedupserver: TLS certificate was not created under ${INSTALL_ROOT}/cert" >&2
+  exit 1
+fi
 if [ "$1" -eq 1 ]; then
   /bin/systemctl daemon-reload || :
   /bin/systemctl enable videodedupserver.service || :
@@ -80,7 +107,8 @@ if [ "$1" -eq 1 ]; then
 ====================================================================
 videodedupserver — open firewall for gRPC (TCP 51726)
 ====================================================================
-This package does not add host firewall rules. Allow TCP 51726 for clients.
+This package does not add host firewall rules. Allow TCP 51726 for HTTPS gRPC clients.
+Import server certificate from: /usr/lib/videodedupserver/cert/VideoDedup.crt
 
   sudo /usr/lib/videodedupserver/firewall/configure-firewall-interactive.sh
   sudo /usr/lib/videodedupserver/firewall/open-port-firewalld.sh
@@ -98,6 +126,10 @@ fi
 if [ "$1" -eq 0 ]; then
   /bin/systemctl stop videodedupserver.service || :
   /bin/systemctl disable videodedupserver.service || :
+  INSTALL_ROOT="/usr/lib/videodedupserver"
+  if [ -x "${INSTALL_ROOT}/cert-setup/remove-server-cert.sh" ]; then
+    "${INSTALL_ROOT}/cert-setup/remove-server-cert.sh" "${INSTALL_ROOT}" || :
+  fi
 fi
 
 %postun

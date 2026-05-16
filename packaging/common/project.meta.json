@@ -3,7 +3,7 @@
   "title": "VideoDedupServer",
   "description": "gRPC video deduplication server for the VideoDedup suite. Scans folders for visually duplicate videos and exposes results to the VideoDedup client.",
   "description_synopsis": "gRPC video deduplication server for VideoDedup",
-  "description_detail": "This server scans storage for visually near-duplicate videos and serves match results to the VideoDedup desktop client over gRPC (HTTP/2 cleartext on TCP 51726 by default). It is meant to run under systemd. The package does not open host firewall ports; see /usr/share/doc/videodedupserver/README.firewall after install.",
+  "description_detail": "This server scans storage for visually near-duplicate videos and serves match results to the VideoDedup desktop client over gRPC (HTTPS on TCP 51726 by default). Install generates a self-signed certificate; clients pin VideoDedup.crt. It is meant to run under systemd. The package does not open host firewall ports; see /usr/share/doc/videodedupserver/README.firewall after install.",
   "homepage": "https://github.com/SebastianBecker2/videodedup",
   "license": "MIT",
   "maintainer": "Sebastian Becker <mail@sbecker.de.com>",

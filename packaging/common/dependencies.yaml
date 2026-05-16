@@ -13,6 +13,7 @@ debian:
     - adduser
     - systemd
     - ca-certificates
+    - openssl
     - "libc6 (>= 2.31)"
     - "libssl3 | libssl3t64 | libssl1.1"
   # Alternatives for libav SONAME drift across releases (extend as needed).
@@ -25,6 +26,7 @@ rpm:
     - shadow-utils
     - ca-certificates
     - openssl-libs
+    - openssl
 
 snap:
   # classic: server needs broad host filesystem access for user scan paths.

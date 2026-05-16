@@ -97,6 +97,13 @@ for s in open-port-ufw.sh open-port-firewalld.sh open-port-iptables.sh open-port
   chmod 0755 "${WORK}/pkgroot/usr/lib/${PKG}/firewall/${s}"
 done
 
+CERT_SCRIPTS="${ROOT}/packaging/common/scripts"
+mkdir -p "${WORK}/pkgroot/usr/lib/${PKG}/cert-setup"
+for s in generate-server-cert.sh remove-server-cert.sh write-tls-env.sh; do
+  sed 's/\r$//' "${CERT_SCRIPTS}/${s}" > "${WORK}/pkgroot/usr/lib/${PKG}/cert-setup/${s}"
+  chmod 0755 "${WORK}/pkgroot/usr/lib/${PKG}/cert-setup/${s}"
+done
+
 install -m 0644 "${ROOT}/packaging/common/debian/copyright" \
   "${WORK}/pkgroot/usr/share/doc/${PKG}/copyright"
 

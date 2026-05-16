@@ -11,6 +11,7 @@ Group=videodedup
 WorkingDirectory=/usr/lib/videodedupserver
 ExecStart=/usr/lib/videodedupserver/VideoDedupService
 EnvironmentFile=-/etc/videodedupserver/env
+EnvironmentFile=-/etc/videodedupserver/tls.env
 Restart=on-failure
 RestartSec=5
 TimeoutStopSec=60

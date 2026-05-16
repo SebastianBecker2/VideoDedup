@@ -1,5 +1,29 @@
 # videodedupserver.install — hooks aligned with Debian postinst/prerm (systemd optional in minimal environments)
 
+_vd_setup_tls() {
+  INSTALL_ROOT="/usr/lib/videodedupserver"
+  CERT_SETUP="${INSTALL_ROOT}/cert-setup"
+  PFX_PATH="${INSTALL_ROOT}/cert/VideoDedup.pfx"
+  if [ ! -x "${CERT_SETUP}/generate-server-cert.sh" ]; then
+    echo "videodedupserver: missing ${CERT_SETUP}/generate-server-cert.sh (rebuild package)" >&2
+    return 1
+  fi
+  if ! command -v openssl >/dev/null 2>&1; then
+    echo "videodedupserver: openssl not found; cannot create TLS certificate" >&2
+    return 1
+  fi
+  PASS="$("${CERT_SETUP}/generate-server-cert.sh" "${INSTALL_ROOT}")" || {
+    echo "videodedupserver: generate-server-cert.sh failed" >&2
+    return 1
+  }
+  if [ -n "${PASS:-}" ] && [ -f "${PFX_PATH}" ] && [ -x "${CERT_SETUP}/write-tls-env.sh" ]; then
+    "${CERT_SETUP}/write-tls-env.sh" "${PFX_PATH}" "${PASS}" /etc/videodedupserver/tls.env
+  else
+    echo "videodedupserver: TLS certificate was not created under ${INSTALL_ROOT}/cert" >&2
+    return 1
+  fi
+}
+
 post_install() {
   mkdir -p /var/lib/videodedupserver /var/log/videodedupserver
   if ! getent passwd videodedup >/dev/null 2>&1; then
@@ -16,6 +40,7 @@ post_install() {
   fi
   chown -R videodedup:videodedup /var/lib/videodedupserver /var/log/videodedupserver
   chmod 0750 /var/lib/videodedupserver /var/log/videodedupserver
+  _vd_setup_tls
   systemctl daemon-reload 2>/dev/null || true
   systemctl enable videodedupserver.service 2>/dev/null || true
   systemctl start videodedupserver.service 2>/dev/null || true
@@ -28,5 +53,8 @@ post_upgrade() {
 pre_remove() {
   systemctl stop videodedupserver.service 2>/dev/null || true
   systemctl disable videodedupserver.service 2>/dev/null || true
+  INSTALL_ROOT="/usr/lib/videodedupserver"
+  if [ -x "${INSTALL_ROOT}/cert-setup/remove-server-cert.sh" ]; then
+    "${INSTALL_ROOT}/cert-setup/remove-server-cert.sh" "${INSTALL_ROOT}" || true
+  fi
 }
-

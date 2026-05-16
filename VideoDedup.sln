@@ -22,6 +22,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoDedupGrpcComparisonSmo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoDedupGrpcDedupSmoke", "VideoDedupGrpcDedupSmoke\VideoDedupGrpcDedupSmoke.csproj", "{A7B8C9D0-E1F2-4A5B-9C8D-7E6F5A4B3C2D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoDedupGrpcSmoke.Common", "VideoDedupGrpcSmoke.Common\VideoDedupGrpcSmoke.Common.csproj", "{E8F9A0B1-C2D3-4E5F-9A8B-7C6D5E4F3A2B}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoDedupService", "VideoDedupService\VideoDedupService.csproj", "{63351B69-9B0A-4B87-ACFB-905ABA55BC71}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DedupEngine", "DedupEngine\DedupEngine.csproj", "{AD1EDF5F-7BFF-4499-875B-E7AF81890F21}"
@@ -112,6 +114,14 @@ Global
 		{A7B8C9D0-E1F2-4A5B-9C8D-7E6F5A4B3C2D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A7B8C9D0-E1F2-4A5B-9C8D-7E6F5A4B3C2D}.Release|x64.ActiveCfg = Release|Any CPU
 		{A7B8C9D0-E1F2-4A5B-9C8D-7E6F5A4B3C2D}.Release|x64.Build.0 = Release|Any CPU
+		{E8F9A0B1-C2D3-4E5F-9A8B-7C6D5E4F3A2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8F9A0B1-C2D3-4E5F-9A8B-7C6D5E4F3A2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8F9A0B1-C2D3-4E5F-9A8B-7C6D5E4F3A2B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E8F9A0B1-C2D3-4E5F-9A8B-7C6D5E4F3A2B}.Debug|x64.Build.0 = Debug|Any CPU
+		{E8F9A0B1-C2D3-4E5F-9A8B-7C6D5E4F3A2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8F9A0B1-C2D3-4E5F-9A8B-7C6D5E4F3A2B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8F9A0B1-C2D3-4E5F-9A8B-7C6D5E4F3A2B}.Release|x64.ActiveCfg = Release|Any CPU
+		{E8F9A0B1-C2D3-4E5F-9A8B-7C6D5E4F3A2B}.Release|x64.Build.0 = Release|Any CPU
 		{63351B69-9B0A-4B87-ACFB-905ABA55BC71}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{63351B69-9B0A-4B87-ACFB-905ABA55BC71}.Debug|Any CPU.Build.0 = Debug|x64
 		{63351B69-9B0A-4B87-ACFB-905ABA55BC71}.Debug|x64.ActiveCfg = Debug|x64

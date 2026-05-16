@@ -1,32 +1,16 @@
-using System.Net.Http;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
-using Grpc.Net.Client;
 using VideoDedupGrpc;
+using VideoDedupGrpcSmoke.Common;
 using static VideoDedupGrpc.VideoDedupGrpcService;
 
 static string? Env(string key) => Environment.GetEnvironmentVariable(key);
 
 var url = args.Length > 0
     ? args[0]
-    : Env("VIDEODEDUP_GRPC_URL") ?? "http://127.0.0.1:51726";
+    : Env("VIDEODEDUP_GRPC_URL") ?? GrpcSmokeChannel.DefaultUrl;
 
-if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
-{
-    AppContext.SetSwitch(
-        "System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport",
-        true);
-}
-
-using var handler = new SocketsHttpHandler();
-using var channel = GrpcChannel.ForAddress(
-    url,
-    new GrpcChannelOptions
-    {
-        HttpHandler = handler,
-        MaxReceiveMessageSize = 128 * 1024 * 1024,
-    });
-
+using var channel = GrpcSmokeChannel.Create(url, maxReceiveMessageSize: 128 * 1024 * 1024);
 var client = new VideoDedupGrpcServiceClient(channel);
 
 var currentStep = "init";

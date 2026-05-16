@@ -21,10 +21,20 @@ parts:
     source: _dump
     organize:
       "*": usr/lib/videodedupserver/
+    override-build: |
+      craftctl default
+      mkdir -p "$CRAFT_PART_INSTALL/usr/lib/videodedupserver/cert-setup"
+      for s in generate-server-cert.sh remove-server-cert.sh write-tls-env.sh; do
+        sed 's/\r$//' "$CRAFT_PROJECT_DIR/../common/scripts/$s" > \
+          "$CRAFT_PART_INSTALL/usr/lib/videodedupserver/cert-setup/$s"
+        chmod 0755 "$CRAFT_PART_INSTALL/usr/lib/videodedupserver/cert-setup/$s"
+      done
+      install -Dm755 "$CRAFT_PROJECT_DIR/videodedup-server-launch.sh" \
+        "$CRAFT_PART_INSTALL/usr/bin/videodedup-server-launch.sh"
 
 apps:
   videodedupserver:
-    command: usr/lib/videodedupserver/VideoDedupService
+    command: usr/bin/videodedup-server-launch.sh
     daemon: simple
     environment:
       VIDEODEDUP_APP_DATA: $SNAP_COMMON/data

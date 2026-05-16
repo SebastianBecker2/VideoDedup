@@ -125,6 +125,75 @@ install_tree_from_staged() {
   chmod 0755 /usr/lib/videodedupserver/VideoDedupService
 }
 
+vd_run_sh() {
+  local script="$1"
+  shift
+  if grep -q $'\r' "${script}" 2>/dev/null; then
+    sed 's/\r$//' "${script}" | sh -s "$@"
+  else
+    sh "${script}" "$@"
+  fi
+}
+
+vd_ensure_openssl() {
+  command -v openssl >/dev/null 2>&1 && return 0
+  echo "E2E: installing openssl for TLS certificate generation ..." >&2
+  if command -v apt-get >/dev/null 2>&1; then
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update -qq 2>/dev/null || true
+    apt-get install -y -qq openssl 2>/dev/null || true
+  elif command -v dnf >/dev/null 2>&1; then
+    dnf -y -q install openssl >/dev/null 2>&1 || true
+  elif command -v zypper >/dev/null 2>&1; then
+    zypper --non-interactive install -y openssl >/dev/null 2>&1 || true
+  elif command -v pacman >/dev/null 2>&1; then
+    pacman -Sy --noconfirm --needed openssl >/dev/null 2>&1 || true
+  fi
+  command -v openssl >/dev/null 2>&1
+}
+
+vd_setup_tls() {
+  local install_root="${1:-/usr/lib/videodedupserver}"
+  local cert_dir="${2:-${install_root}/cert}"
+  local cert_setup="${install_root}/cert-setup"
+  local pfx_path="${cert_dir}/VideoDedup.pfx"
+  [[ -x "${cert_setup}/generate-server-cert.sh" ]] || {
+    echo "E2E: cert-setup missing under ${install_root} (rebuild .deb after TLS packaging changes)" >&2
+    return 1
+  }
+  vd_ensure_openssl || {
+    echo "E2E: openssl required to generate VideoDedup TLS certificate" >&2
+    return 1
+  }
+  local pass gen_rc=0
+  pass="$(vd_run_sh "${cert_setup}/generate-server-cert.sh" "${install_root}" "${cert_dir}")" || gen_rc=$?
+  if [[ "${gen_rc}" -ne 0 ]]; then
+    echo "E2E: generate-server-cert.sh failed (exit ${gen_rc})" >&2
+    return 1
+  fi
+  if [[ -n "${pass:-}" ]] && [[ -f "${pfx_path}" ]] && [[ -x "${cert_setup}/write-tls-env.sh" ]]; then
+    vd_run_sh "${cert_setup}/write-tls-env.sh" "${pfx_path}" "${pass}" /etc/videodedupserver/tls.env
+  fi
+  [[ -f "${pfx_path}" ]]
+}
+
+vd_require_tls_cert() {
+  local pfx_path="${1:-/usr/lib/videodedupserver/cert/VideoDedup.pfx}"
+  if [[ ! -f "${pfx_path}" ]]; then
+    echo "E2E: missing TLS certificate ${pfx_path}" >&2
+    exit 1
+  fi
+}
+
+vd_kestrel_tls_env() {
+  if [[ -f /etc/videodedupserver/tls.env ]]; then
+    set -a
+    # shellcheck source=/dev/null
+    . /etc/videodedupserver/tls.env
+    set +a
+  fi
+}
+
 install_deb() {
   export DEBIAN_FRONTEND=noninteractive
   local fw_pkg
@@ -481,25 +550,34 @@ detect_ffmpeg_lib_root() {
 }
 detect_ffmpeg_lib_root
 
+if [[ "${FMT}" != flatpak ]]; then
+  if [[ "${FMT}" == snap ]]; then
+    vd_setup_tls /tmp/vd-snap/usr/lib/videodedupserver /tmp/vd-snap/usr/lib/videodedupserver/cert \
+      || exit 1
+    vd_require_tls_cert /tmp/vd-snap/usr/lib/videodedupserver/cert/VideoDedup.pfx
+  else
+    vd_setup_tls /usr/lib/videodedupserver || exit 1
+    vd_require_tls_cert /usr/lib/videodedupserver/cert/VideoDedup.pfx
+  fi
+fi
+
 if [[ "${FMT}" == flatpak ]]; then
   install -d -m 0755 /var/lib/videodedupserver
   _u="$(id -u videodedup)"
   install -d -m 0700 -o videodedup -g videodedup "/run/user/${_u}"
   # Packaged binary refuses UID 0 (LinuxHostBootstrap); flatpak must not run as root.
-  # Flatpak layout can miss Kestrel gRPC appsettings (defaults to localhost:5000); force h2c gRPC port.
   vd_exec_as_videodedup env -u ASPNETCORE_URLS \
     ASPNETCORE_ENVIRONMENT=Production \
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
     VIDEODEDUP_APP_DATA=/var/lib/videodedupserver \
     XDG_RUNTIME_DIR="/run/user/${_u}" \
-    Kestrel__Endpoints__gRPC__Url='http://[::]:51726' \
-    Kestrel__Endpoints__gRPC__Protocols=Http2 \
     flatpak run io.github.sebastianbecker2.videodedup.server &
 else
   _vd_bin=/usr/lib/videodedupserver/VideoDedupService
   if [[ "${FMT}" == snap ]]; then
     _vd_bin=/tmp/vd-snap/usr/lib/videodedupserver/VideoDedupService
   fi
+  vd_kestrel_tls_env
   if [[ -n "${VIDEODEDUP_FFMPEG_LIB_ROOT:-}" ]]; then
     vd_exec_as_videodedup env \
       ASPNETCORE_ENVIRONMENT=Production \

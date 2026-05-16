@@ -24,8 +24,10 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from docker_e2e_common import (
+    deb_package_has_tls_support,
     docker_host_path,
     docker_ok,
+    extract_server_cert,
     latest_artifact,
     mktemp_dir_under,
     publish_dotnet_project,
@@ -101,10 +103,23 @@ def ensure_deb_package(arch: str, explicit: Path | None) -> Path:
     if explicit is not None:
         if not explicit.is_file():
             die(f"Not a file: {explicit}")
-        return explicit.resolve()
+        deb = explicit.resolve()
+        if not deb_package_has_tls_support(deb):
+            die(
+                f".deb lacks TLS cert-setup ({deb}). Rebuild after pulling TLS packaging changes:\n"
+                f"  python3 packaging/tools/stage.py --arch {arch}\n"
+                f"  packaging/tools/build-deb.sh --arch {arch}"
+            )
+        return deb
 
     pat = str(ROOT / "packaging/out" / arch / "deb" / "*.deb")
     found = latest_artifact(pat)
+    if found is not None and not deb_package_has_tls_support(found):
+        print(
+            f"Existing package lacks TLS cert-setup ({found}); rebuilding ...",
+            file=sys.stderr,
+        )
+        found = None
     if found is not None:
         print(f"Using existing package: {found}")
         return found
@@ -135,12 +150,26 @@ def publish_smoke_project(rel_csproj: str, out_subdir: str, arch: str, rid: str)
     publish_dotnet_project(ROOT, rel_csproj, out_dir, rid)
 
 
+def grpc_smoke_base_image_has_openssl(tag: str) -> bool:
+    r = run_capture(
+        ["docker", "run", "--rm", tag, "sh", "-c", "command -v openssl"],
+    )
+    return r.returncode == 0
+
+
 def ensure_grpc_smoke_base_image(tag: str) -> None:
     dockerfile = ROOT / "packaging/docker/Dockerfile.grpc-smoke-base"
     rebuild = os.environ.get("VD_REBUILD_GRPC_SMOKE_BASE", "0") == "1"
     ins = run_capture(["docker", "image", "inspect", tag])
     if not rebuild and ins.returncode == 0:
-        return
+        if not grpc_smoke_base_image_has_openssl(tag):
+            print(
+                f"Image {tag} lacks openssl; rebuilding grpc-smoke-base (or set VD_REBUILD_GRPC_SMOKE_BASE=1) ...",
+                file=sys.stderr,
+            )
+            rebuild = True
+        else:
+            return
     print(f"Building grpc-smoke base image {tag} ...")
     out_parent = ROOT / "packaging/out"
     out_parent.mkdir(parents=True, exist_ok=True)
@@ -330,7 +359,18 @@ def main() -> None:
             docker_logs(container)
             die("Server did not become ready in time.", 1)
 
-        grpc_url = f"http://127.0.0.1:{port}"
+        cert_host_dir = ROOT / "packaging/out" / arch / "e2e-server-cert"
+        try:
+            pinned_cert = extract_server_cert(container, cert_host_dir, package_format="deb")
+        except RuntimeError as ex:
+            docker_logs(container)
+            die(str(ex), 1)
+        print(f"E2E: extracted server TLS cert to {pinned_cert}", flush=True)
+
+        grpc_url = f"https://127.0.0.1:{port}"
+        cert_vol = docker_host_path(pinned_cert.parent)
+        pinned_in_container = "/smoke-cert/VideoDedup.crt"
+        pinned_on_host = docker_host_path(pinned_cert)
 
         def log_compare_env(name: str) -> None:
             print(f"E2E [{name}] VIDEODEDUP_SMOKE_COMPARE_LEFT={compare_left or '<unset>'}", file=sys.stderr)
@@ -346,6 +386,7 @@ def main() -> None:
             env = os.environ.copy()
             env["VIDEODEDUP_SMOKE_COMPARE_LEFT"] = compare_left
             env["VIDEODEDUP_SMOKE_COMPARE_RIGHT"] = compare_right
+            env["VIDEODEDUP_SMOKE_PINNED_CERT"] = pinned_on_host
             if use_host_dotnet:
                 smoke_dll = docker_host_path(smoke_abs / "VideoDedupGrpcSmoke.dll")
                 r = subprocess.run(["dotnet", smoke_dll, url], env=env)
@@ -368,8 +409,12 @@ def main() -> None:
                     f"VIDEODEDUP_SMOKE_COMPARE_LEFT={compare_left}",
                     "-e",
                     f"VIDEODEDUP_SMOKE_COMPARE_RIGHT={compare_right}",
+                    "-e",
+                    f"VIDEODEDUP_SMOKE_PINNED_CERT={pinned_in_container}",
                     "-v",
                     f"{smoke_vol}:/smoke:ro",
+                    "-v",
+                    f"{cert_vol}:/smoke-cert:ro",
                     "mcr.microsoft.com/dotnet/runtime:8.0",
                     "dotnet",
                     "/smoke/VideoDedupGrpcSmoke.dll",
@@ -384,6 +429,7 @@ def main() -> None:
             env = os.environ.copy()
             env["VIDEODEDUP_SMOKE_COMPARE_LEFT"] = compare_left
             env["VIDEODEDUP_SMOKE_COMPARE_RIGHT"] = compare_right
+            env["VIDEODEDUP_SMOKE_PINNED_CERT"] = pinned_on_host
             if use_host_dotnet:
                 dll = docker_host_path(comparison_abs / "VideoDedupGrpcComparisonSmoke.dll")
                 r = subprocess.run(["dotnet", dll, url], env=env)
@@ -406,8 +452,12 @@ def main() -> None:
                     f"VIDEODEDUP_SMOKE_COMPARE_LEFT={compare_left}",
                     "-e",
                     f"VIDEODEDUP_SMOKE_COMPARE_RIGHT={compare_right}",
+                    "-e",
+                    f"VIDEODEDUP_SMOKE_PINNED_CERT={pinned_in_container}",
                     "-v",
                     f"{docker_host_path(comparison_abs.resolve())}:/comparison-smoke:ro",
+                    "-v",
+                    f"{cert_vol}:/smoke-cert:ro",
                     "mcr.microsoft.com/dotnet/runtime:8.0",
                     "dotnet",
                     "/comparison-smoke/VideoDedupGrpcComparisonSmoke.dll",
@@ -421,6 +471,7 @@ def main() -> None:
             print(f"E2E [VideoDedupGrpcDedupSmoke] VIDEODEDUP_SMOKE_FIXTURE_DIR={fixture_dir}", file=sys.stderr)
             env = os.environ.copy()
             env["VIDEODEDUP_SMOKE_FIXTURE_DIR"] = fixture_dir
+            env["VIDEODEDUP_SMOKE_PINNED_CERT"] = pinned_on_host
             if use_host_dotnet:
                 dll = docker_host_path(dedup_root / "VideoDedupGrpcDedupSmoke.dll")
                 r = subprocess.run(["dotnet", dll, url], env=env)
@@ -443,8 +494,12 @@ def main() -> None:
                     "--add-host=host.docker.internal:host-gateway",
                     "-e",
                     f"VIDEODEDUP_SMOKE_FIXTURE_DIR={fixture_dir}",
+                    "-e",
+                    f"VIDEODEDUP_SMOKE_PINNED_CERT={pinned_in_container}",
                     "-v",
                     f"{dedup_v}:/dedup-smoke:ro",
+                    "-v",
+                    f"{cert_vol}:/smoke-cert:ro",
                     "mcr.microsoft.com/dotnet/runtime:8.0",
                     "dotnet",
                     "/dedup-smoke/VideoDedupGrpcDedupSmoke.dll",

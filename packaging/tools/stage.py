@@ -33,16 +33,23 @@ def git_epoch(root: Path) -> int:
         return 0
 
 
+def strip_crlf_bytes(data: bytes) -> bytes:
+    if b"\r\n" in data:
+        return data.replace(b"\r\n", b"\n")
+    if b"\r" in data:
+        return data.replace(b"\r", b"")
+    return data
+
+
 def strip_crlf_text_files(stage: Path) -> None:
-    for pattern in ("*.json", "*.dll.config"):
+    for pattern in ("*.json", "*.dll.config", "**/*.sh"):
         for f in stage.glob(pattern):
             if not f.is_file():
                 continue
             data = f.read_bytes()
-            if b"\r\n" in data:
-                f.write_bytes(data.replace(b"\r\n", b"\n"))
-            elif b"\r" in data:
-                f.write_bytes(data.replace(b"\r", b""))
+            normalized = strip_crlf_bytes(data)
+            if normalized != data:
+                f.write_bytes(normalized)
 
 
 def chmod_stage_tree(stage: Path) -> None:
@@ -66,9 +73,9 @@ def patch_appsettings_grpc(stage: Path) -> None:
     path = stage / "appsettings.json"
     data = json.loads(path.read_text(encoding="utf-8"))
     grpc = data.setdefault("Kestrel", {}).setdefault("Endpoints", {}).setdefault("gRPC", {})
-    grpc["Url"] = "http://[::]:51726"
+    grpc["Url"] = "https://[::]:51726"
     grpc["Protocols"] = "Http2"
-    grpc.pop("Certificate", None)
+    grpc["Certificate"] = {"Path": "cert/VideoDedup.pfx", "Password": ""}
     path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 
 
@@ -116,6 +123,17 @@ def main() -> int:
         shutil.copy2(dev, stage / "appsettings.Development.json")
 
     patch_appsettings_grpc(stage)
+    cert_setup = stage / "cert-setup"
+    cert_setup.mkdir(parents=True, exist_ok=True)
+    for name in ("generate-server-cert.sh", "remove-server-cert.sh", "write-tls-env.sh"):
+        src = root / "packaging/common/scripts" / name
+        dest = cert_setup / name
+        dest.write_bytes(strip_crlf_bytes(src.read_bytes()))
+        if os.name != "nt":
+            try:
+                dest.chmod(0o755)
+            except OSError:
+                pass
     strip_crlf_text_files(stage)
     chmod_stage_tree(stage)
 
