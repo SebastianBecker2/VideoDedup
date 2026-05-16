@@ -5,6 +5,8 @@
 # Shell scripts for Linux packaging must stay LF (CRLF breaks /bin/sh on Debian).
 packaging/common/firewall/*.sh text eol=lf
 packaging/common/scripts/*.sh text eol=lf
+packaging/snap/*.sh text eol=lf
+packaging/flatpak/*.sh text eol=lf
 packaging/tools/*.sh text eol=lf
 packaging/common/generate-metadata.sh text eol=lf
 packaging/common/packaging-python.sh text eol=lf

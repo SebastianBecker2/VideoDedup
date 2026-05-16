@@ -19,19 +19,19 @@ parts:
   server:
     plugin: dump
     source: _dump
-    organize:
-      "*": usr/lib/videodedupserver/
     override-build: |
-      # cert-setup/ is already in _dump from stage.py; clear install/ for idempotent rebuilds.
-      rm -rf "$CRAFT_PART_INSTALL"
-      mkdir -p "$CRAFT_PART_INSTALL"
-      craftctl default
-      install -Dm755 "$CRAFT_PROJECT_DIR/videodedup-server-launch.sh" \
-        "$CRAFT_PART_INSTALL/usr/bin/videodedup-server-launch.sh"
+      set -eu
+      dest="${CRAFT_PART_INSTALL}/usr/lib/videodedupserver"
+      mkdir -p "${dest}"
+      # Avoid craftctl default (cp --link); hard links break re-staging in destructive CI.
+      cp -a . "${dest}/"
+      sed 's/\r$//' "${CRAFT_PROJECT_DIR}/videodedup-server-launch.sh" > \
+        "${dest}/videodedup-server-launch.sh"
+      chmod 0755 "${dest}/videodedup-server-launch.sh"
 
 apps:
   videodedupserver:
-    command: usr/bin/videodedup-server-launch.sh
+    command: usr/lib/videodedupserver/videodedup-server-launch.sh
     daemon: simple
     environment:
       VIDEODEDUP_APP_DATA: $SNAP_COMMON/data
