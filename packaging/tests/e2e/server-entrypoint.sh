@@ -185,15 +185,6 @@ vd_require_tls_cert() {
   fi
 }
 
-vd_kestrel_tls_env() {
-  if [[ -f /etc/videodedupserver/tls.env ]]; then
-    set -a
-    # shellcheck source=/dev/null
-    . /etc/videodedupserver/tls.env
-    set +a
-  fi
-}
-
 install_deb() {
   export DEBIAN_FRONTEND=noninteractive
   local fw_pkg
@@ -550,15 +541,9 @@ detect_ffmpeg_lib_root() {
 }
 detect_ffmpeg_lib_root
 
-if [[ "${FMT}" != flatpak ]]; then
-  if [[ "${FMT}" == snap ]]; then
-    vd_setup_tls /tmp/vd-snap/usr/lib/videodedupserver /tmp/vd-snap/usr/lib/videodedupserver/cert \
-      || exit 1
-    vd_require_tls_cert /tmp/vd-snap/usr/lib/videodedupserver/cert/VideoDedup.pfx
-  else
-    vd_setup_tls /usr/lib/videodedupserver || exit 1
-    vd_require_tls_cert /usr/lib/videodedupserver/cert/VideoDedup.pfx
-  fi
+if [[ "${FMT}" != flatpak && "${FMT}" != snap ]]; then
+  vd_setup_tls /usr/lib/videodedupserver || exit 1
+  vd_require_tls_cert /usr/lib/videodedupserver/cert/VideoDedup.pfx
 fi
 
 if [[ "${FMT}" == flatpak ]]; then
@@ -572,12 +557,33 @@ if [[ "${FMT}" == flatpak ]]; then
     VIDEODEDUP_APP_DATA=/var/lib/videodedupserver \
     XDG_RUNTIME_DIR="/run/user/${_u}" \
     flatpak run io.github.sebastianbecker2.videodedup.server &
+elif [[ "${FMT}" == snap ]]; then
+  export SNAP=/tmp/vd-snap
+  export SNAP_COMMON=/tmp/vd-snap-common
+  install -d -o videodedup -g videodedup /tmp/vd-snap-common/cert /tmp/vd-snap-common/data
+  _vd_bin="${SNAP}/usr/lib/videodedupserver/videodedup-server-launch.sh"
+  [[ -x "${_vd_bin}" ]] || {
+    echo "E2E: missing snap launch wrapper ${_vd_bin}" >&2
+    exit 1
+  }
+  if [[ -n "${VIDEODEDUP_FFMPEG_LIB_ROOT:-}" ]]; then
+    vd_exec_as_videodedup env \
+      SNAP="${SNAP}" SNAP_COMMON="${SNAP_COMMON}" \
+      ASPNETCORE_ENVIRONMENT=Production \
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
+      VIDEODEDUP_APP_DATA=/var/lib/videodedupserver \
+      VIDEODEDUP_FFMPEG_LIB_ROOT="${VIDEODEDUP_FFMPEG_LIB_ROOT}" \
+      "${_vd_bin}" &
+  else
+    vd_exec_as_videodedup env \
+      SNAP="${SNAP}" SNAP_COMMON="${SNAP_COMMON}" \
+      ASPNETCORE_ENVIRONMENT=Production \
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
+      VIDEODEDUP_APP_DATA=/var/lib/videodedupserver \
+      "${_vd_bin}" &
+  fi
 else
   _vd_bin=/usr/lib/videodedupserver/VideoDedupService
-  if [[ "${FMT}" == snap ]]; then
-    _vd_bin=/tmp/vd-snap/usr/lib/videodedupserver/VideoDedupService
-  fi
-  vd_kestrel_tls_env
   if [[ -n "${VIDEODEDUP_FFMPEG_LIB_ROOT:-}" ]]; then
     vd_exec_as_videodedup env \
       ASPNETCORE_ENVIRONMENT=Production \

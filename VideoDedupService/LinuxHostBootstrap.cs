@@ -6,18 +6,31 @@ namespace VideoDedupService
     {
         internal const string EtcEnvPath = "/etc/videodedupserver/env";
 
+        internal const string EtcTlsEnvPath = "/etc/videodedupserver/tls.env";
+
         /// <summary>
-        /// Loads KEY=value lines from the distro env file before configuration binds.
+        /// Loads KEY=value lines from distro env files before configuration binds.
         /// Later sources (e.g. systemd EnvironmentFile) may override; this covers manual runs.
         /// </summary>
         internal static void LoadEtcEnvironmentFile()
         {
-            if (!OperatingSystem.IsLinux() || !File.Exists(EtcEnvPath))
+            if (!OperatingSystem.IsLinux())
             {
                 return;
             }
 
-            foreach (var line in File.ReadLines(EtcEnvPath))
+            LoadKeyValueEnvFile(EtcEnvPath);
+            LoadKeyValueEnvFile(EtcTlsEnvPath);
+        }
+
+        private static void LoadKeyValueEnvFile(string path)
+        {
+            if (!File.Exists(path))
+            {
+                return;
+            }
+
+            foreach (var line in File.ReadLines(path))
             {
                 var trimmed = line.Trim();
                 if (trimmed.Length == 0 || trimmed[0] == '#')

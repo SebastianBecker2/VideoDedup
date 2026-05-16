@@ -147,9 +147,13 @@ def server_cert_path_in_container(package_format: str) -> str:
     """Path to VideoDedup.crt inside the server container (after install / first-run)."""
     fmt = (package_format or "deb").strip().lower()
     if fmt == "flatpak":
-        return "/root/.var/app/io.github.sebastianbecker2.videodedup.server/data/cert/VideoDedup.crt"
+        # flatpak run as videodedup (HOME=/var/lib/videodedupserver); not root's ~/.var
+        return (
+            "/var/lib/videodedupserver/.var/app/"
+            "io.github.sebastianbecker2.videodedup.server/data/cert/VideoDedup.crt"
+        )
     if fmt == "snap":
-        return "/tmp/vd-snap/usr/lib/videodedupserver/cert/VideoDedup.crt"
+        return "/tmp/vd-snap-common/cert/VideoDedup.crt"
     return "/usr/lib/videodedupserver/cert/VideoDedup.crt"
 
 

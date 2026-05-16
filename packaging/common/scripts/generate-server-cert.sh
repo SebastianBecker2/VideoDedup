@@ -44,7 +44,7 @@ cat > "${REQ}" <<EOF
 [req]
 distinguished_name = req_dn
 prompt = no
-x509_extensions = v3_req
+req_extensions = v3_req
 [req_dn]
 CN = VideoDedupServer
 O = Sebastian Becker
