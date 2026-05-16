@@ -143,7 +143,7 @@ vd_ensure_openssl() {
     apt-get update -qq 2>/dev/null || true
     apt-get install -y -qq openssl 2>/dev/null || true
   elif command -v dnf >/dev/null 2>&1; then
-    dnf -y -q install openssl >/dev/null 2>&1 || true
+    dnf -y -q install openssl 2>/dev/null || dnf -y install openssl 2>&1 || true
   elif command -v zypper >/dev/null 2>&1; then
     zypper --non-interactive install -y openssl >/dev/null 2>&1 || true
   elif command -v pacman >/dev/null 2>&1; then
@@ -381,9 +381,9 @@ install_flatpak_bundle() {
   fw_pkg="$(firewall_pkgs_dnf)"
   if [[ -n "${fw_pkg}" ]]; then
     # shellcheck disable=SC2086
-    dnf -y -q install iproute flatpak util-linux ${fw_pkg} >/dev/null
+    dnf -y -q install iproute flatpak util-linux openssl ${fw_pkg} >/dev/null
   else
-    dnf -y -q install iproute flatpak util-linux >/dev/null
+    dnf -y -q install iproute flatpak util-linux openssl >/dev/null
   fi
   if ! flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; then
     echo "E2E: flatpak remote-add flathub failed (network or flatpak not configured)" >&2
@@ -614,7 +614,8 @@ if [[ "${FMT}" == flatpak ]]; then
   export VD_CERT_SETUP_DIR
   install -d -o videodedup -g videodedup "${_fp_data}/cert"
   vd_ensure_openssl || {
-    echo "E2E: openssl required for flatpak TLS certificate" >&2
+    echo "E2E: openssl required for flatpak TLS certificate (install openssl in the smoke image or run: dnf install -y openssl)" >&2
+    command -v dnf >/dev/null 2>&1 && dnf repolist >&2 || true
     exit 1
   }
   vd_setup_tls "${_fp_install}" "${_fp_data}/cert" || exit 1

@@ -9,6 +9,7 @@ RUN dnf -y -q install \
     iproute \
     util-linux \
     flatpak \
+    openssl \
     nftables \
     iptables \
     firewalld \
