@@ -155,7 +155,8 @@ jobs:
         with:
           pattern: linux-*-${{ matrix.arch }}-${{ github.sha }}
           path: ${{ runner.temp }}/vd-pkg-art
-          merge-multiple: true
+          # false (default): one subdirectory per artifact name (required by restore script).
+          merge-multiple: false
 
       - name: Restore packaging/out from artifacts
         run: |
@@ -206,7 +207,7 @@ jobs:
         with:
           pattern: linux-*-${{ matrix.arch }}-${{ github.sha }}
           path: ${{ runner.temp }}/vd-pkg-art
-          merge-multiple: true
+          merge-multiple: false
 
       - name: Restore packaging/out from artifacts
         run: |
