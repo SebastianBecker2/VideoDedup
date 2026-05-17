@@ -58,16 +58,60 @@ jobs:
           ./packaging/tools/sbom-and-attest.sh ${{ matrix.arch }}
         continue-on-error: true
 
-      # upload-artifact respects .gitignore; packaging/out/ is ignored so .deb/.rpm were never uploaded.
-      - name: Bundle packaging/out for artifact
-        run: tar -czf "${RUNNER_TEMP}/videodedup-linux-packages.tgz" -C packaging out
+      # packaging/out/ is gitignored; upload each package format as its own artifact.
+      - name: Stage metadata for artifact upload
+        run: |
+          set -euo pipefail
+          staging="${RUNNER_TEMP}/linux-metadata-staging"
+          rm -rf "${staging}"
+          mkdir -p "${staging}"
+          cp packaging/out/metadata.json "${staging}/"
+          cp "packaging/out/SHA256SUMS-${{ matrix.arch }}.txt" "${staging}/"
+          if [[ -d "packaging/out/${{ matrix.arch }}/sbom" ]]; then
+            cp -a "packaging/out/${{ matrix.arch }}/sbom" "${staging}/"
+          fi
 
-      - name: Upload artifacts
+      - name: Upload DEB package
         uses: actions/upload-artifact@v4
         with:
-          name: linux-packages-${{ matrix.arch }}-${{ github.sha }}
+          name: linux-deb-${{ matrix.arch }}-${{ github.sha }}
           if-no-files-found: error
-          path: ${{ runner.temp }}/videodedup-linux-packages.tgz
+          path: packaging/out/${{ matrix.arch }}/deb
+
+      - name: Upload RPM package
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-rpm-${{ matrix.arch }}-${{ github.sha }}
+          if-no-files-found: error
+          path: packaging/out/${{ matrix.arch }}/rpm
+
+      - name: Upload Pacman package
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-pacman-${{ matrix.arch }}-${{ github.sha }}
+          if-no-files-found: error
+          path: packaging/out/${{ matrix.arch }}/pacman
+
+      - name: Upload Snap package
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-snap-${{ matrix.arch }}-${{ github.sha }}
+          if-no-files-found: error
+          path: packaging/out/${{ matrix.arch }}/snap
+
+      - name: Upload Flatpak package
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-flatpak-${{ matrix.arch }}-${{ github.sha }}
+          if-no-files-found: error
+          path: packaging/out/${{ matrix.arch }}/flatpak
+
+      - name: Upload packaging metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-metadata-${{ matrix.arch }}-${{ github.sha }}
+          if-no-files-found: error
+          path: ${{ runner.temp }}/linux-metadata-staging
 
   e2e-grpc-firewall:
     needs: linux-packages
@@ -109,20 +153,14 @@ jobs:
       - name: Download built packages
         uses: actions/download-artifact@v4
         with:
-          name: linux-packages-${{ matrix.arch }}-${{ github.sha }}
+          pattern: linux-*-${{ matrix.arch }}-${{ github.sha }}
           path: ${{ runner.temp }}/vd-pkg-art
+          merge-multiple: true
 
-      - name: Restore packaging/out from artifact
+      - name: Restore packaging/out from artifacts
         run: |
-          set -euo pipefail
-          tg="$(find "${RUNNER_TEMP}/vd-pkg-art" -name 'videodedup-linux-packages.tgz' -print -quit)"
-          if [[ -z "${tg}" || ! -f "${tg}" ]]; then
-            echo "Missing videodedup-linux-packages.tgz in artifact" >&2
-            find "${RUNNER_TEMP}/vd-pkg-art" -ls >&2 || true
-            exit 1
-          fi
-          mkdir -p packaging
-          tar -xzf "${tg}" -C packaging
+          chmod +x packaging/ci/restore_linux_package_artifacts.sh
+          ./packaging/ci/restore_linux_package_artifacts.sh "${{ matrix.arch }}" "${RUNNER_TEMP}/vd-pkg-art"
 
       - name: Install helpers for stage.sh
         run: |
@@ -166,20 +204,14 @@ jobs:
       - name: Download built packages
         uses: actions/download-artifact@v4
         with:
-          name: linux-packages-${{ matrix.arch }}-${{ github.sha }}
+          pattern: linux-*-${{ matrix.arch }}-${{ github.sha }}
           path: ${{ runner.temp }}/vd-pkg-art
+          merge-multiple: true
 
-      - name: Restore packaging/out from artifact
+      - name: Restore packaging/out from artifacts
         run: |
-          set -euo pipefail
-          tg="$(find "${RUNNER_TEMP}/vd-pkg-art" -name 'videodedup-linux-packages.tgz' -print -quit)"
-          if [[ -z "${tg}" || ! -f "${tg}" ]]; then
-            echo "Missing videodedup-linux-packages.tgz in artifact" >&2
-            find "${RUNNER_TEMP}/vd-pkg-art" -ls >&2 || true
-            exit 1
-          fi
-          mkdir -p packaging
-          tar -xzf "${tg}" -C packaging
+          chmod +x packaging/ci/restore_linux_package_artifacts.sh
+          ./packaging/ci/restore_linux_package_artifacts.sh "${{ matrix.arch }}" "${RUNNER_TEMP}/vd-pkg-art"
 
       - name: gRPC deep smoke (VideoDedupGrpcSmoke + VideoDedupGrpcComparisonSmoke)
         run: |
