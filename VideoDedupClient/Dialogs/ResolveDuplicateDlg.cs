@@ -1,8 +1,8 @@
 namespace VideoDedupClient.Dialogs
 {
-    using System.Diagnostics;
     using System.IO;
     using Google.Protobuf.WellKnownTypes;
+    using VideoDedupClient.Shell;
     using VideoDedupGrpc;
     using VideoDedupSharedLib.ExtensionMethods.StringExtensions;
     using static VideoDedupGrpc.VideoDedupGrpcService;
@@ -127,11 +127,14 @@ namespace VideoDedupClient.Dialogs
                 return;
             }
 
-            // combine the arguments together
-            // it doesn't matter if there is a space after ','
-            var argument = "/select, \"" + filePath + "\"";
-
-            _ = Process.Start("explorer.exe", argument);
+            if (!ShellExplorer.TryShowInExplorer(filePath))
+            {
+                _ = MessageBox.Show(
+                    "Could not open File Explorer for this file.",
+                    "Explorer",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+            }
         }
 
         private void BtnShowLeft_Click(object sender, EventArgs e) =>

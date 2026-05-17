@@ -6,21 +6,35 @@ namespace VideoDedupSharedLib.ExtensionMethods.StringExtensions
             this string absolutePath,
             string basePath)
         {
-            var fullPath = new Uri(absolutePath, UriKind.Absolute);
+            var fullPath = NormalizePathSeparators(absolutePath);
+            var rootPath = NormalizePathSeparators(basePath).TrimEnd('/');
 
-            if (!basePath.EndsWith(
-                    Path.DirectorySeparatorChar.ToString(),
-                    StringComparison.InvariantCulture)
-                && !basePath.EndsWith(
-                    Path.AltDirectorySeparatorChar.ToString(),
-                    StringComparison.InvariantCulture))
+            var comparison = UsesWindowsPathSemantics(rootPath)
+                ? StringComparison.OrdinalIgnoreCase
+                : StringComparison.Ordinal;
+
+            if (!fullPath.StartsWith(rootPath, comparison)
+                || (fullPath.Length > rootPath.Length
+                    && fullPath[rootPath.Length] != '/'))
             {
-                basePath += Path.DirectorySeparatorChar;
+                throw new ArgumentException(
+                    $"Path '{absolutePath}' is not under base '{basePath}'.",
+                    nameof(absolutePath));
             }
-            var relRoot = new Uri(basePath, UriKind.Absolute);
 
-            var relPath = relRoot.MakeRelativeUri(fullPath).ToString();
-            return Uri.UnescapeDataString(relPath);
+            if (fullPath.Length == rootPath.Length)
+            {
+                return string.Empty;
+            }
+
+            return fullPath[(rootPath.Length + 1)..];
         }
+
+        private static string NormalizePathSeparators(string path) =>
+            path.Replace('\\', '/').TrimEnd('/');
+
+        private static bool UsesWindowsPathSemantics(string normalizedPath) =>
+            normalizedPath.Length >= 2 && normalizedPath[1] == ':'
+            || normalizedPath.StartsWith("//", StringComparison.Ordinal);
     }
 }
