@@ -178,7 +178,7 @@ namespace DuplicateManager
             DuplicateWrapper duplicate,
             VideoFile? file)
         {
-            if (file is null)
+            if (file is null || string.IsNullOrWhiteSpace(file.FilePath))
             {
                 throw new InvalidOperationException(
                     "No file specified. Operation " +
@@ -186,8 +186,8 @@ namespace DuplicateManager
                     "specified.");
             }
 
-            if (file.FilePath != duplicate.File1.FilePath
-                && file.FilePath != duplicate.File2.FilePath)
+            var sourcePath = GetMatchingDuplicateFilePath(duplicate, file.FilePath);
+            if (sourcePath is null)
             {
                 throw new InvalidOperationException(
                     "Invalid file specified. Operation " +
@@ -198,6 +198,12 @@ namespace DuplicateManager
 
             if (Settings.MoveToTrash)
             {
+                if (string.IsNullOrWhiteSpace(Settings.TrashPath))
+                {
+                    throw new InvalidOperationException(
+                        "Trash path is not configured.");
+                }
+
                 _ = Directory.CreateDirectory(Settings.TrashPath);
 
                 var folder =
@@ -205,19 +211,81 @@ namespace DuplicateManager
                 _ = Directory.CreateDirectory(folder);
 
                 var trashFile =
-                    Path.Combine(folder, Path.GetFileName(file.FilePath));
-                File.Move(file.FilePath, trashFile);
+                    Path.Combine(folder, Path.GetFileName(sourcePath));
+                MoveFile(sourcePath, trashFile);
 
                 var metaFile = Path.Combine(folder, "meta.txt");
-                File.WriteAllText(metaFile, file.FilePath);
+                File.WriteAllText(metaFile, sourcePath);
             }
             else
             {
-                File.Delete(file.FilePath);
+                File.Delete(sourcePath);
             }
 
             RemoveDuplicate(duplicate);
         }
+
+        private static string? GetMatchingDuplicateFilePath(
+            DuplicateWrapper duplicate,
+            string filePath)
+        {
+            if (PathsEqual(filePath, duplicate.File1.FilePath))
+            {
+                return duplicate.File1.FilePath;
+            }
+
+            if (PathsEqual(filePath, duplicate.File2.FilePath))
+            {
+                return duplicate.File2.FilePath;
+            }
+
+            return null;
+        }
+
+        private static string NormalizePathForComparison(string path)
+        {
+            path = path.Trim();
+            try
+            {
+                return Path.GetFullPath(path);
+            }
+            catch (Exception)
+            {
+                return path.Replace('\\', '/');
+            }
+        }
+
+        private static bool PathsEqual(string left, string right) =>
+            string.Equals(
+                NormalizePathForComparison(left),
+                NormalizePathForComparison(right),
+                OperatingSystem.IsWindows()
+                    ? StringComparison.OrdinalIgnoreCase
+                    : StringComparison.Ordinal);
+
+        private static void MoveFile(string sourcePath, string destinationPath)
+        {
+            var destinationDirectory = Path.GetDirectoryName(destinationPath);
+            if (!string.IsNullOrEmpty(destinationDirectory))
+            {
+                _ = Directory.CreateDirectory(destinationDirectory);
+            }
+
+            try
+            {
+                File.Move(sourcePath, destinationPath);
+            }
+            catch (IOException ex) when (IsCrossDeviceMove(ex))
+            {
+                File.Copy(sourcePath, destinationPath, overwrite: false);
+                File.Delete(sourcePath);
+            }
+        }
+
+        private static bool IsCrossDeviceMove(IOException ex) =>
+            ex.Message.Contains("cross-device", StringComparison.OrdinalIgnoreCase)
+            || (OperatingSystem.IsWindows()
+                && ex.HResult == unchecked((int)0x80070011));
 
         public void ResolveDuplicate(
             string duplicateId,
@@ -232,7 +300,8 @@ namespace DuplicateManager
 
                 if (duplicate is null)
                 {
-                    return;
+                    throw new InvalidOperationException(
+                        $"Duplicate \"{duplicateId}\" was not found.");
                 }
 
                 switch (resolveOperation)

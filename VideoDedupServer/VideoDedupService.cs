@@ -110,9 +110,7 @@ namespace VideoDedupServer
             ConfigurationSettings request,
             ServerCallContext context)
         {
-            var fs = request.DedupSettings;
-            var rs = request.ResolutionSettings;
-            rs.TrashPath = Path.Combine(fs.BasePath, TrashFolderName);
+            ApplyTrashPathFromBasePath(request);
 
             SaveConfiguration(request);
             UpdateConfiguration(request);
@@ -491,9 +489,22 @@ namespace VideoDedupServer
                     ConfigurationManager.GetResolutionSettings(),
             };
 
+            ApplyTrashPathFromBasePath(configuration);
+
             AddLogEntry("Loaded configuration");
 
             return configuration;
+        }
+
+        private static void ApplyTrashPathFromBasePath(
+            ConfigurationSettings settings)
+        {
+            var basePath = settings.DedupSettings.BasePath;
+            if (!string.IsNullOrWhiteSpace(basePath))
+            {
+                settings.ResolutionSettings.TrashPath =
+                    Path.Combine(basePath, TrashFolderName);
+            }
         }
 
         public void SaveConfiguration(ConfigurationSettings settings)
