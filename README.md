@@ -1,7 +1,5 @@
 # VideoDedup
 
-[![Build status](https://ci.appveyor.com/api/projects/status/ld6w3vd6m49spu27/branch/master?svg=true)](https://ci.appveyor.com/project/SebastianBecker2/videodedup/branch/master)
-
 Tool to deduplicate video files.\
 A duplicate is defined as two videos that visually have the same content. For example, if the videos show the same material with different encodings, frame rates and/or resolutions.
 
