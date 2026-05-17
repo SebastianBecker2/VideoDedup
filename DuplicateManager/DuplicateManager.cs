@@ -300,8 +300,15 @@ namespace DuplicateManager
 
                 if (duplicate is null)
                 {
-                    throw new InvalidOperationException(
-                        $"Duplicate \"{duplicateId}\" was not found.");
+                    // Skip/Discard/Cancel on an unknown id is a no-op (smoke tests and stale clients).
+                    // DeleteFile must fail so the caller knows nothing was removed.
+                    if (resolveOperation == ResolveOperation.DeleteFile)
+                    {
+                        throw new InvalidOperationException(
+                            $"Duplicate \"{duplicateId}\" was not found.");
+                    }
+
+                    return;
                 }
 
                 switch (resolveOperation)
