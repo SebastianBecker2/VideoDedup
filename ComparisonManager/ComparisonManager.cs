@@ -65,19 +65,29 @@ namespace ComparisonManager
             }
             catch (InvalidDataException ex)
             {
-                Logger?.Error($"Failed to start comparison '{leftFilePath}' - " +
+                Logger?.Error(ex, $"Failed to start comparison '{leftFilePath}' - " +
                     $"'{rightFilePath}'");
 
-                return new VideoComparisonStatus
-                {
-                    VideoComparisonResult = new VideoComparisonResult
-                    {
-                        ComparisonResult = ComparisonResult.Aborted,
-                        Reason = ex.Message,
-                    },
-                };
+                return AbortedComparisonStatus(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Logger?.Error(ex, $"Failed to start comparison '{leftFilePath}' - " +
+                    $"'{rightFilePath}'");
+
+                return AbortedComparisonStatus(ex.Message);
             }
         }
+
+        private static VideoComparisonStatus AbortedComparisonStatus(string reason) =>
+            new()
+            {
+                VideoComparisonResult = new VideoComparisonResult
+                {
+                    ComparisonResult = ComparisonResult.Aborted,
+                    Reason = reason,
+                },
+            };
 
         public VideoComparisonStatus? GetStatus(
             Guid token,

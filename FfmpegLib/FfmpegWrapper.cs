@@ -1,6 +1,7 @@
 namespace FfmpegLib
 {
     using System;
+    using System.Runtime.InteropServices;
     using FFmpeg.AutoGen;
     using FfmpegLib.Exceptions;
     using VideoDedupGrpc;
@@ -19,11 +20,53 @@ namespace FfmpegLib
             var root = Environment.GetEnvironmentVariable("VIDEODEDUP_FFMPEG_LIB_ROOT");
             if (string.IsNullOrWhiteSpace(root))
             {
-                return;
+                root = TryDetectLinuxFfmpegLibRoot();
+                if (string.IsNullOrWhiteSpace(root))
+                {
+                    return;
+                }
             }
 
-            root = root.Trim().TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            SetFfmpegRootPath(root);
+        }
+
+        private static void SetFfmpegRootPath(string root)
+        {
+            root = root.Trim().TrimEnd(
+                Path.DirectorySeparatorChar,
+                Path.AltDirectorySeparatorChar);
             ffmpeg.RootPath = root + Path.DirectorySeparatorChar;
+        }
+
+        private static string? TryDetectLinuxFfmpegLibRoot()
+        {
+            var candidates = new List<string>();
+            if (RuntimeInformation.ProcessArchitecture is Architecture.Arm64)
+            {
+                candidates.Add("/usr/lib/aarch64-linux-gnu");
+            }
+            else
+            {
+                candidates.Add("/usr/lib/x86_64-linux-gnu");
+            }
+
+            candidates.Add("/usr/lib64");
+            candidates.Add("/usr/lib");
+
+            foreach (var directory in candidates)
+            {
+                if (!Directory.Exists(directory))
+                {
+                    continue;
+                }
+
+                if (Directory.EnumerateFiles(directory, "libavcodec.so*").Any())
+                {
+                    return directory;
+                }
+            }
+
+            return null;
         }
 
         public static unsafe CodecInfo GetCodecInfo(string filePath)

@@ -627,6 +627,24 @@ namespace DedupEngine
 
         private void ProcessFolder()
         {
+            try
+            {
+                ProcessFolderCore();
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception exc)
+            {
+                OnLogged($"Critical Error: {exc.Message}");
+                OperationStartTime = DateTime.MinValue;
+                OnOperationUpdate(OperationType.Error, ProgressStyle.NoProgress);
+            }
+        }
+
+        private void ProcessFolderCore()
+        {
             var cancelToken = CancelSource.Token;
 
             OperationStartTime = DateTime.Now;

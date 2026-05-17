@@ -126,14 +126,13 @@ namespace VideoDedupServer
             ];
         }
 
-        private static int GetDedupEngineConcurrencyLevel()
-        {
-            if (Settings.Default.DedupEngineConcurrencyLevel <= 0)
-            {
-                return Environment.ProcessorCount / 2;
-            }
-            return Settings.Default.DedupEngineConcurrencyLevel;
-        }
+        public static int NormalizeConcurrencyLevel(int concurrencyLevel) =>
+            concurrencyLevel <= 0
+                ? Math.Max(1, Environment.ProcessorCount / 2)
+                : concurrencyLevel;
+
+        private static int GetDedupEngineConcurrencyLevel() =>
+            NormalizeConcurrencyLevel(Settings.Default.DedupEngineConcurrencyLevel);
 
         private static DurationDifferenceType ToDurationDifferenceType(
             string type)

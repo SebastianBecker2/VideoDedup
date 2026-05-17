@@ -536,6 +536,10 @@ namespace VideoDedupServer
             settings.DedupSettings.ExcludedDirectories.Add(
                 settings.ResolutionSettings.TrashPath);
 
+            settings.DedupSettings.ConcurrencyLevel =
+                ConfigurationManager.NormalizeConcurrencyLevel(
+                    settings.DedupSettings.ConcurrencyLevel);
+
             var restartNecessary = dedupEngine.UpdateConfiguration(
                 settings.DedupSettings,
                 settings.DurationComparisonSettings,
