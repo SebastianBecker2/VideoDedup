@@ -586,7 +586,10 @@ namespace SetupActionCertificate
             {
                 session.Log(
                     $"[SetupActionCertificate] ImportClientCertificate: " +
-                    $"source file not found: {source}");
+                    $"source file not found: {source}. " +
+                    "If the file is on a network share, copy it to a local folder " +
+                    "and run setup again, or use a build of the bootstrapper that " +
+                    "stages the certificate under ProgramData before install.");
                 return ActionResult.Failure;
             }
 

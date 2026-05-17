@@ -74,6 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BootstrapperApp.cs" />
+    <Compile Include="ClientCertInstallStaging.cs" />
     <Compile Include="IBootstrapperUiRuntime.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>

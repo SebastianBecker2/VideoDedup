@@ -386,10 +386,27 @@ namespace SetupBootstrapperUI
 
             if (maintenanceClientCertFlow)
             {
+                string stagedSource;
+                try
+                {
+                    stagedSource = ClientCertInstallStaging.PrepareForMsi(clientCertSource);
+                }
+                catch (Exception ex)
+                {
+                    _ = MessageBox.Show(
+                        this,
+                        "Could not copy the certificate to a local folder for installation."
+                        + Environment.NewLine + Environment.NewLine + ex.Message,
+                        "VideoDedup Setup",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    return;
+                }
+
                 app.SetVariableString("TriggerClientCertImport", "1", false);
                 app.SetVariableString(
                     "ClientCertSource",
-                    clientCertSource,
+                    stagedSource,
                     false);
                 app.SetSelectedFeatures(new[] { "ClientFeature" });
                 app.Plan(LaunchAction.Modify);
@@ -418,10 +435,22 @@ namespace SetupBootstrapperUI
                 return;
             }
 
-            app.SetVariableString(
-                "ClientCertSource",
-                pickedPath ?? string.Empty,
-                false);
+            var source = pickedPath ?? string.Empty;
+            if (!string.IsNullOrWhiteSpace(source))
+            {
+                try
+                {
+                    source = ClientCertInstallStaging.PrepareForMsi(source);
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException(
+                        "Could not copy the certificate to a local folder for installation.",
+                        ex);
+                }
+            }
+
+            app.SetVariableString("ClientCertSource", source, false);
         }
 
         private void BeginInstallAfterCertResolved(List<string> selectedFeatures, bool updateMode)
@@ -662,9 +691,21 @@ namespace SetupBootstrapperUI
 
             ApplyConnectivityToEngine(selectedFeatures);
 
-            BeginInstallAfterCertResolved(
-                selectedFeatures,
-                selectedMode == SetupMode.Update);
+            try
+            {
+                BeginInstallAfterCertResolved(
+                    selectedFeatures,
+                    selectedMode == SetupMode.Update);
+            }
+            catch (InvalidOperationException ex)
+            {
+                _ = MessageBox.Show(
+                    this,
+                    ex.Message,
+                    "VideoDedup Setup",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+            }
         }
 
         private List<string> CollectSelectedFeatures()
