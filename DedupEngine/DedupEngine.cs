@@ -763,13 +763,28 @@ namespace DedupEngine
                 newFiles.Add(newFile);
             }
 
+            if (newFiles.Count == 0)
+            {
+                ProcessChangesIfAny();
+                return;
+            }
+
+            OnLogged("Started preparing candidates for " +
+                $"{newFiles.Count} new file(s).");
             var candidates = PrepareCandidates(
-                videoFiles,
+                newFiles,
                 videoFiles,
                 durationComparisonSettings,
                 cancelToken);
+            OnLogged("Finished preparing candidates for " +
+                $"{newFiles.Count} new file(s). Resulting in {candidates.Count} " +
+                "candidate(s).");
 
+            OnLogged("Started searching for duplicates of " +
+                $"{candidates.Count} candidate(s).");
             FindDuplicates(candidates, newFiles.Count, cancelToken);
+            OnLogged("Finished searching for duplicates of " +
+                $"{candidates.Count} candidate(s).");
 
             OnOperationUpdate(
                     OperationType.Comparing,
