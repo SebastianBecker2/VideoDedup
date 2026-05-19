@@ -59,41 +59,115 @@ namespace VideoDedupClient.Dialogs
         private List<FrameComparisonResult> FrameComparisons { get; } = [];
         private VideoComparisonResult? VideoComparisonResult { get; set; }
 
+        private bool syncingSettingsControls;
+
         public CustomVideoComparisonDlg()
         {
             InitializeComponent();
 
-            TrbMaxDifferentPercentage.ValueChanged +=
-                (_, _) => NumMaxDifferentPercentage.Value =
-                    TrbMaxDifferentPercentage.Value;
-            TrbMaxDifferentFrames.ValueChanged +=
-                (_, _) => NumMaxDifferentFrames.Value =
-                    TrbMaxDifferentFrames.Value;
-            TrbMaxFrameComparison.ValueChanged +=
-                (_, _) => NumMaxFrameComparison.Value =
-                    TrbMaxFrameComparison.Value;
+            AlignTrackBarWithNumeric(TrbMaxDifferentPercentage, NumMaxDifferentPercentage);
+            AlignTrackBarWithNumeric(TrbMaxDifferentFrames, NumMaxDifferentFrames);
+            AlignTrackBarWithNumeric(TrbMaxFrameComparison, NumMaxFrameComparison);
 
-            NumMaxDifferentPercentage.ValueChanged +=
-                (_, _) => TrbMaxDifferentPercentage.Value =
-                    (int)NumMaxDifferentPercentage.Value;
-            NumMaxDifferentFrames.ValueChanged +=
-                (_, _) => TrbMaxDifferentFrames.Value =
-                    (int)NumMaxDifferentFrames.Value;
-            NumMaxFrameComparison.ValueChanged +=
-                (_, _) => TrbMaxFrameComparison.Value =
-                    (int)NumMaxFrameComparison.Value;
+            TrbMaxDifferentPercentage.ValueChanged += (_, _) =>
+                SyncNumericFromTrackBar(TrbMaxDifferentPercentage, NumMaxDifferentPercentage);
+            TrbMaxDifferentFrames.ValueChanged += (_, _) =>
+                SyncNumericFromTrackBar(TrbMaxDifferentFrames, NumMaxDifferentFrames);
+            TrbMaxFrameComparison.ValueChanged += (_, _) =>
+                SyncNumericFromTrackBar(TrbMaxFrameComparison, NumMaxFrameComparison);
+
+            NumMaxDifferentPercentage.ValueChanged += (_, _) =>
+                SyncTrackBarFromNumeric(NumMaxDifferentPercentage, TrbMaxDifferentPercentage);
+            NumMaxDifferentFrames.ValueChanged += (_, _) =>
+                SyncTrackBarFromNumeric(NumMaxDifferentFrames, TrbMaxDifferentFrames);
+            NumMaxFrameComparison.ValueChanged += (_, _) =>
+                SyncTrackBarFromNumeric(NumMaxFrameComparison, TrbMaxFrameComparison);
         }
+
+        private static void AlignTrackBarWithNumeric(TrackBar trackBar, NumericUpDown numeric)
+        {
+            trackBar.Minimum = (int)numeric.Minimum;
+            trackBar.Maximum = (int)numeric.Maximum;
+        }
+
+        private void SyncTrackBarFromNumeric(NumericUpDown numeric, TrackBar trackBar)
+        {
+            if (syncingSettingsControls)
+            {
+                return;
+            }
+
+            syncingSettingsControls = true;
+            try
+            {
+                var value = (int)Math.Min(
+                    trackBar.Maximum,
+                    Math.Max(trackBar.Minimum, numeric.Value));
+                if (trackBar.Value != value)
+                {
+                    trackBar.Value = value;
+                }
+            }
+            finally
+            {
+                syncingSettingsControls = false;
+            }
+        }
+
+        private void SyncNumericFromTrackBar(TrackBar trackBar, NumericUpDown numeric)
+        {
+            if (syncingSettingsControls)
+            {
+                return;
+            }
+
+            syncingSettingsControls = true;
+            try
+            {
+                if (numeric.Value != trackBar.Value)
+                {
+                    numeric.Value = trackBar.Value;
+                }
+            }
+            finally
+            {
+                syncingSettingsControls = false;
+            }
+        }
+
+        private void ApplyVideoComparisonSettings(VideoComparisonSettings settings)
+        {
+            syncingSettingsControls = true;
+            try
+            {
+                NumMaxFrameComparison.Value = ClampToNumeric(
+                    NumMaxFrameComparison,
+                    settings.CompareCount);
+                NumMaxDifferentFrames.Value = ClampToNumeric(
+                    NumMaxDifferentFrames,
+                    settings.MaxDifferentFrames);
+                NumMaxDifferentPercentage.Value = ClampToNumeric(
+                    NumMaxDifferentPercentage,
+                    settings.MaxDifference);
+            }
+            finally
+            {
+                syncingSettingsControls = false;
+            }
+
+            SyncTrackBarFromNumeric(NumMaxFrameComparison, TrbMaxFrameComparison);
+            SyncTrackBarFromNumeric(NumMaxDifferentFrames, TrbMaxDifferentFrames);
+            SyncTrackBarFromNumeric(NumMaxDifferentPercentage, TrbMaxDifferentPercentage);
+        }
+
+        private static decimal ClampToNumeric(NumericUpDown numeric, int value) =>
+            Math.Min(numeric.Maximum, Math.Max(numeric.Minimum, value));
 
         protected override void OnLoad(EventArgs e)
         {
             if (VideoComparisonSettings is not null)
             {
-                NumMaxFrameComparison.Value =
-                    VideoComparisonSettings.CompareCount;
-                NumMaxDifferentFrames.Value =
-                    VideoComparisonSettings.MaxDifferentFrames;
-                NumMaxDifferentPercentage.Value =
-                    VideoComparisonSettings.MaxDifference;
+                ApplyVideoComparisonSettings(VideoComparisonSettings);
             }
 
             CleanUpResult();

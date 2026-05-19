@@ -31,794 +31,831 @@ namespace VideoDedupClient.Dialogs
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CustomVideoComparisonDlg));
-            this.TlpResult = new System.Windows.Forms.TableLayoutPanel();
-            this.TlpThirdLoadLevel = new System.Windows.Forms.TableLayoutPanel();
-            this.PibThirdLoadLevel = new System.Windows.Forms.PictureBox();
-            this.LblThirdLoadLevel = new System.Windows.Forms.Label();
-            this.GrbThirdLoadLevel = new System.Windows.Forms.GroupBox();
-            this.TlpThirdLoadLevelResult = new System.Windows.Forms.TableLayoutPanel();
-            this.TlpSecondLoadLevel = new System.Windows.Forms.TableLayoutPanel();
-            this.LblSecondLoadLevel = new System.Windows.Forms.Label();
-            this.PibSecondLoadLevel = new System.Windows.Forms.PictureBox();
-            this.GrbSecondLoadLevel = new System.Windows.Forms.GroupBox();
-            this.TlpSecondLoadLevelResult = new System.Windows.Forms.TableLayoutPanel();
-            this.TlpFirstLoadLevel = new System.Windows.Forms.TableLayoutPanel();
-            this.PibFirstLoadLevel = new System.Windows.Forms.PictureBox();
-            this.LblFirstLoadLevel = new System.Windows.Forms.Label();
-            this.GrbFirstLoadLevel = new System.Windows.Forms.GroupBox();
-            this.TlpFirstLoadLevelResult = new System.Windows.Forms.TableLayoutPanel();
-            this.GrbVideoTimeline = new System.Windows.Forms.GroupBox();
-            this.TlpVideoTimeline = new System.Windows.Forms.TableLayoutPanel();
-            this.TlpProgress = new System.Windows.Forms.TableLayoutPanel();
-            this.LblResult = new System.Windows.Forms.Label();
-            this.PgbComparisonProgress = new System.Windows.Forms.ProgressBar();
-            this.TxtLeftFileInfo = new System.Windows.Forms.TextBox();
-            this.TxtRightFileInfo = new System.Windows.Forms.TextBox();
-            this.PnlResult = new System.Windows.Forms.Panel();
-            this.GrbResult = new System.Windows.Forms.GroupBox();
-            this.BtnCancel = new System.Windows.Forms.Button();
-            this.BtnOkay = new System.Windows.Forms.Button();
-            this.TlpSettings = new System.Windows.Forms.TableLayoutPanel();
-            this.TrbMaxFrameComparison = new System.Windows.Forms.TrackBar();
-            this.label1 = new System.Windows.Forms.Label();
-            this.BtnStartComparison = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
-            this.TxtLeftFilePath = new System.Windows.Forms.TextBox();
-            this.TxtRightFilePath = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.BtnSelectLeftFilePath = new System.Windows.Forms.Button();
-            this.BtnSelectRightFilePath = new System.Windows.Forms.Button();
-            this.TrbMaxDifferentFrames = new System.Windows.Forms.TrackBar();
-            this.TrbMaxDifferentPercentage = new System.Windows.Forms.TrackBar();
-            this.NumMaxFrameComparison = new System.Windows.Forms.NumericUpDown();
-            this.NumMaxDifferentFrames = new System.Windows.Forms.NumericUpDown();
-            this.NumMaxDifferentPercentage = new System.Windows.Forms.NumericUpDown();
-            this.label6 = new System.Windows.Forms.Label();
-            this.RdbSortByProcessingOrder = new System.Windows.Forms.RadioButton();
-            this.RdbSortByTimeline = new System.Windows.Forms.RadioButton();
-            this.StatusTimer = new System.Windows.Forms.Timer(this.components);
-            this.btnClose = new System.Windows.Forms.Button();
-            this.GrbSettings = new System.Windows.Forms.GroupBox();
-            this.TlpResult.SuspendLayout();
-            this.TlpThirdLoadLevel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.PibThirdLoadLevel)).BeginInit();
-            this.GrbThirdLoadLevel.SuspendLayout();
-            this.TlpSecondLoadLevel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.PibSecondLoadLevel)).BeginInit();
-            this.GrbSecondLoadLevel.SuspendLayout();
-            this.TlpFirstLoadLevel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.PibFirstLoadLevel)).BeginInit();
-            this.GrbFirstLoadLevel.SuspendLayout();
-            this.GrbVideoTimeline.SuspendLayout();
-            this.TlpProgress.SuspendLayout();
-            this.PnlResult.SuspendLayout();
-            this.GrbResult.SuspendLayout();
-            this.TlpSettings.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.TrbMaxFrameComparison)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.TrbMaxDifferentFrames)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.TrbMaxDifferentPercentage)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxFrameComparison)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentFrames)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentPercentage)).BeginInit();
-            this.GrbSettings.SuspendLayout();
-            this.SuspendLayout();
+            components = new Container();
+            var resources = new ComponentResourceManager(typeof(CustomVideoComparisonDlg));
+            TlpResult = new TableLayoutPanel();
+            TlpThirdLoadLevel = new TableLayoutPanel();
+            PibThirdLoadLevel = new PictureBox();
+            LblThirdLoadLevel = new Label();
+            GrbThirdLoadLevel = new GroupBox();
+            TlpThirdLoadLevelResult = new TableLayoutPanel();
+            TlpSecondLoadLevel = new TableLayoutPanel();
+            LblSecondLoadLevel = new Label();
+            PibSecondLoadLevel = new PictureBox();
+            GrbSecondLoadLevel = new GroupBox();
+            TlpSecondLoadLevelResult = new TableLayoutPanel();
+            TlpFirstLoadLevel = new TableLayoutPanel();
+            PibFirstLoadLevel = new PictureBox();
+            LblFirstLoadLevel = new Label();
+            GrbFirstLoadLevel = new GroupBox();
+            TlpFirstLoadLevelResult = new TableLayoutPanel();
+            GrbVideoTimeline = new GroupBox();
+            TlpVideoTimeline = new TableLayoutPanel();
+            TlpProgress = new TableLayoutPanel();
+            LblResult = new Label();
+            PgbComparisonProgress = new ProgressBar();
+            TxtLeftFileInfo = new TextBox();
+            TxtRightFileInfo = new TextBox();
+            PnlResult = new Panel();
+            GrbResult = new GroupBox();
+            BtnCancel = new Button();
+            BtnOkay = new Button();
+            TlpSettings = new TableLayoutPanel();
+            TrbMaxFrameComparison = new TrackBar();
+            label1 = new Label();
+            BtnStartComparison = new Button();
+            label2 = new Label();
+            TxtLeftFilePath = new TextBox();
+            TxtRightFilePath = new TextBox();
+            label3 = new Label();
+            label4 = new Label();
+            label5 = new Label();
+            BtnSelectLeftFilePath = new Button();
+            BtnSelectRightFilePath = new Button();
+            TrbMaxDifferentFrames = new TrackBar();
+            TrbMaxDifferentPercentage = new TrackBar();
+            NumMaxFrameComparison = new NumericUpDown();
+            NumMaxDifferentFrames = new NumericUpDown();
+            NumMaxDifferentPercentage = new NumericUpDown();
+            label6 = new Label();
+            RdbSortByProcessingOrder = new RadioButton();
+            RdbSortByTimeline = new RadioButton();
+            StatusTimer = new Timer(components);
+            btnClose = new Button();
+            GrbSettings = new GroupBox();
+            TlpResult.SuspendLayout();
+            TlpThirdLoadLevel.SuspendLayout();
+            ((ISupportInitialize)PibThirdLoadLevel).BeginInit();
+            GrbThirdLoadLevel.SuspendLayout();
+            TlpSecondLoadLevel.SuspendLayout();
+            ((ISupportInitialize)PibSecondLoadLevel).BeginInit();
+            GrbSecondLoadLevel.SuspendLayout();
+            TlpFirstLoadLevel.SuspendLayout();
+            ((ISupportInitialize)PibFirstLoadLevel).BeginInit();
+            GrbFirstLoadLevel.SuspendLayout();
+            GrbVideoTimeline.SuspendLayout();
+            TlpProgress.SuspendLayout();
+            PnlResult.SuspendLayout();
+            GrbResult.SuspendLayout();
+            TlpSettings.SuspendLayout();
+            ((ISupportInitialize)TrbMaxFrameComparison).BeginInit();
+            ((ISupportInitialize)TrbMaxDifferentFrames).BeginInit();
+            ((ISupportInitialize)TrbMaxDifferentPercentage).BeginInit();
+            ((ISupportInitialize)NumMaxFrameComparison).BeginInit();
+            ((ISupportInitialize)NumMaxDifferentFrames).BeginInit();
+            ((ISupportInitialize)NumMaxDifferentPercentage).BeginInit();
+            GrbSettings.SuspendLayout();
+            SuspendLayout();
             // 
             // TlpResult
             // 
-            this.TlpResult.AutoSize = true;
-            this.TlpResult.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.TlpResult.ColumnCount = 2;
-            this.TlpResult.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.TlpResult.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.TlpResult.Controls.Add(this.TlpThirdLoadLevel, 0, 4);
-            this.TlpResult.Controls.Add(this.TlpSecondLoadLevel, 0, 3);
-            this.TlpResult.Controls.Add(this.TlpFirstLoadLevel, 0, 2);
-            this.TlpResult.Controls.Add(this.GrbVideoTimeline, 0, 5);
-            this.TlpResult.Controls.Add(this.TlpProgress, 0, 0);
-            this.TlpResult.Controls.Add(this.TxtLeftFileInfo, 0, 1);
-            this.TlpResult.Controls.Add(this.TxtRightFileInfo, 1, 1);
-            this.TlpResult.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TlpResult.Location = new System.Drawing.Point(3, 16);
-            this.TlpResult.Name = "TlpResult";
-            this.TlpResult.RowCount = 6;
-            this.TlpResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpResult.Size = new System.Drawing.Size(1033, 383);
-            this.TlpResult.TabIndex = 0;
+            TlpResult.AutoSize = true;
+            TlpResult.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            TlpResult.ColumnCount = 2;
+            TlpResult.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            TlpResult.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            TlpResult.Controls.Add(TlpThirdLoadLevel, 0, 4);
+            TlpResult.Controls.Add(TlpSecondLoadLevel, 0, 3);
+            TlpResult.Controls.Add(TlpFirstLoadLevel, 0, 2);
+            TlpResult.Controls.Add(GrbVideoTimeline, 0, 5);
+            TlpResult.Controls.Add(TlpProgress, 0, 0);
+            TlpResult.Controls.Add(TxtLeftFileInfo, 0, 1);
+            TlpResult.Controls.Add(TxtRightFileInfo, 1, 1);
+            TlpResult.Dock = DockStyle.Fill;
+            TlpResult.Location = new Point(4, 19);
+            TlpResult.Margin = new Padding(4, 3, 4, 3);
+            TlpResult.Name = "TlpResult";
+            TlpResult.RowCount = 6;
+            TlpResult.RowStyles.Add(new RowStyle());
+            TlpResult.RowStyles.Add(new RowStyle());
+            TlpResult.RowStyles.Add(new RowStyle());
+            TlpResult.RowStyles.Add(new RowStyle());
+            TlpResult.RowStyles.Add(new RowStyle());
+            TlpResult.RowStyles.Add(new RowStyle());
+            TlpResult.Size = new Size(1204, 414);
+            TlpResult.TabIndex = 0;
             // 
             // TlpThirdLoadLevel
             // 
-            this.TlpThirdLoadLevel.AutoSize = true;
-            this.TlpThirdLoadLevel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.TlpThirdLoadLevel.ColumnCount = 2;
-            this.TlpResult.SetColumnSpan(this.TlpThirdLoadLevel, 2);
-            this.TlpThirdLoadLevel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.TlpThirdLoadLevel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.TlpThirdLoadLevel.Controls.Add(this.PibThirdLoadLevel, 0, 0);
-            this.TlpThirdLoadLevel.Controls.Add(this.LblThirdLoadLevel, 1, 0);
-            this.TlpThirdLoadLevel.Controls.Add(this.GrbThirdLoadLevel, 0, 1);
-            this.TlpThirdLoadLevel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TlpThirdLoadLevel.Location = new System.Drawing.Point(3, 292);
-            this.TlpThirdLoadLevel.Name = "TlpThirdLoadLevel";
-            this.TlpThirdLoadLevel.RowCount = 2;
-            this.TlpThirdLoadLevel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpThirdLoadLevel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpThirdLoadLevel.Size = new System.Drawing.Size(1027, 63);
-            this.TlpThirdLoadLevel.TabIndex = 33;
+            TlpThirdLoadLevel.AutoSize = true;
+            TlpThirdLoadLevel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            TlpThirdLoadLevel.ColumnCount = 2;
+            TlpResult.SetColumnSpan(TlpThirdLoadLevel, 2);
+            TlpThirdLoadLevel.ColumnStyles.Add(new ColumnStyle());
+            TlpThirdLoadLevel.ColumnStyles.Add(new ColumnStyle());
+            TlpThirdLoadLevel.Controls.Add(PibThirdLoadLevel, 0, 0);
+            TlpThirdLoadLevel.Controls.Add(LblThirdLoadLevel, 1, 0);
+            TlpThirdLoadLevel.Controls.Add(GrbThirdLoadLevel, 0, 1);
+            TlpThirdLoadLevel.Dock = DockStyle.Fill;
+            TlpThirdLoadLevel.Location = new Point(4, 317);
+            TlpThirdLoadLevel.Margin = new Padding(4, 3, 4, 3);
+            TlpThirdLoadLevel.Name = "TlpThirdLoadLevel";
+            TlpThirdLoadLevel.RowCount = 2;
+            TlpThirdLoadLevel.RowStyles.Add(new RowStyle());
+            TlpThirdLoadLevel.RowStyles.Add(new RowStyle());
+            TlpThirdLoadLevel.Size = new Size(1196, 66);
+            TlpThirdLoadLevel.TabIndex = 33;
             // 
-            // pictureBox1
+            // PibThirdLoadLevel
             // 
-            this.PibThirdLoadLevel.Image = global::VideoDedupClient.Properties.Resources.ArrowUpGray;
-            this.PibThirdLoadLevel.Location = new System.Drawing.Point(3, 3);
-            this.PibThirdLoadLevel.Name = "pictureBox1";
-            this.PibThirdLoadLevel.Size = new System.Drawing.Size(32, 32);
-            this.PibThirdLoadLevel.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.PibThirdLoadLevel.TabIndex = 0;
-            this.PibThirdLoadLevel.TabStop = false;
-            this.PibThirdLoadLevel.Click += new System.EventHandler(this.ThirdLoadLevelHeaderClicked);
+            PibThirdLoadLevel.Image = Properties.Resources.ArrowUpGray;
+            PibThirdLoadLevel.Location = new Point(4, 3);
+            PibThirdLoadLevel.Margin = new Padding(4, 3, 4, 3);
+            PibThirdLoadLevel.Name = "PibThirdLoadLevel";
+            PibThirdLoadLevel.Size = new Size(32, 32);
+            PibThirdLoadLevel.SizeMode = PictureBoxSizeMode.AutoSize;
+            PibThirdLoadLevel.TabIndex = 0;
+            PibThirdLoadLevel.TabStop = false;
+            PibThirdLoadLevel.Click += ThirdLoadLevelHeaderClicked;
             // 
             // LblThirdLoadLevel
             // 
-            this.LblThirdLoadLevel.AutoSize = true;
-            this.LblThirdLoadLevel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.LblThirdLoadLevel.Location = new System.Drawing.Point(41, 0);
-            this.LblThirdLoadLevel.Name = "LblThirdLoadLevel";
-            this.LblThirdLoadLevel.Size = new System.Drawing.Size(983, 38);
-            this.LblThirdLoadLevel.TabIndex = 1;
-            this.LblThirdLoadLevel.Text = "Third level frame load";
-            this.LblThirdLoadLevel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.LblThirdLoadLevel.Click += new System.EventHandler(this.ThirdLoadLevelHeaderClicked);
+            LblThirdLoadLevel.AutoSize = true;
+            LblThirdLoadLevel.Dock = DockStyle.Fill;
+            LblThirdLoadLevel.Location = new Point(44, 0);
+            LblThirdLoadLevel.Margin = new Padding(4, 0, 4, 0);
+            LblThirdLoadLevel.Name = "LblThirdLoadLevel";
+            LblThirdLoadLevel.Size = new Size(1148, 38);
+            LblThirdLoadLevel.TabIndex = 1;
+            LblThirdLoadLevel.Text = "Third level frame load";
+            LblThirdLoadLevel.TextAlign = ContentAlignment.MiddleLeft;
+            LblThirdLoadLevel.Click += ThirdLoadLevelHeaderClicked;
             // 
             // GrbThirdLoadLevel
             // 
-            this.GrbThirdLoadLevel.AutoSize = true;
-            this.TlpThirdLoadLevel.SetColumnSpan(this.GrbThirdLoadLevel, 2);
-            this.GrbThirdLoadLevel.Controls.Add(this.TlpThirdLoadLevelResult);
-            this.GrbThirdLoadLevel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.GrbThirdLoadLevel.Location = new System.Drawing.Point(3, 41);
-            this.GrbThirdLoadLevel.Name = "GrbThirdLoadLevel";
-            this.GrbThirdLoadLevel.Size = new System.Drawing.Size(1021, 19);
-            this.GrbThirdLoadLevel.TabIndex = 3;
-            this.GrbThirdLoadLevel.TabStop = false;
+            GrbThirdLoadLevel.AutoSize = true;
+            TlpThirdLoadLevel.SetColumnSpan(GrbThirdLoadLevel, 2);
+            GrbThirdLoadLevel.Controls.Add(TlpThirdLoadLevelResult);
+            GrbThirdLoadLevel.Dock = DockStyle.Fill;
+            GrbThirdLoadLevel.Location = new Point(4, 41);
+            GrbThirdLoadLevel.Margin = new Padding(4, 3, 4, 3);
+            GrbThirdLoadLevel.Name = "GrbThirdLoadLevel";
+            GrbThirdLoadLevel.Padding = new Padding(4, 3, 4, 3);
+            GrbThirdLoadLevel.Size = new Size(1188, 22);
+            GrbThirdLoadLevel.TabIndex = 3;
+            GrbThirdLoadLevel.TabStop = false;
             // 
             // TlpThirdLoadLevelResult
             // 
-            this.TlpThirdLoadLevelResult.AutoSize = true;
-            this.TlpThirdLoadLevelResult.ColumnCount = 1;
-            this.TlpThirdLoadLevelResult.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.TlpThirdLoadLevelResult.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.TlpThirdLoadLevelResult.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.TlpThirdLoadLevelResult.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TlpThirdLoadLevelResult.Location = new System.Drawing.Point(3, 16);
-            this.TlpThirdLoadLevelResult.Name = "TlpThirdLoadLevelResult";
-            this.TlpThirdLoadLevelResult.RowCount = 1;
-            this.TlpThirdLoadLevelResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpThirdLoadLevelResult.Size = new System.Drawing.Size(1015, 0);
-            this.TlpThirdLoadLevelResult.TabIndex = 0;
+            TlpThirdLoadLevelResult.AutoSize = true;
+            TlpThirdLoadLevelResult.ColumnCount = 1;
+            TlpThirdLoadLevelResult.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            TlpThirdLoadLevelResult.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 23F));
+            TlpThirdLoadLevelResult.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 23F));
+            TlpThirdLoadLevelResult.Dock = DockStyle.Fill;
+            TlpThirdLoadLevelResult.Location = new Point(4, 19);
+            TlpThirdLoadLevelResult.Margin = new Padding(4, 3, 4, 3);
+            TlpThirdLoadLevelResult.Name = "TlpThirdLoadLevelResult";
+            TlpThirdLoadLevelResult.RowCount = 1;
+            TlpThirdLoadLevelResult.RowStyles.Add(new RowStyle());
+            TlpThirdLoadLevelResult.Size = new Size(1180, 0);
+            TlpThirdLoadLevelResult.TabIndex = 0;
             // 
             // TlpSecondLoadLevel
             // 
-            this.TlpSecondLoadLevel.AutoSize = true;
-            this.TlpSecondLoadLevel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.TlpSecondLoadLevel.ColumnCount = 2;
-            this.TlpResult.SetColumnSpan(this.TlpSecondLoadLevel, 2);
-            this.TlpSecondLoadLevel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.TlpSecondLoadLevel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.TlpSecondLoadLevel.Controls.Add(this.LblSecondLoadLevel, 1, 0);
-            this.TlpSecondLoadLevel.Controls.Add(this.PibSecondLoadLevel, 0, 0);
-            this.TlpSecondLoadLevel.Controls.Add(this.GrbSecondLoadLevel, 0, 1);
-            this.TlpSecondLoadLevel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TlpSecondLoadLevel.Location = new System.Drawing.Point(3, 223);
-            this.TlpSecondLoadLevel.Name = "TlpSecondLoadLevel";
-            this.TlpSecondLoadLevel.RowCount = 2;
-            this.TlpSecondLoadLevel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpSecondLoadLevel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpSecondLoadLevel.Size = new System.Drawing.Size(1027, 63);
-            this.TlpSecondLoadLevel.TabIndex = 33;
+            TlpSecondLoadLevel.AutoSize = true;
+            TlpSecondLoadLevel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            TlpSecondLoadLevel.ColumnCount = 2;
+            TlpResult.SetColumnSpan(TlpSecondLoadLevel, 2);
+            TlpSecondLoadLevel.ColumnStyles.Add(new ColumnStyle());
+            TlpSecondLoadLevel.ColumnStyles.Add(new ColumnStyle());
+            TlpSecondLoadLevel.Controls.Add(LblSecondLoadLevel, 1, 0);
+            TlpSecondLoadLevel.Controls.Add(PibSecondLoadLevel, 0, 0);
+            TlpSecondLoadLevel.Controls.Add(GrbSecondLoadLevel, 0, 1);
+            TlpSecondLoadLevel.Dock = DockStyle.Fill;
+            TlpSecondLoadLevel.Location = new Point(4, 245);
+            TlpSecondLoadLevel.Margin = new Padding(4, 3, 4, 3);
+            TlpSecondLoadLevel.Name = "TlpSecondLoadLevel";
+            TlpSecondLoadLevel.RowCount = 2;
+            TlpSecondLoadLevel.RowStyles.Add(new RowStyle());
+            TlpSecondLoadLevel.RowStyles.Add(new RowStyle());
+            TlpSecondLoadLevel.Size = new Size(1196, 66);
+            TlpSecondLoadLevel.TabIndex = 33;
             // 
             // LblSecondLoadLevel
             // 
-            this.LblSecondLoadLevel.AutoSize = true;
-            this.LblSecondLoadLevel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.LblSecondLoadLevel.Location = new System.Drawing.Point(41, 0);
-            this.LblSecondLoadLevel.Name = "LblSecondLoadLevel";
-            this.LblSecondLoadLevel.Size = new System.Drawing.Size(983, 38);
-            this.LblSecondLoadLevel.TabIndex = 2;
-            this.LblSecondLoadLevel.Text = "Second level frame load";
-            this.LblSecondLoadLevel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.LblSecondLoadLevel.Click += new System.EventHandler(this.SecondLoadLevelHeaderClicked);
+            LblSecondLoadLevel.AutoSize = true;
+            LblSecondLoadLevel.Dock = DockStyle.Fill;
+            LblSecondLoadLevel.Location = new Point(44, 0);
+            LblSecondLoadLevel.Margin = new Padding(4, 0, 4, 0);
+            LblSecondLoadLevel.Name = "LblSecondLoadLevel";
+            LblSecondLoadLevel.Size = new Size(1148, 38);
+            LblSecondLoadLevel.TabIndex = 2;
+            LblSecondLoadLevel.Text = "Second level frame load";
+            LblSecondLoadLevel.TextAlign = ContentAlignment.MiddleLeft;
+            LblSecondLoadLevel.Click += SecondLoadLevelHeaderClicked;
             // 
             // PibSecondLoadLevel
             // 
-            this.PibSecondLoadLevel.Image = global::VideoDedupClient.Properties.Resources.ArrowUpGray;
-            this.PibSecondLoadLevel.Location = new System.Drawing.Point(3, 3);
-            this.PibSecondLoadLevel.Name = "PibSecondLoadLevel";
-            this.PibSecondLoadLevel.Size = new System.Drawing.Size(32, 32);
-            this.PibSecondLoadLevel.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.PibSecondLoadLevel.TabIndex = 0;
-            this.PibSecondLoadLevel.TabStop = false;
-            this.PibSecondLoadLevel.Click += new System.EventHandler(this.SecondLoadLevelHeaderClicked);
+            PibSecondLoadLevel.Image = Properties.Resources.ArrowUpGray;
+            PibSecondLoadLevel.Location = new Point(4, 3);
+            PibSecondLoadLevel.Margin = new Padding(4, 3, 4, 3);
+            PibSecondLoadLevel.Name = "PibSecondLoadLevel";
+            PibSecondLoadLevel.Size = new Size(32, 32);
+            PibSecondLoadLevel.SizeMode = PictureBoxSizeMode.AutoSize;
+            PibSecondLoadLevel.TabIndex = 0;
+            PibSecondLoadLevel.TabStop = false;
+            PibSecondLoadLevel.Click += SecondLoadLevelHeaderClicked;
             // 
             // GrbSecondLoadLevel
             // 
-            this.GrbSecondLoadLevel.AutoSize = true;
-            this.TlpSecondLoadLevel.SetColumnSpan(this.GrbSecondLoadLevel, 2);
-            this.GrbSecondLoadLevel.Controls.Add(this.TlpSecondLoadLevelResult);
-            this.GrbSecondLoadLevel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.GrbSecondLoadLevel.Location = new System.Drawing.Point(3, 41);
-            this.GrbSecondLoadLevel.Name = "GrbSecondLoadLevel";
-            this.GrbSecondLoadLevel.Size = new System.Drawing.Size(1021, 19);
-            this.GrbSecondLoadLevel.TabIndex = 1;
-            this.GrbSecondLoadLevel.TabStop = false;
+            GrbSecondLoadLevel.AutoSize = true;
+            TlpSecondLoadLevel.SetColumnSpan(GrbSecondLoadLevel, 2);
+            GrbSecondLoadLevel.Controls.Add(TlpSecondLoadLevelResult);
+            GrbSecondLoadLevel.Dock = DockStyle.Fill;
+            GrbSecondLoadLevel.Location = new Point(4, 41);
+            GrbSecondLoadLevel.Margin = new Padding(4, 3, 4, 3);
+            GrbSecondLoadLevel.Name = "GrbSecondLoadLevel";
+            GrbSecondLoadLevel.Padding = new Padding(4, 3, 4, 3);
+            GrbSecondLoadLevel.Size = new Size(1188, 22);
+            GrbSecondLoadLevel.TabIndex = 1;
+            GrbSecondLoadLevel.TabStop = false;
             // 
             // TlpSecondLoadLevelResult
             // 
-            this.TlpSecondLoadLevelResult.AutoSize = true;
-            this.TlpSecondLoadLevelResult.ColumnCount = 1;
-            this.TlpSecondLoadLevelResult.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.TlpSecondLoadLevelResult.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.TlpSecondLoadLevelResult.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.TlpSecondLoadLevelResult.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TlpSecondLoadLevelResult.Location = new System.Drawing.Point(3, 16);
-            this.TlpSecondLoadLevelResult.Name = "TlpSecondLoadLevelResult";
-            this.TlpSecondLoadLevelResult.RowCount = 1;
-            this.TlpSecondLoadLevelResult.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.TlpSecondLoadLevelResult.Size = new System.Drawing.Size(1015, 0);
-            this.TlpSecondLoadLevelResult.TabIndex = 0;
+            TlpSecondLoadLevelResult.AutoSize = true;
+            TlpSecondLoadLevelResult.ColumnCount = 1;
+            TlpSecondLoadLevelResult.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            TlpSecondLoadLevelResult.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 23F));
+            TlpSecondLoadLevelResult.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 23F));
+            TlpSecondLoadLevelResult.Dock = DockStyle.Fill;
+            TlpSecondLoadLevelResult.Location = new Point(4, 19);
+            TlpSecondLoadLevelResult.Margin = new Padding(4, 3, 4, 3);
+            TlpSecondLoadLevelResult.Name = "TlpSecondLoadLevelResult";
+            TlpSecondLoadLevelResult.RowCount = 1;
+            TlpSecondLoadLevelResult.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            TlpSecondLoadLevelResult.Size = new Size(1180, 0);
+            TlpSecondLoadLevelResult.TabIndex = 0;
             // 
             // TlpFirstLoadLevel
             // 
-            this.TlpFirstLoadLevel.AutoSize = true;
-            this.TlpFirstLoadLevel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.TlpFirstLoadLevel.ColumnCount = 2;
-            this.TlpResult.SetColumnSpan(this.TlpFirstLoadLevel, 2);
-            this.TlpFirstLoadLevel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.TlpFirstLoadLevel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.TlpFirstLoadLevel.Controls.Add(this.PibFirstLoadLevel, 0, 0);
-            this.TlpFirstLoadLevel.Controls.Add(this.LblFirstLoadLevel, 1, 0);
-            this.TlpFirstLoadLevel.Controls.Add(this.GrbFirstLoadLevel, 0, 1);
-            this.TlpFirstLoadLevel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TlpFirstLoadLevel.Location = new System.Drawing.Point(3, 154);
-            this.TlpFirstLoadLevel.Name = "TlpFirstLoadLevel";
-            this.TlpFirstLoadLevel.RowCount = 2;
-            this.TlpFirstLoadLevel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpFirstLoadLevel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpFirstLoadLevel.Size = new System.Drawing.Size(1027, 63);
-            this.TlpFirstLoadLevel.TabIndex = 33;
+            TlpFirstLoadLevel.AutoSize = true;
+            TlpFirstLoadLevel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            TlpFirstLoadLevel.ColumnCount = 2;
+            TlpResult.SetColumnSpan(TlpFirstLoadLevel, 2);
+            TlpFirstLoadLevel.ColumnStyles.Add(new ColumnStyle());
+            TlpFirstLoadLevel.ColumnStyles.Add(new ColumnStyle());
+            TlpFirstLoadLevel.Controls.Add(PibFirstLoadLevel, 0, 0);
+            TlpFirstLoadLevel.Controls.Add(LblFirstLoadLevel, 1, 0);
+            TlpFirstLoadLevel.Controls.Add(GrbFirstLoadLevel, 0, 1);
+            TlpFirstLoadLevel.Dock = DockStyle.Fill;
+            TlpFirstLoadLevel.Location = new Point(4, 173);
+            TlpFirstLoadLevel.Margin = new Padding(4, 3, 4, 3);
+            TlpFirstLoadLevel.Name = "TlpFirstLoadLevel";
+            TlpFirstLoadLevel.RowCount = 2;
+            TlpFirstLoadLevel.RowStyles.Add(new RowStyle());
+            TlpFirstLoadLevel.RowStyles.Add(new RowStyle());
+            TlpFirstLoadLevel.Size = new Size(1196, 66);
+            TlpFirstLoadLevel.TabIndex = 33;
             // 
             // PibFirstLoadLevel
             // 
-            this.PibFirstLoadLevel.Image = global::VideoDedupClient.Properties.Resources.ArrowUpGray;
-            this.PibFirstLoadLevel.Location = new System.Drawing.Point(3, 3);
-            this.PibFirstLoadLevel.Name = "PibFirstLoadLevel";
-            this.PibFirstLoadLevel.Size = new System.Drawing.Size(32, 32);
-            this.PibFirstLoadLevel.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.PibFirstLoadLevel.TabIndex = 0;
-            this.PibFirstLoadLevel.TabStop = false;
-            this.PibFirstLoadLevel.Click += new System.EventHandler(this.FirstLoadLevelHeaderClicked);
+            PibFirstLoadLevel.Image = Properties.Resources.ArrowUpGray;
+            PibFirstLoadLevel.Location = new Point(4, 3);
+            PibFirstLoadLevel.Margin = new Padding(4, 3, 4, 3);
+            PibFirstLoadLevel.Name = "PibFirstLoadLevel";
+            PibFirstLoadLevel.Size = new Size(32, 32);
+            PibFirstLoadLevel.SizeMode = PictureBoxSizeMode.AutoSize;
+            PibFirstLoadLevel.TabIndex = 0;
+            PibFirstLoadLevel.TabStop = false;
+            PibFirstLoadLevel.Click += FirstLoadLevelHeaderClicked;
             // 
             // LblFirstLoadLevel
             // 
-            this.LblFirstLoadLevel.AutoSize = true;
-            this.LblFirstLoadLevel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.LblFirstLoadLevel.Location = new System.Drawing.Point(41, 0);
-            this.LblFirstLoadLevel.Name = "LblFirstLoadLevel";
-            this.LblFirstLoadLevel.Size = new System.Drawing.Size(983, 38);
-            this.LblFirstLoadLevel.TabIndex = 1;
-            this.LblFirstLoadLevel.Text = "First level frame load";
-            this.LblFirstLoadLevel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.LblFirstLoadLevel.Click += new System.EventHandler(this.FirstLoadLevelHeaderClicked);
+            LblFirstLoadLevel.AutoSize = true;
+            LblFirstLoadLevel.Dock = DockStyle.Fill;
+            LblFirstLoadLevel.Location = new Point(44, 0);
+            LblFirstLoadLevel.Margin = new Padding(4, 0, 4, 0);
+            LblFirstLoadLevel.Name = "LblFirstLoadLevel";
+            LblFirstLoadLevel.Size = new Size(1148, 38);
+            LblFirstLoadLevel.TabIndex = 1;
+            LblFirstLoadLevel.Text = "First level frame load";
+            LblFirstLoadLevel.TextAlign = ContentAlignment.MiddleLeft;
+            LblFirstLoadLevel.Click += FirstLoadLevelHeaderClicked;
             // 
             // GrbFirstLoadLevel
             // 
-            this.GrbFirstLoadLevel.AutoSize = true;
-            this.TlpFirstLoadLevel.SetColumnSpan(this.GrbFirstLoadLevel, 2);
-            this.GrbFirstLoadLevel.Controls.Add(this.TlpFirstLoadLevelResult);
-            this.GrbFirstLoadLevel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.GrbFirstLoadLevel.Location = new System.Drawing.Point(3, 41);
-            this.GrbFirstLoadLevel.Name = "GrbFirstLoadLevel";
-            this.GrbFirstLoadLevel.Size = new System.Drawing.Size(1021, 19);
-            this.GrbFirstLoadLevel.TabIndex = 0;
-            this.GrbFirstLoadLevel.TabStop = false;
+            GrbFirstLoadLevel.AutoSize = true;
+            TlpFirstLoadLevel.SetColumnSpan(GrbFirstLoadLevel, 2);
+            GrbFirstLoadLevel.Controls.Add(TlpFirstLoadLevelResult);
+            GrbFirstLoadLevel.Dock = DockStyle.Fill;
+            GrbFirstLoadLevel.Location = new Point(4, 41);
+            GrbFirstLoadLevel.Margin = new Padding(4, 3, 4, 3);
+            GrbFirstLoadLevel.Name = "GrbFirstLoadLevel";
+            GrbFirstLoadLevel.Padding = new Padding(4, 3, 4, 3);
+            GrbFirstLoadLevel.Size = new Size(1188, 22);
+            GrbFirstLoadLevel.TabIndex = 0;
+            GrbFirstLoadLevel.TabStop = false;
             // 
             // TlpFirstLoadLevelResult
             // 
-            this.TlpFirstLoadLevelResult.AutoSize = true;
-            this.TlpFirstLoadLevelResult.ColumnCount = 1;
-            this.TlpFirstLoadLevelResult.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.TlpFirstLoadLevelResult.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.TlpFirstLoadLevelResult.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.TlpFirstLoadLevelResult.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TlpFirstLoadLevelResult.Location = new System.Drawing.Point(3, 16);
-            this.TlpFirstLoadLevelResult.Name = "TlpFirstLoadLevelResult";
-            this.TlpFirstLoadLevelResult.RowCount = 1;
-            this.TlpFirstLoadLevelResult.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpFirstLoadLevelResult.Size = new System.Drawing.Size(1015, 0);
-            this.TlpFirstLoadLevelResult.TabIndex = 0;
+            TlpFirstLoadLevelResult.AutoSize = true;
+            TlpFirstLoadLevelResult.ColumnCount = 1;
+            TlpFirstLoadLevelResult.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            TlpFirstLoadLevelResult.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 23F));
+            TlpFirstLoadLevelResult.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 23F));
+            TlpFirstLoadLevelResult.Dock = DockStyle.Fill;
+            TlpFirstLoadLevelResult.Location = new Point(4, 19);
+            TlpFirstLoadLevelResult.Margin = new Padding(4, 3, 4, 3);
+            TlpFirstLoadLevelResult.Name = "TlpFirstLoadLevelResult";
+            TlpFirstLoadLevelResult.RowCount = 1;
+            TlpFirstLoadLevelResult.RowStyles.Add(new RowStyle());
+            TlpFirstLoadLevelResult.Size = new Size(1180, 0);
+            TlpFirstLoadLevelResult.TabIndex = 0;
             // 
             // GrbVideoTimeline
             // 
-            this.GrbVideoTimeline.AutoSize = true;
-            this.TlpResult.SetColumnSpan(this.GrbVideoTimeline, 2);
-            this.GrbVideoTimeline.Controls.Add(this.TlpVideoTimeline);
-            this.GrbVideoTimeline.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.GrbVideoTimeline.Location = new System.Drawing.Point(3, 361);
-            this.GrbVideoTimeline.Name = "GrbVideoTimeline";
-            this.GrbVideoTimeline.Size = new System.Drawing.Size(1027, 19);
-            this.GrbVideoTimeline.TabIndex = 5;
-            this.GrbVideoTimeline.TabStop = false;
-            this.GrbVideoTimeline.Visible = false;
+            GrbVideoTimeline.AutoSize = true;
+            TlpResult.SetColumnSpan(GrbVideoTimeline, 2);
+            GrbVideoTimeline.Controls.Add(TlpVideoTimeline);
+            GrbVideoTimeline.Dock = DockStyle.Fill;
+            GrbVideoTimeline.Location = new Point(4, 389);
+            GrbVideoTimeline.Margin = new Padding(4, 3, 4, 3);
+            GrbVideoTimeline.Name = "GrbVideoTimeline";
+            GrbVideoTimeline.Padding = new Padding(4, 3, 4, 3);
+            GrbVideoTimeline.Size = new Size(1196, 22);
+            GrbVideoTimeline.TabIndex = 5;
+            GrbVideoTimeline.TabStop = false;
+            GrbVideoTimeline.Visible = false;
             // 
             // TlpVideoTimeline
             // 
-            this.TlpVideoTimeline.AutoSize = true;
-            this.TlpVideoTimeline.ColumnCount = 1;
-            this.TlpVideoTimeline.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.TlpVideoTimeline.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.TlpVideoTimeline.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.TlpVideoTimeline.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TlpVideoTimeline.Location = new System.Drawing.Point(3, 16);
-            this.TlpVideoTimeline.Name = "TlpVideoTimeline";
-            this.TlpVideoTimeline.RowCount = 1;
-            this.TlpVideoTimeline.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpVideoTimeline.Size = new System.Drawing.Size(1021, 0);
-            this.TlpVideoTimeline.TabIndex = 0;
+            TlpVideoTimeline.AutoSize = true;
+            TlpVideoTimeline.ColumnCount = 1;
+            TlpVideoTimeline.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            TlpVideoTimeline.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 23F));
+            TlpVideoTimeline.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 23F));
+            TlpVideoTimeline.Dock = DockStyle.Fill;
+            TlpVideoTimeline.Location = new Point(4, 19);
+            TlpVideoTimeline.Margin = new Padding(4, 3, 4, 3);
+            TlpVideoTimeline.Name = "TlpVideoTimeline";
+            TlpVideoTimeline.RowCount = 1;
+            TlpVideoTimeline.RowStyles.Add(new RowStyle());
+            TlpVideoTimeline.Size = new Size(1188, 0);
+            TlpVideoTimeline.TabIndex = 0;
             // 
             // TlpProgress
             // 
-            this.TlpProgress.AutoSize = true;
-            this.TlpProgress.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.TlpProgress.ColumnCount = 1;
-            this.TlpResult.SetColumnSpan(this.TlpProgress, 2);
-            this.TlpProgress.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.TlpProgress.Controls.Add(this.LblResult, 0, 0);
-            this.TlpProgress.Controls.Add(this.PgbComparisonProgress, 0, 1);
-            this.TlpProgress.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TlpProgress.Location = new System.Drawing.Point(0, 0);
-            this.TlpProgress.Margin = new System.Windows.Forms.Padding(0);
-            this.TlpProgress.Name = "TlpProgress";
-            this.TlpProgress.RowCount = 2;
-            this.TlpProgress.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpProgress.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.TlpProgress.Size = new System.Drawing.Size(1033, 74);
-            this.TlpProgress.TabIndex = 4;
+            TlpProgress.AutoSize = true;
+            TlpProgress.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            TlpProgress.ColumnCount = 1;
+            TlpResult.SetColumnSpan(TlpProgress, 2);
+            TlpProgress.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            TlpProgress.Controls.Add(LblResult, 0, 0);
+            TlpProgress.Controls.Add(PgbComparisonProgress, 0, 1);
+            TlpProgress.Dock = DockStyle.Fill;
+            TlpProgress.Location = new Point(0, 0);
+            TlpProgress.Margin = new Padding(0);
+            TlpProgress.Name = "TlpProgress";
+            TlpProgress.RowCount = 2;
+            TlpProgress.RowStyles.Add(new RowStyle());
+            TlpProgress.RowStyles.Add(new RowStyle());
+            TlpProgress.Size = new Size(1204, 83);
+            TlpProgress.TabIndex = 4;
             // 
             // LblResult
             // 
-            this.LblResult.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.LblResult.AutoSize = true;
-            this.LblResult.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LblResult.Location = new System.Drawing.Point(3, 0);
-            this.LblResult.Name = "LblResult";
-            this.LblResult.Padding = new System.Windows.Forms.Padding(0, 10, 0, 10);
-            this.LblResult.Size = new System.Drawing.Size(1027, 38);
-            this.LblResult.TabIndex = 2;
-            this.LblResult.Text = "Result text";
-            this.LblResult.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            LblResult.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            LblResult.AutoSize = true;
+            LblResult.Font = new Font("Microsoft Sans Serif", 11F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            LblResult.Location = new Point(4, 0);
+            LblResult.Margin = new Padding(4, 0, 4, 0);
+            LblResult.Name = "LblResult";
+            LblResult.Padding = new Padding(0, 12, 0, 12);
+            LblResult.Size = new Size(1196, 42);
+            LblResult.TabIndex = 2;
+            LblResult.Text = "Result text";
+            LblResult.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // PgbComparisonProgress
             // 
-            this.PgbComparisonProgress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.PgbComparisonProgress.Location = new System.Drawing.Point(3, 41);
-            this.PgbComparisonProgress.MarqueeAnimationSpeed = 50;
-            this.PgbComparisonProgress.Name = "PgbComparisonProgress";
-            this.PgbComparisonProgress.Size = new System.Drawing.Size(1027, 30);
-            this.PgbComparisonProgress.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
-            this.PgbComparisonProgress.TabIndex = 3;
+            PgbComparisonProgress.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            PgbComparisonProgress.Location = new Point(4, 45);
+            PgbComparisonProgress.Margin = new Padding(4, 3, 4, 3);
+            PgbComparisonProgress.MarqueeAnimationSpeed = 50;
+            PgbComparisonProgress.Name = "PgbComparisonProgress";
+            PgbComparisonProgress.Size = new Size(1196, 35);
+            PgbComparisonProgress.Style = ProgressBarStyle.Marquee;
+            PgbComparisonProgress.TabIndex = 3;
             // 
             // TxtLeftFileInfo
             // 
-            this.TxtLeftFileInfo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TxtLeftFileInfo.Location = new System.Drawing.Point(3, 77);
-            this.TxtLeftFileInfo.Multiline = true;
-            this.TxtLeftFileInfo.Name = "TxtLeftFileInfo";
-            this.TxtLeftFileInfo.ReadOnly = true;
-            this.TxtLeftFileInfo.Size = new System.Drawing.Size(510, 71);
-            this.TxtLeftFileInfo.TabIndex = 34;
-            this.TxtLeftFileInfo.WordWrap = false;
+            TxtLeftFileInfo.Dock = DockStyle.Fill;
+            TxtLeftFileInfo.Location = new Point(4, 86);
+            TxtLeftFileInfo.Margin = new Padding(4, 3, 4, 3);
+            TxtLeftFileInfo.Multiline = true;
+            TxtLeftFileInfo.Name = "TxtLeftFileInfo";
+            TxtLeftFileInfo.ReadOnly = true;
+            TxtLeftFileInfo.Size = new Size(594, 81);
+            TxtLeftFileInfo.TabIndex = 34;
+            TxtLeftFileInfo.WordWrap = false;
             // 
             // TxtRightFileInfo
             // 
-            this.TxtRightFileInfo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TxtRightFileInfo.Location = new System.Drawing.Point(519, 77);
-            this.TxtRightFileInfo.Multiline = true;
-            this.TxtRightFileInfo.Name = "TxtRightFileInfo";
-            this.TxtRightFileInfo.ReadOnly = true;
-            this.TxtRightFileInfo.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.TxtRightFileInfo.Size = new System.Drawing.Size(511, 71);
-            this.TxtRightFileInfo.TabIndex = 34;
+            TxtRightFileInfo.Dock = DockStyle.Fill;
+            TxtRightFileInfo.Location = new Point(606, 86);
+            TxtRightFileInfo.Margin = new Padding(4, 3, 4, 3);
+            TxtRightFileInfo.Multiline = true;
+            TxtRightFileInfo.Name = "TxtRightFileInfo";
+            TxtRightFileInfo.ReadOnly = true;
+            TxtRightFileInfo.ScrollBars = ScrollBars.Both;
+            TxtRightFileInfo.Size = new Size(594, 81);
+            TxtRightFileInfo.TabIndex = 34;
             // 
             // PnlResult
             // 
-            this.PnlResult.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.PnlResult.AutoScroll = true;
-            this.PnlResult.Controls.Add(this.GrbResult);
-            this.PnlResult.Location = new System.Drawing.Point(12, 170);
-            this.PnlResult.Name = "PnlResult";
-            this.PnlResult.Size = new System.Drawing.Size(1039, 638);
-            this.PnlResult.TabIndex = 2;
+            PnlResult.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            PnlResult.AutoScroll = true;
+            PnlResult.Controls.Add(GrbResult);
+            PnlResult.Location = new Point(14, 196);
+            PnlResult.Margin = new Padding(4, 3, 4, 3);
+            PnlResult.Name = "PnlResult";
+            PnlResult.Size = new Size(1212, 736);
+            PnlResult.TabIndex = 2;
             // 
             // GrbResult
             // 
-            this.GrbResult.AutoSize = true;
-            this.GrbResult.Controls.Add(this.TlpResult);
-            this.GrbResult.Dock = System.Windows.Forms.DockStyle.Top;
-            this.GrbResult.Location = new System.Drawing.Point(0, 0);
-            this.GrbResult.Name = "GrbResult";
-            this.GrbResult.Size = new System.Drawing.Size(1039, 402);
-            this.GrbResult.TabIndex = 1;
-            this.GrbResult.TabStop = false;
-            this.GrbResult.Text = "Result";
+            GrbResult.AutoSize = true;
+            GrbResult.Controls.Add(TlpResult);
+            GrbResult.Dock = DockStyle.Top;
+            GrbResult.Location = new Point(0, 0);
+            GrbResult.Margin = new Padding(4, 3, 4, 3);
+            GrbResult.Name = "GrbResult";
+            GrbResult.Padding = new Padding(4, 3, 4, 3);
+            GrbResult.Size = new Size(1212, 436);
+            GrbResult.TabIndex = 1;
+            GrbResult.TabStop = false;
+            GrbResult.Text = "Result";
             // 
             // BtnCancel
             // 
-            this.BtnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.BtnCancel.Location = new System.Drawing.Point(976, 814);
-            this.BtnCancel.Name = "BtnCancel";
-            this.BtnCancel.Size = new System.Drawing.Size(75, 23);
-            this.BtnCancel.TabIndex = 1;
-            this.BtnCancel.Text = "&Cancel";
-            this.BtnCancel.UseVisualStyleBackColor = true;
+            BtnCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            BtnCancel.DialogResult = DialogResult.Cancel;
+            BtnCancel.Location = new Point(1139, 939);
+            BtnCancel.Margin = new Padding(4, 3, 4, 3);
+            BtnCancel.Name = "BtnCancel";
+            BtnCancel.Size = new Size(88, 27);
+            BtnCancel.TabIndex = 1;
+            BtnCancel.Text = "&Cancel";
+            BtnCancel.UseVisualStyleBackColor = true;
             // 
             // BtnOkay
             // 
-            this.BtnOkay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.BtnOkay.Location = new System.Drawing.Point(895, 814);
-            this.BtnOkay.Name = "BtnOkay";
-            this.BtnOkay.Size = new System.Drawing.Size(75, 23);
-            this.BtnOkay.TabIndex = 0;
-            this.BtnOkay.Text = "&OK";
-            this.BtnOkay.UseVisualStyleBackColor = true;
-            this.BtnOkay.Click += new System.EventHandler(this.BtnOkay_Click);
+            BtnOkay.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            BtnOkay.Location = new Point(1044, 939);
+            BtnOkay.Margin = new Padding(4, 3, 4, 3);
+            BtnOkay.Name = "BtnOkay";
+            BtnOkay.Size = new Size(88, 27);
+            BtnOkay.TabIndex = 0;
+            BtnOkay.Text = "&OK";
+            BtnOkay.UseVisualStyleBackColor = true;
+            BtnOkay.Click += BtnOkay_Click;
             // 
             // TlpSettings
             // 
-            this.TlpSettings.ColumnCount = 10;
-            this.TlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.TlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.TlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.TlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.TlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.TlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.TlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.TlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.TlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.TlpSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.TlpSettings.Controls.Add(this.TrbMaxFrameComparison, 2, 2);
-            this.TlpSettings.Controls.Add(this.label1, 0, 0);
-            this.TlpSettings.Controls.Add(this.BtnStartComparison, 8, 4);
-            this.TlpSettings.Controls.Add(this.label2, 0, 1);
-            this.TlpSettings.Controls.Add(this.TxtLeftFilePath, 1, 0);
-            this.TlpSettings.Controls.Add(this.TxtRightFilePath, 1, 1);
-            this.TlpSettings.Controls.Add(this.label3, 0, 2);
-            this.TlpSettings.Controls.Add(this.label4, 0, 3);
-            this.TlpSettings.Controls.Add(this.label5, 0, 4);
-            this.TlpSettings.Controls.Add(this.BtnSelectLeftFilePath, 9, 0);
-            this.TlpSettings.Controls.Add(this.BtnSelectRightFilePath, 9, 1);
-            this.TlpSettings.Controls.Add(this.TrbMaxDifferentFrames, 2, 3);
-            this.TlpSettings.Controls.Add(this.TrbMaxDifferentPercentage, 2, 4);
-            this.TlpSettings.Controls.Add(this.NumMaxFrameComparison, 3, 2);
-            this.TlpSettings.Controls.Add(this.NumMaxDifferentFrames, 3, 3);
-            this.TlpSettings.Controls.Add(this.NumMaxDifferentPercentage, 3, 4);
-            this.TlpSettings.Controls.Add(this.label6, 5, 2);
-            this.TlpSettings.Controls.Add(this.RdbSortByProcessingOrder, 6, 2);
-            this.TlpSettings.Controls.Add(this.RdbSortByTimeline, 6, 3);
-            this.TlpSettings.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TlpSettings.Location = new System.Drawing.Point(3, 16);
-            this.TlpSettings.Name = "TlpSettings";
-            this.TlpSettings.RowCount = 5;
-            this.TlpSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.TlpSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.TlpSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.TlpSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.TlpSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.TlpSettings.Size = new System.Drawing.Size(1033, 136);
-            this.TlpSettings.TabIndex = 24;
+            TlpSettings.ColumnCount = 10;
+            TlpSettings.ColumnStyles.Add(new ColumnStyle());
+            TlpSettings.ColumnStyles.Add(new ColumnStyle());
+            TlpSettings.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33333F));
+            TlpSettings.ColumnStyles.Add(new ColumnStyle());
+            TlpSettings.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33333F));
+            TlpSettings.ColumnStyles.Add(new ColumnStyle());
+            TlpSettings.ColumnStyles.Add(new ColumnStyle());
+            TlpSettings.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33333F));
+            TlpSettings.ColumnStyles.Add(new ColumnStyle());
+            TlpSettings.ColumnStyles.Add(new ColumnStyle());
+            TlpSettings.Controls.Add(TrbMaxFrameComparison, 2, 2);
+            TlpSettings.Controls.Add(label1, 0, 0);
+            TlpSettings.Controls.Add(BtnStartComparison, 8, 4);
+            TlpSettings.Controls.Add(label2, 0, 1);
+            TlpSettings.Controls.Add(TxtLeftFilePath, 1, 0);
+            TlpSettings.Controls.Add(TxtRightFilePath, 1, 1);
+            TlpSettings.Controls.Add(label3, 0, 2);
+            TlpSettings.Controls.Add(label4, 0, 3);
+            TlpSettings.Controls.Add(label5, 0, 4);
+            TlpSettings.Controls.Add(BtnSelectLeftFilePath, 9, 0);
+            TlpSettings.Controls.Add(BtnSelectRightFilePath, 9, 1);
+            TlpSettings.Controls.Add(TrbMaxDifferentFrames, 2, 3);
+            TlpSettings.Controls.Add(TrbMaxDifferentPercentage, 2, 4);
+            TlpSettings.Controls.Add(NumMaxFrameComparison, 3, 2);
+            TlpSettings.Controls.Add(NumMaxDifferentFrames, 3, 3);
+            TlpSettings.Controls.Add(NumMaxDifferentPercentage, 3, 4);
+            TlpSettings.Controls.Add(label6, 5, 2);
+            TlpSettings.Controls.Add(RdbSortByProcessingOrder, 6, 2);
+            TlpSettings.Controls.Add(RdbSortByTimeline, 6, 3);
+            TlpSettings.Dock = DockStyle.Fill;
+            TlpSettings.Location = new Point(4, 19);
+            TlpSettings.Margin = new Padding(4, 3, 4, 3);
+            TlpSettings.Name = "TlpSettings";
+            TlpSettings.RowCount = 5;
+            TlpSettings.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            TlpSettings.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            TlpSettings.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            TlpSettings.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            TlpSettings.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            TlpSettings.Size = new Size(1204, 157);
+            TlpSettings.TabIndex = 24;
             // 
             // TrbMaxFrameComparison
             // 
-            this.TrbMaxFrameComparison.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.TrbMaxFrameComparison.Location = new System.Drawing.Point(193, 57);
-            this.TrbMaxFrameComparison.Maximum = 100;
-            this.TrbMaxFrameComparison.Minimum = 1;
-            this.TrbMaxFrameComparison.Name = "TrbMaxFrameComparison";
-            this.TrbMaxFrameComparison.Size = new System.Drawing.Size(144, 21);
-            this.TrbMaxFrameComparison.TabIndex = 32;
-            this.TrbMaxFrameComparison.TickFrequency = 2;
-            this.TrbMaxFrameComparison.Value = 1;
+            TrbMaxFrameComparison.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            TrbMaxFrameComparison.Location = new Point(220, 65);
+            TrbMaxFrameComparison.Margin = new Padding(4, 3, 4, 3);
+            TrbMaxFrameComparison.Maximum = 100;
+            TrbMaxFrameComparison.Minimum = 1;
+            TrbMaxFrameComparison.Name = "TrbMaxFrameComparison";
+            TrbMaxFrameComparison.Size = new Size(171, 25);
+            TrbMaxFrameComparison.TabIndex = 32;
+            TrbMaxFrameComparison.TickFrequency = 2;
+            TrbMaxFrameComparison.Value = 1;
             // 
             // label1
             // 
-            this.label1.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(10, 7);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(47, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Left File:";
+            label1.Anchor = AnchorStyles.Right;
+            label1.AutoSize = true;
+            label1.Location = new Point(12, 8);
+            label1.Margin = new Padding(4, 0, 4, 0);
+            label1.Name = "label1";
+            label1.Size = new Size(51, 15);
+            label1.TabIndex = 0;
+            label1.Text = "Left File:";
             // 
             // BtnStartComparison
             // 
-            this.BtnStartComparison.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.TlpSettings.SetColumnSpan(this.BtnStartComparison, 2);
-            this.BtnStartComparison.Location = new System.Drawing.Point(907, 111);
-            this.BtnStartComparison.Name = "BtnStartComparison";
-            this.BtnStartComparison.Size = new System.Drawing.Size(123, 22);
-            this.BtnStartComparison.TabIndex = 7;
-            this.BtnStartComparison.Text = "&Start comparison";
-            this.BtnStartComparison.UseVisualStyleBackColor = true;
-            this.BtnStartComparison.Click += new System.EventHandler(this.BtnStartComparison_Click);
+            BtnStartComparison.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            TlpSettings.SetColumnSpan(BtnStartComparison, 2);
+            BtnStartComparison.Location = new Point(1056, 129);
+            BtnStartComparison.Margin = new Padding(4, 3, 4, 3);
+            BtnStartComparison.Name = "BtnStartComparison";
+            BtnStartComparison.Size = new Size(144, 25);
+            BtnStartComparison.TabIndex = 7;
+            BtnStartComparison.Text = "&Start comparison";
+            BtnStartComparison.UseVisualStyleBackColor = true;
+            BtnStartComparison.Click += BtnStartComparison_Click;
             // 
             // label2
             // 
-            this.label2.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(3, 34);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(54, 13);
-            this.label2.TabIndex = 1;
-            this.label2.Text = "Right File:";
+            label2.Anchor = AnchorStyles.Right;
+            label2.AutoSize = true;
+            label2.Location = new Point(4, 39);
+            label2.Margin = new Padding(4, 0, 4, 0);
+            label2.Name = "label2";
+            label2.Size = new Size(59, 15);
+            label2.TabIndex = 1;
+            label2.Text = "Right File:";
             // 
             // TxtLeftFilePath
             // 
-            this.TxtLeftFilePath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.TlpSettings.SetColumnSpan(this.TxtLeftFilePath, 8);
-            this.TxtLeftFilePath.Location = new System.Drawing.Point(63, 3);
-            this.TxtLeftFilePath.Name = "TxtLeftFilePath";
-            this.TxtLeftFilePath.Size = new System.Drawing.Size(937, 20);
-            this.TxtLeftFilePath.TabIndex = 0;
+            TxtLeftFilePath.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            TlpSettings.SetColumnSpan(TxtLeftFilePath, 8);
+            TxtLeftFilePath.Location = new Point(71, 4);
+            TxtLeftFilePath.Margin = new Padding(4, 3, 4, 3);
+            TxtLeftFilePath.Name = "TxtLeftFilePath";
+            TxtLeftFilePath.Size = new Size(1091, 23);
+            TxtLeftFilePath.TabIndex = 0;
             // 
             // TxtRightFilePath
             // 
-            this.TxtRightFilePath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.TlpSettings.SetColumnSpan(this.TxtRightFilePath, 8);
-            this.TxtRightFilePath.Location = new System.Drawing.Point(63, 30);
-            this.TxtRightFilePath.Name = "TxtRightFilePath";
-            this.TxtRightFilePath.Size = new System.Drawing.Size(937, 20);
-            this.TxtRightFilePath.TabIndex = 2;
+            TxtRightFilePath.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            TlpSettings.SetColumnSpan(TxtRightFilePath, 8);
+            TxtRightFilePath.Location = new Point(71, 35);
+            TxtRightFilePath.Margin = new Padding(4, 3, 4, 3);
+            TxtRightFilePath.Name = "TxtRightFilePath";
+            TxtRightFilePath.Size = new Size(1091, 23);
+            TxtRightFilePath.TabIndex = 2;
             // 
             // label3
             // 
-            this.label3.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label3.AutoSize = true;
-            this.TlpSettings.SetColumnSpan(this.label3, 2);
-            this.label3.Location = new System.Drawing.Point(35, 61);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(152, 13);
-            this.label3.TabIndex = 21;
-            this.label3.Text = "Number of Frames to compare:";
+            label3.Anchor = AnchorStyles.Right;
+            label3.AutoSize = true;
+            TlpSettings.SetColumnSpan(label3, 2);
+            label3.Location = new Point(39, 70);
+            label3.Margin = new Padding(4, 0, 4, 0);
+            label3.Name = "label3";
+            label3.Size = new Size(173, 15);
+            label3.TabIndex = 21;
+            label3.Text = "Number of Frames to compare:";
             // 
             // label4
             // 
-            this.label4.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label4.AutoSize = true;
-            this.TlpSettings.SetColumnSpan(this.label4, 2);
-            this.label4.Location = new System.Drawing.Point(3, 88);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(184, 13);
-            this.label4.TabIndex = 22;
-            this.label4.Text = "Accepted number of different Frames:";
+            label4.Anchor = AnchorStyles.Right;
+            label4.AutoSize = true;
+            TlpSettings.SetColumnSpan(label4, 2);
+            label4.Location = new Point(4, 101);
+            label4.Margin = new Padding(4, 0, 4, 0);
+            label4.Name = "label4";
+            label4.Size = new Size(208, 15);
+            label4.TabIndex = 22;
+            label4.Text = "Accepted number of different Frames:";
             // 
             // label5
             // 
-            this.label5.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label5.AutoSize = true;
-            this.TlpSettings.SetColumnSpan(this.label5, 2);
-            this.label5.Location = new System.Drawing.Point(12, 115);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(175, 13);
-            this.label5.TabIndex = 22;
-            this.label5.Text = "Accepted percentage of difference:";
+            label5.Anchor = AnchorStyles.Right;
+            label5.AutoSize = true;
+            TlpSettings.SetColumnSpan(label5, 2);
+            label5.Location = new Point(20, 133);
+            label5.Margin = new Padding(4, 0, 4, 0);
+            label5.Name = "label5";
+            label5.Size = new Size(192, 15);
+            label5.TabIndex = 22;
+            label5.Text = "Accepted percentage of difference:";
             // 
             // BtnSelectLeftFilePath
             // 
-            this.BtnSelectLeftFilePath.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.BtnSelectLeftFilePath.Location = new System.Drawing.Point(1006, 3);
-            this.BtnSelectLeftFilePath.Name = "BtnSelectLeftFilePath";
-            this.BtnSelectLeftFilePath.Size = new System.Drawing.Size(24, 21);
-            this.BtnSelectLeftFilePath.TabIndex = 1;
-            this.BtnSelectLeftFilePath.Text = "...";
-            this.BtnSelectLeftFilePath.UseVisualStyleBackColor = true;
-            this.BtnSelectLeftFilePath.Click += new System.EventHandler(this.BtnSelectLeftFilePath_Click);
+            BtnSelectLeftFilePath.Anchor = AnchorStyles.Right;
+            BtnSelectLeftFilePath.Location = new Point(1172, 3);
+            BtnSelectLeftFilePath.Margin = new Padding(4, 3, 4, 3);
+            BtnSelectLeftFilePath.Name = "BtnSelectLeftFilePath";
+            BtnSelectLeftFilePath.Size = new Size(28, 24);
+            BtnSelectLeftFilePath.TabIndex = 1;
+            BtnSelectLeftFilePath.Text = "...";
+            BtnSelectLeftFilePath.UseVisualStyleBackColor = true;
+            BtnSelectLeftFilePath.Click += BtnSelectLeftFilePath_Click;
             // 
             // BtnSelectRightFilePath
             // 
-            this.BtnSelectRightFilePath.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.BtnSelectRightFilePath.Location = new System.Drawing.Point(1006, 30);
-            this.BtnSelectRightFilePath.Name = "BtnSelectRightFilePath";
-            this.BtnSelectRightFilePath.Size = new System.Drawing.Size(24, 21);
-            this.BtnSelectRightFilePath.TabIndex = 3;
-            this.BtnSelectRightFilePath.Text = "...";
-            this.BtnSelectRightFilePath.UseVisualStyleBackColor = true;
-            this.BtnSelectRightFilePath.Click += new System.EventHandler(this.BtnSelectRightFilePath_Click);
+            BtnSelectRightFilePath.Anchor = AnchorStyles.Right;
+            BtnSelectRightFilePath.Location = new Point(1172, 34);
+            BtnSelectRightFilePath.Margin = new Padding(4, 3, 4, 3);
+            BtnSelectRightFilePath.Name = "BtnSelectRightFilePath";
+            BtnSelectRightFilePath.Size = new Size(28, 24);
+            BtnSelectRightFilePath.TabIndex = 3;
+            BtnSelectRightFilePath.Text = "...";
+            BtnSelectRightFilePath.UseVisualStyleBackColor = true;
+            BtnSelectRightFilePath.Click += BtnSelectRightFilePath_Click;
             // 
             // TrbMaxDifferentFrames
             // 
-            this.TrbMaxDifferentFrames.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.TrbMaxDifferentFrames.Location = new System.Drawing.Point(193, 84);
-            this.TrbMaxDifferentFrames.Maximum = 100;
-            this.TrbMaxDifferentFrames.Name = "TrbMaxDifferentFrames";
-            this.TrbMaxDifferentFrames.Size = new System.Drawing.Size(144, 21);
-            this.TrbMaxDifferentFrames.TabIndex = 32;
-            this.TrbMaxDifferentFrames.TickFrequency = 2;
+            TrbMaxDifferentFrames.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            TrbMaxDifferentFrames.Location = new Point(220, 96);
+            TrbMaxDifferentFrames.Margin = new Padding(4, 3, 4, 3);
+            TrbMaxDifferentFrames.Maximum = 100;
+            TrbMaxDifferentFrames.Name = "TrbMaxDifferentFrames";
+            TrbMaxDifferentFrames.Size = new Size(171, 25);
+            TrbMaxDifferentFrames.TabIndex = 32;
+            TrbMaxDifferentFrames.TickFrequency = 2;
             // 
             // TrbMaxDifferentPercentage
             // 
-            this.TrbMaxDifferentPercentage.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.TrbMaxDifferentPercentage.Location = new System.Drawing.Point(193, 111);
-            this.TrbMaxDifferentPercentage.Maximum = 100;
-            this.TrbMaxDifferentPercentage.Name = "TrbMaxDifferentPercentage";
-            this.TrbMaxDifferentPercentage.Size = new System.Drawing.Size(144, 22);
-            this.TrbMaxDifferentPercentage.TabIndex = 32;
-            this.TrbMaxDifferentPercentage.TickFrequency = 2;
-            this.TrbMaxDifferentPercentage.Value = 1;
+            TrbMaxDifferentPercentage.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            TrbMaxDifferentPercentage.Location = new Point(220, 127);
+            TrbMaxDifferentPercentage.Margin = new Padding(4, 3, 4, 3);
+            TrbMaxDifferentPercentage.Maximum = 200;
+            TrbMaxDifferentPercentage.Name = "TrbMaxDifferentPercentage";
+            TrbMaxDifferentPercentage.Size = new Size(171, 27);
+            TrbMaxDifferentPercentage.TabIndex = 32;
+            TrbMaxDifferentPercentage.TickFrequency = 2;
+            TrbMaxDifferentPercentage.Value = 1;
             // 
             // NumMaxFrameComparison
             // 
-            this.NumMaxFrameComparison.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.NumMaxFrameComparison.Location = new System.Drawing.Point(343, 57);
-            this.NumMaxFrameComparison.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.NumMaxFrameComparison.Name = "NumMaxFrameComparison";
-            this.NumMaxFrameComparison.Size = new System.Drawing.Size(63, 20);
-            this.NumMaxFrameComparison.TabIndex = 4;
-            this.NumMaxFrameComparison.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+            NumMaxFrameComparison.Anchor = AnchorStyles.Left;
+            NumMaxFrameComparison.Location = new Point(399, 66);
+            NumMaxFrameComparison.Margin = new Padding(4, 3, 4, 3);
+            NumMaxFrameComparison.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            NumMaxFrameComparison.Name = "NumMaxFrameComparison";
+            NumMaxFrameComparison.Size = new Size(74, 23);
+            NumMaxFrameComparison.TabIndex = 4;
+            NumMaxFrameComparison.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // NumMaxDifferentFrames
             // 
-            this.NumMaxDifferentFrames.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.NumMaxDifferentFrames.Location = new System.Drawing.Point(343, 84);
-            this.NumMaxDifferentFrames.Name = "NumMaxDifferentFrames";
-            this.NumMaxDifferentFrames.Size = new System.Drawing.Size(63, 20);
-            this.NumMaxDifferentFrames.TabIndex = 5;
+            NumMaxDifferentFrames.Anchor = AnchorStyles.Left;
+            NumMaxDifferentFrames.Location = new Point(399, 97);
+            NumMaxDifferentFrames.Margin = new Padding(4, 3, 4, 3);
+            NumMaxDifferentFrames.Name = "NumMaxDifferentFrames";
+            NumMaxDifferentFrames.Size = new Size(74, 23);
+            NumMaxDifferentFrames.TabIndex = 5;
             // 
             // NumMaxDifferentPercentage
             // 
-            this.NumMaxDifferentPercentage.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.NumMaxDifferentPercentage.Location = new System.Drawing.Point(343, 112);
-            this.NumMaxDifferentPercentage.Name = "NumMaxDifferentPercentage";
-            this.NumMaxDifferentPercentage.Size = new System.Drawing.Size(63, 20);
-            this.NumMaxDifferentPercentage.TabIndex = 6;
+            NumMaxDifferentPercentage.Anchor = AnchorStyles.Left;
+            NumMaxDifferentPercentage.Location = new Point(399, 129);
+            NumMaxDifferentPercentage.Margin = new Padding(4, 3, 4, 3);
+            NumMaxDifferentPercentage.Maximum = new decimal(new int[] { 200, 0, 0, 0 });
+            NumMaxDifferentPercentage.Name = "NumMaxDifferentPercentage";
+            NumMaxDifferentPercentage.Size = new Size(74, 23);
+            NumMaxDifferentPercentage.TabIndex = 6;
             // 
             // label6
             // 
-            this.label6.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(562, 61);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(79, 13);
-            this.label6.TabIndex = 21;
-            this.label6.Text = "Sort frames by:";
+            label6.Anchor = AnchorStyles.Right;
+            label6.AutoSize = true;
+            label6.Location = new Point(660, 70);
+            label6.Margin = new Padding(4, 0, 4, 0);
+            label6.Name = "label6";
+            label6.Size = new Size(86, 15);
+            label6.TabIndex = 21;
+            label6.Text = "Sort frames by:";
             // 
             // RdbSortByProcessingOrder
             // 
-            this.RdbSortByProcessingOrder.AutoSize = true;
-            this.RdbSortByProcessingOrder.Checked = true;
-            this.RdbSortByProcessingOrder.Location = new System.Drawing.Point(647, 57);
-            this.RdbSortByProcessingOrder.Name = "RdbSortByProcessingOrder";
-            this.RdbSortByProcessingOrder.Size = new System.Drawing.Size(104, 17);
-            this.RdbSortByProcessingOrder.TabIndex = 29;
-            this.RdbSortByProcessingOrder.TabStop = true;
-            this.RdbSortByProcessingOrder.Text = "Processing order";
-            this.RdbSortByProcessingOrder.UseVisualStyleBackColor = true;
-            this.RdbSortByProcessingOrder.CheckedChanged += new System.EventHandler(this.RdbSortByProcessingOrder_CheckedChanged);
+            RdbSortByProcessingOrder.AutoSize = true;
+            RdbSortByProcessingOrder.Checked = true;
+            RdbSortByProcessingOrder.Location = new Point(754, 65);
+            RdbSortByProcessingOrder.Margin = new Padding(4, 3, 4, 3);
+            RdbSortByProcessingOrder.Name = "RdbSortByProcessingOrder";
+            RdbSortByProcessingOrder.Size = new Size(113, 19);
+            RdbSortByProcessingOrder.TabIndex = 29;
+            RdbSortByProcessingOrder.TabStop = true;
+            RdbSortByProcessingOrder.Text = "Processing order";
+            RdbSortByProcessingOrder.UseVisualStyleBackColor = true;
+            RdbSortByProcessingOrder.CheckedChanged += RdbSortByProcessingOrder_CheckedChanged;
             // 
             // RdbSortByTimeline
             // 
-            this.RdbSortByTimeline.AutoSize = true;
-            this.RdbSortByTimeline.Location = new System.Drawing.Point(647, 84);
-            this.RdbSortByTimeline.Name = "RdbSortByTimeline";
-            this.RdbSortByTimeline.Size = new System.Drawing.Size(64, 17);
-            this.RdbSortByTimeline.TabIndex = 30;
-            this.RdbSortByTimeline.Text = "Timeline";
-            this.RdbSortByTimeline.UseVisualStyleBackColor = true;
-            this.RdbSortByTimeline.CheckedChanged += new System.EventHandler(this.RdbSortByVideoTimeline_CheckedChanged);
+            RdbSortByTimeline.AutoSize = true;
+            RdbSortByTimeline.Location = new Point(754, 96);
+            RdbSortByTimeline.Margin = new Padding(4, 3, 4, 3);
+            RdbSortByTimeline.Name = "RdbSortByTimeline";
+            RdbSortByTimeline.Size = new Size(71, 19);
+            RdbSortByTimeline.TabIndex = 30;
+            RdbSortByTimeline.Text = "Timeline";
+            RdbSortByTimeline.UseVisualStyleBackColor = true;
+            RdbSortByTimeline.CheckedChanged += RdbSortByVideoTimeline_CheckedChanged;
             // 
             // StatusTimer
             // 
-            this.StatusTimer.Tick += new System.EventHandler(this.HandleStatusTimerTick);
+            StatusTimer.Tick += HandleStatusTimerTick;
             // 
             // btnClose
             // 
-            this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnClose.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnClose.Location = new System.Drawing.Point(976, 814);
-            this.btnClose.Name = "btnClose";
-            this.btnClose.Size = new System.Drawing.Size(75, 23);
-            this.btnClose.TabIndex = 25;
-            this.btnClose.Text = "&Close";
-            this.btnClose.UseVisualStyleBackColor = true;
-            this.btnClose.Visible = false;
+            btnClose.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnClose.DialogResult = DialogResult.OK;
+            btnClose.Location = new Point(1139, 939);
+            btnClose.Margin = new Padding(4, 3, 4, 3);
+            btnClose.Name = "btnClose";
+            btnClose.Size = new Size(88, 27);
+            btnClose.TabIndex = 25;
+            btnClose.Text = "&Close";
+            btnClose.UseVisualStyleBackColor = true;
+            btnClose.Visible = false;
             // 
             // GrbSettings
             // 
-            this.GrbSettings.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.GrbSettings.Controls.Add(this.TlpSettings);
-            this.GrbSettings.Location = new System.Drawing.Point(12, 12);
-            this.GrbSettings.Name = "GrbSettings";
-            this.GrbSettings.Size = new System.Drawing.Size(1039, 155);
-            this.GrbSettings.TabIndex = 32;
-            this.GrbSettings.TabStop = false;
-            this.GrbSettings.Text = "Settings";
+            GrbSettings.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            GrbSettings.Controls.Add(TlpSettings);
+            GrbSettings.Location = new Point(14, 14);
+            GrbSettings.Margin = new Padding(4, 3, 4, 3);
+            GrbSettings.Name = "GrbSettings";
+            GrbSettings.Padding = new Padding(4, 3, 4, 3);
+            GrbSettings.Size = new Size(1212, 179);
+            GrbSettings.TabIndex = 32;
+            GrbSettings.TabStop = false;
+            GrbSettings.Text = "Settings";
             // 
             // CustomVideoComparisonDlg
             // 
-            this.AcceptButton = this.BtnOkay;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.CancelButton = this.BtnCancel;
-            this.ClientSize = new System.Drawing.Size(1063, 849);
-            this.Controls.Add(this.GrbSettings);
-            this.Controls.Add(this.btnClose);
-            this.Controls.Add(this.BtnCancel);
-            this.Controls.Add(this.BtnOkay);
-            this.Controls.Add(this.PnlResult);
-            this.DoubleBuffered = true;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "CustomVideoComparisonDlg";
-            this.Text = "Custom Video Comparison";
-            this.TlpResult.ResumeLayout(false);
-            this.TlpResult.PerformLayout();
-            this.TlpThirdLoadLevel.ResumeLayout(false);
-            this.TlpThirdLoadLevel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.PibThirdLoadLevel)).EndInit();
-            this.GrbThirdLoadLevel.ResumeLayout(false);
-            this.GrbThirdLoadLevel.PerformLayout();
-            this.TlpSecondLoadLevel.ResumeLayout(false);
-            this.TlpSecondLoadLevel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.PibSecondLoadLevel)).EndInit();
-            this.GrbSecondLoadLevel.ResumeLayout(false);
-            this.GrbSecondLoadLevel.PerformLayout();
-            this.TlpFirstLoadLevel.ResumeLayout(false);
-            this.TlpFirstLoadLevel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.PibFirstLoadLevel)).EndInit();
-            this.GrbFirstLoadLevel.ResumeLayout(false);
-            this.GrbFirstLoadLevel.PerformLayout();
-            this.GrbVideoTimeline.ResumeLayout(false);
-            this.GrbVideoTimeline.PerformLayout();
-            this.TlpProgress.ResumeLayout(false);
-            this.TlpProgress.PerformLayout();
-            this.PnlResult.ResumeLayout(false);
-            this.PnlResult.PerformLayout();
-            this.GrbResult.ResumeLayout(false);
-            this.GrbResult.PerformLayout();
-            this.TlpSettings.ResumeLayout(false);
-            this.TlpSettings.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.TrbMaxFrameComparison)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.TrbMaxDifferentFrames)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.TrbMaxDifferentPercentage)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxFrameComparison)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentFrames)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.NumMaxDifferentPercentage)).EndInit();
-            this.GrbSettings.ResumeLayout(false);
-            this.ResumeLayout(false);
+            AcceptButton = BtnOkay;
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            CancelButton = BtnCancel;
+            ClientSize = new Size(1240, 980);
+            Controls.Add(GrbSettings);
+            Controls.Add(btnClose);
+            Controls.Add(BtnCancel);
+            Controls.Add(BtnOkay);
+            Controls.Add(PnlResult);
+            DoubleBuffered = true;
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            Margin = new Padding(4, 3, 4, 3);
+            Name = "CustomVideoComparisonDlg";
+            Text = "Custom Video Comparison";
+            TlpResult.ResumeLayout(false);
+            TlpResult.PerformLayout();
+            TlpThirdLoadLevel.ResumeLayout(false);
+            TlpThirdLoadLevel.PerformLayout();
+            ((ISupportInitialize)PibThirdLoadLevel).EndInit();
+            GrbThirdLoadLevel.ResumeLayout(false);
+            GrbThirdLoadLevel.PerformLayout();
+            TlpSecondLoadLevel.ResumeLayout(false);
+            TlpSecondLoadLevel.PerformLayout();
+            ((ISupportInitialize)PibSecondLoadLevel).EndInit();
+            GrbSecondLoadLevel.ResumeLayout(false);
+            GrbSecondLoadLevel.PerformLayout();
+            TlpFirstLoadLevel.ResumeLayout(false);
+            TlpFirstLoadLevel.PerformLayout();
+            ((ISupportInitialize)PibFirstLoadLevel).EndInit();
+            GrbFirstLoadLevel.ResumeLayout(false);
+            GrbFirstLoadLevel.PerformLayout();
+            GrbVideoTimeline.ResumeLayout(false);
+            GrbVideoTimeline.PerformLayout();
+            TlpProgress.ResumeLayout(false);
+            TlpProgress.PerformLayout();
+            PnlResult.ResumeLayout(false);
+            PnlResult.PerformLayout();
+            GrbResult.ResumeLayout(false);
+            GrbResult.PerformLayout();
+            TlpSettings.ResumeLayout(false);
+            TlpSettings.PerformLayout();
+            ((ISupportInitialize)TrbMaxFrameComparison).EndInit();
+            ((ISupportInitialize)TrbMaxDifferentFrames).EndInit();
+            ((ISupportInitialize)TrbMaxDifferentPercentage).EndInit();
+            ((ISupportInitialize)NumMaxFrameComparison).EndInit();
+            ((ISupportInitialize)NumMaxDifferentFrames).EndInit();
+            ((ISupportInitialize)NumMaxDifferentPercentage).EndInit();
+            GrbSettings.ResumeLayout(false);
+            ResumeLayout(false);
 
         }
 
